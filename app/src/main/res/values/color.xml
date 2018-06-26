@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="app_color_primary_dark">#007BF5</color>
+    <color name="company_bg_color">#17487A</color>
+    <color name="company_txt_readonly">#DFDFDF</color>"
+    <color name="company_hint_msg">#6790BC</color>
+    <color name="company_nxt_btn">#FF2851</color>
+    <color name="app_accent_color">#00B3F5</color>
+    <color name="app_title_color">#444444</color>
+    <color name="white">#FFFFFF</color>
+    <color name="half_white">#efefef</color>
+    <color name="black">#000000</color>
+    <color name="calendar_weekend_date">#ff0000</color>
+    <color name="calendar_dayview_background">#3f51b5</color>
+    <color name="calendar_daytitle_text">#000000</color>
+    <color name="calendar_lns_event_no_participants">#737373</color>
+    <color name="black_semi_transparent">#B2000000</color>
+    <color name="background">#e5e5e5</color>
+    <color name="half_black">#808080</color>
+    <color name="white_pressed">#f1f1f1</color>
+    <color name="dark_orange">#f98b21</color>
+    <color name="light_orange">#FFF8E1</color>
+    <color name="olive_drab">#46a800</color>
+    <color name="royal_blue">#304ffe</color>
+    <color name="pink">#e91e63</color>
+    <color name="pink_pressed">#8d2649</color>
+    <color name="blue_semi_transparent">#805677fc</color>
+    <color name="blue_semi_transparent_pressed">#80738ffe</color>
+    <color name="approved">#00695c</color>
+    <color name="unapproved">#dc4437</color>
+    <color name="applied">#5c6bc0</color>
+    <color name="grey_black">#696969</color>
+    <color name="white_smoke">#f7f7f7</color>
+    <color name="dark_blue">#7B1FA2</color>
+    <color name="light_blue">#2196F3</color>
+    <color name="dark_pink">#E91E63</color>
+    <color name="blue_transparent">#82AAD3</color>
+    <color name="blue_transparent_pressed">#7BA3CD</color>
+    <color name="light_green">#018687</color>
+    <color name="dark_green_pressed">#00A19B</color>
+    <color name="dark_red">#DC334A</color>
+    <color name="blue_non_pressed">#1DB9DF</color>
+    <color name="dark_blue_non_pressed">#9765AC</color>
+    <color name="indigo_non_pressed">#1A237E</color>
+    <color name="light_indigo_non_pressed">#E3F2FD</color>
+    <color name="dark_maroon">#C62828</color>
+    <color name="light_maroon">#FCE4EC</color>
+
+    <color name="dark_cyan">#009688</color>
+    <color name="light_cyan">#E0F2F1</color>
+    <color name="cyan">#00695C</color>
+    <color name="dark_gray">#9e9e9e</color>
+    <color name="gray_non_pressed">#DFDFDF</color>
+    <color name="grey_non_pressed">#979797</color>
+    <color name="transparent">#00000000</color>
+
+    <!-- Sign-in Button Colors -->
+    <color name="common_signin_btn_dark_text_default">@android:color/white</color>
+    <color name="common_signin_btn_dark_text_pressed">@android:color/white</color>
+    <color name="common_signin_btn_dark_text_disabled">#FFAAAAAA</color>
+    <color name="common_signin_btn_dark_text_focused">@android:color/white</color>
+    <color name="common_signin_btn_light_text_default">#FF737373</color>
+    <color name="common_signin_btn_light_text_pressed">@android:color/white</color>
+    <color name="common_signin_btn_light_text_disabled">#FFAAAAAA</color>
+    <color name="common_signin_btn_light_text_focused">#FF737373</color>
+    <color name="common_signin_btn_default_background">#FFDD4B39</color>
+    <color name="common_action_bar_splitter">#d2d2d2</color>
+    <color name="colorGray">#808080</color>
+    <color name="light_gray">#d7d7d7</color>
+    <color name="medium_green">#4caf50</color>
+    <color name="colorOrange">#FF5722</color>
+    <color name="weekend_color">#546e7a</color>
+    <color name="holiday_cell_backgroundcolor">#BA55D3</color>
+    <color name="approved_cell_background">#3CB371</color>
+    <color name="unapproved_cell_background">#EE0000</color> <!--//#F08080-->
+    <color name="draft_grey">#A9A9A9</color>
+    <color name="today">#ffff66</color>
+    <color name="maroon">#833B00</color>
+    <color name="orange">#E8741A</color>
+    <color name="sky_blue">#42C0F0</color>
+
+
+    <integer-array name="contacts_text_background_colors">
+        <item>0xFF9C27B0</item>
+        <item>0xFFFF5722</item>
+        <item>0xFF3F51B5</item>
+        <item>0xFFDB4437</item>
+        <item>0xFFEF6C00</item>
+        <item>0xFF689F38</item>
+        <item>0xFF757575</item>
+        <item>0xFF0F9D58</item>
+        <item>0xFF3F51B5</item>
+        <item>0xFF0097A7</item>
+    </integer-array>
+
+    <color name="from">#000000</color>
+    <color name="subject">#111111</color>
+    <color name="timestamp">#4285f4</color>
+    <color name="message">#7a7a7a</color>
+    <color name="icon_tint_normal">#7a7a7a</color>
+    <color name="icon_tint_selected">#fed776</color>
+    <color name="row_activated">#e0e0e0</color>
+    <color name="bg_action_mode">#757575</color>
+    <color name="bg_circle_default">#666666</color>
+    <color name="tp_selected_date_color">#1E274C</color>
+
+
+    <!-- //sunpharma actual color code
+     <color name="saddleBrown">#E8741A</color>-->
+
+    <color name="saddleBrown">#8B4513</color>
+
+
+    <color name="pink_color">#FF1493</color>
+    <color name="normal_text_color">#808080</color>
+    <color name="edittext_hint_color">#BEBEBE</color>
+
+</resources>
