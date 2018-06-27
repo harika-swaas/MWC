@@ -42,7 +42,10 @@
             android:id="@+id/login_signin_rl"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@mipmap/ic_login_bg"/>
             <LinearLayout
                 android:id="@+id/login_signin_ll"
                 android:layout_width="match_parent"
@@ -95,7 +98,7 @@
                     android:paddingLeft="24dp"
                     android:paddingRight="10dp"
                     android:paddingTop="10dp"
-                    android:textColor="@color/colorGray"
+                    android:textColor="@color/draft_grey"
                     android:textSize="16sp"
                     android:textStyle="normal" />
 
@@ -113,7 +116,7 @@
                     android:paddingLeft="24dp"
                     android:paddingRight="10dp"
                     android:paddingTop="10dp"
-                    android:textColor="@color/colorGray"
+                    android:textColor="@color/draft_grey"
                     android:textSize="16sp"
                     android:textStyle="normal" />
 
@@ -121,7 +124,7 @@
                     android:id="@+id/sign_in"
                     android:layout_width="match_parent"
                     android:layout_height="45dp"
-                    android:layout_marginTop="20dp"
+                    android:layout_marginTop="30dp"
                     android:background="@drawable/next"
                     android:text="@string/shr_button_next"
                     android:textAlignment="center"
@@ -148,7 +151,7 @@
                     android:gravity="center"
                     android:text="@string/not_logged_in_before"
                     android:textAppearance="?android:textAppearanceMedium"
-                    android:textColor="@color/colorGray"
+                    android:textColor="@color/black_semi_transparent"
                     android:textSize="14sp"/>
 
             </LinearLayout>

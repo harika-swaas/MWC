@@ -28,6 +28,12 @@
             android:screenOrientation="portrait"/>
         <activity android:name=".FTL.FTLPasswordValidationActivity"
             android:screenOrientation="portrait"/>
+        <activity android:name=".Login.Authenticate"/>
+        <activity android:name=".Login.Dashboard"/>
+        <activity android:name=".Login.Notifiy"/>
+        <activity android:name=".Login.Pin"/>
+        <activity android:name=".Login.Touchid"/>
+        <activity android:name=".Login.Verify"/>
 
         <meta-data
             android:name="io.fabric.ApiKey"
