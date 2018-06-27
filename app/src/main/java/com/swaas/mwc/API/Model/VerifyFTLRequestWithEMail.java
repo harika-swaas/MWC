@@ -4,22 +4,17 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 /**
- * Created by harika on 25-06-2018.
+ * Created by harika on 26-06-2018.
  */
 
-public class VerifyFTLRequest {
+public class VerifyFTLRequestWithEMail {
 
     @SerializedName("email")
     @Expose
     private String email;
 
-    @SerializedName("mobile")
-    @Expose
-    private Long mobile;
-
-    public VerifyFTLRequest(String email, Long mobile){
+    public VerifyFTLRequestWithEMail(String email){
         this.email = email;
-        this.mobile = mobile;
     }
 
     public String getEmail() {
@@ -28,13 +23,5 @@ public class VerifyFTLRequest {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public long getMobile() {
-        return mobile;
-    }
-
-    public void setMobile(long mobile) {
-        this.mobile = mobile;
     }
 }

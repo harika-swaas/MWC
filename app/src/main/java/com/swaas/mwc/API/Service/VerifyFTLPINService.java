@@ -4,8 +4,11 @@ import com.swaas.mwc.API.Model.BaseApiResponse;
 import com.swaas.mwc.API.Model.LoginResponse;
 import com.swaas.mwc.API.Model.VerifyFTLPINRequest;
 
+import java.util.Map;
+
 import retrofit.Call;
 import retrofit.http.Body;
+import retrofit.http.FieldMap;
 import retrofit.http.FormUrlEncoded;
 import retrofit.http.POST;
 
@@ -17,5 +20,5 @@ public interface VerifyFTLPINService {
 
     @POST("/verify-ftl-pin")
     @FormUrlEncoded
-    Call<BaseApiResponse<LoginResponse>> getVerifyFTLPIN(@Body VerifyFTLPINRequest verifyFTLPINRequest);
+    Call<BaseApiResponse<LoginResponse>> getVerifyFTLPIN(@FieldMap Map<String,String> params);
 }

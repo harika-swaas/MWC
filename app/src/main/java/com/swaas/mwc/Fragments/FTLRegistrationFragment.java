@@ -23,8 +23,10 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.github.javiersantos.materialstyleddialogs.MaterialStyledDialog;
 import com.github.javiersantos.materialstyleddialogs.enums.Style;
+import com.google.gson.Gson;
 import com.swaas.mwc.API.Model.BaseApiResponse;
 import com.swaas.mwc.API.Model.VerifyFTLRequest;
+import com.swaas.mwc.API.Model.VerifyFTLRequestWithEMail;
 import com.swaas.mwc.API.Model.VerifyFTLResponse;
 import com.swaas.mwc.API.Service.SendFTLPINService;
 import com.swaas.mwc.API.Service.VerifyFTLDetailsService;
@@ -35,7 +37,11 @@ import com.swaas.mwc.R;
 import com.swaas.mwc.Retrofit.RetrofitAPIBuilder;
 import com.swaas.mwc.Utils.Constants;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import dmax.dialog.SpotsDialog;
+import okhttp3.FormBody;
 import retrofit.Call;
 import retrofit.Callback;
 import retrofit.Response;
@@ -167,20 +173,28 @@ public class FTLRegistrationFragment extends Fragment {
 
     private void verifyFTLDetailsWithEmail() {
 
-        String email = inputEmail.getText().toString().trim();
+        final String email = inputEmail.getText().toString().trim();
         if (validateEmail()) {
             if (NetworkUtils.isNetworkAvailable(mActivity)) {
                 /*final ProgressDialog mProgressDialog = new ProgressDialog(mActivity);
                 mProgressDialog.setIndeterminate(true);
                 mProgressDialog.setMessage("Loading...");
                 mProgressDialog.show();*/
+
                 final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
                 dialog.show();
                 Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+
                 final VerifyFTLDetailsService verifyFTLDetailsService = retrofitAPI.create(VerifyFTLDetailsService.class);
-                VerifyFTLRequest mVerifyFTLRequest = new VerifyFTLRequest();
-                mVerifyFTLRequest.setEmail(email);
-                Call call = verifyFTLDetailsService.getVerifyFTLDetails(mVerifyFTLRequest);
+
+                VerifyFTLRequestWithEMail mVerifyFTLRequest = new VerifyFTLRequestWithEMail(email);
+                String request = new Gson().toJson(mVerifyFTLRequest);
+                //Here the json data is add to a hash map with key data
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("data", request);
+
+                Call call = verifyFTLDetailsService.getVerifyFTLDetailsWithEmail(params);
+
                 call.enqueue(new Callback<BaseApiResponse<VerifyFTLResponse>>() {
                     @Override
                     public void onResponse(Response<BaseApiResponse<VerifyFTLResponse>> response, Retrofit retrofit) {
@@ -191,15 +205,39 @@ public class FTLRegistrationFragment extends Fragment {
                                 VerifyFTLResponse mVerifyFTLResponse = response.body().getData();
 
                                 dialog.dismiss();
-                                Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
 
                                 if (mVerifyFTLResponse != null) {
+                                    Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
                                     if (mVerifyFTLResponse.isCheck_mobile() == true) {
                                         inputLayoutMobile.setVisibility(View.VISIBLE);
                                         verifyFTLDetailsWithMobile();
                                     } else {
                                         inputLayoutMobile.setVisibility(View.GONE);
                                     }
+                                } else {
+                                    Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
+                                    MaterialStyledDialog dialog = new MaterialStyledDialog.Builder(mActivity)
+                                            .setTitle("Pin verification")
+                                            .setDescription(getString(R.string.pin_verification_dialog_msg))
+                                            // .setStyle(Style.HEADER_WITH_ICON)
+                                            .setStyle(Style.HEADER_WITH_TITLE)
+                                            .setPositiveText(R.string.send_pin)
+                                            .setNegativeText(R.string.cancel)
+                                            .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                                @Override
+                                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                                    dialog.dismiss();
+                                                    sendFTLPin(email);
+                                                }
+                                            })
+                                            .onNegative(new MaterialDialog.SingleButtonCallback() {
+                                                @Override
+                                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                                    dialog.dismiss();
+                                                }
+                                            })
+                                            .build();
+                                    dialog.show();
                                 }
                             } else {
                                 String mMessage = apiResponse.status.getMessage().toString();
@@ -221,22 +259,29 @@ public class FTLRegistrationFragment extends Fragment {
 
     private void verifyFTLDetailsWithMobile() {
 
-        String email = inputEmail.getText().toString().trim();
-        String mobile = inputMobile.getText().toString().trim();
+        final String email = inputEmail.getText().toString().trim();
+        final String mobile = inputMobile.getText().toString().trim();
+
+        final Long mMobile = Long.parseLong(mobile);
+
         if (validateEmail() && validateMobile()) {
             if (NetworkUtils.isNetworkAvailable(mActivity)) {
-                /*final ProgressDialog mProgressDialog = new ProgressDialog(mActivity);
-                mProgressDialog.setIndeterminate(true);
-                mProgressDialog.setMessage("Loading...");
-                mProgressDialog.show();*/
+
                 final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
                 dialog.show();
                 Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+
                 final VerifyFTLDetailsService verifyFTLDetailsService = retrofitAPI.create(VerifyFTLDetailsService.class);
-                VerifyFTLRequest mVerifyFTLRequest = new VerifyFTLRequest();
-                mVerifyFTLRequest.setEmail(email);
-                mVerifyFTLRequest.setMobile(Integer.parseInt(mobile));
-                Call call = verifyFTLDetailsService.getVerifyFTLDetails(mVerifyFTLRequest);
+
+                VerifyFTLRequest mVerifyFTLRequest = new VerifyFTLRequest(email, mMobile);
+                String request = new Gson().toJson(mVerifyFTLRequest);
+
+                //Here the json data is add to a hash map with key data
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("data", request);
+
+                Call call = verifyFTLDetailsService.getVerifyFTLDetails(params);
+
                 call.enqueue(new Callback<BaseApiResponse<VerifyFTLResponse>>() {
                     @Override
                     public void onResponse(Response<BaseApiResponse<VerifyFTLResponse>> response, Retrofit retrofit) {
@@ -261,7 +306,7 @@ public class FTLRegistrationFragment extends Fragment {
                                                 @Override
                                                 public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                                                     dialog.dismiss();
-                                                    sendFTLPin();
+                                                    sendFTLPinWithMobile(email, mMobile);
                                                 }
                                             })
                                             .onNegative(new MaterialDialog.SingleButtonCallback() {
@@ -272,6 +317,29 @@ public class FTLRegistrationFragment extends Fragment {
                                             })
                                             .build();
                                            dialog.show();
+                                } else {
+                                    MaterialStyledDialog dialog = new MaterialStyledDialog.Builder(mActivity)
+                                            .setTitle("Pin verification")
+                                            .setDescription(getString(R.string.pin_verification_dialog_msg))
+                                            // .setStyle(Style.HEADER_WITH_ICON)
+                                            .setStyle(Style.HEADER_WITH_TITLE)
+                                            .setPositiveText(R.string.send_pin)
+                                            .setNegativeText(R.string.cancel)
+                                            .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                                @Override
+                                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                                    dialog.dismiss();
+                                                    sendFTLPinWithMobile(email, mMobile);
+                                                }
+                                            })
+                                            .onNegative(new MaterialDialog.SingleButtonCallback() {
+                                                @Override
+                                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                                    dialog.dismiss();
+                                                }
+                                            })
+                                            .build();
+                                    dialog.show();
                                 }
                             } else {
                                 String mMessage = apiResponse.status.getMessage().toString();
@@ -291,17 +359,21 @@ public class FTLRegistrationFragment extends Fragment {
         }
     }
 
-    private void sendFTLPin() {
+    private void sendFTLPin(final String email) {
 
-        final String email = inputEmail.getText().toString().trim();
-        final String mobile = inputMobile.getText().toString().trim();
         if(NetworkUtils.isNetworkAvailable(mActivity)){
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
             final SendFTLPINService sendFTLPINService = retrofitAPI.create(SendFTLPINService.class);
-            VerifyFTLRequest mVerifyFTLRequest = new VerifyFTLRequest();
-            mVerifyFTLRequest.setEmail(email);
-            mVerifyFTLRequest.setMobile(Integer.parseInt(mobile));
-            Call call = sendFTLPINService.getFTLPIN(mVerifyFTLRequest);
+
+            VerifyFTLRequest mVerifyFTLRequest = new VerifyFTLRequest(email, null);
+
+            String request = new Gson().toJson(mVerifyFTLRequest);
+            //Here the json data is add to a hash map with key data
+            Map<String,String> params = new HashMap<String, String>();
+            params.put("data", request);
+
+            Call call = sendFTLPINService.getFTLPIN(params);
+
             call.enqueue(new Callback<BaseApiResponse<VerifyFTLResponse>>() {
                 @Override
                 public void onResponse(Response<BaseApiResponse<VerifyFTLResponse>> response, Retrofit retrofit) {
@@ -309,17 +381,15 @@ public class FTLRegistrationFragment extends Fragment {
                     if (apiResponse != null) {
                         if (apiResponse.status.isCode() == false) {
                             String mMessage = apiResponse.status.getMessage().toString();
-                            Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
+                          //  Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
+                            Intent mIntent = new Intent(mActivity, FTLPinVerificationActivity.class);
+                            mIntent.putExtra(Constants.EMAIL, email);
+                            startActivity(mIntent);
+                            mActivity.finish();
                         } else {
                             String mMessage = apiResponse.status.getMessage().toString();
                             Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
                         }
-
-                        Intent mIntent = new Intent(mActivity, FTLPinVerificationActivity.class);
-                        mIntent.putExtra(Constants.EMAIL, email);
-                        mIntent.putExtra(Constants.MOBILE, mobile);
-                        startActivity(mIntent);
-                        mActivity.finish();
                     }
                 }
 
@@ -330,6 +400,49 @@ public class FTLRegistrationFragment extends Fragment {
             });
         }
     }
+
+    private void sendFTLPinWithMobile(final String email, final long mobile) {
+
+        if(NetworkUtils.isNetworkAvailable(mActivity)){
+            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+            final SendFTLPINService sendFTLPINService = retrofitAPI.create(SendFTLPINService.class);
+
+            VerifyFTLRequest mVerifyFTLRequest = new VerifyFTLRequest(email, mobile);
+
+            String request = new Gson().toJson(mVerifyFTLRequest);
+            //Here the json data is add to a hash map with key data
+            Map<String,String> params = new HashMap<String, String>();
+            params.put("data", request);
+
+            Call call = sendFTLPINService.getFTLPIN(params);
+            call.enqueue(new Callback<BaseApiResponse<VerifyFTLResponse>>() {
+                @Override
+                public void onResponse(Response<BaseApiResponse<VerifyFTLResponse>> response, Retrofit retrofit) {
+                    BaseApiResponse apiResponse = response.body();
+                    if (apiResponse != null) {
+                        if (apiResponse.status.isCode() == false) {
+                            String mMessage = apiResponse.status.getMessage().toString();
+                          //  Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
+                            Intent mIntent = new Intent(mActivity, FTLPinVerificationActivity.class);
+                            mIntent.putExtra(Constants.EMAIL, email);
+                            mIntent.putExtra(Constants.MOBILE, mobile);
+                            startActivity(mIntent);
+                            mActivity.finish();
+                        } else {
+                            String mMessage = apiResponse.status.getMessage().toString();
+                            Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    Toast.makeText(mActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+
 
     private static boolean isValidEmail(String email) {
         return !TextUtils.isEmpty(email) && android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();

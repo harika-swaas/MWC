@@ -7,7 +7,7 @@ package com.swaas.mwc.Utils;
 public class Constants {
 
     // ***************************** Testing ********************************************
-       public static final String COMPANY_BASE_URL = "https://app1.mywealthcloud.com";
+       public static final String COMPANY_BASE_URL = "http://172.16.40.50";
 
     // ***************************** Production ********************************************
      // public static final String COMPANY_BASE_URL = ""; // Prod
@@ -15,6 +15,8 @@ public class Constants {
     public static final String EMAIL = "email";
     public static final String MOBILE = "mobile";
 
+    public static final String USERNAME = "user_name";
+    public static final String WELCOME_MSG = "welcome_msg";
     public static final String TEXT_BACKGROUND_COLOR = "text_background_color";
     public static final String TEXT_FOREGROUND_COLOR = "text_foreground_color";
     public static final String APP_BACKGROUND_COLOR = "app_background_color";

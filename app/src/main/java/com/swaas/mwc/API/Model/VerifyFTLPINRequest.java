@@ -15,11 +15,17 @@ public class VerifyFTLPINRequest {
 
     @SerializedName("mobile")
     @Expose
-    private int mobile;
+    private Long mobile;
 
     @SerializedName("pin")
     @Expose
     private int pin;
+
+    public VerifyFTLPINRequest(String email, Long mobile, int pin){
+        this.email = email;
+        this.mobile = mobile;
+        this.pin = pin;
+    }
 
     public String getEmail() {
         return email;
@@ -29,11 +35,11 @@ public class VerifyFTLPINRequest {
         this.email = email;
     }
 
-    public int getMobile() {
+    public Long getMobile() {
         return mobile;
     }
 
-    public void setMobile(int mobile) {
+    public void setMobile(Long mobile) {
         this.mobile = mobile;
     }
 
