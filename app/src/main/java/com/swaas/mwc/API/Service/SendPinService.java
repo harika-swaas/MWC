@@ -7,6 +7,7 @@ import retrofit.http.Header;
 import retrofit.http.Headers;
 import retrofit.http.POST;
 import com.swaas.mwc.API.Model.BaseApiResponse;
+import com.swaas.mwc.API.Model.ListPinDevicesResponse;
 import com.swaas.mwc.API.Model.LoginResponse;
 
 import java.util.Map;
@@ -19,5 +20,6 @@ import java.util.Map;
 public interface SendPinService {
     @Headers("content-type: application/x-www-form-urlencoded")
     @POST("/send-pin")
-    Call<BaseApiResponse<LoginResponse>> getSendPin(@FieldMap Map<String, String> params,@Header("access-token") String accessToken);
+    @FormUrlEncoded
+    Call<ListPinDevicesResponse<LoginResponse>> getSendPin(@FieldMap Map<String, String> params, @Header("access-token") String accessToken);
 }

@@ -29,12 +29,20 @@
             android:screenOrientation="portrait"/>
         <activity android:name=".FTL.FTLPasswordValidationActivity"
             android:screenOrientation="portrait"/>
-        <activity android:name=".Login.Authenticate"/>
-        <activity android:name=".Login.Dashboard"/>
-        <activity android:name=".Login.Notifiy"/>
-        <activity android:name=".Login.Pin"/>
-        <activity android:name=".Login.Touchid"/>
-        <activity android:name=".Login.Verify"/>
+        <activity android:name=".Login.Authenticate"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".Login.Dashboard"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".Login.Notifiy"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".Login.PinVerificationActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".Login.Touchid"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".Login.Verify"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".FTL.FTLAgreeTermsAcceptanceActivity"
+            android:screenOrientation="portrait"/>
 
         <meta-data
             android:name="io.fabric.ApiKey"

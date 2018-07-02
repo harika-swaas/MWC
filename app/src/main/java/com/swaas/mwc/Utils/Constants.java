@@ -20,6 +20,7 @@ public class Constants {
     public static final String WELCOME_MSG = "welcome_msg";
     public static final String ACCESSTOKEN = "access-token";
     public static final String SETTERMS = "set-terms";
+    public static final String IS_FROM_LOGIN = "is-from-login";
     public static final String TEXT_BACKGROUND_COLOR = "text_background_color";
     public static final String TEXT_FOREGROUND_COLOR = "text_foreground_color";
     public static final String APP_BACKGROUND_COLOR = "app_background_color";

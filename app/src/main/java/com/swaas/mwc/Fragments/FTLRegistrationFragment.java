@@ -2,6 +2,7 @@ package com.swaas.mwc.Fragments;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -17,6 +18,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
@@ -37,6 +39,7 @@ import com.swaas.mwc.R;
 import com.swaas.mwc.Retrofit.RetrofitAPIBuilder;
 import com.swaas.mwc.Utils.Constants;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,6 +63,7 @@ public class FTLRegistrationFragment extends Fragment {
     EditText inputEmail;
     EditText inputMobile;
     TextInputLayout inputLayoutEmail, inputLayoutMobile;
+    AlertDialog mAlertDialog;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -215,7 +219,6 @@ public class FTLRegistrationFragment extends Fragment {
                                         inputLayoutMobile.setVisibility(View.GONE);
                                     }
                                 } else {
-                                  //  Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
                                     MaterialStyledDialog dialog = new MaterialStyledDialog.Builder(mActivity)
                                             .setTitle("Pin verification")
                                             .setDescription(getString(R.string.pin_verification_dialog_msg))
@@ -238,6 +241,39 @@ public class FTLRegistrationFragment extends Fragment {
                                             })
                                             .build();
                                     dialog.show();
+
+                                    /*final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+                                    LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                    View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+                                    builder.setView(view);
+                                    builder.setCancelable(false);
+
+                                    TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+                                    txtMessage.setText(getString(R.string.pin_verification_dialog_msg));
+
+                                    Button sendPinButton = (Button) view.findViewById(R.id.cancel_button);
+                                    Button cancelButton = (Button) view.findViewById(R.id.send_pin_button);
+
+                                    sendPinButton.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            mAlertDialog.dismiss();
+                                            dialog.dismiss();
+                                            sendFTLPin(email);
+                                        }
+                                    });
+
+                                    cancelButton.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            mAlertDialog.dismiss();
+                                            dialog.dismiss();
+                                        }
+                                    });
+
+                                    mAlertDialog = builder.create();
+                                    mAlertDialog.show();*/
                                 }
                             } else {
                                 String mMessage = apiResponse.status.getMessage().toString();

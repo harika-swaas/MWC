@@ -15,6 +15,7 @@ import com.google.gson.Gson;
 import com.swaas.mwc.API.Model.BaseApiResponse;
 import com.swaas.mwc.API.Model.FTLProcessResponse;
 import com.swaas.mwc.API.Model.LoginResponse;
+import com.swaas.mwc.API.Model.VerifyPinRequest;
 import com.swaas.mwc.API.Service.FTLProcessService;
 import com.swaas.mwc.API.Service.SendPinService;
 import com.swaas.mwc.API.Service.VerifyPinService;
@@ -39,57 +40,55 @@ public class Verify extends Activity {
     Verify vActivity;
     Button button3;
     TextView text;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.verify);
-        button3 = (Button)findViewById(R.id.verify_button);
+        button3 = (Button) findViewById(R.id.verify_button);
         button3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
                 verifyPin();
 
-
-
-                /*Intent intent = new Intent(view.getContext(),Touchid.class);
-                view.getContext().startActivity(intent);*/}
-        });
-        text =(TextView)findViewById(R.id.resend_pin);
-        text.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final Dialog dialog = new Dialog(Verify.this);
-
-                dialog.setContentView(R.layout.resend_pin_alert);
-                dialog.setTitle("Custom Alert Dialog");
-
-                final TextView Text = (TextView) dialog.findViewById(R.id.Text);
-                final TextView Text1 = (TextView) dialog.findViewById(R.id.Text1);
-                Button btnallow       = (Button) dialog.findViewById(R.id.cancel);
-                Button btnCancel        = (Button) dialog.findViewById(R.id.save);
-                dialog.show();
-
-                btnallow.setOnClickListener(new View.OnClickListener() {
+                text = (TextView) findViewById(R.id.resend_pin);
+                text.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        final Dialog dialog = new Dialog(Verify.this);
+
+                        dialog.setContentView(R.layout.resend_pin_alert);
+                        dialog.setTitle("Custom Alert Dialog");
+
+                        final TextView Text = (TextView) dialog.findViewById(R.id.Text);
+                        final TextView Text1 = (TextView) dialog.findViewById(R.id.Text1);
+                        Button btnallow = (Button) dialog.findViewById(R.id.cancel);
+                        Button btnCancel = (Button) dialog.findViewById(R.id.save);
+                        dialog.show();
+
+                        btnallow.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
                         /*Intent intent = new Intent(Verify.this,Dashboard.class);
                         startActivity(intent);*/
-                        dialog.dismiss();
-                    }
-                });
+                                dialog.dismiss();
+                            }
+                        });
 
-                btnCancel.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        dialog.dismiss();
+                        btnCancel.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                dialog.dismiss();
+                            }
+                        });
+
                     }
+
                 });
 
             }
-
         });
-
     }
 
     public void verifyPin() {
@@ -98,13 +97,12 @@ public class Verify extends Activity {
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
             final VerifyPinService verifyPinService = retrofitAPI.create(VerifyPinService.class);
 
-
             String request = new Gson().toJson(verifyPinService);
             //Here the json data is add to a hash map with key data
-            Map<String,String> params = new HashMap<String, String>();
+            Map<String, String> params = new HashMap<String, String>();
             params.put("data", request);
 
-            Call call = verifyPinService.getVerifyPin(params, PreferenceUtils.getAccessToken(this));
+            Call call = verifyPinService.getVerifyPin(params, PreferenceUtils.getAccessToken(vActivity));
 
             call.enqueue(new Callback<BaseApiResponse<LoginResponse>>() {
                 @Override
@@ -114,7 +112,7 @@ public class Verify extends Activity {
                         if (apiResponse.status.isCode() == false) {
                             String mMessage = apiResponse.status.getMessage().toString();
                             Toast.makeText(vActivity, mMessage, Toast.LENGTH_SHORT).show();
-                            Intent intent = new Intent(Verify.this,Verify.class);
+                            Intent intent = new Intent(Verify.this, Verify.class);
                             startActivity(intent);
                             vActivity.finish();
                         } else {
@@ -131,5 +129,7 @@ public class Verify extends Activity {
             });
         }
     }
-    }
+}
+
+
 

@@ -68,7 +68,4 @@ public class ListPinDevices {
     public void setDevice_type(String device_type) {
         this.device_type = device_type;
     }
-
-
-
 }

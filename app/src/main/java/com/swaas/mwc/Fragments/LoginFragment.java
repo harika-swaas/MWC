@@ -16,14 +16,13 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.squareup.okhttp.OkHttpClient;
-import com.swaas.mwc.API.Model.ApiResponse;
 import com.swaas.mwc.API.Model.BaseApiResponse;
 import com.swaas.mwc.API.Model.LoginRequest;
 import com.swaas.mwc.API.Model.LoginResponse;
 import com.swaas.mwc.API.Service.LoginService;
 import com.swaas.mwc.FTL.FTLActivity;
 import com.swaas.mwc.Login.LoginActivity;
-import com.swaas.mwc.Login.Pin;
+import com.swaas.mwc.Login.PinVerificationActivity;
 import com.swaas.mwc.Network.NetworkUtils;
 import com.swaas.mwc.Preference.PreferenceUtils;
 import com.swaas.mwc.R;
@@ -124,12 +123,12 @@ public class LoginFragment extends Fragment {
                                         startActivity(new Intent(mActivity, FTLActivity.class));
                                         if(mLoginResponse.nextStep != null){
                                             if(mLoginResponse.nextStep.isPin_authentication_required() == true) {
-                                                Intent intent = new Intent(mActivity, Pin.class);
+                                                Intent intent = new Intent(mActivity, PinVerificationActivity.class);
                                                 startActivity(intent);
                                             }
                                             else
                                             {
-                                                Intent intent = new Intent(mActivity, Pin.class);
+                                                Intent intent = new Intent(mActivity, PinVerificationActivity.class);
                                                 startActivity(intent);
                                             }
                                         }

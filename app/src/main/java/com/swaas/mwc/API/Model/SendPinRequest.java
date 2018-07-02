@@ -9,18 +9,19 @@ import com.google.gson.annotations.SerializedName;
 
 public class SendPinRequest {
 
-
     @SerializedName("user_pin_device_id")
     @Expose
+    private String user_pin_device_id;
 
-    private int user_pin_device_id;
-
-    public int getUser_pin_device_id() {
-        return user_pin_device_id;
-    }
-
-    public void setUser_pin_device_id(int user_pin_device_id) {
+    public SendPinRequest(String user_pin_device_id){
         this.user_pin_device_id = user_pin_device_id;
     }
 
+    public String getUser_pin_device_id() {
+        return user_pin_device_id;
+    }
+
+    public void setUser_pin_device_id(String user_pin_device_id) {
+        this.user_pin_device_id = user_pin_device_id;
+    }
 }

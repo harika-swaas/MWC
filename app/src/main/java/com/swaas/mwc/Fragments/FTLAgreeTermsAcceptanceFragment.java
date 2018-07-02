@@ -94,10 +94,30 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
     }
 
     private void setLinkTextView() {
-
-        String completeString = getResources().getString(R.string.set_terms_acceptance_txt);
+        /*String completeString = getResources().getString(R.string.set_terms_acceptance_txt);
         String partToClick = "Terms,Data Policy";
-        setClickableString(partToClick,completeString,setAcceptanceTerms);
+        setClickableString(partToClick,completeString,setAcceptanceTerms);*/
+
+        SpannableString spannableString = new SpannableString(getString(R.string.set_terms_acceptance_txt));
+        ClickableSpan clickableSpan = new ClickableSpan() {
+            @Override
+            public void onClick(View textView) {
+                String mUri = PreferenceUtils.getTermsURL(mActivity);
+                Intent mIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(mUri));
+                startActivity(mIntent);
+            }
+
+            @Override
+            public void updateDrawState(TextPaint ds) {
+                super.updateDrawState(ds);
+                ds.setUnderlineText(false); // set to false to remove underline
+            }
+        };
+        spannableString.setSpan(clickableSpan, 41,
+                59, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        setAcceptanceTerms.setText(spannableString,
+                TextView.BufferType.SPANNABLE);
+        setAcceptanceTerms.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
     public void setClickableString(String clickableValue, String wholeValue, TextView yourTextView){

@@ -66,4 +66,7 @@
     <string name="your_message_here">Your message here</string>
     <string name="err_msg_password">Please enter valid password</string>
     <string name="err_msg_confirm_password">Please enter valid confirm password</string>
+    <string name="err_msg_pin_number">Please provide valid pin number</string>
+    <string name="Mobile">Mobile</string>
+    <string name="Email">Email</string>
 </resources>
