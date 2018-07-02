@@ -1,6 +1,7 @@
 package com.swaas.mwc.Fragments;
 
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -9,6 +10,7 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,15 +25,19 @@ import com.github.javiersantos.materialstyleddialogs.MaterialStyledDialog;
 import com.github.javiersantos.materialstyleddialogs.enums.Style;
 import com.google.gson.Gson;
 import com.swaas.mwc.API.Model.BaseApiResponse;
+import com.swaas.mwc.API.Model.FTLPINResponse;
 import com.swaas.mwc.API.Model.LoginResponse;
 import com.swaas.mwc.API.Model.VerifyFTLPINRequest;
 import com.swaas.mwc.API.Model.VerifyFTLRequest;
 import com.swaas.mwc.API.Model.VerifyFTLResponse;
 import com.swaas.mwc.API.Service.SendFTLPINService;
 import com.swaas.mwc.API.Service.VerifyFTLPINService;
+import com.swaas.mwc.Components.LinkTextView;
 import com.swaas.mwc.FTL.FTLPinVerificationActivity;
 import com.swaas.mwc.FTL.FTLUserValidationActivity;
+import com.swaas.mwc.Login.LoginActivity;
 import com.swaas.mwc.Network.NetworkUtils;
+import com.swaas.mwc.Preference.PreferenceUtils;
 import com.swaas.mwc.R;
 import com.swaas.mwc.Retrofit.RetrofitAPIBuilder;
 import com.swaas.mwc.Utils.Constants;
@@ -58,6 +64,7 @@ public class FTLPinVerificationFragment extends Fragment {
     EditText inputPIN;
     String mEmail,mMobile;
     Long mobileNo;
+    LinkTextView linkResendView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -78,6 +85,7 @@ public class FTLPinVerificationFragment extends Fragment {
 
     private void intializeViews() {
 
+        linkResendView = (LinkTextView) mView.findViewById(R.id.resend_pin);
         inputLayoutPINNumber = (TextInputLayout) mView.findViewById(R.id.input_layout_pin_number);
         inputPIN = (EditText) mView.findViewById(R.id.input_pin_number);
         mNext = (Button) mView.findViewById(R.id.next_button);
@@ -105,6 +113,13 @@ public class FTLPinVerificationFragment extends Fragment {
 
                 verifyFTLPINDetails();
                 verifyPINInFTLProcess();
+            }
+        });
+
+        linkResendView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendFTLPin();
             }
         });
     }
@@ -163,7 +178,6 @@ public class FTLPinVerificationFragment extends Fragment {
     private void verifyPINInFTLProcess() {
         String pinNo = inputPIN.getText().toString().trim();
 
-
         int mPin = Integer.parseInt(pinNo);
 
         if(NetworkUtils.isNetworkAvailable(mActivity)){
@@ -188,27 +202,24 @@ public class FTLPinVerificationFragment extends Fragment {
 
             Call call = verifyFTLPINService.getVerifyFTLPIN(params);
 
-            call.enqueue(new Callback<BaseApiResponse<LoginResponse>>() {
+            call.enqueue(new Callback<BaseApiResponse<FTLPINResponse>>() {
                 @Override
-                public void onResponse(Response<BaseApiResponse<LoginResponse>> response, Retrofit retrofit) {
+                public void onResponse(Response<BaseApiResponse<FTLPINResponse>> response, Retrofit retrofit) {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
                         if (apiResponse.status.isCode() == false) {
                             dialog.dismiss();
                             String mMessage = apiResponse.status.getMessage().toString();
-                            Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
-                            LoginResponse mLoginResponse = response.body().getData();
-                            if(mLoginResponse != null){
-                                String text_background_color = mLoginResponse.getText_background_color();
-                                String text_foreground_color = mLoginResponse.getText_foreground_color();
-                                String app_background_color = mLoginResponse.getApp_background_color();
+                         //   Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
+                            FTLPINResponse mFTLPINResponse = response.body().getData();
+                            if(mFTLPINResponse != null){
+                                String accessToken = mFTLPINResponse.getAccessToken();
+                                PreferenceUtils.setAccessToken(mActivity,accessToken);
 
-                                if(mLoginResponse.nextStep != null){
-                                    if(mLoginResponse.nextStep.isFtl_required() == true){
+                                if(mFTLPINResponse.nextStep != null){
+                                    if(mFTLPINResponse.nextStep.isFtl_required() == true){
                                         Intent mIntent = new Intent(mActivity,FTLUserValidationActivity.class);
-                                        mIntent.putExtra(Constants.TEXT_BACKGROUND_COLOR,text_background_color);
-                                        mIntent.putExtra(Constants.TEXT_FOREGROUND_COLOR,text_foreground_color);
-                                        mIntent.putExtra(Constants.APP_BACKGROUND_COLOR,app_background_color);
+                                        mIntent.putExtra(Constants.ACCESSTOKEN,accessToken);
                                         startActivity(mIntent);
                                         mActivity.finish();
                                     }
@@ -217,13 +228,13 @@ public class FTLPinVerificationFragment extends Fragment {
                         } else {
                             dialog.dismiss();
                             String mMessage = apiResponse.status.getMessage().toString();
-                            Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
-                            LoginResponse mLoginResponse = response.body().getData();
-                            if(mLoginResponse != null) {
-                                if (mLoginResponse.isRequest_pin() == true) {
+
+                            FTLPINResponse mFTLPINResponse = response.body().getData();
+                            if(mFTLPINResponse != null) {
+                                if (mFTLPINResponse.isRequest_pin() == true) {
                                     MaterialStyledDialog dialog = new MaterialStyledDialog.Builder(mActivity)
                                             .setTitle("Pin verification")
-                                            .setDescription(getString(R.string.pin_verification_dialog_msg))
+                                            .setDescription(mMessage)
                                             // .setStyle(Style.HEADER_WITH_ICON)
                                             .setStyle(Style.HEADER_WITH_TITLE)
                                             .setPositiveText(R.string.send_again_pin)
@@ -243,9 +254,29 @@ public class FTLPinVerificationFragment extends Fragment {
                                             })
                                             .build();
                                     dialog.show();
+                                } else if (mFTLPINResponse.isFtl_complete() == true){
+                                    // Showing Alert Dialog
+                                    AlertDialog mDialog = new AlertDialog.Builder(mActivity).create();
+                                    // Setting Dialog Title
+                                    mDialog.setTitle("Alert");
+                                    // Setting Dialog Message
+                                    mDialog.setMessage(mMessage);
+
+                                    // Setting OK Button
+                                    mDialog.setButton("OK", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            // Write your code here to execute after dialog closed
+                                            startActivity(new Intent(mActivity,LoginActivity.class));
+                                        }
+                                    });
+
+                                    // Showing Alert Message
+                                    mDialog.show();
                                 }
+                            } else {
+                                mActivity.showMessagebox(mActivity,mMessage,null,false);
+                              //  Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
                             }
-                           // Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
@@ -253,7 +284,6 @@ public class FTLPinVerificationFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     dialog.dismiss();
-                    Toast.makeText(mActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -267,9 +297,9 @@ public class FTLPinVerificationFragment extends Fragment {
 
             VerifyFTLRequest mVerifyFTLRequest = null;
             if(mobileNo != null){
-                mVerifyFTLRequest = new VerifyFTLRequest(mEmail, null);
-            } else {
                 mVerifyFTLRequest = new VerifyFTLRequest(mEmail, mobileNo);
+            } else {
+                mVerifyFTLRequest = new VerifyFTLRequest(mEmail, null);
             }
 
             String request = new Gson().toJson(mVerifyFTLRequest);
@@ -286,20 +316,21 @@ public class FTLPinVerificationFragment extends Fragment {
                     if (apiResponse != null) {
                         if (apiResponse.status.isCode() == false) {
                             String mMessage = apiResponse.status.getMessage().toString();
-                            Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
+                           // Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
                             Intent mIntent = new Intent(mActivity,FTLUserValidationActivity.class);
                             startActivity(mIntent);
                             mActivity.finish();
                         } else {
                             String mMessage = apiResponse.status.getMessage().toString();
-                            Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
+                            mActivity.showMessagebox(mActivity,mMessage,null,false);
+                           // Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
-                    Toast.makeText(mActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.d("PINVerErr",t.getMessage());
                 }
             });
         }

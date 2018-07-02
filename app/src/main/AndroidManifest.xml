@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.swaas.mwc">
-
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY"/>
     <application
         android:name=".MWCApplication"
         android:allowBackup="true"
@@ -28,6 +29,12 @@
             android:screenOrientation="portrait"/>
         <activity android:name=".FTL.FTLPasswordValidationActivity"
             android:screenOrientation="portrait"/>
+        <activity android:name=".Login.Authenticate"/>
+        <activity android:name=".Login.Dashboard"/>
+        <activity android:name=".Login.Notifiy"/>
+        <activity android:name=".Login.Pin"/>
+        <activity android:name=".Login.Touchid"/>
+        <activity android:name=".Login.Verify"/>
 
         <meta-data
             android:name="io.fabric.ApiKey"

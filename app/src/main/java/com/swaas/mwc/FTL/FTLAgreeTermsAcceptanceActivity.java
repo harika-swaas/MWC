@@ -6,12 +6,13 @@ import android.view.MenuItem;
 
 import com.swaas.mwc.Fragments.FTLAgreeTermsAcceptanceFragment;
 import com.swaas.mwc.R;
+import com.swaas.mwc.RootActivity;
 
 /**
  * Created by harika on 25-06-2018.
  */
 
-public class FTLAgreeTermsAcceptanceActivity extends AppCompatActivity {
+public class FTLAgreeTermsAcceptanceActivity extends RootActivity {
 
     FTLAgreeTermsAcceptanceFragment mFTLAgreeTermsAcceptanceFragment;
 

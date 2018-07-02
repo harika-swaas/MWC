@@ -20,10 +20,10 @@
             android:layout_margin="10dp">
 
             <TextView
+                android:id="@+id/title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="SOCH"
-                android:id="@id/title"
+                android:text="@string/alert"
                 android:textColor="#f1f1f1"
                 android:textSize="18dp"/>
 
@@ -51,7 +51,7 @@
                 android:id="@+id/text_dialog"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Your message here"/>
+                android:text="@string/your_message_here"/>
 
         </LinearLayout>
 
@@ -72,20 +72,11 @@
             android:layout_marginRight="20dp">
 
             <Button
-                android:id="@+id/later_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="LATER"
-                android:textColor="@color/dark_cyan"
-                android:background="?android:attr/selectableItemBackground"
-                />
-
-            <Button
                 android:id="@+id/ok_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Ok"
-                android:textColor="@color/dark_cyan"
+                android:text="@string/ok"
+                android:textColor="#2c53a2"
                 android:background="?android:attr/selectableItemBackground" />
 
         </LinearLayout>

@@ -14,6 +14,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.squareup.okhttp.OkHttpClient;
 import com.swaas.mwc.API.Model.ApiResponse;
 import com.swaas.mwc.API.Model.BaseApiResponse;
@@ -22,11 +23,14 @@ import com.swaas.mwc.API.Model.LoginResponse;
 import com.swaas.mwc.API.Service.LoginService;
 import com.swaas.mwc.FTL.FTLActivity;
 import com.swaas.mwc.Login.LoginActivity;
+import com.swaas.mwc.Login.Pin;
 import com.swaas.mwc.Network.NetworkUtils;
 import com.swaas.mwc.Preference.PreferenceUtils;
 import com.swaas.mwc.R;
 import com.swaas.mwc.Retrofit.RetrofitAPIBuilder;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import retrofit.Call;
@@ -47,7 +51,7 @@ public class LoginFragment extends Fragment {
     Retrofit retrofit;
     Button mSignInButton;
     TextView mNotLoggedInBefore;
-    EditText mUserName,mPassword;
+    EditText mUserName, mPassword;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -94,32 +98,48 @@ public class LoginFragment extends Fragment {
                     mProgressDialog.show();
                     Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
                     final LoginService loginService = retrofitAPI.create(LoginService.class);
-                    LoginRequest mLoginRequest = new LoginRequest();
-                    mLoginRequest.setUserName(username);
-                    mLoginRequest.setPassword(password);
-                    Call call = loginService.getLogin(mLoginRequest);
-                    call.enqueue(new Callback<ApiResponse<LoginResponse>>(){
+
+                    LoginRequest mLoginRequest = new LoginRequest(username,password);
+
+                    String request = new Gson().toJson(mLoginRequest);
+                    //Here the json data is add to a hash map with key data
+                    Map<String,String> params = new HashMap<String, String>();
+                    params.put("data", request);
+                    /*mLoginRequest.setUserName(username);
+                    mLoginRequest.setPassword(password);*/
+
+                    Call call = loginService.getLogin(params);
+                    call.enqueue(new Callback<BaseApiResponse<LoginResponse>>(){
                         @Override
-                        public void onResponse(Response<ApiResponse<LoginResponse>> response, Retrofit retrofit) {
-                            ApiResponse apiResponse = response.body();
+                        public void onResponse(Response<BaseApiResponse<LoginResponse>> response, Retrofit retrofit) {
+                            BaseApiResponse apiResponse = response.body();
                             if(apiResponse != null){
                                 if(apiResponse.status.isCode() == false) {
                                     LoginResponse mLoginResponse = response.body().getData();
+
                                     if (mLoginResponse != null) {
                                         mProgressDialog.dismiss();
                                         String accessToken = mLoginResponse.getAccessToken();
                                         PreferenceUtils.setAccessToken(mActivity, accessToken);
                                         startActivity(new Intent(mActivity, FTLActivity.class));
                                         if(mLoginResponse.nextStep != null){
-
+                                            if(mLoginResponse.nextStep.isPin_authentication_required() == true) {
+                                                Intent intent = new Intent(mActivity, Pin.class);
+                                                startActivity(intent);
+                                            }
+                                            else
+                                            {
+                                                Intent intent = new Intent(mActivity, Pin.class);
+                                                startActivity(intent);
+                                            }
                                         }
                                     } else {
-                                        String mMessage = apiResponse.status.getMessage().get(0).toString();
+                                        String mMessage = apiResponse.status.getMessage().toString();
                                         mProgressDialog.dismiss();
                                         Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
                                     }
                                 } else {
-                                    String mMessage = apiResponse.status.getMessage().get(0).toString();
+                                    String mMessage = apiResponse.status.getMessage().toString();
                                     mProgressDialog.dismiss();
                                     Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
                                 }
@@ -151,3 +171,4 @@ public class LoginFragment extends Fragment {
                 .build();
     }
 }
+

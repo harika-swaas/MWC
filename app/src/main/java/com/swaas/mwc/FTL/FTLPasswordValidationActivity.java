@@ -7,12 +7,13 @@ import android.view.MenuItem;
 import com.swaas.mwc.Fragments.FTLPasswordValidationFragment;
 import com.swaas.mwc.Fragments.FTLRegistrationFragment;
 import com.swaas.mwc.R;
+import com.swaas.mwc.RootActivity;
 
 /**
  * Created by harika on 21-06-2018.
  */
 
-public class FTLPasswordValidationActivity extends AppCompatActivity {
+public class FTLPasswordValidationActivity extends RootActivity {
 
     FTLPasswordValidationFragment mFTLPasswordValidationFragment;
 

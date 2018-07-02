@@ -18,10 +18,15 @@ public class RetrofitAPIBuilder {
     static Retrofit retrofit = null;
     public static synchronized Retrofit getInstance() {
 
+        /*String UA = System.getProperty("http.agent");*/
+
+        String UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36";
+
         final OkHttpClient okHttpClient = new OkHttpClient();
         okHttpClient.setReadTimeout(600, TimeUnit.SECONDS);
         okHttpClient.setConnectTimeout(600, TimeUnit.SECONDS);
         okHttpClient.networkInterceptors().add(new StethoInterceptor());
+        okHttpClient.interceptors().add(new UserAgentInterceptor(UA));
 
         if(retrofit == null) {
             retrofit = new Retrofit.Builder()

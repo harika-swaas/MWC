@@ -26,6 +26,7 @@ import com.swaas.mwc.API.Service.VerifyFTLDetailsService;
 import com.swaas.mwc.FTL.FTLPasswordValidationActivity;
 import com.swaas.mwc.FTL.FTLUserValidationActivity;
 import com.swaas.mwc.Network.NetworkUtils;
+import com.swaas.mwc.Preference.PreferenceUtils;
 import com.swaas.mwc.R;
 import com.swaas.mwc.Retrofit.RetrofitAPIBuilder;
 import com.swaas.mwc.Utils.Constants;
@@ -48,7 +49,8 @@ public class FTLUserValidationFragment extends Fragment {
     TextInputLayout inputLayoutUserName;
     EditText inputUserName;
     TextView welcomeMsg;
-    String mUserName,mEmail,mWelcomeMsg;
+    String mUserName,mEmail,mWelcomeMsg,mTerms;
+    String mAccessToken;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -64,8 +66,8 @@ public class FTLUserValidationFragment extends Fragment {
         intializeViews();
         getIntentData();
         getFTLProcess();
-        setUserName();
-        setButtonBackgroundColor();
+      //  setUserName();
+       // setButtonBackgroundColor();
         addListenersToViews();
         return mView;
     }
@@ -81,21 +83,19 @@ public class FTLUserValidationFragment extends Fragment {
     private void getIntentData() {
 
         if(mActivity.getIntent() != null){
-            mTextBackgroundColor = mActivity.getIntent().getStringExtra(Constants.TEXT_BACKGROUND_COLOR);
-            mTextForeGroundColor = mActivity.getIntent().getStringExtra(Constants.TEXT_FOREGROUND_COLOR);
-            mAppBackGroundColor = mActivity.getIntent().getStringExtra(Constants.APP_BACKGROUND_COLOR);
+            mAccessToken = mActivity.getIntent().getStringExtra(Constants.ACCESSTOKEN);
         }
     }
 
     private void setUserName() {
 
-        if(!TextUtils.isEmpty(mWelcomeMsg)){
+        if(mWelcomeMsg != null && !TextUtils.isEmpty(mWelcomeMsg)){
             welcomeMsg.setText(mWelcomeMsg);
         } else {
             welcomeMsg.setText(getString(R.string.welcome));
         }
 
-        if(!TextUtils.isEmpty(mUserName)){
+        if(mUserName != null && !TextUtils.isEmpty(mUserName)){
             inputUserName.setHint(mUserName);
         } else if(!TextUtils.isEmpty(mEmail)){
             inputUserName.setHint(mEmail);
@@ -106,7 +106,7 @@ public class FTLUserValidationFragment extends Fragment {
 
     private void setButtonBackgroundColor() {
 
-        if(!mAppBackGroundColor.isEmpty()) {
+        if(mAppBackGroundColor != null && !mAppBackGroundColor.isEmpty()) {
             mNext.setBackgroundColor(Integer.parseInt(mAppBackGroundColor));
         } else {
             mNext.setBackgroundResource(R.drawable.next);
@@ -121,11 +121,6 @@ public class FTLUserValidationFragment extends Fragment {
                 inputUserName.addTextChangedListener(new FTLUserValidationFragment.MyTextWatcher(inputUserName));
 
                 verifyFTLUserDetails();
-
-                Intent mIntent = new Intent(mActivity,FTLPasswordValidationActivity.class);
-                mIntent.putExtra(Constants.USERNAME,inputUserName.getText().toString().trim());
-                mIntent.putExtra(Constants.WELCOME_MSG,mWelcomeMsg);
-                mActivity.finish();
             }
         });
     }
@@ -134,6 +129,14 @@ public class FTLUserValidationFragment extends Fragment {
 
         if (!validateUserName()) {
             return;
+        } else {
+            Intent mIntent = new Intent(mActivity,FTLPasswordValidationActivity.class);
+            mIntent.putExtra(Constants.USERNAME, inputUserName.getText().toString().trim());
+            mIntent.putExtra(Constants.WELCOME_MSG, mWelcomeMsg);
+            mIntent.putExtra(Constants.ACCESSTOKEN, mAccessToken);
+            mIntent.putExtra(Constants.SETTERMS, mTerms);
+            mActivity.startActivity(mIntent);
+            mActivity.finish();
         }
     }
 
@@ -187,7 +190,7 @@ public class FTLUserValidationFragment extends Fragment {
         if (NetworkUtils.isNetworkAvailable(mActivity)) {
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
             final FTLProcessService ftlProcessService = retrofitAPI.create(FTLProcessService.class);
-            Call call = ftlProcessService.getFTLProcess();
+            Call call = ftlProcessService.getFTLProcess(mAccessToken);
             call.enqueue(new Callback<BaseApiResponse<FTLProcessResponse>>() {
                 @Override
                 public void onResponse(Response<BaseApiResponse<FTLProcessResponse>> response, Retrofit retrofit) {
@@ -195,10 +198,13 @@ public class FTLUserValidationFragment extends Fragment {
                     if (apiResponse != null) {
                         if (apiResponse.status.isCode() == false) {
                             FTLProcessResponse mFTLProcessResponse = response.body().getData();
-                            if(mFTLProcessResponse.user_details != null){
+                            if(mFTLProcessResponse.user_details != null) {
                                 mUserName = mFTLProcessResponse.user_details.getUsername();
                                 mEmail = mFTLProcessResponse.user_details.getEmail();
                                 mWelcomeMsg = mFTLProcessResponse.user_details.getEu_ftl_welcome_msg();
+                                mTerms = mFTLProcessResponse.user_details.getTerms();
+                                PreferenceUtils.setTermsURL(mActivity, mTerms);
+                                setUserName();
                             }
                         } else {
 

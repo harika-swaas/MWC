@@ -6,12 +6,13 @@ import android.view.MenuItem;
 
 import com.swaas.mwc.Fragments.FTLPinVerificationFragment;
 import com.swaas.mwc.R;
+import com.swaas.mwc.RootActivity;
 
 /**
  * Created by harika on 21-06-2018.
  */
 
-public class FTLPinVerificationActivity extends AppCompatActivity {
+public class FTLPinVerificationActivity extends RootActivity {
 
     FTLPinVerificationFragment mFTLPinVerificationFragment;
 

@@ -9,27 +9,32 @@ import com.google.gson.annotations.SerializedName;
 
 public class LoginRequest {
 
-    @SerializedName("UserName")
+    @SerializedName("username")
     @Expose
-    private String UserName;
+    private String username;
 
-    @SerializedName("Password")
+    @SerializedName("password")
     @Expose
-    private String Password;
+    private String password;
+
+    public LoginRequest(String UserName, String Password) {
+        this.username = UserName;
+        this.password = Password;
+    }
 
     public String getUserName() {
-        return UserName;
+        return username;
     }
 
     public void setUserName(String userName) {
-        UserName = userName;
+        username = userName;
     }
 
     public String getPassword() {
-        return Password;
+        return password;
     }
 
     public void setPassword(String password) {
-        Password = password;
+        password = password;
     }
 }

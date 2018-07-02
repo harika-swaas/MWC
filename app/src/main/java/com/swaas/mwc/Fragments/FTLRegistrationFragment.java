@@ -207,7 +207,7 @@ public class FTLRegistrationFragment extends Fragment {
                                 dialog.dismiss();
 
                                 if (mVerifyFTLResponse != null) {
-                                    Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
+                                  //  Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
                                     if (mVerifyFTLResponse.isCheck_mobile() == true) {
                                         inputLayoutMobile.setVisibility(View.VISIBLE);
                                         verifyFTLDetailsWithMobile();
@@ -215,7 +215,7 @@ public class FTLRegistrationFragment extends Fragment {
                                         inputLayoutMobile.setVisibility(View.GONE);
                                     }
                                 } else {
-                                    Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
+                                  //  Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
                                     MaterialStyledDialog dialog = new MaterialStyledDialog.Builder(mActivity)
                                             .setTitle("Pin verification")
                                             .setDescription(getString(R.string.pin_verification_dialog_msg))
@@ -242,7 +242,8 @@ public class FTLRegistrationFragment extends Fragment {
                             } else {
                                 String mMessage = apiResponse.status.getMessage().toString();
                                 dialog.dismiss();
-                                Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
+                                mActivity.showMessagebox(mActivity,mMessage,null,false);
+                               // Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
                             }
                         }
                     }
@@ -250,7 +251,6 @@ public class FTLRegistrationFragment extends Fragment {
                     @Override
                     public void onFailure(Throwable t) {
                         dialog.dismiss();
-                        Toast.makeText(mActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -292,7 +292,7 @@ public class FTLRegistrationFragment extends Fragment {
                                 VerifyFTLResponse mVerifyFTLResponse = response.body().getData();
 
                                 dialog.dismiss();
-                                Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
+                              //  Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
 
                                 if (mVerifyFTLResponse != null) {
                                     MaterialStyledDialog dialog = new MaterialStyledDialog.Builder(mActivity)
@@ -344,7 +344,8 @@ public class FTLRegistrationFragment extends Fragment {
                             } else {
                                 String mMessage = apiResponse.status.getMessage().toString();
                                 dialog.dismiss();
-                                Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
+                                mActivity.showMessagebox(mActivity,mMessage,null,false);
+                               // Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
                             }
                         }
                     }
@@ -352,7 +353,7 @@ public class FTLRegistrationFragment extends Fragment {
                     @Override
                     public void onFailure(Throwable t) {
                         dialog.dismiss();
-                        Toast.makeText(mActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
+                      //  Toast.makeText(mActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -362,6 +363,10 @@ public class FTLRegistrationFragment extends Fragment {
     private void sendFTLPin(final String email) {
 
         if(NetworkUtils.isNetworkAvailable(mActivity)){
+
+            final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
+            dialog.show();
+
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
             final SendFTLPINService sendFTLPINService = retrofitAPI.create(SendFTLPINService.class);
 
@@ -379,6 +384,7 @@ public class FTLRegistrationFragment extends Fragment {
                 public void onResponse(Response<BaseApiResponse<VerifyFTLResponse>> response, Retrofit retrofit) {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
+                        dialog.dismiss();
                         if (apiResponse.status.isCode() == false) {
                             String mMessage = apiResponse.status.getMessage().toString();
                           //  Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
@@ -388,14 +394,15 @@ public class FTLRegistrationFragment extends Fragment {
                             mActivity.finish();
                         } else {
                             String mMessage = apiResponse.status.getMessage().toString();
-                            Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
+                           // Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
-                    Toast.makeText(mActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
+                   // Toast.makeText(mActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -404,6 +411,10 @@ public class FTLRegistrationFragment extends Fragment {
     private void sendFTLPinWithMobile(final String email, final long mobile) {
 
         if(NetworkUtils.isNetworkAvailable(mActivity)){
+
+            final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
+            dialog.show();
+
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
             final SendFTLPINService sendFTLPINService = retrofitAPI.create(SendFTLPINService.class);
 
@@ -420,6 +431,7 @@ public class FTLRegistrationFragment extends Fragment {
                 public void onResponse(Response<BaseApiResponse<VerifyFTLResponse>> response, Retrofit retrofit) {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
+                        dialog.dismiss();
                         if (apiResponse.status.isCode() == false) {
                             String mMessage = apiResponse.status.getMessage().toString();
                           //  Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
@@ -430,14 +442,15 @@ public class FTLRegistrationFragment extends Fragment {
                             mActivity.finish();
                         } else {
                             String mMessage = apiResponse.status.getMessage().toString();
-                            Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
+                            mActivity.showMessagebox(mActivity,mMessage,null,false);
+                           // Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
-                    Toast.makeText(mActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
                 }
             });
         }

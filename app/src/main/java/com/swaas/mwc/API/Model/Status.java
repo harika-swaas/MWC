@@ -19,13 +19,21 @@ public class Status {
     @Expose
     private List<String> message;
 
-    public boolean isCode() {
+    public boolean getCode() {
         return code;
     }
 
     public void setCode(boolean code) {
         this.code = code;
     }
+
+    /*public boolean isCode() {
+        return code;
+    }
+
+    public void setCode(boolean code) {
+        this.code = code;
+    }*/
 
     public List<String> getMessage() {
         return message;
