@@ -38,11 +38,11 @@
             android:id="@+id/logo_image_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="40dp"
-            android:layout_marginBottom="20dp"
-            android:layout_marginStart="50dp"
-            android:layout_marginEnd="50dp"
             android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="35dp"
+            android:layout_marginEnd="55dp"
+            android:layout_marginStart="55dp"
+            android:layout_marginTop="50dp"
             android:src="@mipmap/ic_touch_id" />
 
     </FrameLayout>

@@ -1,5 +1,6 @@
 package com.swaas.mwc.Fragments;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -32,6 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import dmax.dialog.SpotsDialog;
 import retrofit.Call;
 import retrofit.Callback;
 import retrofit.GsonConverterFactory;
@@ -90,69 +92,85 @@ public class LoginFragment extends Fragment {
             public void onClick(View v) {
                 String username = mUserName.getText().toString().trim();
                 String password = mPassword.getText().toString().trim();
-                if(NetworkUtils.isNetworkAvailable(mActivity)){
-                    final ProgressDialog mProgressDialog = new ProgressDialog(mActivity);
-                    mProgressDialog.setIndeterminate(true);
-                    mProgressDialog.setMessage("Loading...");
-                    mProgressDialog.show();
-                    Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
-                    final LoginService loginService = retrofitAPI.create(LoginService.class);
 
-                    LoginRequest mLoginRequest = new LoginRequest(username,password);
+                if((username.equals("") && password.equals("")))
+                {
+                    String message = "Enter username and password";
+                    Toast.makeText(mActivity, message, Toast.LENGTH_SHORT).show();
+                }
+                else if (username.equals(""))
+                {
+                    String message = "Enter username";
+                    Toast.makeText(mActivity, message, Toast.LENGTH_SHORT).show();
+                }
+               else if(password.equals(""))
+                {
+                    String message = "Enter password";
+                    Toast.makeText(mActivity, message, Toast.LENGTH_SHORT).show();
+                }
+                else {
 
-                    String request = new Gson().toJson(mLoginRequest);
-                    //Here the json data is add to a hash map with key data
-                    Map<String,String> params = new HashMap<String, String>();
-                    params.put("data", request);
+
+                    if (NetworkUtils.isNetworkAvailable(mActivity)) {
+                        final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
+                        dialog.show();
+                        Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+                        final LoginService loginService = retrofitAPI.create(LoginService.class);
+
+                        LoginRequest mLoginRequest = new LoginRequest(username, password);
+
+                        String request = new Gson().toJson(mLoginRequest);
+                        //Here the json data is add to a hash map with key data
+                        Map<String, String> params = new HashMap<String, String>();
+                        params.put("data", request);
                     /*mLoginRequest.setUserName(username);
                     mLoginRequest.setPassword(password);*/
 
-                    Call call = loginService.getLogin(params);
-                    call.enqueue(new Callback<BaseApiResponse<LoginResponse>>(){
-                        @Override
-                        public void onResponse(Response<BaseApiResponse<LoginResponse>> response, Retrofit retrofit) {
-                            BaseApiResponse apiResponse = response.body();
-                            if(apiResponse != null){
-                                if(apiResponse.status.isCode() == false) {
-                                    LoginResponse mLoginResponse = response.body().getData();
+                        Call call = loginService.getLogin(params);
+                        call.enqueue(new Callback<BaseApiResponse<LoginResponse>>() {
+                            @Override
+                            public void onResponse(Response<BaseApiResponse<LoginResponse>> response, Retrofit retrofit) {
+                                BaseApiResponse apiResponse = response.body();
+                                if (apiResponse != null) {
+                                    if (apiResponse.status.isCode() == false) {
+                                        LoginResponse mLoginResponse = response.body().getData();
 
-                                    if (mLoginResponse != null) {
-                                        mProgressDialog.dismiss();
-                                        String accessToken = mLoginResponse.getAccessToken();
-                                        PreferenceUtils.setAccessToken(mActivity, accessToken);
-                                        startActivity(new Intent(mActivity, FTLActivity.class));
-                                        if(mLoginResponse.nextStep != null){
-                                            if(mLoginResponse.nextStep.isPin_authentication_required() == true) {
-                                                Intent intent = new Intent(mActivity, PinVerificationActivity.class);
-                                                startActivity(intent);
+                                        if (mLoginResponse != null) {
+                                            dialog.dismiss();
+                                            String accessToken = mLoginResponse.getAccessToken();
+                                            PreferenceUtils.setAccessToken(mActivity, accessToken);
+                                            startActivity(new Intent(mActivity, FTLActivity.class));
+                                            if (mLoginResponse.nextStep != null) {
+                                                if (mLoginResponse.nextStep.isPin_authentication_required() == true) {
+                                                    Intent intent = new Intent(mActivity, PinVerificationActivity.class);
+                                                    startActivity(intent);
+                                                } else {
+                                                    Intent intent = new Intent(mActivity, PinVerificationActivity.class);
+                                                    startActivity(intent);
+                                                }
                                             }
-                                            else
-                                            {
-                                                Intent intent = new Intent(mActivity, PinVerificationActivity.class);
-                                                startActivity(intent);
-                                            }
+                                        } else {
+                                            String mMessage = apiResponse.status.getMessage().toString();
+                                            dialog.dismiss();
+                                            Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
                                         }
                                     } else {
                                         String mMessage = apiResponse.status.getMessage().toString();
-                                        mProgressDialog.dismiss();
+                                        dialog.dismiss();
                                         Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
                                     }
                                 } else {
-                                    String mMessage = apiResponse.status.getMessage().toString();
-                                    mProgressDialog.dismiss();
-                                    Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
+                                    dialog.dismiss();
                                 }
-                            } else {
-                                mProgressDialog.dismiss();
                             }
-                        }
 
-                        @Override
-                        public void onFailure(Throwable t) {
-                            Log.e("LoginErr", t.toString());
-                            mProgressDialog.dismiss();
-                        }
-                    });
+                            @Override
+                            public void onFailure(Throwable t) {
+                                Log.e("LoginErr", t.toString());
+                                dialog.dismiss();
+                            }
+                        });
+                    }
                 }
             }
         });

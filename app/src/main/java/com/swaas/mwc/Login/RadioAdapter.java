@@ -87,9 +87,9 @@ public class RadioAdapter extends RecyclerView.Adapter<RadioAdapter.MyViewHolder
 
             super(itemView);
             // get the reference of item view's
-            name = (TextView) itemView.findViewById(R.id.radio_text);
-            icon = (ImageView) itemView.findViewById(R.id.radio_icon);
-            radioButton = (RadioButton) itemView.findViewById(R.id.radioButton1);
+            name = (TextView) itemView.findViewById(R.id.user_pin_device_radio_type);
+            icon = (ImageView) itemView.findViewById(R.id.user_pin_device_icon);
+            radioButton = (RadioButton) itemView.findViewById(R.id.user_pin_device_type);
         }
     }
 }

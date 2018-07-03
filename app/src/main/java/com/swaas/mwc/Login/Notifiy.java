@@ -28,9 +28,11 @@ public class Notifiy extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        checkCredentials();
         setContentView(R.layout.enable_notification);
         skip = (TextView)findViewById(R.id.skip_button_1);
         button5 = (Button)findViewById(R.id.enable_touch_button);
+
         button5.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -38,12 +40,11 @@ public class Notifiy extends Activity {
                 final Dialog dialog = new Dialog(Notifiy.this);
 
                 dialog.setContentView(R.layout.custom_dialog);
-                dialog.setTitle("Custom Alert Dialog");
 
-                final TextView Text = (TextView) dialog.findViewById(R.id.Text);
-                final TextView Text1 = (TextView) dialog.findViewById(R.id.Text1);
-                Button btnallow       = (Button) dialog.findViewById(R.id.cancel);
-                Button btnCancel        = (Button) dialog.findViewById(R.id.save);
+                final TextView Text = (TextView) dialog.findViewById(R.id.title1);
+                final TextView Text1 = (TextView) dialog.findViewById(R.id.txt_message1);
+                Button btnallow       = (Button) dialog.findViewById(R.id.cancel_button1);
+                Button btnCancel        = (Button) dialog.findViewById(R.id.send_pin_button1);
                 dialog.show();
 
                 btnallow.setOnClickListener(new View.OnClickListener() {

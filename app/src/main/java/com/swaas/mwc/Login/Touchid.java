@@ -35,7 +35,7 @@ public class Touchid extends Notifiy {
 
                 Intent intent = new Intent(Touchid.this,Notifiy.class);
                 startActivity(intent);
-                checkCredentials();
+
             }
         });
 

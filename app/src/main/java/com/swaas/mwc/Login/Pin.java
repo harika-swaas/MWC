@@ -1,6 +1,7 @@
 package com.swaas.mwc.Login;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -33,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import dmax.dialog.SpotsDialog;
 import retrofit.Call;
 import retrofit.Callback;
 import retrofit.Response;
@@ -109,6 +111,8 @@ public class Pin extends Activity {
                 Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
                 final SendPinService sendPinService = retrofitAPI.create(SendPinService.class);
 
+                final AlertDialog dialog = new SpotsDialog(pinActivity, R.style.Custom);
+                dialog.show();
 
                 String request = new Gson().toJson(sendPinService);
                 //Here the json data is add to a hash map with key data
@@ -123,6 +127,7 @@ public class Pin extends Activity {
                         BaseApiResponse apiResponse = response.body();
                         if (apiResponse != null) {
                             if (apiResponse.status.isCode() == false) {
+                                dialog.dismiss();
                                 String mMessage = apiResponse.status.getMessage().toString();
                                 Toast.makeText(pinActivity, mMessage, Toast.LENGTH_SHORT).show();
                                 Intent intent = new Intent(Pin.this,Verify.class);
@@ -131,6 +136,7 @@ public class Pin extends Activity {
                             } else {
                                 String mMessage = apiResponse.status.getMessage().toString();
                                 Toast.makeText(pinActivity, mMessage, Toast.LENGTH_SHORT).show();
+                                dialog.dismiss();
                             }
                         }
                     }
@@ -138,6 +144,7 @@ public class Pin extends Activity {
                     @Override
                     public void onFailure(Throwable t) {
                         Toast.makeText(pinActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
                     }
                 });
             }

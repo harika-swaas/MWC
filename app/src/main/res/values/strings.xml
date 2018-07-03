@@ -69,4 +69,6 @@
     <string name="err_msg_pin_number">Please provide valid pin number</string>
     <string name="Mobile">Mobile</string>
     <string name="Email">Email</string>
+    <string name="resent_title" />
+    <string name="resent_pin_msg">Pin Resent Succesfully !</string>
 </resources>

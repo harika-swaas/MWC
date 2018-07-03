@@ -93,7 +93,7 @@
                     android:drawableLeft="@mipmap/ic_username"
                     android:drawablePadding="24dp"
                     android:hint="@string/user_name"
-                    android:inputType="textNoSuggestions"
+                    android:inputType="textEmailAddress"
                     android:paddingBottom="10dp"
                     android:paddingLeft="24dp"
                     android:paddingRight="10dp"
