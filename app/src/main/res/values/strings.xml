@@ -8,8 +8,9 @@
     <string name="login_help_txt">We\'ll help you to Login in a few  "\n" easy steps</string>
     <string name="next">Next</string>
     <string name="registration">Registration</string>
-    <string name="ftl_registration">Follow the simple steps over the next few screens to get going. Start by entering the email address registered for this account in the field below</string>
-    <string name="whats_your_email_id">What\'s your Email ID?</string>
+    <string name="ftl_registration">To login for the first time we will need you to enter some details to register and activate the account.
+        Follow the simple steps over the next few screens to get going. Start by entering the email address registered for this account in the field below</string>
+    <string name="whats_your_email_id">Please enter your Email Address</string>
     <string name="email">Email</string>
     <string name="enter_email_id">Enter Email ID</string>
     <string name="pin_verification">PIN Verification</string>
@@ -21,7 +22,7 @@
     <string name="resend_pin_btn_text">Resend PIN</string>
     <string name="user_name">Username</string>
     <string name="welcome_to_capital">Welcome to Capital</string>
-    <string name="choose_user_name">Choose a UserName</string>
+    <string name="choose_user_name">Choose a Username</string>
     <string name="enter_user_name">Enter the username</string>
     <string name="password">Password</string>
     <string name="choose_password">Choose a Password</string>
@@ -77,4 +78,5 @@
     <string name="err_msg_password_min_length">Password should be minimum of 8 characters</string>
     <string name="err_msg_password_max_length">Password should be maximum of 15 characters</string>
     <string name="err_msg_confirm_password_match">Password and confirm password must be same</string>
+    <string name="ftl_username_text1">Please complete the following simple steps to login to your account for the first time. Once inside you will quickly discover the many exciting features My Wealth Cloud has to offer.</string>
 </resources>
