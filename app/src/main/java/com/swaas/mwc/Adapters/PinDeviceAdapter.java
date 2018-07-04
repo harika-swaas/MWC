@@ -18,7 +18,7 @@ import com.swaas.mwc.R;
 import java.util.List;
 
 public class PinDeviceAdapter extends RecyclerView.Adapter<PinDeviceAdapter.PinDeviceViewHolder> {
-
+    private RadioButton lastCheckedRB = null;
     final Context context;
     List<ListPinDevices> mListPinDevices;
 
@@ -38,7 +38,7 @@ public class PinDeviceAdapter extends RecyclerView.Adapter<PinDeviceAdapter.PinD
     }
 
     @Override
-    public void onBindViewHolder(PinDeviceViewHolder holder, final int position) {
+    public void onBindViewHolder(final PinDeviceViewHolder holder, final int position) {
         holder.name.setText(mListPinDevices.get(position).getDevice_type());
 
         if (mListPinDevices.get(position).getDevice_type().equalsIgnoreCase(context.getResources().getString(R.string.Mobile))) {
@@ -52,8 +52,14 @@ public class PinDeviceAdapter extends RecyclerView.Adapter<PinDeviceAdapter.PinD
         holder.radioButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
+               RadioButton radioButton = (RadioButton) buttonView.findViewById(R.id.user_pin_device_radio_type);
+                if (lastCheckedRB != null) {
+                    lastCheckedRB.setChecked(false);
+                }
+                //store the clicked radiobutton
+                lastCheckedRB = radioButton;
                 if(isChecked){
+
                     String mUserPinDeviceId = mListPinDevices.get(position).getUser_pin_device_id();
                     PreferenceUtils.setUserPinDeviceId(context,mUserPinDeviceId);
                 }

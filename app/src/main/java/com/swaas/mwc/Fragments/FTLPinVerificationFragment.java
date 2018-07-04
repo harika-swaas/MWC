@@ -1,6 +1,7 @@
 package com.swaas.mwc.Fragments;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -42,6 +43,7 @@ import com.swaas.mwc.FTL.FTLPinVerificationActivity;
 import com.swaas.mwc.FTL.FTLUserValidationActivity;
 import com.swaas.mwc.Login.Authenticate;
 import com.swaas.mwc.Login.LoginActivity;
+import com.swaas.mwc.Login.Touchid;
 import com.swaas.mwc.Login.Verify;
 import com.swaas.mwc.Network.NetworkUtils;
 import com.swaas.mwc.Preference.PreferenceUtils;
@@ -51,6 +53,8 @@ import com.swaas.mwc.Utils.Constants;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import dmax.dialog.SpotsDialog;
 import retrofit.Call;
@@ -129,6 +133,7 @@ public class FTLPinVerificationFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if(isFromLogin){
+
                     sendPin();
                 } else {
                     sendFTLPin();
@@ -323,6 +328,9 @@ public class FTLPinVerificationFragment extends Fragment {
 
             final VerifyPinRequest mVerifyPinRequest = new VerifyPinRequest(Integer.parseInt(pinNo));
 
+            final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
+            dialog.show();
+
             String request = new Gson().toJson(mVerifyPinRequest);
             //Here the json data is add to a hash map with key data
             Map<String, String> params = new HashMap<String, String>();
@@ -338,18 +346,21 @@ public class FTLPinVerificationFragment extends Fragment {
                         if (apiResponse.status.isCode() == false) {
                             String mMessage = apiResponse.status.getMessage().toString();
                            // Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
-                            Intent intent = new Intent(mActivity, Authenticate.class);
+                            Intent intent = new Intent(mActivity, Touchid.class);
                             startActivity(intent);
+                            dialog.dismiss();
                             mActivity.finish();
                         } else {
                             String mMessage = apiResponse.status.getMessage().toString();
                             mActivity.showMessagebox(mActivity,mMessage,null,false);
+                            dialog.dismiss();
                         }
                     }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
+                    dialog.dismiss();
                    // Toast.makeText(mActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
@@ -409,6 +420,9 @@ public class FTLPinVerificationFragment extends Fragment {
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
             final SendPinService sendPinService = retrofitAPI.create(SendPinService.class);
 
+            final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
+            dialog.show();
+
             SendPinRequest sendPinRequest = new SendPinRequest(PreferenceUtils.getUserPinDeviceId(mActivity));
 
             String request = new Gson().toJson(sendPinRequest);
@@ -427,16 +441,19 @@ public class FTLPinVerificationFragment extends Fragment {
                         if (apiResponse.status.isCode() == false) {
                             // String mMessage = apiResponse.status.getMessage().toString();
                             //  Toast.makeText(pinActivity, mMessage, Toast.LENGTH_SHORT).show();
-                            Intent intent = new Intent(mActivity,FTLPinVerificationActivity.class);
+                            /*Intent intent = new Intent(mActivity,FTLPinVerificationActivity.class);
                             intent.putExtra(Constants.IS_FROM_LOGIN,true);
-                            startActivity(intent);
-                            mActivity.finish();
+                            startActivity(intent);*/
+                            dialog.dismiss();
+                            Toast.makeText(mActivity,"Pin Resent Successfully", Toast.LENGTH_SHORT).show();
+
                         }
                     }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
+                    dialog.dismiss();
                     // Toast.makeText(pinActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });

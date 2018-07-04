@@ -88,7 +88,8 @@
                 android:layout_below="@+id/ftl_pin_verification_ll"
                 android:layout_centerHorizontal="true"
                 android:layout_marginLeft="48dp"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:focusableInTouchMode="true">
 
                 <!--<TextView
                     android:id="@+id/email"

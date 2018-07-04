@@ -4,7 +4,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#f0eeee">
+    android:background="#f0eeee"
+    android:clickable="true"
+    android:focusableInTouchMode="true"
+    >
 
     <FrameLayout
         android:id="@+id/login_logo_frame"
@@ -53,7 +56,8 @@
                 android:layout_alignParentTop="true"
                 android:layout_marginEnd="30dp"
                 android:layout_marginStart="30dp"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:focusableInTouchMode="true">
 
                 <!--<android.support.design.widget.TextInputLayout
                     android:layout_width="match_parent"

@@ -25,4 +25,5 @@ public class Constants {
     public static final String TEXT_FOREGROUND_COLOR = "text_foreground_color";
     public static final String APP_BACKGROUND_COLOR = "app_background_color";
 
+    public static final int REQUEST_ACCESS_NOTIFICATION_POLICY = 231;
 }

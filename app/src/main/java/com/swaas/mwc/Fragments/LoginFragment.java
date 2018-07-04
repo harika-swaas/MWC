@@ -1,5 +1,6 @@
 package com.swaas.mwc.Fragments;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -10,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -24,6 +26,7 @@ import com.swaas.mwc.API.Service.LoginService;
 import com.swaas.mwc.FTL.FTLActivity;
 import com.swaas.mwc.Login.LoginActivity;
 import com.swaas.mwc.Login.PinVerificationActivity;
+import com.swaas.mwc.MessageDialog;
 import com.swaas.mwc.Network.NetworkUtils;
 import com.swaas.mwc.Preference.PreferenceUtils;
 import com.swaas.mwc.R;
@@ -53,7 +56,7 @@ public class LoginFragment extends Fragment {
     Button mSignInButton;
     TextView mNotLoggedInBefore;
     EditText mUserName, mPassword;
-
+    MessageDialog messageDialog;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,6 +82,27 @@ public class LoginFragment extends Fragment {
 
     private void addListenersToViews() {
 
+        mUserName.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    hideKeyboard(v);
+                }
+            }
+        });
+
+        mPassword.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    hideKeyboard(v);
+                }
+            }
+
+
+        });
+
+
         mNotLoggedInBefore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -93,20 +117,20 @@ public class LoginFragment extends Fragment {
                 String username = mUserName.getText().toString().trim();
                 String password = mPassword.getText().toString().trim();
 
-                if((username.equals("") && password.equals("")))
+              /*  if((username.equals("") && password.equals("")))
                 {
                     String message = "Enter username and password";
-                    Toast.makeText(mActivity, message, Toast.LENGTH_SHORT).show();
+                    mActivity.showMessagebox(mActivity,message,null,false);
                 }
-                else if (username.equals(""))
+                else*/ if (username.equals(""))
                 {
-                    String message = "Enter username";
-                    Toast.makeText(mActivity, message, Toast.LENGTH_SHORT).show();
+                    String message = "Please provide username";
+                    mActivity.showMessagebox(mActivity,message,null,false);
                 }
                else if(password.equals(""))
                 {
-                    String message = "Enter password";
-                    Toast.makeText(mActivity, message, Toast.LENGTH_SHORT).show();
+                    String message = "Please provide password";
+                    mActivity.showMessagebox(mActivity,message,null,false);
                 }
                 else {
 
@@ -139,7 +163,7 @@ public class LoginFragment extends Fragment {
                                             dialog.dismiss();
                                             String accessToken = mLoginResponse.getAccessToken();
                                             PreferenceUtils.setAccessToken(mActivity, accessToken);
-                                            startActivity(new Intent(mActivity, FTLActivity.class));
+
                                             if (mLoginResponse.nextStep != null) {
                                                 if (mLoginResponse.nextStep.isPin_authentication_required() == true) {
                                                     Intent intent = new Intent(mActivity, PinVerificationActivity.class);
@@ -148,6 +172,11 @@ public class LoginFragment extends Fragment {
                                                     Intent intent = new Intent(mActivity, PinVerificationActivity.class);
                                                     startActivity(intent);
                                                 }
+                                            }
+                                            else
+                                            {
+                                                Intent intent = new Intent(mActivity, PinVerificationActivity.class);
+                                                startActivity(intent);
                                             }
                                         } else {
                                             String mMessage = apiResponse.status.getMessage().toString();
@@ -175,7 +204,10 @@ public class LoginFragment extends Fragment {
             }
         });
     }
-
+    private void hideKeyboard(View v) {
+        InputMethodManager inputMethodManager =(InputMethodManager) mActivity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(v.getWindowToken(), 0);
+    }
     private void initializeRetrofitBuilder(String apiURL) {
         final OkHttpClient okHttpClient = new OkHttpClient();
         okHttpClient.setReadTimeout(60, TimeUnit.SECONDS);

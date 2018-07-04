@@ -1,5 +1,6 @@
 package com.swaas.mwc.Fragments;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -11,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.swaas.mwc.API.Model.ListPinDevices;
@@ -33,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import dmax.dialog.SpotsDialog;
 import retrofit.Call;
 import retrofit.Callback;
 import retrofit.Response;
@@ -96,7 +99,9 @@ public class PinVerificationFragment extends Fragment {
                 @Override
                 public void onResponse(Response<ListPinDevicesResponse<ListPinDevices>> response, Retrofit retrofit) {
                     ListPinDevicesResponse apiResponse = response.body();
+
                     if (apiResponse != null) {
+
                         if (apiResponse.status.isCode() == false) {
                             mListPinDevices = response.body().getData();
                             setAdapter(mListPinDevices);
@@ -121,11 +126,14 @@ public class PinVerificationFragment extends Fragment {
         mRecyclerView.setAdapter(mAdapter); // set the Adapter to RecyclerView
     }
 
-    public void sendPin() {
+    private void sendPin() {
 
         if (NetworkUtils.isNetworkAvailable(mActivity)) {
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
             final SendPinService sendPinService = retrofitAPI.create(SendPinService.class);
+
+            final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
+            dialog.show();
 
             SendPinRequest sendPinRequest = new SendPinRequest(PreferenceUtils.getUserPinDeviceId(mActivity));
 
@@ -143,12 +151,14 @@ public class PinVerificationFragment extends Fragment {
                     ListPinDevicesResponse apiResponse = response.body();
                     if (apiResponse != null) {
                         if (apiResponse.status.isCode() == false) {
-                            // String mMessage = apiResponse.status.getMessage().toString();
-                            //  Toast.makeText(pinActivity, mMessage, Toast.LENGTH_SHORT).show();
+                           /* String mMessage = apiResponse.status.getMessage().toString();
+                            Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();*/
                             Intent intent = new Intent(mActivity,FTLPinVerificationActivity.class);
                             intent.putExtra(Constants.IS_FROM_LOGIN,true);
                             startActivity(intent);
-                            mActivity.finish();
+                            dialog.dismiss();
+                            //Toast.makeText(mActivity,"Pin Resent Successfully", Toast.LENGTH_SHORT).show();
+
                         }
                     }
                 }
@@ -156,6 +166,7 @@ public class PinVerificationFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     // Toast.makeText(pinActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
                 }
             });
         }

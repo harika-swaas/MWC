@@ -16,7 +16,7 @@ import com.swaas.mwc.R;
  * Created by barath on 6/24/2018.
  */
 
-public class Touchid extends Notifiy {
+public class Touchid extends Authenticate {
 
 
     Button button2;
@@ -35,7 +35,7 @@ public class Touchid extends Notifiy {
 
                 Intent intent = new Intent(Touchid.this,Notifiy.class);
                 startActivity(intent);
-
+                checkCredentials();
             }
         });
 

@@ -42,7 +42,7 @@ public class Authenticate extends Notifiy {
 
             if (resultCode == RESULT_OK) {
 
-                Flag = 1;
+
 
             }
         }

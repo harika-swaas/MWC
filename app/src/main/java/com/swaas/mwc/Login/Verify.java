@@ -76,7 +76,7 @@ public class Verify extends Activity {
                     }, 1000);
 
 
-                    final TextView Text = (TextView) dialog.findViewById(R.id.Text);
+                    final TextView Text = (TextView) dialog.findViewById(R.id.Text1);
 
                 }
 
