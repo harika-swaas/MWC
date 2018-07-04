@@ -1,5 +1,6 @@
 package com.swaas.mwc.Fragments;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -16,8 +17,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,6 +35,8 @@ import com.swaas.mwc.API.Model.VerifyFTLRequestWithEMail;
 import com.swaas.mwc.API.Model.VerifyFTLResponse;
 import com.swaas.mwc.API.Service.SendFTLPINService;
 import com.swaas.mwc.API.Service.VerifyFTLDetailsService;
+import com.swaas.mwc.Dialogs.LightLoader;
+import com.swaas.mwc.Dialogs.LoadingProgressDialog;
 import com.swaas.mwc.FTL.FTLPinVerificationActivity;
 import com.swaas.mwc.FTL.FTLRegistrationActivity;
 import com.swaas.mwc.Network.NetworkUtils;
@@ -62,6 +67,7 @@ public class FTLRegistrationFragment extends Fragment {
     Button mNext;
     EditText inputEmail;
     EditText inputMobile;
+    ImageView mBackIv;
     TextInputLayout inputLayoutEmail, inputLayoutMobile;
     AlertDialog mAlertDialog;
 
@@ -88,9 +94,11 @@ public class FTLRegistrationFragment extends Fragment {
         inputMobile = (EditText) mView.findViewById(R.id.input_mobile);
         inputLayoutEmail = (TextInputLayout) mView.findViewById(R.id.input_layout_email);
         inputLayoutMobile = (TextInputLayout) mView.findViewById(R.id.input_layout_mobile);
+        mBackIv = (ImageView) mView.findViewById(R.id.back_image_view);
     }
 
     private void addListenersToViews() {
+
         mNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -102,6 +110,37 @@ public class FTLRegistrationFragment extends Fragment {
                 verifyFTLDetailsWithEmail();
             }
         });
+
+        mBackIv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mActivity.onBackPressed();
+            }
+        });
+
+        inputEmail.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    hideKeyboard(v);
+                }
+            }
+        });
+
+        inputMobile.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    hideKeyboard(v);
+                }
+            }
+        });
+    }
+
+    public void hideKeyboard(View view) {
+
+        InputMethodManager inputMethodManager =(InputMethodManager) mActivity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
     private void verifyFTLDetails() {
@@ -180,13 +219,26 @@ public class FTLRegistrationFragment extends Fragment {
         final String email = inputEmail.getText().toString().trim();
         if (validateEmail()) {
             if (NetworkUtils.isNetworkAvailable(mActivity)) {
-                /*final ProgressDialog mProgressDialog = new ProgressDialog(mActivity);
-                mProgressDialog.setIndeterminate(true);
-                mProgressDialog.setMessage("Loading...");
-                mProgressDialog.show();*/
 
                 final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
                 dialog.show();
+
+                /*final LoadingProgressDialog mDialog = new LoadingProgressDialog(mActivity);
+                mDialog.show();*/
+
+                /*final ProgressDialog progressDialog = new ProgressDialog(mActivity,
+                        R.style.AppTheme_Dark_Dialog);
+                progressDialog.setIndeterminate(true);
+                progressDialog.setMax(100); // Progress Dialog Max Value
+                progressDialog.setMessage("Loading..."); // Setting Message
+                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER); // Progress Dialog Style Spinner
+                progressDialog.show(); // Display Progress Dialog
+                progressDialog.setCancelable(false);*/
+
+                /*final LightLoader lightLoader = new LightLoader(mActivity);
+                lightLoader.setMessage("Loading...");
+                lightLoader.show();*/
+
                 Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
 
                 final VerifyFTLDetailsService verifyFTLDetailsService = retrofitAPI.create(VerifyFTLDetailsService.class);
@@ -219,7 +271,7 @@ public class FTLRegistrationFragment extends Fragment {
                                         inputLayoutMobile.setVisibility(View.GONE);
                                     }
                                 } else {
-                                    MaterialStyledDialog dialog = new MaterialStyledDialog.Builder(mActivity)
+                                    /*MaterialStyledDialog dialog = new MaterialStyledDialog.Builder(mActivity)
                                             .setTitle("Pin verification")
                                             .setDescription(getString(R.string.pin_verification_dialog_msg))
                                             // .setStyle(Style.HEADER_WITH_ICON)
@@ -240,9 +292,9 @@ public class FTLRegistrationFragment extends Fragment {
                                                 }
                                             })
                                             .build();
-                                    dialog.show();
+                                    dialog.show();*/
 
-                                    /*final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+                                    final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
                                     LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                                     View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
                                     builder.setView(view);
@@ -252,14 +304,13 @@ public class FTLRegistrationFragment extends Fragment {
 
                                     txtMessage.setText(getString(R.string.pin_verification_dialog_msg));
 
-                                    Button sendPinButton = (Button) view.findViewById(R.id.cancel_button);
-                                    Button cancelButton = (Button) view.findViewById(R.id.send_pin_button);
+                                    Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+                                    Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
                                     sendPinButton.setOnClickListener(new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
                                             mAlertDialog.dismiss();
-                                            dialog.dismiss();
                                             sendFTLPin(email);
                                         }
                                     });
@@ -268,12 +319,11 @@ public class FTLRegistrationFragment extends Fragment {
                                         @Override
                                         public void onClick(View v) {
                                             mAlertDialog.dismiss();
-                                            dialog.dismiss();
                                         }
                                     });
 
                                     mAlertDialog = builder.create();
-                                    mAlertDialog.show();*/
+                                    mAlertDialog.show();
                                 }
                             } else {
                                 String mMessage = apiResponse.status.getMessage().toString();

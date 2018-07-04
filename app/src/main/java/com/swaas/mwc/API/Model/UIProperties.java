@@ -81,6 +81,22 @@ public class UIProperties {
     @Expose
     private String ribbon_button_foreground_color_selected;
 
+    @SerializedName("mobile_item_enable_color")
+    @Expose
+    private String mobile_item_enable_color;
+
+    @SerializedName("mobile_item_disable_color")
+    @Expose
+    private String mobile_item_disable_color;
+
+    @SerializedName("mobile_splash_screen_background_color")
+    @Expose
+    private String mobile_splash_screen_background_color;
+
+    @SerializedName("mobile_folder_color")
+    @Expose
+    private String mobile_folder_color;
+
     public String getApp_background_color() {
         return app_background_color;
     }
@@ -223,5 +239,37 @@ public class UIProperties {
 
     public void setRibbon_button_foreground_color_selected(String ribbon_button_foreground_color_selected) {
         this.ribbon_button_foreground_color_selected = ribbon_button_foreground_color_selected;
+    }
+
+    public String getMobile_item_enable_color() {
+        return mobile_item_enable_color;
+    }
+
+    public void setMobile_item_enable_color(String mobile_item_enable_color) {
+        this.mobile_item_enable_color = mobile_item_enable_color;
+    }
+
+    public String getMobile_item_disable_color() {
+        return mobile_item_disable_color;
+    }
+
+    public void setMobile_item_disable_color(String mobile_item_disable_color) {
+        this.mobile_item_disable_color = mobile_item_disable_color;
+    }
+
+    public String getMobile_splash_screen_background_color() {
+        return mobile_splash_screen_background_color;
+    }
+
+    public void setMobile_splash_screen_background_color(String mobile_splash_screen_background_color) {
+        this.mobile_splash_screen_background_color = mobile_splash_screen_background_color;
+    }
+
+    public String getMobile_folder_color() {
+        return mobile_folder_color;
+    }
+
+    public void setMobile_folder_color(String mobile_folder_color) {
+        this.mobile_folder_color = mobile_folder_color;
     }
 }

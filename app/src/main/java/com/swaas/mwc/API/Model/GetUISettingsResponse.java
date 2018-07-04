@@ -6,7 +6,7 @@ package com.swaas.mwc.API.Model;
 
 public class GetUISettingsResponse {
 
-    public UIProperties uiProperties;
+    public UIProperties ui_properties;
 
-    public UIObjects uiObjects;
+    public UIObjects ui_objects;
 }

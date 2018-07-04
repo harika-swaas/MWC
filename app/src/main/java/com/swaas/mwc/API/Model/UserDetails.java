@@ -41,6 +41,14 @@ public class UserDetails {
     @Expose
     private String eu_ftl_welcome_msg;
 
+    @SerializedName("terms_pdf_url")
+    @Expose
+    private String terms_pdf_url;
+
+    @SerializedName("default_terms_url")
+    @Expose
+    private String default_terms_url;
+
     public String getMobilephone() {
         return mobilephone;
     }
@@ -103,5 +111,21 @@ public class UserDetails {
 
     public void setEu_ftl_welcome_msg(String eu_ftl_welcome_msg) {
         this.eu_ftl_welcome_msg = eu_ftl_welcome_msg;
+    }
+
+    public String getTerms_pdf_url() {
+        return terms_pdf_url;
+    }
+
+    public void setTerms_pdf_url(String terms_pdf_url) {
+        this.terms_pdf_url = terms_pdf_url;
+    }
+
+    public String getDefault_terms_url() {
+        return default_terms_url;
+    }
+
+    public void setDefault_terms_url(String default_terms_url) {
+        this.default_terms_url = default_terms_url;
     }
 }

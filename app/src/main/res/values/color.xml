@@ -53,6 +53,8 @@
     <color name="gray_non_pressed">#DFDFDF</color>
     <color name="grey_non_pressed">#979797</color>
     <color name="transparent">#00000000</color>
+    <color name="iron">#CCCCCC</color>
+    <color name="primary">#E43F3F</color>
 
     <!-- Sign-in Button Colors -->
     <color name="common_signin_btn_dark_text_default">@android:color/white</color>
@@ -78,6 +80,7 @@
     <color name="maroon">#833B00</color>
     <color name="orange">#E8741A</color>
     <color name="sky_blue">#42C0F0</color>
+    <color name="ftl_text_input_grey">#007aff</color>
 
 
     <integer-array name="contacts_text_background_colors">

@@ -15,19 +15,18 @@
             android:visibility="visible">
 
             <RelativeLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
                 android:layout_margin="10dp">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/pin_verification"
                     android:id="@+id/title"
                     android:textColor="@color/white"
                     android:textSize="19sp"
-                    android:layout_centerVertical="true"/>
+                    android:gravity="center" />
 
             </RelativeLayout>
 
@@ -94,7 +93,6 @@
                     android:textColor="@color/dark_cyan"
                     android:background="?android:attr/selectableItemBackground"
                     android:textSize="16sp"/>
-
 
             </LinearLayout>
 

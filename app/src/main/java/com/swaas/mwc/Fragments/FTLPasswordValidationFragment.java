@@ -1,8 +1,12 @@
 package com.swaas.mwc.Fragments;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
@@ -14,8 +18,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +36,7 @@ import com.swaas.mwc.FTL.FTLAgreeTermsAcceptanceActivity;
 import com.swaas.mwc.FTL.FTLPasswordValidationActivity;
 import com.swaas.mwc.FTL.FTLUserValidationActivity;
 import com.swaas.mwc.Network.NetworkUtils;
+import com.swaas.mwc.Preference.PreferenceUtils;
 import com.swaas.mwc.R;
 import com.swaas.mwc.Retrofit.RetrofitAPIBuilder;
 import com.swaas.mwc.Utils.Constants;
@@ -59,6 +66,7 @@ public class FTLPasswordValidationFragment extends Fragment {
     EditText inputPassword,inputConfirmPassword;
     TextView welcomeMsg;
     String mAccessToken;
+    ImageView mBackIv;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -74,6 +82,7 @@ public class FTLPasswordValidationFragment extends Fragment {
         intializeViews();
         getIntentData();
         setWelcomeMsg();
+        setButtonGradientDrawable();
         addListenersToViews();
         return mView;
     }
@@ -86,6 +95,7 @@ public class FTLPasswordValidationFragment extends Fragment {
         inputPassword = (EditText) mView.findViewById(R.id.input_password);
         inputConfirmPassword = (EditText) mView.findViewById(R.id.input_confirm_password);
         mNext = (Button) mView.findViewById(R.id.next_button);
+        mBackIv = (ImageView) mView.findViewById(R.id.back_image_view);
     }
 
     private void getIntentData() {
@@ -109,6 +119,47 @@ public class FTLPasswordValidationFragment extends Fragment {
 
     private void addListenersToViews() {
 
+        inputConfirmPassword.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String password = inputPassword.getText().toString().trim();
+                String confirmPassword = inputConfirmPassword.getText().toString().trim();
+
+                if (!TextUtils.isEmpty(confirmPassword) && !TextUtils.isEmpty(password) && password.equals(confirmPassword)) {
+                    String mobileItemEnableColor = PreferenceUtils.getMobileItemEnableColor(mActivity);
+                    int itemEnableColor = Color.parseColor(mobileItemEnableColor);
+
+                    if (mobileItemEnableColor != null) {
+                        // Initialize a new GradientDrawable
+                        GradientDrawable shape = new GradientDrawable();
+
+                        // Specify the shape of drawable
+                        shape.setShape(GradientDrawable.RECTANGLE);
+
+                        // Make the border rounded
+                        shape.setCornerRadius(50f);
+
+                        // Set the fill color of drawable
+                        shape.setColor(itemEnableColor);
+
+                        mNext.setBackgroundDrawable(shape);
+                    } else {
+                        mNext.setBackgroundResource(R.drawable.next);
+                    }
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
         mNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -118,11 +169,68 @@ public class FTLPasswordValidationFragment extends Fragment {
 
                 verifyFTLPasswordDetails();
                 updateFTLStatus();
-
-               // startActivity(new Intent(mActivity,FTLAgreeTermsAcceptanceActivity.class));
-               // mActivity.finish();
             }
         });
+
+        mBackIv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mActivity.onBackPressed();
+            }
+        });
+
+        inputPassword.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    hideKeyboard(v);
+                }
+            }
+        });
+
+        inputConfirmPassword.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    hideKeyboard(v);
+                }
+            }
+        });
+    }
+
+    public void hideKeyboard(View view) {
+
+        InputMethodManager inputMethodManager =(InputMethodManager) mActivity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    private void setButtonGradientDrawable() {
+
+        String password = inputPassword.getText().toString().trim();
+        String confirmPassword = inputConfirmPassword.getText().toString().trim();
+
+        if (!TextUtils.isEmpty(confirmPassword) && !TextUtils.isEmpty(password) && password.equals(confirmPassword)) {
+            String mobileItemEnableColor = PreferenceUtils.getMobileItemEnableColor(mActivity);
+            int itemEnableColor = Color.parseColor(mobileItemEnableColor);
+
+            if (mobileItemEnableColor != null) {
+                // Initialize a new GradientDrawable
+                GradientDrawable shape = new GradientDrawable();
+
+                // Specify the shape of drawable
+                shape.setShape(GradientDrawable.RECTANGLE);
+
+                // Make the border rounded
+                shape.setCornerRadius(50f);
+
+                // Set the fill color of drawable
+                shape.setColor(itemEnableColor);
+
+                mNext.setBackgroundDrawable(shape);
+            } else {
+                mNext.setBackgroundResource(R.drawable.next);
+            }
+        }
     }
 
     private void verifyFTLPasswordDetails() {
@@ -148,6 +256,7 @@ public class FTLPasswordValidationFragment extends Fragment {
         }
 
         public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
         }
 
         public void afterTextChanged(Editable editable) {
@@ -167,8 +276,16 @@ public class FTLPasswordValidationFragment extends Fragment {
 
         String password = inputPassword.getText().toString().trim();
 
-        if (password.isEmpty() || password.length() < 8 && !isValidPassword(password)) {
+        if (password.isEmpty() || !isValidPassword(password) ) {
             inputLayoutPassword.setError(getString(R.string.err_msg_password));
+            requestFocus(inputPassword);
+            return false;
+        }  else if(password.length() < 8) {
+            inputLayoutPassword.setError(getString(R.string.err_msg_password_min_length));
+            requestFocus(inputPassword);
+            return false;
+        } else if(password.length() > 15 ) {
+            inputLayoutPassword.setError(getString(R.string.err_msg_password_max_length));
             requestFocus(inputPassword);
             return false;
         } else {
@@ -183,8 +300,20 @@ public class FTLPasswordValidationFragment extends Fragment {
         String password = inputPassword.getText().toString().trim();
         String confirmPassword = inputConfirmPassword.getText().toString().trim();
 
-        if (confirmPassword.isEmpty() || !password.equals(confirmPassword)) {
+        if (confirmPassword.isEmpty()) {
             inputLayoutConfirmPassword.setError(getString(R.string.err_msg_confirm_password));
+            requestFocus(inputConfirmPassword);
+            return false;
+        } else if(confirmPassword.length() < 8) {
+            inputLayoutConfirmPassword.setError(getString(R.string.err_msg_password_min_length));
+            requestFocus(inputConfirmPassword);
+            return false;
+        } else if(confirmPassword.length() > 15 ) {
+            inputLayoutConfirmPassword.setError(getString(R.string.err_msg_password_max_length));
+            requestFocus(inputConfirmPassword);
+            return false;
+        } else if(!password.equals(confirmPassword)) {
+            inputLayoutConfirmPassword.setError(getString(R.string.err_msg_confirm_password_match));
             requestFocus(inputConfirmPassword);
             return false;
         } else {
@@ -196,11 +325,9 @@ public class FTLPasswordValidationFragment extends Fragment {
 
     public static boolean isValidPassword(final String password) {
 
-        Pattern pattern;
-        Matcher matcher;
-        final String PASSWORD_PATTERN = "^(?=.*[A-Za-z])(?=.*\\\\d)(?=.*[$@$!%*#?&])[A-Za-z\\\\d$@$!%*#?&]{8,}$";
-        pattern = Pattern.compile(PASSWORD_PATTERN);
-        matcher = pattern.matcher(password);
+        final String PASSWORD_PATTERN = "^(?=.*?[A-Z])(?=.*?[0-9])[A-Za-z0-9]{8,15}$";
+        Pattern mPattern = Pattern.compile(PASSWORD_PATTERN);
+        Matcher matcher = mPattern.matcher(password.toString());
 
         return matcher.matches();
     }

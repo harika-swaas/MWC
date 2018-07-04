@@ -6,6 +6,8 @@ import com.swaas.mwc.API.Model.GetUISettingsResponse;
 import retrofit.Call;
 import retrofit.http.Body;
 import retrofit.http.FormUrlEncoded;
+import retrofit.http.Header;
+import retrofit.http.Headers;
 import retrofit.http.POST;
 
 /**
@@ -14,7 +16,7 @@ import retrofit.http.POST;
 
 public interface GetUISettingsService {
 
+    @Headers("content-type: application/x-www-form-urlencoded")
     @POST("/get-ui-settings")
-    @FormUrlEncoded
-    Call<BaseApiResponse<GetUISettingsResponse>> getUISettings();
+    Call<BaseApiResponse<GetUISettingsResponse>> getUISettings(@Header("access-token") String accessToken);
 }

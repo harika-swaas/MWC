@@ -48,6 +48,8 @@
             android:screenOrientation="portrait"/>
         <activity android:name=".FTL.FTLAgreeTermsAcceptanceActivity"
             android:screenOrientation="portrait"/>
+        <activity android:name=".FTL.WebviewLoaderTermsActivity"
+            android:screenOrientation="portrait"/>
 
         <meta-data
             android:name="io.fabric.ApiKey"

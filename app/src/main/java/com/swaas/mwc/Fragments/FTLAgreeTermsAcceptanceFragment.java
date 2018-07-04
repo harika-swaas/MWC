@@ -3,6 +3,8 @@ package com.swaas.mwc.Fragments;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -11,12 +13,14 @@ import android.support.v4.content.ContextCompat;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextPaint;
+import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,7 +34,10 @@ import com.swaas.mwc.API.Service.FTLProcessService;
 import com.swaas.mwc.API.Service.SetTermsAcceptanceService;
 import com.swaas.mwc.API.Service.UpdateFTLStatusService;
 import com.swaas.mwc.FTL.FTLAgreeTermsAcceptanceActivity;
+import com.swaas.mwc.FTL.WebviewLoaderTermsActivity;
+import com.swaas.mwc.Login.Authenticate;
 import com.swaas.mwc.Login.LoginActivity;
+import com.swaas.mwc.Login.Touchid;
 import com.swaas.mwc.Network.NetworkUtils;
 import com.swaas.mwc.Preference.PreferenceUtils;
 import com.swaas.mwc.R;
@@ -58,6 +65,7 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
     String mUserName, mPassword;
     String mAccessToken, mTerms;
     TextView setAcceptanceTerms;
+    ImageView mBackIv;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -73,6 +81,7 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
         intializeViews();
         getIntentData();
         setLinkTextView();
+        setButtonBackgroundColor();
         addListenersToViews();
         return mView;
     }
@@ -81,11 +90,12 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
 
         setAcceptanceTerms = (TextView) mView.findViewById(R.id.set_terms_acceptance_txt);
         letsStartButton = (Button) mView.findViewById(R.id.lets_start);
+        mBackIv = (ImageView) mView.findViewById(R.id.back_image_view);
     }
 
     private void getIntentData() {
 
-        if(mActivity.getIntent() != null){
+        if (mActivity.getIntent() != null) {
             mUserName = mActivity.getIntent().getStringExtra(Constants.USERNAME);
             mPassword = mActivity.getIntent().getStringExtra(Constants.PASSWORD);
             mAccessToken = mActivity.getIntent().getStringExtra(Constants.ACCESSTOKEN);
@@ -103,8 +113,10 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
             @Override
             public void onClick(View textView) {
                 String mUri = PreferenceUtils.getTermsURL(mActivity);
-                Intent mIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(mUri));
+                Intent mIntent = new Intent(mActivity,WebviewLoaderTermsActivity.class);
+                mIntent.putExtra(Constants.SETTERMS,mUri);
                 startActivity(mIntent);
+               // Intent mIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(mUri));
             }
 
             @Override
@@ -120,7 +132,7 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
         setAcceptanceTerms.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
-    public void setClickableString(String clickableValue, String wholeValue, TextView yourTextView){
+    public void setClickableString(String clickableValue, String wholeValue, TextView yourTextView) {
         String value = wholeValue;
         SpannableString spannableString = new SpannableString(value);
         int startIndex = value.indexOf(clickableValue);
@@ -147,12 +159,48 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
         yourTextView.setMovementMethod(LinkMovementMethod.getInstance()); // <-- important, onClick in ClickableSpan won't work without this
     }
 
+    private void setButtonBackgroundColor() {
+
+        String mobileItemEnableColor = PreferenceUtils.getMobileItemEnableColor(mActivity);
+        String mobileItemDisableColor = PreferenceUtils.getMobileItemDisableColor(mActivity);
+
+        int itemEnableColor = Color.parseColor(mobileItemEnableColor);
+        int itemDisableColor = Color.parseColor(mobileItemDisableColor);
+
+        if (mobileItemEnableColor != null) {
+
+            // Initialize a new GradientDrawable
+            GradientDrawable shape = new GradientDrawable();
+
+            // Specify the shape of drawable
+            shape.setShape(GradientDrawable.RECTANGLE);
+
+            // Make the border rounded
+            shape.setCornerRadius(50f);
+
+            // Set the fill color of drawable
+            shape.setColor(itemEnableColor);
+
+            letsStartButton.setBackgroundDrawable(shape);
+        } else {
+
+            letsStartButton.setBackgroundResource(R.drawable.next);
+        }
+    }
+
     private void addListenersToViews() {
 
         letsStartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 addFTLDetails();
+            }
+        });
+
+        mBackIv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mActivity.onBackPressed();
             }
         });
     }
@@ -185,8 +233,8 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
                         } else {
                             dialog.dismiss();
                             String mMessage = apiResponse.status.getMessage().toString();
-                            mActivity.showMessagebox(mActivity,mMessage,null,false);
-                          //  Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
+                            mActivity.showMessagebox(mActivity, mMessage, null, false);
+                            //  Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
@@ -194,7 +242,7 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     dialog.dismiss();
-                   // Toast.makeText(mActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
+                    // Toast.makeText(mActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -224,14 +272,14 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
                         dialog.dismiss();
                         if (apiResponse.status.isCode() == false) {
                             String mMessage = apiResponse.status.getMessage().toString();
-                           // Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
-                            Intent mIntent = new Intent(mActivity, LoginActivity.class);
+                            // Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
+                            Intent mIntent = new Intent(mActivity, Touchid.class);
                             startActivity(mIntent);
                             mActivity.finish();
                         } else {
                             String mMessage = apiResponse.status.getMessage().toString();
-                            mActivity.showMessagebox(mActivity,mMessage,null,false);
-                           // Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
+                            mActivity.showMessagebox(mActivity, mMessage, null, false);
+                            // Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
@@ -243,5 +291,11 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
                 }
             });
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        setButtonBackgroundColor();
     }
 }

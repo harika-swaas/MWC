@@ -67,19 +67,21 @@
                     android:textSize="18sp"
                     android:textColor="@color/black"
                     android:layout_gravity="center"
-                    android:layout_centerInParent="true"/>
+                    android:layout_centerInParent="true"
+                    android:alpha="0.87"/>
 
                 <TextView
                     android:id="@+id/set_terms_acceptance_txt"
                     android:layout_below="@+id/almost_done"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="18dp"
                     android:text="@string/set_terms_acceptance_txt"
                     android:textSize="16sp"
-                    android:textColor="@color/colorGray"
+                    android:textColor="@color/black"
                     android:layout_gravity="center_vertical"
-                    android:gravity="center_horizontal" />
+                    android:gravity="center_horizontal"
+                    android:alpha="0.64"/>
 
             </LinearLayout>
 
@@ -99,7 +101,8 @@
                     android:text="@string/lets_start"
                     android:textColor="@color/white"
                     android:textSize="16sp"
-                    android:textAllCaps="false"/>
+                    android:textAllCaps="false"
+                    />
 
             </LinearLayout>
 

@@ -1,6 +1,9 @@
 package com.swaas.mwc.Fragments;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
@@ -13,8 +16,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -51,6 +56,7 @@ public class FTLUserValidationFragment extends Fragment {
     TextView welcomeMsg;
     String mUserName,mEmail,mWelcomeMsg,mTerms;
     String mAccessToken;
+    ImageView mBackIv;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -67,7 +73,7 @@ public class FTLUserValidationFragment extends Fragment {
         getIntentData();
         getFTLProcess();
       //  setUserName();
-       // setButtonBackgroundColor();
+        setButtonBackgroundColor();
         addListenersToViews();
         return mView;
     }
@@ -78,6 +84,7 @@ public class FTLUserValidationFragment extends Fragment {
         inputLayoutUserName = (TextInputLayout) mView.findViewById(R.id.input_layout_username);
         inputUserName = (EditText) mView.findViewById(R.id.input_username);
         mNext = (Button) mView.findViewById(R.id.next_button);
+        mBackIv = (ImageView) mView.findViewById(R.id.back_image_view);
     }
 
     private void getIntentData() {
@@ -95,34 +102,163 @@ public class FTLUserValidationFragment extends Fragment {
             welcomeMsg.setText(getString(R.string.welcome));
         }
 
-        if(mUserName != null && !TextUtils.isEmpty(mUserName)){
-            inputUserName.setHint(mUserName);
-        } else if(!TextUtils.isEmpty(mEmail)){
-            inputUserName.setHint(mEmail);
+        if(mEmail != null && !TextUtils.isEmpty(mEmail)){
+            inputUserName.setText(mEmail);
+        } else if(mUserName != null && !TextUtils.isEmpty(mUserName)){
+            inputUserName.setText(mUserName);
         } else {
             inputUserName.setHint(getString(R.string.user_name));
         }
     }
 
     private void setButtonBackgroundColor() {
+        String username = inputUserName.getText().toString().trim();
 
-        if(mAppBackGroundColor != null && !mAppBackGroundColor.isEmpty()) {
-            mNext.setBackgroundColor(Integer.parseInt(mAppBackGroundColor));
+        String mobileItemEnableColor = PreferenceUtils.getMobileItemEnableColor(mActivity);
+        String mobileItemDisableColor = PreferenceUtils.getMobileItemDisableColor(mActivity);
+
+        int itemEnableColor = 0;
+        int itemDisableColor = 0;
+
+        if(mobileItemEnableColor != null){
+            itemEnableColor = Color.parseColor(mobileItemEnableColor);
+        }
+        if(mobileItemDisableColor != null){
+            itemDisableColor = Color.parseColor(mobileItemDisableColor);
+        }
+
+        if (TextUtils.isEmpty(username) && username.length() == 0) {
+            if(mobileItemDisableColor != null) {
+              //  mNext.setBackgroundColor(itemDisableColor);
+
+                // Initialize a new GradientDrawable
+                GradientDrawable shape = new GradientDrawable();
+
+                // Specify the shape of drawable
+                shape.setShape(GradientDrawable.RECTANGLE);
+
+                // Make the border rounded
+                shape.setCornerRadius(50f);
+
+                // Set the fill color of drawable
+                shape.setColor(itemDisableColor);
+
+                mNext.setBackgroundDrawable(shape);
+            }
         } else {
-            mNext.setBackgroundResource(R.drawable.next);
+            if(mobileItemEnableColor != null) {
+             //   mNext.setBackgroundColor(itemEnableColor);
+
+                // Initialize a new GradientDrawable
+                GradientDrawable shape = new GradientDrawable();
+
+                // Specify the shape of drawable
+                shape.setShape(GradientDrawable.RECTANGLE);
+
+                // Make the border rounded
+                shape.setCornerRadius(50f);
+
+                // Set the fill color of drawable
+                shape.setColor(itemEnableColor);
+
+                mNext.setBackgroundDrawable(shape);
+            }
         }
     }
 
     private void addListenersToViews() {
 
+        inputUserName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String username = inputUserName.getText().toString().trim();
+
+                String mobileItemEnableColor = PreferenceUtils.getMobileItemEnableColor(mActivity);
+                String mobileItemDisableColor = PreferenceUtils.getMobileItemDisableColor(mActivity);
+
+                int itemEnableColor = Color.parseColor(mobileItemEnableColor);
+                int itemDisableColor = Color.parseColor(mobileItemDisableColor);
+
+                if (TextUtils.isEmpty(username) && username.length() == 0) {
+                    if(mobileItemDisableColor != null) {
+                     //   mNext.setBackgroundColor(itemDisableColor);
+
+                        // Initialize a new GradientDrawable
+                        GradientDrawable shape = new GradientDrawable();
+
+                        // Specify the shape of drawable
+                        shape.setShape(GradientDrawable.RECTANGLE);
+
+                        // Make the border rounded
+                        shape.setCornerRadius(50f);
+
+                        // Set the fill color of drawable
+                        shape.setColor(itemDisableColor);
+
+                        mNext.setBackgroundDrawable(shape);
+                    }
+                } else {
+                    if(mobileItemEnableColor != null) {
+                       // mNext.setBackgroundColor(itemEnableColor);
+
+                        // Initialize a new GradientDrawable
+                        GradientDrawable shape = new GradientDrawable();
+
+                        // Specify the shape of drawable
+                        shape.setShape(GradientDrawable.RECTANGLE);
+
+                        // Make the border rounded
+                        shape.setCornerRadius(50f);
+
+                        // Set the fill color of drawable
+                        shape.setColor(itemEnableColor);
+
+                        mNext.setBackgroundDrawable(shape);
+                    }
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
         mNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                inputUserName.addTextChangedListener(new FTLUserValidationFragment.MyTextWatcher(inputUserName));
 
+                inputUserName.addTextChangedListener(new FTLUserValidationFragment.MyTextWatcher(inputUserName));
                 verifyFTLUserDetails();
             }
         });
+
+        mBackIv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mActivity.onBackPressed();
+            }
+        });
+
+        inputUserName.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    hideKeyboard(v);
+                }
+            }
+        });
+    }
+
+    public void hideKeyboard(View view) {
+
+        InputMethodManager inputMethodManager =(InputMethodManager) mActivity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
     private void verifyFTLUserDetails() {
@@ -144,8 +280,12 @@ public class FTLUserValidationFragment extends Fragment {
 
         String username = inputUserName.getText().toString().trim();
 
-        if (username.isEmpty()) {
+        if (TextUtils.isEmpty(username) && username.length() == 0) {
             inputLayoutUserName.setError(getString(R.string.err_msg_user_name));
+            requestFocus(inputUserName);
+            return false;
+        } else if (username.length() < 5){
+            inputLayoutUserName.setError(getString(R.string.err_msg_user_name_min_length));
             requestFocus(inputUserName);
             return false;
         } else {
@@ -174,6 +314,7 @@ public class FTLUserValidationFragment extends Fragment {
         }
 
         public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
         }
 
         public void afterTextChanged(Editable editable) {
@@ -202,7 +343,7 @@ public class FTLUserValidationFragment extends Fragment {
                                 mUserName = mFTLProcessResponse.user_details.getUsername();
                                 mEmail = mFTLProcessResponse.user_details.getEmail();
                                 mWelcomeMsg = mFTLProcessResponse.user_details.getEu_ftl_welcome_msg();
-                                mTerms = mFTLProcessResponse.user_details.getTerms();
+                                mTerms = mFTLProcessResponse.user_details.getDefault_terms_url();
                                 PreferenceUtils.setTermsURL(mActivity, mTerms);
                                 setUserName();
                             }
@@ -218,5 +359,15 @@ public class FTLUserValidationFragment extends Fragment {
                 }
             });
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getIntentData();
+        getFTLProcess();
+        //  setUserName();
+        setButtonBackgroundColor();
+        addListenersToViews();
     }
 }

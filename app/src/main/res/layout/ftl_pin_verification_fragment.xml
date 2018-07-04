@@ -6,7 +6,9 @@
     android:layout_height="match_parent"
     android:layout_marginLeft="16dp"
     android:layout_marginRight="16dp"
-    android:layout_marginTop="16dp">
+    android:layout_marginTop="16dp"
+    android:clickable="true"
+    android:focusableInTouchMode="true" >
 
     <FrameLayout
         android:id="@+id/frame1"
@@ -34,7 +36,8 @@
                 android:layout_toRightOf="@+id/back_image_view"
                 android:text="@string/pin_verification"
                 android:textColor="@color/black"
-                android:textSize="20sp" />
+                android:textSize="20sp"
+                android:alpha="0.87"/>
 
         </RelativeLayout>
 
@@ -45,7 +48,9 @@
             android:layout_gravity="center_vertical"
             android:gravity="center_horizontal"
             android:text="@string/ftl_pin_verification_text"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:textColor="@color/black"
+            android:alpha="0.64"/>
 
     </FrameLayout>
 
@@ -77,7 +82,8 @@
                     android:layout_gravity="center"
                     android:text="@string/enter_your_pin_number"
                     android:textColor="@color/black"
-                    android:textSize="18sp" />
+                    android:textSize="18sp"
+                    android:alpha="0.87"/>
 
             </LinearLayout>
 
@@ -147,15 +153,16 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:text="@string/resend_pin_text"
-                    android:textColor="@color/dark_gray"
-                    android:textSize="14sp" />
+                    android:textColor="@color/black"
+                    android:textSize="14sp"
+                    android:alpha="0.64"/>
 
                 <com.swaas.mwc.Components.LinkTextView
                     android:id="@+id/resend_pin"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_toRightOf="@+id/resend_pin_txt"
-                    android:layout_marginLeft="4dp"
+                    android:layout_marginLeft="6dp"
                     android:text="@string/resend_pin_btn_text"
                     android:textColor="@color/sky_blue"
                     android:textSize="14sp"

@@ -14,6 +14,9 @@ public class PreferenceUtils {
     private static final String SET_TERMS_URL = "setTermsURL";
     private static final String USER_PIN_DEVICE_ID = "userPinDeviceId";
     private static final String PIN = "pin";
+    private static final String MOBILE_ITEM_ENABLE_COLOR = "mobileItemEnableColor";
+    private static final String MOBILE_ITEM_DISABLE_COLOR = "mobileItemDisableColor";
+
 
     public static void setAccessToken(Context context, String accesstoken) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
@@ -65,5 +68,31 @@ public class PreferenceUtils {
         SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
         int userPin = sharedPreferences.getInt(PIN, -1);
         return userPin;
+    }
+
+    public static void setMobileItemEnableColor(Context context, String mobileItemEnableColor) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(MOBILE_ITEM_ENABLE_COLOR, mobileItemEnableColor);
+        editor.commit();
+    }
+
+    public static String getMobileItemEnableColor(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        String mobileItemEnableColor = sharedPreferences.getString(MOBILE_ITEM_ENABLE_COLOR, null);
+        return mobileItemEnableColor;
+    }
+
+    public static void setMobileItemDisableColor(Context context, String mobileItemDisableColor) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(MOBILE_ITEM_DISABLE_COLOR, mobileItemDisableColor);
+        editor.commit();
+    }
+
+    public static String getMobileItemDisableColor(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        String mobileItemDisableColor = sharedPreferences.getString(MOBILE_ITEM_DISABLE_COLOR, null);
+        return mobileItemDisableColor;
     }
 }

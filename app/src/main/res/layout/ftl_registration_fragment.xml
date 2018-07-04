@@ -6,7 +6,9 @@
     android:layout_height="match_parent"
     android:layout_marginTop="16dp"
     android:layout_marginRight="16dp"
-    android:layout_marginLeft="16dp">
+    android:layout_marginLeft="16dp"
+    android:clickable="true"
+    android:focusableInTouchMode="true" >
 
     <FrameLayout
         android:id="@+id/frame1"
@@ -34,7 +36,8 @@
                 android:text="@string/registration"
                 android:textSize="20sp"
                 android:textColor="@color/black"
-                android:layout_centerVertical="true"/>
+                android:layout_centerVertical="true"
+                android:alpha="0.87"/>
 
         </RelativeLayout>
 
@@ -45,7 +48,9 @@
             android:layout_gravity="center_vertical"
             android:text="@string/ftl_registration"
             android:textSize="16sp"
-            android:gravity="center_horizontal"/>
+            android:gravity="center_horizontal"
+            android:textColor="@color/black"
+            android:alpha="0.64"/>
 
     </FrameLayout>
 
@@ -53,7 +58,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_heightPercent="60%"
-        android:layout_alignParentBottom="true"
+        android:layout_below="@+id/frame1"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true">
 
@@ -77,7 +82,8 @@
                     android:textSize="18sp"
                     android:textColor="@color/black"
                     android:layout_gravity="center"
-                    android:layout_centerInParent="true"/>
+                    android:layout_centerInParent="true"
+                    android:alpha="0.87"/>
 
                 </LinearLayout>
 
@@ -87,7 +93,8 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_centerHorizontal="true"
-                android:layout_marginLeft="48dp">
+                android:layout_marginLeft="48dp"
+                android:focusableInTouchMode="true">
 
                 <!--<TextView
                     android:id="@+id/email"
@@ -166,9 +173,9 @@
                     android:layout_marginBottom="24dp"
                     android:background="@drawable/next"
                     android:text="@string/next"
+                    android:textAllCaps="false"
                     android:textColor="@color/white"
-                    android:textSize="16sp"
-                    android:textAllCaps="false"/>
+                    android:textSize="16sp" />
 
             </LinearLayout>
 
