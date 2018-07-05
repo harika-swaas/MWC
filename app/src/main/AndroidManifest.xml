@@ -50,11 +50,14 @@
             android:screenOrientation="portrait"/>
         <activity android:name=".FTL.WebviewLoaderTermsActivity"
             android:screenOrientation="portrait"/>
+        <activity android:name=".Login.LoginAgreeTermsAcceptanceActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".Login.LoginHelpUserGuideActivity"
+            android:screenOrientation="portrait"/>
 
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="d96603e1352aa9824c02ecac1485febe32590ab7" />
-
 
     </application>
 

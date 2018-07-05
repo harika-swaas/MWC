@@ -82,4 +82,10 @@
     <string name="back_alert_text">Are you sure you want to cancel account creation? This discard any information you\'ve entered so far.</string>
     <string name="no">NO</string>
     <string name="yes">YES</string>
+    <string name="i_agree">I Agree</string>
+    <string name="sign_out">Signout</string>
+    <string name="help_guide_alert">Alert!</string>
+    <string name="help_guide_txt">To help get you started discovering the exciting features please click to view our User Guide.You can always revisit this section from the settings menu.</string>
+    <string name="got_it">Got it</string>
+    <string name="do_not_show_again">Do not show again</string>
 </resources>
