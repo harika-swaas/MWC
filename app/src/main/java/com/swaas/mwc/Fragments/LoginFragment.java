@@ -57,6 +57,7 @@ public class LoginFragment extends Fragment {
     TextView mNotLoggedInBefore;
     EditText mUserName, mPassword;
     MessageDialog messageDialog;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -114,25 +115,16 @@ public class LoginFragment extends Fragment {
         mSignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String username = mUserName.getText().toString().trim();
+                /*String username = mUserName.getText().toString().trim();
                 String password = mPassword.getText().toString().trim();
 
-              /*  if((username.equals("") && password.equals("")))
-                {
-                    String message = "Enter username and password";
-                    mActivity.showMessagebox(mActivity,message,null,false);
-                }
-                else*/ if (username.equals(""))
-                {
+                if (username.equals("")) {
                     String message = "Please provide username";
-                    mActivity.showMessagebox(mActivity,message,null,false);
-                }
-               else if(password.equals(""))
-                {
+                    mActivity.showMessagebox(mActivity, message, null, false);
+                } else if (password.equals("")) {
                     String message = "Please provide password";
-                    mActivity.showMessagebox(mActivity,message,null,false);
-                }
-                else {
+                    mActivity.showMessagebox(mActivity, message, null, false);
+                } else {
 
 
                     if (NetworkUtils.isNetworkAvailable(mActivity)) {
@@ -147,8 +139,8 @@ public class LoginFragment extends Fragment {
                         //Here the json data is add to a hash map with key data
                         Map<String, String> params = new HashMap<String, String>();
                         params.put("data", request);
-                    /*mLoginRequest.setUserName(username);
-                    mLoginRequest.setPassword(password);*/
+                    *//*mLoginRequest.setUserName(username);
+                    mLoginRequest.setPassword(password);*//*
 
                         Call call = loginService.getLogin(params);
                         call.enqueue(new Callback<BaseApiResponse<LoginResponse>>() {
@@ -172,9 +164,7 @@ public class LoginFragment extends Fragment {
                                                     Intent intent = new Intent(mActivity, PinVerificationActivity.class);
                                                     startActivity(intent);
                                                 }
-                                            }
-                                            else
-                                            {
+                                            } else {
                                                 Intent intent = new Intent(mActivity, PinVerificationActivity.class);
                                                 startActivity(intent);
                                             }
@@ -200,14 +190,16 @@ public class LoginFragment extends Fragment {
                             }
                         });
                     }
-                }
+                }*/
             }
         });
     }
+
     private void hideKeyboard(View v) {
-        InputMethodManager inputMethodManager =(InputMethodManager) mActivity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        InputMethodManager inputMethodManager = (InputMethodManager) mActivity.getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(v.getWindowToken(), 0);
     }
+
     private void initializeRetrofitBuilder(String apiURL) {
         final OkHttpClient okHttpClient = new OkHttpClient();
         okHttpClient.setReadTimeout(60, TimeUnit.SECONDS);

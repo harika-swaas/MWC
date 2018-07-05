@@ -18,7 +18,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_marginBottom="56dp"
-        app:layout_heightPercent="45%">
+        app:layout_heightPercent="50%">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -83,7 +83,7 @@
                     android:gravity="center_horizontal"
                     android:text="@string/ftl_username_text1"
                     android:textColor="@color/black"
-                    android:textSize="16sp" />
+                    android:textSize="14sp" />
 
             </LinearLayout>
 
@@ -97,7 +97,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        app:layout_heightPercent="55%"
+        app:layout_heightPercent="50%"
         android:id="@+id/frameLayout">
 
         <RelativeLayout
@@ -131,7 +131,7 @@
                     android:layout_gravity="center_vertical"
                     android:gravity="center_horizontal"
                     android:text="@string/ftl_username_text"
-                    android:textSize="16sp"
+                    android:textSize="14sp"
                     android:textColor="@color/black"
                     android:alpha="0.64"/>
 
@@ -175,9 +175,10 @@
                     android:id="@+id/input_layout_username"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="32dp">
+                    android:layout_marginTop="24dp">
 
                     <EditText
+                        android:theme="@style/TextLabel"
                         android:id="@+id/input_username"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"

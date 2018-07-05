@@ -1,5 +1,6 @@
 package com.swaas.mwc.FTL;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,6 +13,7 @@ import com.swaas.mwc.Fragments.FTLUserValidationFragment;
 import com.swaas.mwc.Login.LoginActivity;
 import com.swaas.mwc.R;
 import com.swaas.mwc.RootActivity;
+import com.swaas.mwc.Utils.Constants;
 
 import java.util.List;
 

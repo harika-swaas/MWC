@@ -1,6 +1,8 @@
 package com.swaas.mwc.Fragments;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
@@ -29,6 +31,7 @@ import com.swaas.mwc.API.Model.VerifyFTLRequestWithEMail;
 import com.swaas.mwc.API.Service.FTLProcessService;
 import com.swaas.mwc.API.Service.VerifyFTLDetailsService;
 import com.swaas.mwc.FTL.FTLPasswordValidationActivity;
+import com.swaas.mwc.FTL.FTLPinVerificationActivity;
 import com.swaas.mwc.FTL.FTLUserValidationActivity;
 import com.swaas.mwc.Network.NetworkUtils;
 import com.swaas.mwc.Preference.PreferenceUtils;
@@ -57,6 +60,7 @@ public class FTLUserValidationFragment extends Fragment {
     String mUserName,mEmail,mWelcomeMsg,mTerms;
     String mAccessToken;
     ImageView mBackIv;
+    AlertDialog mBackDialog;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -241,7 +245,34 @@ public class FTLUserValidationFragment extends Fragment {
         mBackIv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mActivity.onBackPressed();
+               // mActivity.onBackPressed();
+
+                final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+                LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View view = inflater.inflate(R.layout.back_custom_alert_layout, null);
+                builder.setView(view);
+                builder.setCancelable(false);
+
+                Button yesButton = (Button) view.findViewById(R.id.yes_button);
+                Button noButton = (Button) view.findViewById(R.id.no_button);
+
+                yesButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mBackDialog.dismiss();
+                        startActivity(new Intent(mActivity, FTLPinVerificationActivity.class));
+                    }
+                });
+
+                noButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mBackDialog.dismiss();
+                    }
+                });
+
+                mBackDialog = builder.create();
+                mBackDialog.show();
             }
         });
 

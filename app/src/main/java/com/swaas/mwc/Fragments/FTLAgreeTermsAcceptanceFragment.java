@@ -36,6 +36,7 @@ import com.swaas.mwc.API.Service.UpdateFTLStatusService;
 import com.swaas.mwc.FTL.FTLAgreeTermsAcceptanceActivity;
 import com.swaas.mwc.FTL.WebviewLoaderTermsActivity;
 import com.swaas.mwc.Login.Authenticate;
+import com.swaas.mwc.Login.Dashboard;
 import com.swaas.mwc.Login.LoginActivity;
 import com.swaas.mwc.Login.Touchid;
 import com.swaas.mwc.Network.NetworkUtils;
@@ -273,7 +274,7 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
                         if (apiResponse.status.isCode() == false) {
                             String mMessage = apiResponse.status.getMessage().toString();
                             // Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
-                            Intent mIntent = new Intent(mActivity, Touchid.class);
+                            Intent mIntent = new Intent(mActivity, Dashboard.class);
                             startActivity(mIntent);
                             mActivity.finish();
                         } else {

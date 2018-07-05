@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -46,6 +47,7 @@ import com.swaas.mwc.API.Service.VerifyFTLPINService;
 import com.swaas.mwc.API.Service.VerifyPinService;
 import com.swaas.mwc.Components.LinkTextView;
 import com.swaas.mwc.FTL.FTLPinVerificationActivity;
+import com.swaas.mwc.FTL.FTLRegistrationActivity;
 import com.swaas.mwc.FTL.FTLUserValidationActivity;
 import com.swaas.mwc.Login.Authenticate;
 import com.swaas.mwc.Login.LoginActivity;
@@ -85,6 +87,7 @@ public class FTLPinVerificationFragment extends Fragment {
     ImageView mBackIv;
     boolean isFromLogin;
     AlertDialog mAlertDialog;
+    AlertDialog mBackDialog;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -152,7 +155,34 @@ public class FTLPinVerificationFragment extends Fragment {
         mBackIv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mActivity.onBackPressed();
+               // mActivity.onBackPressed();
+
+                final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+                LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View view = inflater.inflate(R.layout.back_custom_alert_layout, null);
+                builder.setView(view);
+                builder.setCancelable(false);
+
+                Button yesButton = (Button) view.findViewById(R.id.yes_button);
+                Button noButton = (Button) view.findViewById(R.id.no_button);
+
+                yesButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mBackDialog.dismiss();
+                        startActivity(new Intent(mActivity, FTLRegistrationActivity.class));
+                    }
+                });
+
+                noButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mBackDialog.dismiss();
+                    }
+                });
+
+                mBackDialog = builder.create();
+                mBackDialog.show();
             }
         });
 
@@ -239,7 +269,9 @@ public class FTLPinVerificationFragment extends Fragment {
         String pinNo = inputPIN.getText().toString().trim();
 
         if (NetworkUtils.isNetworkAvailable(mActivity)) {
+
             final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
+            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
             dialog.show();
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
             VerifyFTLPINService verifyFTLPINService = retrofitAPI.create(VerifyFTLPINService.class);

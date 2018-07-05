@@ -73,10 +73,13 @@
     <string name="resent_title" />
     <string name="resent_pin_msg">Pin Resent Succesfully !</string>
     <string name="ftl_username_text">This is the username you will use to login in the future. It can be at most 45 characters long.</string>
-    <string name="ftl_password_text">Please enter a password of your choosing. It must be at least 8 characters and contain one Uppercase letter and one number.</string>
+    <string name="ftl_password_text">Please enter a password of your choosing. It must be at least 8 characters and contain one uppercase letter and one number.</string>
     <string name="err_msg_user_name_min_length">Username should be minimum of 5 characters</string>
     <string name="err_msg_password_min_length">Password should be minimum of 8 characters</string>
     <string name="err_msg_password_max_length">Password should be maximum of 15 characters</string>
     <string name="err_msg_confirm_password_match">Password and confirm password must be same</string>
     <string name="ftl_username_text1">Please complete the following simple steps to login to your account for the first time. Once inside you will quickly discover the many exciting features My Wealth Cloud has to offer.</string>
+    <string name="back_alert_text">Are you sure you want to cancel account creation? This discard any information you\'ve entered so far.</string>
+    <string name="no">NO</string>
+    <string name="yes">YES</string>
 </resources>

@@ -16,6 +16,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -221,6 +222,8 @@ public class FTLRegistrationFragment extends Fragment {
             if (NetworkUtils.isNetworkAvailable(mActivity)) {
 
                 final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
+                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                dialog.getWindow().setLayout(600, 400);
                 dialog.show();
 
                 /*final LoadingProgressDialog mDialog = new LoadingProgressDialog(mActivity);
@@ -354,7 +357,9 @@ public class FTLRegistrationFragment extends Fragment {
             if (NetworkUtils.isNetworkAvailable(mActivity)) {
 
                 final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
+                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
                 dialog.show();
+
                 Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
 
                 final VerifyFTLDetailsService verifyFTLDetailsService = retrofitAPI.create(VerifyFTLDetailsService.class);
@@ -451,6 +456,7 @@ public class FTLRegistrationFragment extends Fragment {
         if(NetworkUtils.isNetworkAvailable(mActivity)){
 
             final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
+            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
             dialog.show();
 
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
@@ -499,6 +505,7 @@ public class FTLRegistrationFragment extends Fragment {
         if(NetworkUtils.isNetworkAvailable(mActivity)){
 
             final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
+            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
             dialog.show();
 
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();

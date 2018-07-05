@@ -85,8 +85,8 @@
 
     <style name="Custom" parent="android:Theme.DeviceDefault.Dialog">
         <item name="DialogTitleAppearance">@android:style/TextAppearance.Medium</item>
-        <item name="DialogTitleText">Please wait...</item>
         <item name="DialogSpotColor">@android:color/white</item>
+        <item name="DialogTitleText"></item>
         <item name="DialogSpotCount">4</item>
     </style>
 
@@ -96,17 +96,22 @@
         <item name="colorControlNormal">#D0D0D0</item>
     </style>
 
-    <style name="TextLabel" parent="TextAppearance.AppCompat">
+    <style name="TextInputStyle" parent="Widget.AppCompat.EditText">
+        <item name="colorControlNormal">#D0D0D0</item>
+    </style>
+
+    <style name="TextLabel" parent="Widget.AppCompat.EditText">
 
         <!-- Hint color and label color in FALSE state -->
-        <item name="android:textColorHint">#fff</item>
-        <item name="android:textSize">20sp</item>
+        <item name="android:textColorHint">#D0D0D0</item>
+        <item name="android:textSize">18sp</item>
 
         <!-- Label color in TRUE state and bar color FALSE and TRUE State -->
 
-        <item name="colorAccent">@color/colorPrimaryDark</item>
+        <item name="colorAccent">#42C0F0</item>
         <item name="colorControlNormal">#D0D0D0</item>
         <item name="colorControlActivated">#42C0F0</item>
+        <item name="colorControlHighlight">#42C0F0</item>
     </style>
 
     <style name="AppTheme.Dark.Dialog" parent="Theme.AppCompat.Dialog">
