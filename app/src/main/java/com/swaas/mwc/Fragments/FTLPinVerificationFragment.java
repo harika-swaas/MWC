@@ -2,12 +2,15 @@ package com.swaas.mwc.Fragments;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -51,6 +54,7 @@ import com.swaas.mwc.FTL.FTLRegistrationActivity;
 import com.swaas.mwc.FTL.FTLUserValidationActivity;
 import com.swaas.mwc.Login.Authenticate;
 import com.swaas.mwc.Login.LoginActivity;
+import com.swaas.mwc.Login.Notifiy;
 import com.swaas.mwc.Login.Touchid;
 import com.swaas.mwc.Login.Verify;
 import com.swaas.mwc.Network.NetworkUtils;
@@ -75,7 +79,7 @@ import retrofit.Retrofit;
  */
 
 public class FTLPinVerificationFragment extends Fragment {
-
+    Authenticate authenticate = new Authenticate();
     FTLPinVerificationActivity mActivity;
     View mView;
     Button mNext;
@@ -478,15 +482,15 @@ public class FTLPinVerificationFragment extends Fragment {
             Call call = verifyPinService.getVerifyPin(params, PreferenceUtils.getAccessToken(mActivity));
 
             call.enqueue(new Callback<BaseApiResponse<LoginResponse>>() {
+                @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
                 @Override
                 public void onResponse(Response<BaseApiResponse<LoginResponse>> response, Retrofit retrofit) {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
                         if (apiResponse.status.isCode() == false) {
                             String mMessage = apiResponse.status.getMessage().toString();
-                           // Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
-                            Intent intent = new Intent(mActivity, Touchid.class);
-                            startActivity(intent);
+                            Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
+                            authenticate.checkCredentials();
                             dialog.dismiss();
                             mActivity.finish();
                         } else {

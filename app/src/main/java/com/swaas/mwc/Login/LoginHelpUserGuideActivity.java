@@ -1,5 +1,6 @@
 package com.swaas.mwc.Login;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -35,7 +36,7 @@ public class LoginHelpUserGuideActivity extends RootActivity {
     }
 
     private Fragment getVisibleFragment(){
-        List<Fragment> fragmentList = getSupportFragmentManager().getFragments();
+        @SuppressLint("RestrictedApi") List<Fragment> fragmentList = getSupportFragmentManager().getFragments();
         if(fragmentList != null && fragmentList .size() > 0) {
             return fragmentList.get(fragmentList.size()-1);
         }

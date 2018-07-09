@@ -8,7 +8,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
+import com.swaas.mwc.Login.LoginActivity;
 import com.swaas.mwc.Login.LoginAgreeTermsAcceptanceActivity;
 import com.swaas.mwc.Login.LoginHelpUserGuideActivity;
 import com.swaas.mwc.R;
@@ -22,6 +24,7 @@ public class LoginAgreeTermsAcceptanceFragment extends Fragment{
     LoginAgreeTermsAcceptanceActivity mActivity;
     View mView;
     Button mIAgreeButton;
+    TextView cancel;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -42,6 +45,7 @@ public class LoginAgreeTermsAcceptanceFragment extends Fragment{
     private void intializeViews() {
 
         mIAgreeButton = (Button) mView.findViewById(R.id.agree_button);
+        cancel = (TextView) mView.findViewById(R.id.sign_out);
     }
 
     private void addListenersToViews() {
@@ -50,6 +54,13 @@ public class LoginAgreeTermsAcceptanceFragment extends Fragment{
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(mActivity, LoginHelpUserGuideActivity.class));
+                mActivity.finish();
+            }
+        });
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(mActivity, LoginActivity.class));
                 mActivity.finish();
             }
         });

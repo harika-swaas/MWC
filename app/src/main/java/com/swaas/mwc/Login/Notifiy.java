@@ -19,6 +19,7 @@ import android.widget.TextView;
 import android.Manifest;
 import android.widget.Toast;
 
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.swaas.mwc.R;
 import com.swaas.mwc.Utils.Constants;
 
@@ -30,7 +31,6 @@ public class Notifiy extends Activity {
 
     Button button5;
     TextView skip;
-    public static final int ACCESS_NOTIFICATION_POLICY = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,54 +40,12 @@ public class Notifiy extends Activity {
         button5 = (Button)findViewById(R.id.enable_touch_button);
 
         button5.setOnClickListener(new View.OnClickListener() {
-            public static final int REQUEST_PERMISSION_SETTING = 1432;
-            public static final int MY_PERMISSIONS_REQUEST_ACCESS_NOTIFICATION_POLICY = 1234 ;
 
             @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onClick(View v) {
 
-                if (ContextCompat.checkSelfPermission(Notifiy.this,
-                        Manifest.permission.ACCESS_NOTIFICATION_POLICY)
-                        != PackageManager.PERMISSION_GRANTED) {
-
-                    // Permission is not granted
-                    // Should we show an explanation?
-                    if (ActivityCompat.shouldShowRequestPermissionRationale(Notifiy.this,
-                            Manifest.permission.ACCESS_NOTIFICATION_POLICY)) {
-                        // Show an explanation to the user *asynchronously* -- don't block
-                        // this thread waiting for the user's response! After the user
-                        // sees the explanation, try again to request the permission.
-                    } else {
-                        // No explanation needed; request the permission
-                        ActivityCompat.requestPermissions(Notifiy.this,
-                                new String[]{Manifest.permission.ACCESS_NOTIFICATION_POLICY},
-                                MY_PERMISSIONS_REQUEST_ACCESS_NOTIFICATION_POLICY);
-
-                        // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-                        // app-defined int constant. The callback method gets the
-                        // result of the request.
-                    }
-                } else {
-                    Intent intent = new Intent(Notifiy.this,Dashboard.class);
-                    startActivity(intent);
-
-                }
-
-
-                /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-
-
-                    if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NOTIFICATION_POLICY) != PackageManager.PERMISSION_GRANTED) {
-                        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_NOTIFICATION_POLICY)) {
-
-                        } else {
-                            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_NOTIFICATION_POLICY}, RC_ACCESS_NOTIFICATION_POLICY);
-
-                        }
-                    }
-                }*/
-          /*      final Dialog dialog = new Dialog(Notifiy.this);
+           final Dialog dialog = new Dialog(Notifiy.this);
                 dialog.setContentView(R.layout.custom_dialog);
 
                 final TextView Text = (TextView) dialog.findViewById(R.id.title1);
@@ -99,8 +57,9 @@ public class Notifiy extends Activity {
                 BtnAllow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        /*FirebaseMessaging.getInstance().subscribeToTopic("news");*/
 
-                        Intent intent = new Intent(Notifiy.this,Dashboard.class);
+                        Intent intent = new Intent(Notifiy.this,LoginAgreeTermsAcceptanceActivity.class);
                         startActivity(intent);
 
                     }
@@ -110,11 +69,11 @@ public class Notifiy extends Activity {
                     @Override
                     public void onClick(View v) {
 
-
-                        Intent intent = new Intent(Notifiy.this,Dashboard.class);
+                        /*FirebaseMessaging.getInstance().unsubscribeFromTopic("news");*/
+                        Intent intent = new Intent(Notifiy.this,LoginAgreeTermsAcceptanceActivity.class);
                         startActivity(intent);
                     }
-                });*/
+                });
 
             }
 
@@ -123,7 +82,8 @@ public class Notifiy extends Activity {
         skip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Notifiy.this,Dashboard.class);
+                /*FirebaseMessaging.getInstance().unsubscribeFromTopic("news");*/
+                Intent intent = new Intent(Notifiy.this,LoginAgreeTermsAcceptanceActivity.class);
                 startActivity(intent);
             }
         });

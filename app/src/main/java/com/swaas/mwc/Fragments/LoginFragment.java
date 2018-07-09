@@ -2,10 +2,14 @@ package com.swaas.mwc.Fragments;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.KeyguardManager;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,8 +28,12 @@ import com.swaas.mwc.API.Model.LoginRequest;
 import com.swaas.mwc.API.Model.LoginResponse;
 import com.swaas.mwc.API.Service.LoginService;
 import com.swaas.mwc.FTL.FTLActivity;
+import com.swaas.mwc.FTL.FTLUserValidationActivity;
+import com.swaas.mwc.Login.Authenticate;
 import com.swaas.mwc.Login.LoginActivity;
+import com.swaas.mwc.Login.Notifiy;
 import com.swaas.mwc.Login.PinVerificationActivity;
+import com.swaas.mwc.Login.Touchid;
 import com.swaas.mwc.MessageDialog;
 import com.swaas.mwc.Network.NetworkUtils;
 import com.swaas.mwc.Preference.PreferenceUtils;
@@ -49,7 +57,7 @@ import retrofit.Retrofit;
  */
 
 public class LoginFragment extends Fragment {
-
+    Authenticate authenticate;
     LoginActivity mActivity;
     View mView;
     Retrofit retrofit;
@@ -115,7 +123,7 @@ public class LoginFragment extends Fragment {
         mSignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /*String username = mUserName.getText().toString().trim();
+                String username = mUserName.getText().toString().trim();
                 String password = mPassword.getText().toString().trim();
 
                 if (username.equals("")) {
@@ -139,11 +147,12 @@ public class LoginFragment extends Fragment {
                         //Here the json data is add to a hash map with key data
                         Map<String, String> params = new HashMap<String, String>();
                         params.put("data", request);
-                    *//*mLoginRequest.setUserName(username);
-                    mLoginRequest.setPassword(password);*//*
+                    mLoginRequest.setUserName(username);
+                    mLoginRequest.setPassword(password);
 
                         Call call = loginService.getLogin(params);
                         call.enqueue(new Callback<BaseApiResponse<LoginResponse>>() {
+                            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
                             @Override
                             public void onResponse(Response<BaseApiResponse<LoginResponse>> response, Retrofit retrofit) {
                                 BaseApiResponse apiResponse = response.body();
@@ -157,32 +166,42 @@ public class LoginFragment extends Fragment {
                                             PreferenceUtils.setAccessToken(mActivity, accessToken);
 
                                             if (mLoginResponse.nextStep != null) {
+
                                                 if (mLoginResponse.nextStep.isPin_authentication_required() == true) {
                                                     Intent intent = new Intent(mActivity, PinVerificationActivity.class);
                                                     startActivity(intent);
-                                                } else {
-                                                    Intent intent = new Intent(mActivity, PinVerificationActivity.class);
+                                                }
+                                                else if (mLoginResponse.nextStep.isFtl_required() == true) {
+                                                    Intent intent = new Intent(mActivity, FTLUserValidationActivity.class);
                                                     startActivity(intent);
                                                 }
-                                            } else {
-                                                Intent intent = new Intent(mActivity, PinVerificationActivity.class);
-                                                startActivity(intent);
+                                                }
+                                            else {
+                                                checkSecurity();
                                             }
-                                        } else {
+
+                                        }
+                                        else {
                                             String mMessage = apiResponse.status.getMessage().toString();
                                             dialog.dismiss();
                                             Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
                                         }
-                                    } else {
+
+                                    }
+                                    else {
                                         String mMessage = apiResponse.status.getMessage().toString();
                                         dialog.dismiss();
                                         Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
                                     }
-                                } else {
-                                    dialog.dismiss();
-                                }
-                            }
 
+                                }
+                                else {
+                                    String mMessage = apiResponse.status.getMessage().toString();
+                                    dialog.dismiss();
+                                    Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
+                                }
+
+                            }
                             @Override
                             public void onFailure(Throwable t) {
                                 Log.e("LoginErr", t.toString());
@@ -190,7 +209,7 @@ public class LoginFragment extends Fragment {
                             }
                         });
                     }
-                }*/
+                }
             }
         });
     }
@@ -210,6 +229,17 @@ public class LoginFragment extends Fragment {
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(okHttpClient)
                 .build();
+    }
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public void checkSecurity() {
+        KeyguardManager keyguardManager = (KeyguardManager) mActivity.getSystemService(Context.KEYGUARD_SERVICE);
+        if(keyguardManager.isKeyguardSecure()==true) {
+            Intent intent = new Intent(mActivity, Touchid.class);
+            startActivity(intent);
+        }
+        else    {
+            Intent intent = new Intent(mActivity,Notifiy.class);
+        }
     }
 }
 
