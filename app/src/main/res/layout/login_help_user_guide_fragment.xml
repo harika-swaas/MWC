@@ -74,17 +74,18 @@
                 android:layout_centerHorizontal="true">
 
                 <CheckBox
+                    android:id="@+id/checkbox_user_guide"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
                     android:layout_marginBottom="20dp"
+                    android:alpha="0.64"
+                    android:gravity="center"
                     android:text="@string/do_not_show_again"
+                    android:textAlignment="gravity"
                     android:textAllCaps="false"
                     android:textColor="@color/black"
-                    android:textSize="16sp"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:textAlignment="gravity"
-                    android:alpha="0.64"/>
+                    android:textSize="16sp" />
 
                 <Button
                     android:id="@+id/got_it_button"
@@ -101,13 +102,13 @@
                     android:id="@+id/cancel_action"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="30dp"
-                    android:text="@string/cancel"
-                    android:textSize="16sp"
-                    android:textColor="@color/black"
-                    android:layout_gravity="center"
                     android:layout_centerInParent="true"
-                    android:alpha="0.87"/>
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="30dp"
+                    android:alpha="0.87"
+                    android:text="@string/cancel"
+                    android:textColor="@color/black"
+                    android:textSize="16sp" />
 
             </LinearLayout>
 
