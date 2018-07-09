@@ -33,9 +33,11 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.github.javiersantos.materialstyleddialogs.MaterialStyledDialog;
 import com.github.javiersantos.materialstyleddialogs.enums.Style;
 import com.google.gson.Gson;
+import com.swaas.mwc.API.Model.AccountSettingsResponse;
 import com.swaas.mwc.API.Model.BaseApiResponse;
 import com.swaas.mwc.API.Model.FTLPINResponse;
 import com.swaas.mwc.API.Model.GetUISettingsResponse;
+import com.swaas.mwc.API.Model.GetUserPreferencesResponse;
 import com.swaas.mwc.API.Model.ListPinDevicesResponse;
 import com.swaas.mwc.API.Model.LoginResponse;
 import com.swaas.mwc.API.Model.SendPinRequest;
@@ -44,11 +46,13 @@ import com.swaas.mwc.API.Model.VerifyFTLRequest;
 import com.swaas.mwc.API.Model.VerifyFTLResponse;
 import com.swaas.mwc.API.Model.VerifyPinRequest;
 import com.swaas.mwc.API.Service.GetUISettingsService;
+import com.swaas.mwc.API.Service.GetUserPreferencesService;
 import com.swaas.mwc.API.Service.SendFTLPINService;
 import com.swaas.mwc.API.Service.SendPinService;
 import com.swaas.mwc.API.Service.VerifyFTLPINService;
 import com.swaas.mwc.API.Service.VerifyPinService;
 import com.swaas.mwc.Components.LinkTextView;
+import com.swaas.mwc.Database.AccountSettings;
 import com.swaas.mwc.FTL.FTLPinVerificationActivity;
 import com.swaas.mwc.FTL.FTLRegistrationActivity;
 import com.swaas.mwc.FTL.FTLUserValidationActivity;
@@ -92,6 +96,7 @@ public class FTLPinVerificationFragment extends Fragment {
     boolean isFromLogin;
     AlertDialog mAlertDialog;
     AlertDialog mBackDialog;
+    private LoginResponse mLoggedInObj;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -135,9 +140,6 @@ public class FTLPinVerificationFragment extends Fragment {
         mNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-             //   startActivity(new Intent(mActivity,FTLUserValidationActivity.class));
-              //  mActivity.finish();
-
                 inputPIN.addTextChangedListener(new FTLPinVerificationFragment.MyTextWatcher(inputPIN));
 
                 verifyFTLPINDetails();
@@ -488,11 +490,8 @@ public class FTLPinVerificationFragment extends Fragment {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
                         if (apiResponse.status.isCode() == false) {
-                            String mMessage = apiResponse.status.getMessage().toString();
-                            Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
-                            checkSecurity();
                             dialog.dismiss();
-                            mActivity.finish();
+                            getUserPreferences();
                         } else {
                             String mMessage = apiResponse.status.getMessage().toString();
                             mActivity.showMessagebox(mActivity,mMessage,null,false);
@@ -505,6 +504,61 @@ public class FTLPinVerificationFragment extends Fragment {
                 public void onFailure(Throwable t) {
                     dialog.dismiss();
                    // Toast.makeText(mActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+
+    private void getUserPreferences() {
+
+        if(NetworkUtils.isNetworkAvailable(mActivity)){
+
+            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+            final GetUserPreferencesService getUserPreferencesService = retrofitAPI.create(GetUserPreferencesService.class);
+
+            Call call = getUserPreferencesService.getUserPreferences(PreferenceUtils.getAccessToken(mActivity));
+
+            call.enqueue(new Callback<BaseApiResponse<GetUserPreferencesResponse>>() {
+                @Override
+                public void onResponse(Response<BaseApiResponse<GetUserPreferencesResponse>> response, Retrofit retrofit) {
+                    BaseApiResponse apiResponse = response.body();
+                    if (apiResponse != null) {
+                        if (apiResponse.status.isCode() == false) {
+                            GetUserPreferencesResponse mGetUserPreferencesResponse = response.body().getData();
+                            if(mGetUserPreferencesResponse != null){
+                                String assistance_popup = mGetUserPreferencesResponse.getAssistance_popup();
+
+                                Gson gson = new Gson();
+                                mLoggedInObj = gson.fromJson(PreferenceUtils.getDocPortalLoggedInObj(mActivity), LoginResponse.class);
+
+                                AccountSettingsResponse accountSettingsResponse = new AccountSettingsResponse();
+                                accountSettingsResponse.setUser_Id(mLoggedInObj.getUserId());
+                                accountSettingsResponse.setUser_Name(mLoggedInObj.getUserName());
+                                accountSettingsResponse.setAccess_Token(mLoggedInObj.getAccessToken());
+                                accountSettingsResponse.setCompany_Name(mLoggedInObj.getCompany_name());
+                                accountSettingsResponse.setIs_Terms_Accepted(mLoggedInObj.getTerms_accept());
+                                accountSettingsResponse.setIs_Help_Accepted(assistance_popup);
+                                accountSettingsResponse.setLogin_Complete_Status(String.valueOf(Constants.Login_Completed));
+                                accountSettingsResponse.setIs_Local_Auth_Enabled("0");
+                                accountSettingsResponse.setIs_Push_Notification_Enabled("0");
+
+                                AccountSettings accountSettings = new AccountSettings(mActivity);
+                                accountSettings.InsertAccountSettings(accountSettingsResponse);
+                            }
+
+                        } else {
+
+                        }
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            checkSecurity();
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    Log.d("PINVerErr",t.getMessage());
                 }
             });
         }
@@ -605,16 +659,18 @@ public class FTLPinVerificationFragment extends Fragment {
             });
         }
     }
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void checkSecurity() {
         KeyguardManager keyguardManager = (KeyguardManager) mActivity.getSystemService(Context.KEYGUARD_SERVICE);
-        if(keyguardManager.isKeyguardSecure()==true) {
+        if(keyguardManager.isKeyguardSecure() == true) {
             Intent intent = new Intent(mActivity, Touchid.class);
             startActivity(intent);
-        }
-        else    {
+            mActivity.finish();
+        } else {
             Intent intent = new Intent(mActivity,Notifiy.class);
             startActivity(intent);
+            mActivity.finish();
         }
     }
 }

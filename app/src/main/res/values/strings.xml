@@ -49,11 +49,11 @@
     <string name="personal_email">Personal Email</string>
     <string name="personal_number">Personal Number</string>
     <string name="touch_id_title">DOC PORTAL</string>
-    <string name="touch_id_head">Touch ID for "DOC PORTAL"</string>
-    <string name="enable_touch">Enable Touch ID Now</string>
+    <string name="touch_id_head">Protection for your document vault</string>
+    <string name="enable_touch">PROTECT MY DOCUMENT VAULT NOW</string>
     <string name="skip">Skip</string>
-    <string name="touch_id_ques">Would you like to use Touch ID to access DOC PORTAL?</string>
-    <string name="touch_id_body">Lorem Ipsum dolor sit amet, consectetur adipiscing elit. Maecenas eu rhonus est. Nulla ultrcies, nibh sed gravida effictur, lectus augue furmentum lacus, et dictum massa nisi condimentum nunc.</string>
+    <string name="touch_id_ques">Would you like to use the device unlock method to access DOC PORTAL</string>
+    <string name="touch_id_body">As an additional security after your login, we would like you to enable this feature. Every time when you launch the app, DOC PORTAL will ensure by prompting the device unlock screen</string>
     <string name="login_verification_text">There are many variations of passages of Lorem Ipsum available, but the majority have suffured alteration in some form, by injected humour, or randomised words which dont look even slightly belivable.</string>
     <string name="enable_notification">Notification for "DOC PORTAL"</string>
     <string name="enable_notification_button">Enable Notification"</string>

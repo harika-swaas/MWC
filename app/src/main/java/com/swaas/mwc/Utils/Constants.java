@@ -25,5 +25,14 @@ public class Constants {
     public static final String TEXT_FOREGROUND_COLOR = "text_foreground_color";
     public static final String APP_BACKGROUND_COLOR = "app_background_color";
 
+    //Login Status
+    public static final int Login_Not_Completed = 0;
+    public static final int Login_Completed = 1;
+    public static final int Local_Auth_Completed = 2;
+    public static final int Push_Notification_Completed = 3;
+    public static final int GDPR_Completed = 4;
+    public static final int Assistance_Popup_Completed = 5;
+    public static final int All_Settings_Completed = 6;
+
     public static final int REQUEST_ACCESS_NOTIFICATION_POLICY = 231;
 }

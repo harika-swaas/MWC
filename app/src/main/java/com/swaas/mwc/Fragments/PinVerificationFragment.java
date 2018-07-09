@@ -121,7 +121,6 @@ public class PinVerificationFragment extends Fragment {
 
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
-      //  mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(mActivity));
         mAdapter = new PinDeviceAdapter(mActivity, mListPinDevices);
         mRecyclerView.setAdapter(mAdapter); // set the Adapter to RecyclerView
     }

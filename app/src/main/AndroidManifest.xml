@@ -2,15 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.swaas.mwc">
+
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY"/>
-    <uses-permission android:name="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"/>
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
+    <uses-permission android:name="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
     <uses-permission android:name="com.pixelpoint.permission.C2D_MESSAGE" />
-
-
-
-
 
     <application
         android:name=".MWCApplication"
@@ -20,16 +17,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <service android:name=".MyFirebaseMessagingService">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-        </service>
-        <service android:name=".FirebaseIDService">
-            <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
-            </intent-filter>
-        </service>
+
         <activity android:name=".Login.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -38,36 +26,51 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".FTL.FTLActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".FTL.FTLRegistrationActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".FTL.FTLPinVerificationActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".FTL.FTLUserValidationActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".FTL.FTLPasswordValidationActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".Login.Authenticate"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".Login.Dashboard"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".Login.Notifiy"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".Login.PinVerificationActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".Login.Touchid"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".Login.Verify"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".FTL.FTLAgreeTermsAcceptanceActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".FTL.WebviewLoaderTermsActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".Login.LoginAgreeTermsAcceptanceActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".Login.LoginHelpUserGuideActivity"
-            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".FTL.FTLActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".FTL.FTLRegistrationActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".FTL.FTLPinVerificationActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".FTL.FTLUserValidationActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".FTL.FTLPasswordValidationActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Login.Authenticate"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Login.Dashboard"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Login.Notifiy"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Login.PinVerificationActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Login.Touchid"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Login.Verify"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".FTL.FTLAgreeTermsAcceptanceActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".FTL.WebviewLoaderTermsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Login.LoginAgreeTermsAcceptanceActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Login.LoginHelpUserGuideActivity"
+            android:screenOrientation="portrait" />
 
         <meta-data
             android:name="io.fabric.ApiKey"

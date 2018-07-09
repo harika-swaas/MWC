@@ -6,6 +6,8 @@ import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,6 +22,8 @@ import android.Manifest;
 import android.widget.Toast;
 
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.swaas.mwc.Database.AccountSettings;
+import com.swaas.mwc.Preference.PreferenceUtils;
 import com.swaas.mwc.R;
 import com.swaas.mwc.Utils.Constants;
 
@@ -39,6 +43,8 @@ public class Notifiy extends Activity {
         skip = (TextView)findViewById(R.id.skip_button_1);
         button5 = (Button)findViewById(R.id.enable_touch_button);
 
+        setButtonBackgroundColor();
+
         button5.setOnClickListener(new View.OnClickListener() {
 
             @RequiresApi(api = Build.VERSION_CODES.M)
@@ -57,37 +63,89 @@ public class Notifiy extends Activity {
                 BtnAllow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        /*FirebaseMessaging.getInstance().subscribeToTopic("news");*/
-
+                        updatePushNotificationAndLoggedInStatus();
                         Intent intent = new Intent(Notifiy.this,LoginAgreeTermsAcceptanceActivity.class);
                         startActivity(intent);
-
                     }
                 });
 
                 BtnCancel.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
-                        /*FirebaseMessaging.getInstance().unsubscribeFromTopic("news");*/
+                        updateLoggedInStatus();
                         Intent intent = new Intent(Notifiy.this,LoginAgreeTermsAcceptanceActivity.class);
                         startActivity(intent);
                     }
                 });
-
             }
-
         });
 
         skip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /*FirebaseMessaging.getInstance().unsubscribeFromTopic("news");*/
+                updateLoggedInStatus();
                 Intent intent = new Intent(Notifiy.this,LoginAgreeTermsAcceptanceActivity.class);
                 startActivity(intent);
             }
         });
     }
 
+    private void setButtonBackgroundColor() {
 
+        String mobileItemEnableColor = PreferenceUtils.getMobileItemEnableColor(this);
+        String mobileItemDisableColor = PreferenceUtils.getMobileItemDisableColor(this);
+
+        int itemEnableColor = 0;
+        int itemDisableColor = 0;
+
+        if (mobileItemEnableColor != null) {
+            itemEnableColor = Color.parseColor(mobileItemEnableColor);
+        }
+        if (mobileItemDisableColor != null) {
+            itemDisableColor = Color.parseColor(mobileItemDisableColor);
+        }
+
+        if (mobileItemEnableColor != null) {
+            // Initialize a new GradientDrawable
+            GradientDrawable shape = new GradientDrawable();
+
+            // Specify the shape of drawable
+            shape.setShape(GradientDrawable.RECTANGLE);
+
+            // Make the border rounded
+            shape.setCornerRadius(50f);
+
+            // Set the fill color of drawable
+            shape.setColor(itemEnableColor);
+
+            button5.setBackgroundDrawable(shape);
+
+        } else {
+            /*// Initialize a new GradientDrawable
+            GradientDrawable shape = new GradientDrawable();
+
+            // Specify the shape of drawable
+            shape.setShape(GradientDrawable.RECTANGLE);
+
+            // Make the border rounded
+            shape.setCornerRadius(50f);
+
+            // Set the fill color of drawable
+            shape.setColor(itemDisableColor);
+
+            button5.setBackgroundDrawable(shape);*/
+        }
+    }
+
+    private void updateLoggedInStatus() {
+
+        AccountSettings accountSettings = new AccountSettings(this);
+        accountSettings.updatePushNotificationEnableStatus(String.valueOf(Constants.Push_Notification_Completed));
+    }
+
+    private void updatePushNotificationAndLoggedInStatus() {
+
+        AccountSettings accountSettings = new AccountSettings(this);
+        accountSettings.updatePushNotificationEnableAndLoggedInStatus(String.valueOf(Constants.Push_Notification_Completed),String.valueOf(Constants.Push_Notification_Completed));
+    }
 }

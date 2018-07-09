@@ -57,6 +57,10 @@ public class LoginResponse {
     @Expose
     private boolean request_pin;
 
+    @SerializedName("terms_accept")
+    @Expose
+    private String terms_accept;
+
     public NextStep nextStep;
 
     public String getUserId() {
@@ -161,5 +165,13 @@ public class LoginResponse {
 
     public void setNextStep(NextStep nextStep) {
         this.nextStep = nextStep;
+    }
+
+    public String getTerms_accept() {
+        return terms_accept;
+    }
+
+    public void setTerms_accept(String terms_accept) {
+        this.terms_accept = terms_accept;
     }
 }

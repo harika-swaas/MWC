@@ -3,6 +3,9 @@ package com.swaas.mwc.Preference;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.google.gson.Gson;
+import com.swaas.mwc.API.Model.LoginResponse;
+
 /**
  * Created by harika on 22-06-2018.
  */
@@ -16,6 +19,7 @@ public class PreferenceUtils {
     private static final String PIN = "pin";
     private static final String MOBILE_ITEM_ENABLE_COLOR = "mobileItemEnableColor";
     private static final String MOBILE_ITEM_DISABLE_COLOR = "mobileItemDisableColor";
+    private static final String DOC_PORTAL_LOGGED_IN_OBJ = "doc_portal_logged_in_obj";
 
 
     public static void setAccessToken(Context context, String accesstoken) {
@@ -94,5 +98,21 @@ public class PreferenceUtils {
         SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
         String mobileItemDisableColor = sharedPreferences.getString(MOBILE_ITEM_DISABLE_COLOR, null);
         return mobileItemDisableColor;
+    }
+
+
+    public static String getDocPortalLoggedInObj(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        String loggedInString = sharedPreferences.getString("loggedInObj", null);
+        return loggedInString;
+    }
+
+    public static void setDocPortalLoggedInObj(Context context, LoginResponse loginResponse) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        Gson gson = new Gson();
+        String loggedInJson = gson.toJson(loginResponse);
+        editor.putString("loggedInObj", loggedInJson);
+        editor.commit();
     }
 }

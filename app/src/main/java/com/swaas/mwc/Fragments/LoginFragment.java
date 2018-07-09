@@ -23,10 +23,13 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.squareup.okhttp.OkHttpClient;
+import com.swaas.mwc.API.Model.AccountSettingsResponse;
+import com.swaas.mwc.API.Model.ApiResponse;
 import com.swaas.mwc.API.Model.BaseApiResponse;
 import com.swaas.mwc.API.Model.LoginRequest;
 import com.swaas.mwc.API.Model.LoginResponse;
 import com.swaas.mwc.API.Service.LoginService;
+import com.swaas.mwc.Database.AccountSettings;
 import com.swaas.mwc.FTL.FTLActivity;
 import com.swaas.mwc.FTL.FTLUserValidationActivity;
 import com.swaas.mwc.Login.Authenticate;
@@ -41,6 +44,7 @@ import com.swaas.mwc.R;
 import com.swaas.mwc.Retrofit.RetrofitAPIBuilder;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -134,7 +138,6 @@ public class LoginFragment extends Fragment {
                     mActivity.showMessagebox(mActivity, message, null, false);
                 } else {
 
-
                     if (NetworkUtils.isNetworkAvailable(mActivity)) {
                         final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
                         dialog.show();
@@ -147,18 +150,21 @@ public class LoginFragment extends Fragment {
                         //Here the json data is add to a hash map with key data
                         Map<String, String> params = new HashMap<String, String>();
                         params.put("data", request);
-                    mLoginRequest.setUserName(username);
-                    mLoginRequest.setPassword(password);
+                        mLoginRequest.setUserName(username);
+                        mLoginRequest.setPassword(password);
 
                         Call call = loginService.getLogin(params);
                         call.enqueue(new Callback<BaseApiResponse<LoginResponse>>() {
-                            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
                             @Override
                             public void onResponse(Response<BaseApiResponse<LoginResponse>> response, Retrofit retrofit) {
                                 BaseApiResponse apiResponse = response.body();
                                 if (apiResponse != null) {
                                     if (apiResponse.status.isCode() == false) {
                                         LoginResponse mLoginResponse = response.body().getData();
+
+                                        //setting login response obj to preference utils
+                                        Gson gson = new Gson();
+                                        PreferenceUtils.setDocPortalLoggedInObj(mActivity, mLoginResponse);
 
                                         if (mLoginResponse != null) {
                                             dialog.dismiss();
@@ -170,38 +176,36 @@ public class LoginFragment extends Fragment {
                                                 if (mLoginResponse.nextStep.isPin_authentication_required() == true) {
                                                     Intent intent = new Intent(mActivity, PinVerificationActivity.class);
                                                     startActivity(intent);
-                                                }
-                                                else if (mLoginResponse.nextStep.isFtl_required() == true) {
+                                                } else if (mLoginResponse.nextStep.isFtl_required() == true) {
                                                     Intent intent = new Intent(mActivity, FTLUserValidationActivity.class);
                                                     startActivity(intent);
                                                 }
+                                            } else {
+                                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                                    checkSecurity();
                                                 }
-                                            else {
-                                                checkSecurity();
                                             }
 
-                                        }
-                                        else {
+                                        } else {
                                             String mMessage = apiResponse.status.getMessage().toString();
+
                                             dialog.dismiss();
                                             Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
                                         }
 
-                                    }
-                                    else {
+                                    } else {
                                         String mMessage = apiResponse.status.getMessage().toString();
                                         dialog.dismiss();
                                         Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
                                     }
-
-                                }
-                                else {
+                                } else {
                                     String mMessage = apiResponse.status.getMessage().toString();
                                     dialog.dismiss();
                                     Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
                                 }
 
                             }
+
                             @Override
                             public void onFailure(Throwable t) {
                                 Log.e("LoginErr", t.toString());
@@ -230,15 +234,16 @@ public class LoginFragment extends Fragment {
                 .client(okHttpClient)
                 .build();
     }
+
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void checkSecurity() {
         KeyguardManager keyguardManager = (KeyguardManager) mActivity.getSystemService(Context.KEYGUARD_SERVICE);
-        if(keyguardManager.isKeyguardSecure()==true) {
+        if (keyguardManager.isKeyguardSecure() == true) {
             Intent intent = new Intent(mActivity, Touchid.class);
             startActivity(intent);
-        }
-        else    {
-            Intent intent = new Intent(mActivity,Notifiy.class);
+        } else {
+            Intent intent = new Intent(mActivity, Notifiy.class);
             startActivity(intent);
         }
     }
