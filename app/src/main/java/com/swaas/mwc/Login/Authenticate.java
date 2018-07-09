@@ -37,6 +37,7 @@ public class Authenticate extends Activity {
         }
     else    {
             Intent intent = new Intent(this,Notifiy.class);
+            startActivity(intent);
         }
     }
         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)

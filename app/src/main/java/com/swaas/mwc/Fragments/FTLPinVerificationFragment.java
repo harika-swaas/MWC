@@ -490,7 +490,7 @@ public class FTLPinVerificationFragment extends Fragment {
                         if (apiResponse.status.isCode() == false) {
                             String mMessage = apiResponse.status.getMessage().toString();
                             Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
-                            authenticate.checkCredentials();
+                            checkSecurity();
                             dialog.dismiss();
                             mActivity.finish();
                         } else {
@@ -603,6 +603,18 @@ public class FTLPinVerificationFragment extends Fragment {
                     // Toast.makeText(pinActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
+        }
+    }
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public void checkSecurity() {
+        KeyguardManager keyguardManager = (KeyguardManager) mActivity.getSystemService(Context.KEYGUARD_SERVICE);
+        if(keyguardManager.isKeyguardSecure()==true) {
+            Intent intent = new Intent(mActivity, Touchid.class);
+            startActivity(intent);
+        }
+        else    {
+            Intent intent = new Intent(mActivity,Notifiy.class);
+            startActivity(intent);
         }
     }
 }

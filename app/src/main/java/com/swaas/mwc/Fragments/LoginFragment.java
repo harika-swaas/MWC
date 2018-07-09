@@ -239,6 +239,7 @@ public class LoginFragment extends Fragment {
         }
         else    {
             Intent intent = new Intent(mActivity,Notifiy.class);
+            startActivity(intent);
         }
     }
 }
