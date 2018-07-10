@@ -14,17 +14,10 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.swaas.mwc.API.Model.BaseApiResponse;
-import com.swaas.mwc.API.Model.ListPinDevicesResponse;
-import com.swaas.mwc.API.Model.LoginResponse;
-import com.swaas.mwc.API.Model.SendPinRequest;
 import com.swaas.mwc.API.Model.SetTermsAcceptanceRequest;
-import com.swaas.mwc.API.Model.SetTermsAcceptanceResponse;
 import com.swaas.mwc.API.Model.VerifyFTLResponse;
-import com.swaas.mwc.API.Service.SendPinService;
 import com.swaas.mwc.API.Service.SetTermsAcceptanceService;
 import com.swaas.mwc.Database.AccountSettings;
-import com.swaas.mwc.FTL.FTLPinVerificationActivity;
-import com.swaas.mwc.Login.Dashboard;
 import com.swaas.mwc.Login.LoginActivity;
 import com.swaas.mwc.Login.LoginAgreeTermsAcceptanceActivity;
 import com.swaas.mwc.Login.LoginHelpUserGuideActivity;
@@ -84,18 +77,15 @@ public class LoginAgreeTermsAcceptanceFragment extends Fragment {
             public void onClick(View v) {
 
                 acceptTerms();
-                startActivity(new Intent(mActivity, LoginHelpUserGuideActivity.class));
-                mActivity.finish();
-
-                updateLocalAuthAndLoggedInStatus();
             }
         });
+
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 startActivity(new Intent(mActivity, LoginActivity.class));
                 mActivity.finish();
-                updateLoggedInStatus();
             }
         });
     }
@@ -103,7 +93,7 @@ public class LoginAgreeTermsAcceptanceFragment extends Fragment {
     private void acceptTerms() {
 
         if (NetworkUtils.isNetworkAvailable(mActivity)) {
-            mAccessToken = mActivity.getIntent().getStringExtra(Constants.ACCESSTOKEN);
+
             final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
             dialog.show();
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
@@ -116,7 +106,7 @@ public class LoginAgreeTermsAcceptanceFragment extends Fragment {
             Map<String, String> params = new HashMap<String, String>();
             params.put("data", request);
 
-            Call call = setTermsAcceptanceService.getTermsAcceptance(params, mAccessToken);
+            Call call = setTermsAcceptanceService.getTermsAcceptance(params, PreferenceUtils.getAccessToken(mActivity));
 
             call.enqueue(new Callback<BaseApiResponse<VerifyFTLResponse>>() {
                 @Override
@@ -130,6 +120,7 @@ public class LoginAgreeTermsAcceptanceFragment extends Fragment {
                             Intent mIntent = new Intent(mActivity, LoginHelpUserGuideActivity.class);
                             startActivity(mIntent);
                             mActivity.finish();
+                            updateIsTermsAcceptedAndLoggedInStatus();
                         } else {
                             String mMessage = apiResponse.status.getMessage().toString();
                             mActivity.showMessagebox(mActivity, mMessage, null, false);
@@ -146,15 +137,10 @@ public class LoginAgreeTermsAcceptanceFragment extends Fragment {
             });
         }
     }
-    private void updateLoggedInStatus() {
+
+    private void updateIsTermsAcceptedAndLoggedInStatus() {
 
         AccountSettings accountSettings = new AccountSettings(mActivity);
-        accountSettings.updateLocalAuthEnableStatus(String.valueOf(Constants.GDPR_Completed));
-    }
-
-    private void updateLocalAuthAndLoggedInStatus() {
-
-        AccountSettings accountSettings = new AccountSettings(mActivity);
-        accountSettings.updateLocalAuthEnableAndLoggedInStatus(String.valueOf(Constants.GDPR_Completed), String.valueOf(Constants.GDPR_Completed));
+        accountSettings.updateTermsAcceptedAndLoggedInStatus(String.valueOf(Constants.GDPR_Completed), String.valueOf(Constants.GDPR_Completed));
     }
 }

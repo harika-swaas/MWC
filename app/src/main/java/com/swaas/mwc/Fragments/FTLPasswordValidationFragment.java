@@ -33,8 +33,10 @@ import com.swaas.mwc.API.Model.BaseApiResponse;
 import com.swaas.mwc.API.Model.UpdateFTLStatusRequest;
 import com.swaas.mwc.API.Model.VerifyFTLRequestWithEMail;
 import com.swaas.mwc.API.Model.VerifyFTLResponse;
+import com.swaas.mwc.API.Model.WhiteLabelResponse;
 import com.swaas.mwc.API.Service.UpdateFTLStatusService;
 import com.swaas.mwc.API.Service.VerifyFTLDetailsService;
+import com.swaas.mwc.Database.AccountSettings;
 import com.swaas.mwc.FTL.FTLAgreeTermsAcceptanceActivity;
 import com.swaas.mwc.FTL.FTLPasswordValidationActivity;
 import com.swaas.mwc.FTL.FTLUserValidationActivity;
@@ -44,7 +46,9 @@ import com.swaas.mwc.R;
 import com.swaas.mwc.Retrofit.RetrofitAPIBuilder;
 import com.swaas.mwc.Utils.Constants;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -71,6 +75,7 @@ public class FTLPasswordValidationFragment extends Fragment {
     String mAccessToken;
     ImageView mBackIv;
     View inputPasswordView,inputConfirmPasswordView;
+    List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList<>();
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -192,7 +197,35 @@ public class FTLPasswordValidationFragment extends Fragment {
                 }
 
                 if (!TextUtils.isEmpty(confirmPassword) && !TextUtils.isEmpty(password) && password.equals(confirmPassword)) {
-                    String mobileItemEnableColor = PreferenceUtils.getMobileItemEnableColor(mActivity);
+                    getWhiteLabelProperities();
+
+                    if(mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
+                        String mobileItemEnableColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
+
+                        int itemEnableColor = Color.parseColor(mobileItemEnableColor);
+
+                        if (mobileItemEnableColor != null) {
+                            // Initialize a new GradientDrawable
+                            GradientDrawable shape = new GradientDrawable();
+
+                            // Specify the shape of drawable
+                            shape.setShape(GradientDrawable.RECTANGLE);
+
+                            // Make the border rounded
+                            shape.setCornerRadius(50f);
+
+                            // Set the fill color of drawable
+                            shape.setColor(itemEnableColor);
+
+                            mNext.setBackgroundDrawable(shape);
+                        } else {
+                            mNext.setBackgroundResource(R.drawable.next);
+                        }
+                    } else {
+                        mNext.setBackgroundResource(R.drawable.next);
+                    }
+
+                    /*String mobileItemEnableColor = PreferenceUtils.getMobileItemEnableColor(mActivity);
                     int itemEnableColor = Color.parseColor(mobileItemEnableColor);
 
                     if (mobileItemEnableColor != null) {
@@ -211,7 +244,7 @@ public class FTLPasswordValidationFragment extends Fragment {
                         mNext.setBackgroundDrawable(shape);
                     } else {
                         mNext.setBackgroundResource(R.drawable.next);
-                    }
+                    }*/
                 }
             }
 
@@ -290,6 +323,26 @@ public class FTLPasswordValidationFragment extends Fragment {
         });
     }
 
+    private void getWhiteLabelProperities() {
+
+        AccountSettings accountSettings = new AccountSettings(mActivity);
+        accountSettings.SetWhiteLabelCB(new AccountSettings.GetWhiteLabelCB() {
+            @Override
+            public void getWhiteLabelSuccessCB(List<WhiteLabelResponse> whiteLabelResponses) {
+                if(whiteLabelResponses != null && whiteLabelResponses.size() > 0){
+                    mWhiteLabelResponses = whiteLabelResponses;
+                }
+            }
+
+            @Override
+            public void getWhiteLabelFailureCB(String message) {
+
+            }
+        });
+
+        accountSettings.getWhiteLabelProperties();
+    }
+
     public void hideKeyboard(View view) {
 
         InputMethodManager inputMethodManager = (InputMethodManager) mActivity.getSystemService(Activity.INPUT_METHOD_SERVICE);
@@ -301,7 +354,53 @@ public class FTLPasswordValidationFragment extends Fragment {
         String password = inputPassword.getText().toString().trim();
         String confirmPassword = inputConfirmPassword.getText().toString().trim();
 
-        String mobileItemEnableColor = PreferenceUtils.getMobileItemEnableColor(mActivity);
+        getWhiteLabelProperities();
+
+        if(mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0){
+            String mobileItemEnableColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
+            String mobileItemDisableColor = mWhiteLabelResponses.get(0).getItem_Unselected_Color();
+
+            int itemEnableColor = Color.parseColor(mobileItemEnableColor);
+            int itemDisableColor = Color.parseColor(mobileItemDisableColor);
+
+            if (!TextUtils.isEmpty(confirmPassword) && !TextUtils.isEmpty(password) && password.equals(confirmPassword)) {
+                if (mobileItemEnableColor != null) {
+                    // Initialize a new GradientDrawable
+                    GradientDrawable shape = new GradientDrawable();
+
+                    // Specify the shape of drawable
+                    shape.setShape(GradientDrawable.RECTANGLE);
+
+                    // Make the border rounded
+                    shape.setCornerRadius(50f);
+
+                    // Set the fill color of drawable
+                    shape.setColor(itemEnableColor);
+
+                    mNext.setBackgroundDrawable(shape);
+                }
+            } else {
+                if(mobileItemDisableColor != null){
+                    // Initialize a new GradientDrawable
+                    GradientDrawable shape = new GradientDrawable();
+
+                    // Specify the shape of drawable
+                    shape.setShape(GradientDrawable.RECTANGLE);
+
+                    // Make the border rounded
+                    shape.setCornerRadius(50f);
+
+                    // Set the fill color of drawable
+                    shape.setColor(itemDisableColor);
+
+                    mNext.setBackgroundDrawable(shape);
+                }
+            }
+        } else {
+            mNext.setBackgroundResource(R.drawable.next);
+        }
+
+        /*String mobileItemEnableColor = PreferenceUtils.getMobileItemEnableColor(mActivity);
         int itemEnableColor = Color.parseColor(mobileItemEnableColor);
 
         String mobileItemDisableColor = PreferenceUtils.getMobileItemDisableColor(mActivity);
@@ -339,8 +438,7 @@ public class FTLPasswordValidationFragment extends Fragment {
 
                 mNext.setBackgroundDrawable(shape);
             }
-            //  mNext.setBackgroundResource(R.drawable.next);
-        }
+        }*/
     }
 
     private void verifyFTLPasswordDetails() {

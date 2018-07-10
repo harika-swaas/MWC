@@ -45,6 +45,7 @@ import com.swaas.mwc.API.Model.VerifyFTLPINRequest;
 import com.swaas.mwc.API.Model.VerifyFTLRequest;
 import com.swaas.mwc.API.Model.VerifyFTLResponse;
 import com.swaas.mwc.API.Model.VerifyPinRequest;
+import com.swaas.mwc.API.Model.WhiteLabelResponse;
 import com.swaas.mwc.API.Service.GetUISettingsService;
 import com.swaas.mwc.API.Service.GetUserPreferencesService;
 import com.swaas.mwc.API.Service.SendFTLPINService;
@@ -317,6 +318,7 @@ public class FTLPinVerificationFragment extends Fragment {
                                         getUiSettings();
                                         Intent mIntent = new Intent(mActivity, FTLUserValidationActivity.class);
                                         mIntent.putExtra(Constants.ACCESSTOKEN, accessToken);
+                                        PreferenceUtils.setDocPortalFTLLoggedObj(mActivity, mFTLPINResponse);
                                         startActivity(mIntent);
                                         mActivity.finish();
                                     }
@@ -443,8 +445,14 @@ public class FTLPinVerificationFragment extends Fragment {
                                 if(mGetUISettingsResponse.ui_properties!= null){
                                     String mobileItemEnableColor = mGetUISettingsResponse.ui_properties.getMobile_item_enable_color();
                                     String mobileItemDisableColor = mGetUISettingsResponse.ui_properties.getMobile_item_disable_color();
-                                    PreferenceUtils.setMobileItemEnableColor(mActivity,mobileItemEnableColor);
-                                    PreferenceUtils.setMobileItemDisableColor(mActivity,mobileItemDisableColor);
+                                   // PreferenceUtils.setMobileItemEnableColor(mActivity,mobileItemEnableColor);
+                                   // PreferenceUtils.setMobileItemDisableColor(mActivity,mobileItemDisableColor);
+
+                                    AccountSettings accountSettings = new AccountSettings(mActivity);
+                                    WhiteLabelResponse whiteLabelResponse = new WhiteLabelResponse();
+                                    whiteLabelResponse.setItem_Selected_Color(mobileItemEnableColor);
+                                    whiteLabelResponse.setItem_Unselected_Color(mobileItemDisableColor);
+                                    accountSettings.InsertWhiteLabelDetails(whiteLabelResponse);
                                 }
                             }
                         } else {

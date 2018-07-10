@@ -30,9 +30,11 @@ import com.swaas.mwc.API.Model.BaseApiResponse;
 import com.swaas.mwc.API.Model.SetTermsAcceptanceRequest;
 import com.swaas.mwc.API.Model.UpdateFTLStatusRequest;
 import com.swaas.mwc.API.Model.VerifyFTLResponse;
+import com.swaas.mwc.API.Model.WhiteLabelResponse;
 import com.swaas.mwc.API.Service.FTLProcessService;
 import com.swaas.mwc.API.Service.SetTermsAcceptanceService;
 import com.swaas.mwc.API.Service.UpdateFTLStatusService;
+import com.swaas.mwc.Database.AccountSettings;
 import com.swaas.mwc.FTL.FTLAgreeTermsAcceptanceActivity;
 import com.swaas.mwc.FTL.WebviewLoaderTermsActivity;
 import com.swaas.mwc.Login.Authenticate;
@@ -45,7 +47,9 @@ import com.swaas.mwc.R;
 import com.swaas.mwc.Retrofit.RetrofitAPIBuilder;
 import com.swaas.mwc.Utils.Constants;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import dmax.dialog.SpotsDialog;
@@ -67,6 +71,7 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
     String mAccessToken, mTerms;
     TextView setAcceptanceTerms;
     ImageView mBackIv;
+    List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList<>();
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -162,31 +167,59 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
 
     private void setButtonBackgroundColor() {
 
-        String mobileItemEnableColor = PreferenceUtils.getMobileItemEnableColor(mActivity);
+        getWhiteLabelProperities();
+
+        if(mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
+            String mobileItemEnableColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
+            int itemEnableColor = Color.parseColor(mobileItemEnableColor);
+
+            if (mobileItemEnableColor != null) {
+
+                // Initialize a new GradientDrawable
+                GradientDrawable shape = new GradientDrawable();
+
+                // Specify the shape of drawable
+                shape.setShape(GradientDrawable.RECTANGLE);
+
+                // Make the border rounded
+                shape.setCornerRadius(50f);
+
+                // Set the fill color of drawable
+                shape.setColor(itemEnableColor);
+
+                letsStartButton.setBackgroundDrawable(shape);
+            } else {
+                letsStartButton.setBackgroundResource(R.drawable.next);
+            }
+        } else {
+            letsStartButton.setBackgroundResource(R.drawable.next);
+        }
+
+        /*String mobileItemEnableColor = PreferenceUtils.getMobileItemEnableColor(mActivity);
         String mobileItemDisableColor = PreferenceUtils.getMobileItemDisableColor(mActivity);
 
         int itemEnableColor = Color.parseColor(mobileItemEnableColor);
-        int itemDisableColor = Color.parseColor(mobileItemDisableColor);
+        int itemDisableColor = Color.parseColor(mobileItemDisableColor);*/
+    }
 
-        if (mobileItemEnableColor != null) {
+    private void getWhiteLabelProperities() {
 
-            // Initialize a new GradientDrawable
-            GradientDrawable shape = new GradientDrawable();
+        AccountSettings accountSettings = new AccountSettings(mActivity);
+        accountSettings.SetWhiteLabelCB(new AccountSettings.GetWhiteLabelCB() {
+            @Override
+            public void getWhiteLabelSuccessCB(List<WhiteLabelResponse> whiteLabelResponses) {
+                if(whiteLabelResponses != null && whiteLabelResponses.size() > 0){
+                    mWhiteLabelResponses = whiteLabelResponses;
+                }
+            }
 
-            // Specify the shape of drawable
-            shape.setShape(GradientDrawable.RECTANGLE);
+            @Override
+            public void getWhiteLabelFailureCB(String message) {
 
-            // Make the border rounded
-            shape.setCornerRadius(50f);
+            }
+        });
 
-            // Set the fill color of drawable
-            shape.setColor(itemEnableColor);
-
-            letsStartButton.setBackgroundDrawable(shape);
-        } else {
-
-            letsStartButton.setBackgroundResource(R.drawable.next);
-        }
+        accountSettings.getWhiteLabelProperties();
     }
 
     private void addListenersToViews() {

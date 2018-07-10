@@ -25,11 +25,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.swaas.mwc.API.Model.AccountSettingsResponse;
 import com.swaas.mwc.API.Model.BaseApiResponse;
 import com.swaas.mwc.API.Model.FTLProcessResponse;
 import com.swaas.mwc.API.Model.VerifyFTLRequestWithEMail;
+import com.swaas.mwc.API.Model.WhiteLabelResponse;
 import com.swaas.mwc.API.Service.FTLProcessService;
 import com.swaas.mwc.API.Service.VerifyFTLDetailsService;
+import com.swaas.mwc.Database.AccountSettings;
 import com.swaas.mwc.FTL.FTLPasswordValidationActivity;
 import com.swaas.mwc.FTL.FTLPinVerificationActivity;
 import com.swaas.mwc.FTL.FTLUserValidationActivity;
@@ -38,6 +41,9 @@ import com.swaas.mwc.Preference.PreferenceUtils;
 import com.swaas.mwc.R;
 import com.swaas.mwc.Retrofit.RetrofitAPIBuilder;
 import com.swaas.mwc.Utils.Constants;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import retrofit.Call;
 import retrofit.Callback;
@@ -61,6 +67,7 @@ public class FTLUserValidationFragment extends Fragment {
     String mAccessToken;
     ImageView mBackIv;
     AlertDialog mBackDialog;
+    List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList<>();
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -118,7 +125,7 @@ public class FTLUserValidationFragment extends Fragment {
     private void setButtonBackgroundColor() {
         String username = inputUserName.getText().toString().trim();
 
-        String mobileItemEnableColor = PreferenceUtils.getMobileItemEnableColor(mActivity);
+        /*String mobileItemEnableColor = PreferenceUtils.getMobileItemEnableColor(mActivity);
         String mobileItemDisableColor = PreferenceUtils.getMobileItemDisableColor(mActivity);
 
         int itemEnableColor = 0;
@@ -167,6 +174,56 @@ public class FTLUserValidationFragment extends Fragment {
 
                 mNext.setBackgroundDrawable(shape);
             }
+        }*/
+
+        getWhiteLabelProperities();
+
+        if(mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
+            String mobileItemEnableColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
+            String mobileItemDisableColor = mWhiteLabelResponses.get(0).getItem_Unselected_Color();
+
+            int itemEnableColor = Color.parseColor(mobileItemEnableColor);
+            int itemDisableColor = Color.parseColor(mobileItemDisableColor);
+
+            if (TextUtils.isEmpty(username) && username.length() == 0) {
+                if(mobileItemDisableColor != null) {
+                    //   mNext.setBackgroundColor(itemDisableColor);
+
+                    // Initialize a new GradientDrawable
+                    GradientDrawable shape = new GradientDrawable();
+
+                    // Specify the shape of drawable
+                    shape.setShape(GradientDrawable.RECTANGLE);
+
+                    // Make the border rounded
+                    shape.setCornerRadius(50f);
+
+                    // Set the fill color of drawable
+                    shape.setColor(itemDisableColor);
+
+                    mNext.setBackgroundDrawable(shape);
+                }
+            } else {
+                if(mobileItemEnableColor != null) {
+                    // mNext.setBackgroundColor(itemEnableColor);
+
+                    // Initialize a new GradientDrawable
+                    GradientDrawable shape = new GradientDrawable();
+
+                    // Specify the shape of drawable
+                    shape.setShape(GradientDrawable.RECTANGLE);
+
+                    // Make the border rounded
+                    shape.setCornerRadius(50f);
+
+                    // Set the fill color of drawable
+                    shape.setColor(itemEnableColor);
+
+                    mNext.setBackgroundDrawable(shape);
+                }
+            }
+        } else {
+            mNext.setBackgroundResource(R.drawable.next);
         }
     }
 
@@ -182,48 +239,57 @@ public class FTLUserValidationFragment extends Fragment {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String username = inputUserName.getText().toString().trim();
 
-                String mobileItemEnableColor = PreferenceUtils.getMobileItemEnableColor(mActivity);
-                String mobileItemDisableColor = PreferenceUtils.getMobileItemDisableColor(mActivity);
+                /*String mobileItemEnableColor = PreferenceUtils.getMobileItemEnableColor(mActivity);
+                String mobileItemDisableColor = PreferenceUtils.getMobileItemDisableColor(mActivity);*/
 
-                int itemEnableColor = Color.parseColor(mobileItemEnableColor);
-                int itemDisableColor = Color.parseColor(mobileItemDisableColor);
+                getWhiteLabelProperities();
 
-                if (TextUtils.isEmpty(username) && username.length() == 0) {
-                    if(mobileItemDisableColor != null) {
-                     //   mNext.setBackgroundColor(itemDisableColor);
+                if(mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
+                    String mobileItemEnableColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
+                    String mobileItemDisableColor = mWhiteLabelResponses.get(0).getItem_Unselected_Color();
 
-                        // Initialize a new GradientDrawable
-                        GradientDrawable shape = new GradientDrawable();
+                    int itemEnableColor = Color.parseColor(mobileItemEnableColor);
+                    int itemDisableColor = Color.parseColor(mobileItemDisableColor);
 
-                        // Specify the shape of drawable
-                        shape.setShape(GradientDrawable.RECTANGLE);
+                    if (TextUtils.isEmpty(username) && username.length() == 0) {
+                        if(mobileItemDisableColor != null) {
+                            //   mNext.setBackgroundColor(itemDisableColor);
 
-                        // Make the border rounded
-                        shape.setCornerRadius(50f);
+                            // Initialize a new GradientDrawable
+                            GradientDrawable shape = new GradientDrawable();
 
-                        // Set the fill color of drawable
-                        shape.setColor(itemDisableColor);
+                            // Specify the shape of drawable
+                            shape.setShape(GradientDrawable.RECTANGLE);
 
-                        mNext.setBackgroundDrawable(shape);
+                            // Make the border rounded
+                            shape.setCornerRadius(50f);
+
+                            // Set the fill color of drawable
+                            shape.setColor(itemDisableColor);
+
+                            mNext.setBackgroundDrawable(shape);
+                        }
+                    } else {
+                        if(mobileItemEnableColor != null) {
+                            // mNext.setBackgroundColor(itemEnableColor);
+
+                            // Initialize a new GradientDrawable
+                            GradientDrawable shape = new GradientDrawable();
+
+                            // Specify the shape of drawable
+                            shape.setShape(GradientDrawable.RECTANGLE);
+
+                            // Make the border rounded
+                            shape.setCornerRadius(50f);
+
+                            // Set the fill color of drawable
+                            shape.setColor(itemEnableColor);
+
+                            mNext.setBackgroundDrawable(shape);
+                        }
                     }
                 } else {
-                    if(mobileItemEnableColor != null) {
-                       // mNext.setBackgroundColor(itemEnableColor);
-
-                        // Initialize a new GradientDrawable
-                        GradientDrawable shape = new GradientDrawable();
-
-                        // Specify the shape of drawable
-                        shape.setShape(GradientDrawable.RECTANGLE);
-
-                        // Make the border rounded
-                        shape.setCornerRadius(50f);
-
-                        // Set the fill color of drawable
-                        shape.setColor(itemEnableColor);
-
-                        mNext.setBackgroundDrawable(shape);
-                    }
+                    mNext.setBackgroundResource(R.drawable.next);
                 }
             }
 
@@ -284,6 +350,26 @@ public class FTLUserValidationFragment extends Fragment {
                 }
             }
         });
+    }
+
+    private void getWhiteLabelProperities() {
+
+        AccountSettings accountSettings = new AccountSettings(mActivity);
+       accountSettings.SetWhiteLabelCB(new AccountSettings.GetWhiteLabelCB() {
+           @Override
+           public void getWhiteLabelSuccessCB(List<WhiteLabelResponse> whiteLabelResponses) {
+               if(whiteLabelResponses != null && whiteLabelResponses.size() > 0){
+                   mWhiteLabelResponses = whiteLabelResponses;
+               }
+           }
+
+           @Override
+           public void getWhiteLabelFailureCB(String message) {
+
+           }
+       });
+
+        accountSettings.getWhiteLabelProperties();
     }
 
     public void hideKeyboard(View view) {

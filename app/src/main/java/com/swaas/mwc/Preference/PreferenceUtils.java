@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.google.gson.Gson;
+import com.swaas.mwc.API.Model.FTLPINResponse;
 import com.swaas.mwc.API.Model.LoginResponse;
 
 /**
@@ -120,5 +121,20 @@ public class PreferenceUtils {
         SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
         int terms_accept = sharedPreferences.getInt(null, TERMS_ACCEPT);
         return terms_accept;
+    }
+
+    public static void setDocPortalFTLLoggedObj(Context context, FTLPINResponse ftlpinResponse) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        Gson gson = new Gson();
+        String loggedInJson = gson.toJson(ftlpinResponse);
+        editor.putString("loggedFTLObj", loggedInJson);
+        editor.commit();
+    }
+
+    public static String getDocPortalFTLLoggedObj(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        String loggedInString = sharedPreferences.getString("loggedFTLObj", null);
+        return loggedInString;
     }
 }

@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,7 +34,10 @@ import com.swaas.mwc.Database.AccountSettings;
 import com.swaas.mwc.FTL.FTLActivity;
 import com.swaas.mwc.FTL.FTLUserValidationActivity;
 import com.swaas.mwc.Login.Authenticate;
+import com.swaas.mwc.Login.Dashboard;
 import com.swaas.mwc.Login.LoginActivity;
+import com.swaas.mwc.Login.LoginAgreeTermsAcceptanceActivity;
+import com.swaas.mwc.Login.LoginHelpUserGuideActivity;
 import com.swaas.mwc.Login.Notifiy;
 import com.swaas.mwc.Login.PinVerificationActivity;
 import com.swaas.mwc.Login.Touchid;
@@ -42,7 +46,9 @@ import com.swaas.mwc.Network.NetworkUtils;
 import com.swaas.mwc.Preference.PreferenceUtils;
 import com.swaas.mwc.R;
 import com.swaas.mwc.Retrofit.RetrofitAPIBuilder;
+import com.swaas.mwc.Utils.Constants;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,6 +75,7 @@ public class LoginFragment extends Fragment {
     TextView mNotLoggedInBefore;
     EditText mUserName, mPassword;
     MessageDialog messageDialog;
+    List<AccountSettingsResponse> mAccountSettingsResponses = new ArrayList<>();
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -111,8 +118,6 @@ public class LoginFragment extends Fragment {
                     hideKeyboard(v);
                 }
             }
-
-
         });
 
 
@@ -236,15 +241,86 @@ public class LoginFragment extends Fragment {
     }
 
 
+    @Override
+    public void onResume() {
+        super.onResume();
+      //  checkAppStatus();
+    }
+
+    private void checkAppStatus() {
+        String loginStatus = "";
+        getLoggedInStatus();
+
+        if(mAccountSettingsResponses != null && mAccountSettingsResponses.size() > 0) {
+            loginStatus = mAccountSettingsResponses.get(0).getLogin_Complete_Status();
+        } else {
+            loginStatus = "";
+        }
+
+        if (TextUtils.isEmpty(loginStatus)) {
+            startActivity(new Intent(mActivity, LoginActivity.class));
+        }
+        else if(loginStatus.equalsIgnoreCase(String.valueOf(Constants.Login_Completed))) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                checkSecurity();
+            }
+        }
+        else if(loginStatus.equalsIgnoreCase(String.valueOf(Constants.Local_Auth_Completed))) {
+            startActivity(new Intent(mActivity, Notifiy.class));
+            mActivity.finish();
+        }
+        else {
+            checkAppStatusAfterPushNotification(mAccountSettingsResponses);
+        }
+    }
+
+    private void checkAppStatusAfterPushNotification(List<AccountSettingsResponse> mAccountSettingsResponses) {
+
+        if(mAccountSettingsResponses.get(0).getIs_Terms_Accepted().equals("0")){
+            startActivity(new Intent(mActivity, LoginAgreeTermsAcceptanceActivity.class));
+            mActivity.finish();
+        }
+        else if(mAccountSettingsResponses.get(0).getIs_Help_Accepted().equals("1")){
+            startActivity(new Intent(mActivity, LoginHelpUserGuideActivity.class));
+            mActivity.finish();
+        }
+        else {
+            startActivity(new Intent(mActivity, Dashboard.class));
+            mActivity.finish();
+        }
+    }
+
+    private void getLoggedInStatus() {
+
+        AccountSettings accountSettings = new AccountSettings(mActivity);
+        accountSettings.SetLoggedInCB(new AccountSettings.GetLoggedInCB() {
+            @Override
+            public void getLoggedInSuccessCB(List<AccountSettingsResponse> accountSettingsResponse) {
+                if (accountSettingsResponse != null && accountSettingsResponse.size() > 0) {
+                    mAccountSettingsResponses = accountSettingsResponse;
+                }
+            }
+
+            @Override
+            public void getLoggedInFailureCB(String message) {
+
+            }
+        });
+
+        accountSettings.getLoggedInStatusDetails();
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void checkSecurity() {
         KeyguardManager keyguardManager = (KeyguardManager) mActivity.getSystemService(Context.KEYGUARD_SERVICE);
         if (keyguardManager.isKeyguardSecure() == true) {
             Intent intent = new Intent(mActivity, Touchid.class);
             startActivity(intent);
+            mActivity.finish();
         } else {
             Intent intent = new Intent(mActivity, Notifiy.class);
             startActivity(intent);
+            mActivity.finish();
         }
     }
 }

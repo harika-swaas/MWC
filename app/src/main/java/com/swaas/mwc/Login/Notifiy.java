@@ -22,10 +22,14 @@ import android.Manifest;
 import android.widget.Toast;
 
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.swaas.mwc.API.Model.WhiteLabelResponse;
 import com.swaas.mwc.Database.AccountSettings;
 import com.swaas.mwc.Preference.PreferenceUtils;
 import com.swaas.mwc.R;
 import com.swaas.mwc.Utils.Constants;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by barath on 6/24/2018.
@@ -35,6 +39,7 @@ public class Notifiy extends Activity {
 
     Button button5;
     TextView skip;
+    List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,7 +97,49 @@ public class Notifiy extends Activity {
 
     private void setButtonBackgroundColor() {
 
-        String mobileItemEnableColor = PreferenceUtils.getMobileItemEnableColor(this);
+        getWhiteLabelProperities();
+
+        if(mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
+            String mobileItemEnableColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
+            String mobileItemDisableColor = mWhiteLabelResponses.get(0).getItem_Unselected_Color();
+
+            int itemEnableColor = Color.parseColor(mobileItemEnableColor);
+            int itemDisableColor = Color.parseColor(mobileItemDisableColor);
+
+            if (mobileItemEnableColor != null) {
+                // Initialize a new GradientDrawable
+                GradientDrawable shape = new GradientDrawable();
+
+                // Specify the shape of drawable
+                shape.setShape(GradientDrawable.RECTANGLE);
+
+                // Make the border rounded
+                shape.setCornerRadius(50f);
+
+                // Set the fill color of drawable
+                shape.setColor(itemEnableColor);
+
+                button5.setBackgroundDrawable(shape);
+            } else if(mobileItemDisableColor != null){
+                // Initialize a new GradientDrawable
+                GradientDrawable shape = new GradientDrawable();
+
+                // Specify the shape of drawable
+                shape.setShape(GradientDrawable.RECTANGLE);
+
+                // Make the border rounded
+                shape.setCornerRadius(50f);
+
+                // Set the fill color of drawable
+                shape.setColor(itemDisableColor);
+
+                button5.setBackgroundDrawable(shape);
+            }
+        } else {
+            button5.setBackgroundResource(R.drawable.next);
+        }
+
+        /*String mobileItemEnableColor = PreferenceUtils.getMobileItemEnableColor(this);
         String mobileItemDisableColor = PreferenceUtils.getMobileItemDisableColor(this);
 
         int itemEnableColor = 0;
@@ -121,20 +168,28 @@ public class Notifiy extends Activity {
             button5.setBackgroundDrawable(shape);
 
         } else {
-            /*// Initialize a new GradientDrawable
-            GradientDrawable shape = new GradientDrawable();
 
-            // Specify the shape of drawable
-            shape.setShape(GradientDrawable.RECTANGLE);
+        }*/
+    }
 
-            // Make the border rounded
-            shape.setCornerRadius(50f);
+    private void getWhiteLabelProperities() {
 
-            // Set the fill color of drawable
-            shape.setColor(itemDisableColor);
+        AccountSettings accountSettings = new AccountSettings(Notifiy.this);
+        accountSettings.SetWhiteLabelCB(new AccountSettings.GetWhiteLabelCB() {
+            @Override
+            public void getWhiteLabelSuccessCB(List<WhiteLabelResponse> whiteLabelResponses) {
+                if(whiteLabelResponses != null && whiteLabelResponses.size() > 0){
+                    mWhiteLabelResponses = whiteLabelResponses;
+                }
+            }
 
-            button5.setBackgroundDrawable(shape);*/
-        }
+            @Override
+            public void getWhiteLabelFailureCB(String message) {
+
+            }
+        });
+
+        accountSettings.getWhiteLabelProperties();
     }
 
     private void updateLoggedInStatus() {

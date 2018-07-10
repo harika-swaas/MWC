@@ -16,8 +16,8 @@ import retrofit.http.POST;
  * Created by barath on 7/9/2018.
  */
 
-public interface SetUserPreference_GuideService {
-    @Headers("content-type: application/x-www-form-urlencoded")
+public interface SetUserPreferenceGuideService {
+
     @POST("/set-user-preferences")
     @FormUrlEncoded
     Call<BaseApiResponse<LoginResponse>> getSetUserPreferences(@FieldMap Map<String, String> params, @Header("access-token") String accessToken);

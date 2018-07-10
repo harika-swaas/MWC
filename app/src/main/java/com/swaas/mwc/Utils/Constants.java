@@ -33,6 +33,7 @@ public class Constants {
     public static final int GDPR_Completed = 4;
     public static final int Assistance_Popup_Completed = 5;
     public static final int All_Settings_Completed = 6;
+    public static final int Empty_Status = 90;
 
     public static final int REQUEST_ACCESS_NOTIFICATION_POLICY = 231;
 }

@@ -7,16 +7,15 @@ import com.google.gson.annotations.SerializedName;
  * Created by barath on 7/9/2018.
  */
 
-public class UserPreference_GuideRequest {
-
+public class UserPreferenceGuideRequest {
 
     @SerializedName("assistance_popup")
     @Expose
 
     private int assistance_popup;
 
-    public UserPreference_GuideRequest(int i) {
-        i=1;
+    public UserPreferenceGuideRequest(int assistance_popup) {
+        this.assistance_popup = assistance_popup;
     }
 
     public int getAssistance_popup() {
