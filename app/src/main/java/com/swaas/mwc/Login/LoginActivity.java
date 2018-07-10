@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.os.Handler;
 import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
 import android.view.MenuItem;
@@ -15,9 +17,12 @@ import com.swaas.mwc.Fragments.LoginFragment;
 import com.swaas.mwc.R;
 import com.swaas.mwc.RootActivity;
 import com.swaas.mwc.Utils.Constants;
+import com.swaas.mwc.Utils.SplashScreen;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 /**
@@ -25,8 +30,9 @@ import java.util.List;
  */
 
 public class LoginActivity extends RootActivity {
-
+    Handler handler;
     LoginFragment mLoginFragment;
+    CountDownTimer timer;
     List<AccountSettingsResponse> mAccountSettingsResponses = new ArrayList<>();
 
     @Override
@@ -79,8 +85,22 @@ public class LoginActivity extends RootActivity {
             }
         }
         else if(loginStatus.equalsIgnoreCase(String.valueOf(Constants.Local_Auth_Completed))) {
-            startActivity(new Intent(LoginActivity.this, Notifiy.class));
-            LoginActivity.this.finish();
+
+            Intent intent = new Intent(LoginActivity.this, SplashScreen.class);
+            startActivity(intent);
+
+            int timeout = 4000; // make the activity visible for 4 seconds
+
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+
+                @Override
+                public void run() {
+                    finish();
+                    startActivity(new Intent(LoginActivity.this, Notifiy.class));
+                    LoginActivity.this.finish();
+                }
+            }, timeout);
         }
         else {
             checkAppStatusAfterPushNotification(mAccountSettingsResponses);
@@ -90,16 +110,57 @@ public class LoginActivity extends RootActivity {
     private void checkAppStatusAfterPushNotification(List<AccountSettingsResponse> mAccountSettingsResponses) {
 
         if(mAccountSettingsResponses.get(0).getIs_Terms_Accepted().equals("0")){
-            startActivity(new Intent(LoginActivity.this, LoginAgreeTermsAcceptanceActivity.class));
-            LoginActivity.this.finish();
+            Intent intent = new Intent(LoginActivity.this, SplashScreen.class);
+            startActivity(intent);
+
+            int timeout = 4000; // make the activity visible for 4 seconds
+
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+
+                @Override
+                public void run() {
+                    finish();
+                    startActivity(new Intent(LoginActivity.this, LoginAgreeTermsAcceptanceActivity.class));
+                    LoginActivity.this.finish();
+                }
+            }, timeout);
         }
         else if(mAccountSettingsResponses.get(0).getIs_Help_Accepted().equals("1")){
-            startActivity(new Intent(LoginActivity.this, LoginHelpUserGuideActivity.class));
-            LoginActivity.this.finish();
+            Intent intent = new Intent(LoginActivity.this, SplashScreen.class);
+            startActivity(intent);
+
+            int timeout = 4000; // make the activity visible for 4 seconds
+
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+
+                @Override
+                public void run() {
+                    finish();
+                    startActivity(new Intent(LoginActivity.this, LoginHelpUserGuideActivity.class));
+                    LoginActivity.this.finish();
+                }
+            }, timeout);
         }
         else {
-            startActivity(new Intent(LoginActivity.this, Dashboard.class));
-            LoginActivity.this.finish();
+            Intent intent = new Intent(LoginActivity.this, SplashScreen.class);
+            startActivity(intent);
+
+            int timeout = 4000; // make the activity visible for 4 seconds
+
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+
+                @Override
+                public void run() {
+                    finish();
+                    startActivity(new Intent(LoginActivity.this, Dashboard.class));
+                    LoginActivity.this.finish();
+                }
+            }, timeout);
+
+
         }
     }
 
@@ -136,4 +197,5 @@ public class LoginActivity extends RootActivity {
             LoginActivity.this.finish();
         }
     }
+
 }
