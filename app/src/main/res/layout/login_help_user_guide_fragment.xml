@@ -85,7 +85,8 @@
                     android:textAlignment="gravity"
                     android:textAllCaps="false"
                     android:textColor="@color/black"
-                    android:textSize="16sp" />
+                    android:textSize="16sp"
+                    android:onClick="itemClicked"/>
 
                 <Button
                     android:id="@+id/got_it_button"

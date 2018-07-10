@@ -20,7 +20,7 @@ public class PreferenceUtils {
     private static final String MOBILE_ITEM_ENABLE_COLOR = "mobileItemEnableColor";
     private static final String MOBILE_ITEM_DISABLE_COLOR = "mobileItemDisableColor";
     private static final String DOC_PORTAL_LOGGED_IN_OBJ = "doc_portal_logged_in_obj";
-
+    private static final int TERMS_ACCEPT = 1;
 
     public static void setAccessToken(Context context, String accesstoken) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
@@ -114,5 +114,11 @@ public class PreferenceUtils {
         String loggedInJson = gson.toJson(loginResponse);
         editor.putString("loggedInObj", loggedInJson);
         editor.commit();
+    }
+
+    public static int get_terms_accept(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        int terms_accept = sharedPreferences.getInt(null, TERMS_ACCEPT);
+        return terms_accept;
     }
 }
