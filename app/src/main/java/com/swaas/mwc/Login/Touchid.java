@@ -31,6 +31,7 @@ public class Touchid extends Authenticate {
     Button button2;
     TextView skip1;
     List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList<>();
+    boolean mIsFromFTL;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 
@@ -41,12 +42,14 @@ public class Touchid extends Authenticate {
         skip1 = (TextView) findViewById(R.id.skip_button);
         button2 = (Button) findViewById(R.id.enable_touch_button);
 
+        getIntentData();
         setButtonBackgroundColor();
 
         button2.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
 
                 Intent intent = new Intent(Touchid.this, Notifiy.class);
+                intent.putExtra(Constants.IS_FROM_FTL,mIsFromFTL);
                 startActivity(intent);
                 checkCredentials();
                 updateLocalAuthAndLoggedInStatus();
@@ -63,6 +66,13 @@ public class Touchid extends Authenticate {
                 startActivity(intent);
             }
         });
+    }
+
+    private void getIntentData() {
+
+        if(getIntent() != null) {
+            mIsFromFTL = getIntent().getBooleanExtra(Constants.IS_FROM_FTL,false);
+        }
     }
 
     private void setButtonBackgroundColor() {

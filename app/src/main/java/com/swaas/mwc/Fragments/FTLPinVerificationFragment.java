@@ -499,6 +499,7 @@ public class FTLPinVerificationFragment extends Fragment {
                     if (apiResponse != null) {
                         if (apiResponse.status.isCode() == false) {
                             dialog.dismiss();
+                            getUiSettings();
                             getUserPreferences();
                         } else {
                             String mMessage = apiResponse.status.getMessage().toString();

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -16,6 +17,7 @@ import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,13 +27,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.swaas.mwc.API.Model.AccountSettingsResponse;
 import com.swaas.mwc.API.Model.AddFTLDetailsRequest;
 import com.swaas.mwc.API.Model.BaseApiResponse;
+import com.swaas.mwc.API.Model.FTLPINResponse;
+import com.swaas.mwc.API.Model.GetUserPreferencesResponse;
+import com.swaas.mwc.API.Model.LoginResponse;
 import com.swaas.mwc.API.Model.SetTermsAcceptanceRequest;
 import com.swaas.mwc.API.Model.UpdateFTLStatusRequest;
 import com.swaas.mwc.API.Model.VerifyFTLResponse;
 import com.swaas.mwc.API.Model.WhiteLabelResponse;
 import com.swaas.mwc.API.Service.FTLProcessService;
+import com.swaas.mwc.API.Service.GetUserPreferencesService;
 import com.swaas.mwc.API.Service.SetTermsAcceptanceService;
 import com.swaas.mwc.API.Service.UpdateFTLStatusService;
 import com.swaas.mwc.Database.AccountSettings;
@@ -72,6 +79,7 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
     TextView setAcceptanceTerms;
     ImageView mBackIv;
     List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList<>();
+    FTLPINResponse mLoggedInObj;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -307,7 +315,9 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
                         if (apiResponse.status.isCode() == false) {
                             String mMessage = apiResponse.status.getMessage().toString();
                             // Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
-                            Intent mIntent = new Intent(mActivity, Dashboard.class);
+                            insertAccountSettings();
+                            Intent mIntent = new Intent(mActivity, Touchid.class);
+                            mIntent.putExtra(Constants.IS_FROM_FTL,true);
                             startActivity(mIntent);
                             mActivity.finish();
                         } else {
@@ -322,6 +332,63 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
                 public void onFailure(Throwable t) {
                     dialog.dismiss();
                     Toast.makeText(mActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+
+    private void insertAccountSettings() {
+        getUserPreferences();
+    }
+
+    private void getUserPreferences() {
+
+        if(NetworkUtils.isNetworkAvailable(mActivity)){
+
+            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+            final GetUserPreferencesService getUserPreferencesService = retrofitAPI.create(GetUserPreferencesService.class);
+
+            Call call = getUserPreferencesService.getUserPreferences(PreferenceUtils.getAccessToken(mActivity));
+
+            call.enqueue(new Callback<BaseApiResponse<GetUserPreferencesResponse>>() {
+                @Override
+                public void onResponse(Response<BaseApiResponse<GetUserPreferencesResponse>> response, Retrofit retrofit) {
+                    BaseApiResponse apiResponse = response.body();
+                    if (apiResponse != null) {
+                        String assistance_popup = "";
+                        if (apiResponse.status.isCode() == false) {
+                            GetUserPreferencesResponse mGetUserPreferencesResponse = response.body().getData();
+                            if(mGetUserPreferencesResponse != null) {
+                                assistance_popup = mGetUserPreferencesResponse.getAssistance_popup();
+                            }
+
+                        } else {
+
+                        }
+
+                        Gson gson = new Gson();
+                        mLoggedInObj = gson.fromJson(PreferenceUtils.getDocPortalFTLLoggedObj(mActivity), FTLPINResponse.class);
+
+                        AccountSettingsResponse accountSettingsResponse = new AccountSettingsResponse();
+                        accountSettingsResponse.setUser_Id(mLoggedInObj.getUserId());
+                        accountSettingsResponse.setUser_Name(mLoggedInObj.getUserName());
+                        accountSettingsResponse.setAccess_Token(mLoggedInObj.getAccessToken());
+                        accountSettingsResponse.setCompany_Name(mLoggedInObj.getCompany_name());
+                        accountSettingsResponse.setIs_Terms_Accepted("1");
+                        accountSettingsResponse.setIs_Help_Accepted(assistance_popup);
+                        accountSettingsResponse.setTerms_URL("");
+                        accountSettingsResponse.setLogin_Complete_Status(String.valueOf(Constants.Login_Completed));
+                        accountSettingsResponse.setIs_Local_Auth_Enabled("0");
+                        accountSettingsResponse.setIs_Push_Notification_Enabled("0");
+
+                        AccountSettings accountSettings = new AccountSettings(mActivity);
+                        accountSettings.InsertAccountSettings(accountSettingsResponse);
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    Log.d("PINVerErr",t.getMessage());
                 }
             });
         }

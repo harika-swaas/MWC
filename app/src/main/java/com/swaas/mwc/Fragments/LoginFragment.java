@@ -276,11 +276,11 @@ public class LoginFragment extends Fragment {
 
     private void checkAppStatusAfterPushNotification(List<AccountSettingsResponse> mAccountSettingsResponses) {
 
-        if(mAccountSettingsResponses.get(0).getIs_Terms_Accepted().equals("0")){
+        if(mAccountSettingsResponses.get(0).getIs_Terms_Accepted().equals("0")) {
             startActivity(new Intent(mActivity, LoginAgreeTermsAcceptanceActivity.class));
             mActivity.finish();
         }
-        else if(mAccountSettingsResponses.get(0).getIs_Help_Accepted().equals("1")){
+        else if(mAccountSettingsResponses.get(0).getIs_Help_Accepted().equals("1")) {
             startActivity(new Intent(mActivity, LoginHelpUserGuideActivity.class));
             mActivity.finish();
         }

@@ -40,6 +40,7 @@ public class Notifiy extends Activity {
     Button button5;
     TextView skip;
     List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList<>();
+    boolean mIsFromFTL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +49,7 @@ public class Notifiy extends Activity {
         skip = (TextView)findViewById(R.id.skip_button_1);
         button5 = (Button)findViewById(R.id.enable_touch_button);
 
+        getIntentData();
         setButtonBackgroundColor();
 
         button5.setOnClickListener(new View.OnClickListener() {
@@ -69,8 +71,15 @@ public class Notifiy extends Activity {
                     @Override
                     public void onClick(View v) {
                         updatePushNotificationAndLoggedInStatus();
-                        Intent intent = new Intent(Notifiy.this,LoginAgreeTermsAcceptanceActivity.class);
-                        startActivity(intent);
+                        if(mIsFromFTL){
+                            Intent intent = new Intent(Notifiy.this,LoginHelpUserGuideActivity.class);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            Intent intent = new Intent(Notifiy.this,LoginAgreeTermsAcceptanceActivity.class);
+                            startActivity(intent);
+                            finish();
+                        }
                     }
                 });
 
@@ -78,8 +87,15 @@ public class Notifiy extends Activity {
                     @Override
                     public void onClick(View v) {
                         updateLoggedInStatus();
-                        Intent intent = new Intent(Notifiy.this,LoginAgreeTermsAcceptanceActivity.class);
-                        startActivity(intent);
+                        if(mIsFromFTL){
+                            Intent intent = new Intent(Notifiy.this,LoginHelpUserGuideActivity.class);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            Intent intent = new Intent(Notifiy.this,LoginAgreeTermsAcceptanceActivity.class);
+                            startActivity(intent);
+                            finish();
+                        }
                     }
                 });
             }
@@ -91,8 +107,16 @@ public class Notifiy extends Activity {
                 updateLoggedInStatus();
                 Intent intent = new Intent(Notifiy.this,LoginAgreeTermsAcceptanceActivity.class);
                 startActivity(intent);
+                finish();
             }
         });
+    }
+
+    private void getIntentData() {
+
+        if(getIntent() != null) {
+            mIsFromFTL = getIntent().getBooleanExtra(Constants.IS_FROM_FTL,false);
+        }
     }
 
     private void setButtonBackgroundColor() {

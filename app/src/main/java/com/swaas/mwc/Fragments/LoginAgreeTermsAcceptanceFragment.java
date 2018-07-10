@@ -141,6 +141,6 @@ public class LoginAgreeTermsAcceptanceFragment extends Fragment {
     private void updateIsTermsAcceptedAndLoggedInStatus() {
 
         AccountSettings accountSettings = new AccountSettings(mActivity);
-        accountSettings.updateTermsAcceptedAndLoggedInStatus(String.valueOf(Constants.GDPR_Completed), String.valueOf(Constants.GDPR_Completed));
+        accountSettings.updateTermsAcceptedAndLoggedInStatus(String.valueOf(Constants.GDPR_Completed), "1");
     }
 }

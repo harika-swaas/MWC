@@ -75,8 +75,7 @@ public class LoginHelpUserGuideFragment extends Fragment {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                setUserPreferences();
+                updateLoggedInStatus();
 
                 if (checkBox.isChecked()) {
                     setUserPreferences();
@@ -150,6 +149,6 @@ public class LoginHelpUserGuideFragment extends Fragment {
     private void updateHelpAcceptedAndLoggedInStatus() {
 
         AccountSettings accountSettings = new AccountSettings(mActivity);
-        accountSettings.updateIsHelpAcceptedAndLoggedInStatus(String.valueOf(Constants.Assistance_Popup_Completed), String.valueOf(Constants.Assistance_Popup_Completed));
+        accountSettings.updateIsHelpAcceptedAndLoggedInStatus(String.valueOf(Constants.Assistance_Popup_Completed), String.valueOf(Constants.Login_Completed));
     }
 }
