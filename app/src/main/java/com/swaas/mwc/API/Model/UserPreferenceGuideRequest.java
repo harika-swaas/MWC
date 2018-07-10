@@ -11,7 +11,6 @@ public class UserPreferenceGuideRequest {
 
     @SerializedName("assistance_popup")
     @Expose
-
     private int assistance_popup;
 
     public UserPreferenceGuideRequest(int assistance_popup) {

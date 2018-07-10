@@ -46,8 +46,8 @@ public class Notifiy extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.enable_notification);
-        skip = (TextView)findViewById(R.id.skip_button_1);
-        button5 = (Button)findViewById(R.id.enable_touch_button);
+        skip = (TextView) findViewById(R.id.skip_button_1);
+        button5 = (Button) findViewById(R.id.enable_touch_button);
 
         getIntentData();
         setButtonBackgroundColor();
@@ -58,25 +58,23 @@ public class Notifiy extends Activity {
             @Override
             public void onClick(View v) {
 
-           final Dialog dialog = new Dialog(Notifiy.this);
+                final Dialog dialog = new Dialog(Notifiy.this);
                 dialog.setContentView(R.layout.custom_dialog);
 
-                final TextView Text = (TextView) dialog.findViewById(R.id.title1);
-                final TextView Text1 = (TextView) dialog.findViewById(R.id.txt_message1);
-                final Button BtnAllow  = (Button) dialog.findViewById(R.id.cancel_button1);
-                final Button BtnCancel = (Button) dialog.findViewById(R.id.send_pin_button1);
+                final Button BtnAllow = (Button) dialog.findViewById(R.id.allow_button);
+                final Button BtnCancel = (Button) dialog.findViewById(R.id.cancel_button);
                 dialog.show();
 
                 BtnAllow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         updatePushNotificationAndLoggedInStatus();
-                        if(mIsFromFTL){
-                            Intent intent = new Intent(Notifiy.this,LoginHelpUserGuideActivity.class);
+                        if (mIsFromFTL) {
+                            Intent intent = new Intent(Notifiy.this, LoginHelpUserGuideActivity.class);
                             startActivity(intent);
                             finish();
                         } else {
-                            Intent intent = new Intent(Notifiy.this,LoginAgreeTermsAcceptanceActivity.class);
+                            Intent intent = new Intent(Notifiy.this, LoginAgreeTermsAcceptanceActivity.class);
                             startActivity(intent);
                             finish();
                         }
@@ -87,12 +85,12 @@ public class Notifiy extends Activity {
                     @Override
                     public void onClick(View v) {
                         updateLoggedInStatus();
-                        if(mIsFromFTL){
-                            Intent intent = new Intent(Notifiy.this,LoginHelpUserGuideActivity.class);
+                        if (mIsFromFTL) {
+                            Intent intent = new Intent(Notifiy.this, LoginHelpUserGuideActivity.class);
                             startActivity(intent);
                             finish();
                         } else {
-                            Intent intent = new Intent(Notifiy.this,LoginAgreeTermsAcceptanceActivity.class);
+                            Intent intent = new Intent(Notifiy.this, LoginAgreeTermsAcceptanceActivity.class);
                             startActivity(intent);
                             finish();
                         }
@@ -105,7 +103,7 @@ public class Notifiy extends Activity {
             @Override
             public void onClick(View v) {
                 updateLoggedInStatus();
-                Intent intent = new Intent(Notifiy.this,LoginAgreeTermsAcceptanceActivity.class);
+                Intent intent = new Intent(Notifiy.this, LoginAgreeTermsAcceptanceActivity.class);
                 startActivity(intent);
                 finish();
             }
@@ -114,8 +112,8 @@ public class Notifiy extends Activity {
 
     private void getIntentData() {
 
-        if(getIntent() != null) {
-            mIsFromFTL = getIntent().getBooleanExtra(Constants.IS_FROM_FTL,false);
+        if (getIntent() != null) {
+            mIsFromFTL = getIntent().getBooleanExtra(Constants.IS_FROM_FTL, false);
         }
     }
 
@@ -123,7 +121,7 @@ public class Notifiy extends Activity {
 
         getWhiteLabelProperities();
 
-        if(mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
+        if (mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
             String mobileItemEnableColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
             String mobileItemDisableColor = mWhiteLabelResponses.get(0).getItem_Unselected_Color();
 
@@ -144,7 +142,7 @@ public class Notifiy extends Activity {
                 shape.setColor(itemEnableColor);
 
                 button5.setBackgroundDrawable(shape);
-            } else if(mobileItemDisableColor != null){
+            } else if (mobileItemDisableColor != null) {
                 // Initialize a new GradientDrawable
                 GradientDrawable shape = new GradientDrawable();
 
@@ -202,7 +200,7 @@ public class Notifiy extends Activity {
         accountSettings.SetWhiteLabelCB(new AccountSettings.GetWhiteLabelCB() {
             @Override
             public void getWhiteLabelSuccessCB(List<WhiteLabelResponse> whiteLabelResponses) {
-                if(whiteLabelResponses != null && whiteLabelResponses.size() > 0){
+                if (whiteLabelResponses != null && whiteLabelResponses.size() > 0) {
                     mWhiteLabelResponses = whiteLabelResponses;
                 }
             }
@@ -225,6 +223,6 @@ public class Notifiy extends Activity {
     private void updatePushNotificationAndLoggedInStatus() {
 
         AccountSettings accountSettings = new AccountSettings(this);
-        accountSettings.updatePushNotificationEnableAndLoggedInStatus(String.valueOf(Constants.Push_Notification_Completed),String.valueOf(Constants.Push_Notification_Completed));
+        accountSettings.updatePushNotificationEnableAndLoggedInStatus(String.valueOf(Constants.Push_Notification_Completed), "1");
     }
 }

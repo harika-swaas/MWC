@@ -1,5 +1,6 @@
 package com.swaas.mwc.API.Service;
 
+import com.swaas.mwc.API.Model.ApiResponse;
 import com.swaas.mwc.API.Model.BaseApiResponse;
 import com.swaas.mwc.API.Model.LoginRequest;
 import com.swaas.mwc.API.Model.LoginResponse;

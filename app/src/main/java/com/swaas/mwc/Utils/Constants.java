@@ -22,6 +22,8 @@ public class Constants {
     public static final String SETTERMS = "set-terms";
     public static final String IS_FROM_LOGIN = "is-from-login";
     public static final String IS_FROM_FTL = "is-from-ftl";
+    public static final String SETTERMSPAGECONTENTURL = "set-terms-page-content-url";
+    public static final String SETASSISTANCEPOPUPCONTENTURL = "set-assistance-popup-url";
     public static final String TEXT_BACKGROUND_COLOR = "text_background_color";
     public static final String TEXT_FOREGROUND_COLOR = "text_foreground_color";
     public static final String APP_BACKGROUND_COLOR = "app_background_color";

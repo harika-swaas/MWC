@@ -118,10 +118,6 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
     }
 
     private void setLinkTextView() {
-        /*String completeString = getResources().getString(R.string.set_terms_acceptance_txt);
-        String partToClick = "Terms,Data Policy";
-        setClickableString(partToClick,completeString,setAcceptanceTerms);*/
-
         SpannableString spannableString = new SpannableString(getString(R.string.set_terms_acceptance_txt));
         ClickableSpan clickableSpan = new ClickableSpan() {
             @Override
@@ -376,7 +372,7 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
                         accountSettingsResponse.setCompany_Name(mLoggedInObj.getCompany_name());
                         accountSettingsResponse.setIs_Terms_Accepted("1");
                         accountSettingsResponse.setIs_Help_Accepted(assistance_popup);
-                        accountSettingsResponse.setTerms_URL("");
+                        accountSettingsResponse.setTerms_URL(PreferenceUtils.getTermsURL(mActivity));
                         accountSettingsResponse.setLogin_Complete_Status(String.valueOf(Constants.Login_Completed));
                         accountSettingsResponse.setIs_Local_Auth_Enabled("0");
                         accountSettingsResponse.setIs_Push_Notification_Enabled("0");

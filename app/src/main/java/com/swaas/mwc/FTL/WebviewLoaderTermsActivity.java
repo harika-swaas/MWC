@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.webkit.WebSettings;
@@ -13,6 +14,7 @@ import android.widget.ProgressBar;
 
 import com.swaas.mwc.R;
 import com.swaas.mwc.Utils.Constants;
+import com.wang.avi.AVLoadingIndicatorView;
 
 /**
  * Created by harika on 04-07-2018.
@@ -22,7 +24,8 @@ public class WebviewLoaderTermsActivity extends AppCompatActivity {
 
     private WebView mHelpWebview;
     ProgressBar mProgressBar;
-    String mUrl;
+    private AVLoadingIndicatorView mAviLoadingIndicatorView;
+    String mUrl, mTermsPageContentUrl, mAssistanceHelpGuideUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,21 +50,31 @@ public class WebviewLoaderTermsActivity extends AppCompatActivity {
         }
         mHelpWebview.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
 
-        mHelpWebview.loadUrl(mUrl);
+        if(!TextUtils.isEmpty(mUrl)) {
+            mHelpWebview.loadUrl(mUrl);
+        } else if (!TextUtils.isEmpty(mTermsPageContentUrl)) {
+            mHelpWebview.loadUrl(mTermsPageContentUrl);
+        } else if (!TextUtils.isEmpty(mAssistanceHelpGuideUrl)) {
+            mHelpWebview.loadUrl(mAssistanceHelpGuideUrl);
+        }
+
+        mAviLoadingIndicatorView.show();
 
         WebViewClient webViewClient = new WebViewClient() {
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 super.onPageStarted(view, url, favicon);
+
                 Log.d("<==>Loading","Loading");
-                mProgressBar.setVisibility(View.VISIBLE);
+                mAviLoadingIndicatorView.show();
             }
 
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                mProgressBar.setVisibility(View.GONE);
+
                 mHelpWebview.setVisibility(View.VISIBLE);
+                mAviLoadingIndicatorView.hide();
                 Log.d("<==>Finished","Finished");
             }
 
@@ -76,6 +89,7 @@ public class WebviewLoaderTermsActivity extends AppCompatActivity {
     }
 
     private void intializeViews() {
+        mAviLoadingIndicatorView = (AVLoadingIndicatorView) findViewById(R.id.avi);
         mHelpWebview = (WebView) findViewById(R.id.HelpWebview);
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
     }
@@ -83,6 +97,8 @@ public class WebviewLoaderTermsActivity extends AppCompatActivity {
     private void getIntentData() {
         if(getIntent() != null){
             mUrl = getIntent().getStringExtra(Constants.SETTERMS);
+            mTermsPageContentUrl = getIntent().getStringExtra(Constants.SETTERMSPAGECONTENTURL);
+            mAssistanceHelpGuideUrl = getIntent().getStringExtra(Constants.SETASSISTANCEPOPUPCONTENTURL);
         }
     }
 }

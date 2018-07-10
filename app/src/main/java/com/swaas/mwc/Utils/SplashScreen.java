@@ -15,6 +15,7 @@ import com.swaas.mwc.Database.AccountSettings;
 import com.swaas.mwc.Login.LoginActivity;
 import com.swaas.mwc.MainActivity;
 import com.swaas.mwc.R;
+import com.swaas.mwc.RootActivity;
 
 import java.io.InputStream;
 import java.net.URL;
@@ -25,7 +26,8 @@ import java.util.List;
  * Created by barath on 7/10/2018.
  */
 
-public class SplashScreen extends Activity {
+public class SplashScreen extends RootActivity {
+
     AccountSettings accountSettings;
     Handler handler;
     String mCompanyName;
@@ -54,16 +56,6 @@ public class SplashScreen extends Activity {
         String myUrl = builder.build().toString();
         AQuery aq=new AQuery(this); // intsialze aquery
         aq.id(logo).image(myUrl);
-
-        handler=new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Intent intent=new Intent(SplashScreen.this,LoginActivity.class);
-                startActivity(intent);
-                finish();
-            }
-        },4000);
     }
 
     private void getAccountSettings() {

@@ -67,14 +67,13 @@ import retrofit.Retrofit;
  */
 
 public class LoginFragment extends Fragment {
-    Authenticate authenticate;
+
     LoginActivity mActivity;
     View mView;
     Retrofit retrofit;
     Button mSignInButton;
     TextView mNotLoggedInBefore;
     EditText mUserName, mPassword;
-    MessageDialog messageDialog;
     List<AccountSettingsResponse> mAccountSettingsResponses = new ArrayList<>();
 
     @Override
@@ -193,20 +192,19 @@ public class LoginFragment extends Fragment {
 
                                         } else {
                                             String mMessage = apiResponse.status.getMessage().toString();
-
                                             dialog.dismiss();
-                                            Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
+                                            mActivity.showMessagebox(mActivity,mMessage,null,false);
                                         }
 
                                     } else {
                                         String mMessage = apiResponse.status.getMessage().toString();
                                         dialog.dismiss();
-                                        Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
+                                        mActivity.showMessagebox(mActivity,mMessage,null,false);
                                     }
                                 } else {
                                     String mMessage = apiResponse.status.getMessage().toString();
                                     dialog.dismiss();
-                                    Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
+                                    mActivity.showMessagebox(mActivity,mMessage,null,false);
                                 }
 
                             }

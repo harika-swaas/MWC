@@ -34,21 +34,23 @@
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="54dp"
                 android:layout_toRightOf="@+id/back_image_view"
+                android:alpha="0.87"
                 android:text="@string/pin_verification"
                 android:textColor="@color/black"
-                android:textSize="22sp" />
+                android:textSize="20sp" />
 
         </RelativeLayout>
+
 
         <TextView
             android:id="@+id/pin_verification_txt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
             android:layout_gravity="center_vertical"
-            android:gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
             android:text="@string/login_verification_text"
-            android:textSize="17sp" />
+            android:textSize="16sp" />
 
     </FrameLayout>
 
@@ -72,8 +74,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
-                android:layout_marginTop="15dp"
                 android:layout_centerHorizontal="true"
+                android:layout_marginTop="15dp"
                 android:orientation="vertical">
 
                 <TextView
@@ -82,20 +84,10 @@
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
                     android:layout_gravity="center"
+                    android:alpha="0.87"
                     android:text="@string/send_pin_code_to"
                     android:textColor="@color/black"
-                    android:textSize="20sp" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/enter_pin_number_ll"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/ftl_pin_verification_ll"
-                android:layout_centerHorizontal="true"
-                android:layout_marginLeft="48dp"
-                android:orientation="vertical">
+                    android:textSize="18sp" />
 
             </LinearLayout>
 
@@ -127,7 +119,7 @@
                     android:layout_marginTop="30dp"
                     android:background="@drawable/next"
                     android:text="@string/next"
-                    android:textAllCaps="true"
+                    android:textAllCaps="false"
                     android:textColor="@color/white"
                     android:textSize="16sp"
                     android:layout_gravity="center"/>
