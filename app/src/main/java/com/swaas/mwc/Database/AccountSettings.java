@@ -218,7 +218,7 @@ public class AccountSettings {
     }
 
     public void getWhiteLabelProperties() {
-        String selectQuery = "SELECT Item_Selected_Color, Item_UnSelected_Color FROM tbl_white_label";
+        String selectQuery = "SELECT Item_Selected_Color, Item_UnSelected_Color, Splash_Screen_Color  FROM tbl_white_label";
         try {
             DBConnectionOpen();
             Cursor cursor = database.rawQuery(selectQuery, null);
@@ -239,11 +239,12 @@ public class AccountSettings {
 
             int itemSelectedColor = cursor.getColumnIndex(ITEM_SELECTED_COLOR);
             int itemUnSelectedColor = cursor.getColumnIndex(ITEM_UNSELECTED_COLOR);
-
+            int splashSplashScreenColor = cursor.getColumnIndex(SPLASH_SCREEN_COLOR);
             do {
                 WhiteLabelResponse whiteLabelResponse = new WhiteLabelResponse();
                 whiteLabelResponse.setItem_Selected_Color(cursor.getString(itemSelectedColor));
                 whiteLabelResponse.setItem_Unselected_Color(cursor.getString(itemUnSelectedColor));
+                whiteLabelResponse.setSplash_Screen_Color(cursor.getString(splashSplashScreenColor));
 
                 whiteLabelResponseList.add(whiteLabelResponse);
             } while (cursor.moveToNext());
@@ -324,5 +325,12 @@ public class AccountSettings {
 
     public void SetWhiteLabelCB(GetWhiteLabelCB getWhiteLabelCB) {
         this.getWhiteLabelCB = getWhiteLabelCB;
+    }
+    public void deleteAll()
+    {   DBConnectionOpen();
+        database = dbHandler.getWritableDatabase();
+        database.delete(TABLE_ACCOUNT_SETTINGS,null,null);
+        database.delete(TABLE_WHITE_LABEL,null,null);
+        DBConnectionClose();
     }
 }

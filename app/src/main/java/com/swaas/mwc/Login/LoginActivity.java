@@ -33,6 +33,9 @@ public class LoginActivity extends RootActivity {
     Handler handler;
     LoginFragment mLoginFragment;
     CountDownTimer timer;
+    Authenticate authenticate;
+    KeyguardManager keyguardManager;
+    private static final int CREDENTIALS_RESULT = 4342;
     List<AccountSettingsResponse> mAccountSettingsResponses = new ArrayList<>();
 
     @Override
@@ -94,9 +97,11 @@ public class LoginActivity extends RootActivity {
             Timer timer = new Timer();
             timer.schedule(new TimerTask() {
 
+                @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
                 @Override
                 public void run() {
                     finish();
+                    checkCredentials();
                     startActivity(new Intent(LoginActivity.this, Notifiy.class));
                     LoginActivity.this.finish();
                 }
@@ -118,9 +123,11 @@ public class LoginActivity extends RootActivity {
             Timer timer = new Timer();
             timer.schedule(new TimerTask() {
 
+                @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
                 @Override
                 public void run() {
                     finish();
+                    checkCredentials();
                     startActivity(new Intent(LoginActivity.this, LoginAgreeTermsAcceptanceActivity.class));
                     LoginActivity.this.finish();
                 }
@@ -135,9 +142,11 @@ public class LoginActivity extends RootActivity {
             Timer timer = new Timer();
             timer.schedule(new TimerTask() {
 
+                @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
                 @Override
                 public void run() {
                     finish();
+                    checkCredentials();
                     startActivity(new Intent(LoginActivity.this, LoginHelpUserGuideActivity.class));
                     LoginActivity.this.finish();
                 }
@@ -152,9 +161,11 @@ public class LoginActivity extends RootActivity {
             Timer timer = new Timer();
             timer.schedule(new TimerTask() {
 
+                @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
                 @Override
                 public void run() {
                     finish();
+                    checkCredentials();
                     startActivity(new Intent(LoginActivity.this, Dashboard.class));
                     LoginActivity.this.finish();
                 }
@@ -195,6 +206,27 @@ public class LoginActivity extends RootActivity {
             Intent intent = new Intent(LoginActivity.this, Notifiy.class);
             startActivity(intent);
             LoginActivity.this.finish();
+        }
+    }
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public void checkCredentials(){
+        keyguardManager = (KeyguardManager) this.getSystemService(Context.KEYGUARD_SERVICE);
+        Intent credentialsIntent = keyguardManager.createConfirmDeviceCredentialIntent("Password required", "please enter your pattern to receive your token");
+
+        if (credentialsIntent != null) {
+            startActivityForResult(credentialsIntent, CREDENTIALS_RESULT);
+        }
+
+    }
+    public void onActivityResult(int requestCode, int resultCode, Bundle data) {
+
+        if (requestCode == CREDENTIALS_RESULT) {
+
+            if (resultCode == RESULT_OK) {
+
+
+
+            }
         }
     }
 
