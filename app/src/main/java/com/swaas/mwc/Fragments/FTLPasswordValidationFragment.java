@@ -40,6 +40,7 @@ import com.swaas.mwc.Database.AccountSettings;
 import com.swaas.mwc.FTL.FTLAgreeTermsAcceptanceActivity;
 import com.swaas.mwc.FTL.FTLPasswordValidationActivity;
 import com.swaas.mwc.FTL.FTLUserValidationActivity;
+import com.swaas.mwc.Login.LoginActivity;
 import com.swaas.mwc.Network.NetworkUtils;
 import com.swaas.mwc.Preference.PreferenceUtils;
 import com.swaas.mwc.R;
@@ -74,7 +75,7 @@ public class FTLPasswordValidationFragment extends Fragment {
     TextView welcomeMsg;
     String mAccessToken;
     ImageView mBackIv;
-    View inputPasswordView,inputConfirmPasswordView;
+    View inputPasswordView, inputConfirmPasswordView;
     List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList<>();
 
     @Override
@@ -135,7 +136,7 @@ public class FTLPasswordValidationFragment extends Fragment {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                 if (s.length() == 0) {
-                   // inputPassword.getBackground().setColorFilter(getResources().getColor(R.color.grey), PorterDuff.Mode.SRC_IN);
+                    // inputPassword.getBackground().setColorFilter(getResources().getColor(R.color.grey), PorterDuff.Mode.SRC_IN);
                     inputPasswordView.setBackgroundColor(getResources().getColor(R.color.grey));
                 }
             }
@@ -145,13 +146,13 @@ public class FTLPasswordValidationFragment extends Fragment {
                 String password = inputPassword.getText().toString().trim();
                 if (s.length() > 0) {
                     if (password.length() < 8 || password.length() > 15 || !isValidPassword(password)) {
-                     //   inputPassword.getBackground().setColorFilter(getResources().getColor(R.color.dark_red), PorterDuff.Mode.SRC_IN);
+                        //   inputPassword.getBackground().setColorFilter(getResources().getColor(R.color.dark_red), PorterDuff.Mode.SRC_IN);
                         inputPasswordView.setBackgroundColor(getResources().getColor(R.color.dark_red));
                     } else if (isValidPassword(password)) {
-                      //  inputPassword.getBackground().setColorFilter(getResources().getColor(R.color.blue_non_pressed), PorterDuff.Mode.SRC_IN);
+                        //  inputPassword.getBackground().setColorFilter(getResources().getColor(R.color.blue_non_pressed), PorterDuff.Mode.SRC_IN);
                         inputPasswordView.setBackgroundColor(getResources().getColor(R.color.green));
                     } else {
-                       // inputPassword.getBackground().setColorFilter(getResources().getColor(R.color.grey), PorterDuff.Mode.SRC_IN);
+                        // inputPassword.getBackground().setColorFilter(getResources().getColor(R.color.grey), PorterDuff.Mode.SRC_IN);
                         inputPasswordView.setBackgroundColor(getResources().getColor(R.color.grey));
                     }
                 }
@@ -161,13 +162,13 @@ public class FTLPasswordValidationFragment extends Fragment {
             public void afterTextChanged(Editable s) {
                 String password = inputPassword.getText().toString().trim();
                 if (!isValidPassword(password)) {
-                  //  inputPassword.getBackground().setColorFilter(getResources().getColor(R.color.dark_red), PorterDuff.Mode.SRC_IN);
+                    //  inputPassword.getBackground().setColorFilter(getResources().getColor(R.color.dark_red), PorterDuff.Mode.SRC_IN);
                     inputPasswordView.setBackgroundColor(getResources().getColor(R.color.dark_red));
                 } else if (isValidPassword(password)) {
-                  //  inputPassword.getBackground().setColorFilter(getResources().getColor(R.color.blue_non_pressed), PorterDuff.Mode.SRC_IN);
+                    //  inputPassword.getBackground().setColorFilter(getResources().getColor(R.color.blue_non_pressed), PorterDuff.Mode.SRC_IN);
                     inputPasswordView.setBackgroundColor(getResources().getColor(R.color.green));
                 } else {
-                   // inputPassword.getBackground().setColorFilter(getResources().getColor(R.color.grey), PorterDuff.Mode.SRC_IN);
+                    // inputPassword.getBackground().setColorFilter(getResources().getColor(R.color.grey), PorterDuff.Mode.SRC_IN);
                     inputPasswordView.setBackgroundColor(getResources().getColor(R.color.grey));
                 }
             }
@@ -177,7 +178,7 @@ public class FTLPasswordValidationFragment extends Fragment {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                 if (s.length() == 0) {
-                 //   inputConfirmPassword.getBackground().setColorFilter(getResources().getColor(R.color.grey), PorterDuff.Mode.SRC_IN);
+                    //   inputConfirmPassword.getBackground().setColorFilter(getResources().getColor(R.color.grey), PorterDuff.Mode.SRC_IN);
                     inputConfirmPasswordView.setBackgroundColor(getResources().getColor(R.color.grey));
                 }
             }
@@ -188,10 +189,10 @@ public class FTLPasswordValidationFragment extends Fragment {
                 String confirmPassword = inputConfirmPassword.getText().toString().trim();
                 if (s.length() > 0) {
                     if (!password.equals(confirmPassword)) {
-                      //  inputConfirmPassword.getBackground().setColorFilter(getResources().getColor(R.color.dark_red), PorterDuff.Mode.SRC_IN);
+                        //  inputConfirmPassword.getBackground().setColorFilter(getResources().getColor(R.color.dark_red), PorterDuff.Mode.SRC_IN);
                         inputConfirmPasswordView.setBackgroundColor(getResources().getColor(R.color.dark_red));
                     } else {
-                       // inputConfirmPassword.getBackground().setColorFilter(getResources().getColor(R.color.blue_non_pressed), PorterDuff.Mode.SRC_IN);
+                        // inputConfirmPassword.getBackground().setColorFilter(getResources().getColor(R.color.blue_non_pressed), PorterDuff.Mode.SRC_IN);
                         inputConfirmPasswordView.setBackgroundColor(getResources().getColor(R.color.green));
                     }
                 }
@@ -199,7 +200,7 @@ public class FTLPasswordValidationFragment extends Fragment {
                 if (!TextUtils.isEmpty(confirmPassword) && !TextUtils.isEmpty(password) && password.equals(confirmPassword)) {
                     getWhiteLabelProperities();
 
-                    if(mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
+                    if (mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
                         String mobileItemEnableColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
 
                         int itemEnableColor = Color.parseColor(mobileItemEnableColor);
@@ -253,7 +254,7 @@ public class FTLPasswordValidationFragment extends Fragment {
                 String password = inputPassword.getText().toString().trim();
                 String confirmPassword = inputConfirmPassword.getText().toString().trim();
                 if (password.equals(confirmPassword)) {
-                  //  inputPassword.getBackground().setColorFilter(getResources().getColor(R.color.blue_non_pressed), PorterDuff.Mode.SRC_IN);
+                    //  inputPassword.getBackground().setColorFilter(getResources().getColor(R.color.blue_non_pressed), PorterDuff.Mode.SRC_IN);
                     inputConfirmPasswordView.setBackgroundColor(getResources().getColor(R.color.green));
                 } else {
 
@@ -291,13 +292,13 @@ public class FTLPasswordValidationFragment extends Fragment {
                     hideKeyboard(v);
                     String password = inputPassword.getText().toString().trim();
                     if (password.length() < 8 || password.length() > 15 || !isValidPassword(password)) {
-                       // inputPassword.getBackground().setColorFilter(getResources().getColor(R.color.dark_red), PorterDuff.Mode.SRC_IN);
+                        // inputPassword.getBackground().setColorFilter(getResources().getColor(R.color.dark_red), PorterDuff.Mode.SRC_IN);
                         inputPasswordView.setBackgroundColor(getResources().getColor(R.color.dark_red));
                     } else if (isValidPassword(password)) {
-                     //   inputPassword.getBackground().setColorFilter(getResources().getColor(R.color.blue_non_pressed), PorterDuff.Mode.SRC_IN);
+                        //   inputPassword.getBackground().setColorFilter(getResources().getColor(R.color.blue_non_pressed), PorterDuff.Mode.SRC_IN);
                         inputPasswordView.setBackgroundColor(getResources().getColor(R.color.green));
                     } else {
-                      //  inputPassword.getBackground().setColorFilter(getResources().getColor(R.color.grey), PorterDuff.Mode.SRC_IN);
+                        //  inputPassword.getBackground().setColorFilter(getResources().getColor(R.color.grey), PorterDuff.Mode.SRC_IN);
                         inputPasswordView.setBackgroundColor(getResources().getColor(R.color.grey));
                     }
                 }
@@ -312,10 +313,10 @@ public class FTLPasswordValidationFragment extends Fragment {
                     String password = inputPassword.getText().toString().trim();
                     String confirmPassword = inputConfirmPassword.getText().toString().trim();
                     if (!password.equals(confirmPassword)) {
-                       // inputConfirmPassword.getBackground().setColorFilter(getResources().getColor(R.color.dark_red), PorterDuff.Mode.SRC_IN);
+                        // inputConfirmPassword.getBackground().setColorFilter(getResources().getColor(R.color.dark_red), PorterDuff.Mode.SRC_IN);
                         inputConfirmPasswordView.setBackgroundColor(getResources().getColor(R.color.dark_red));
                     } else {
-                      //  inputConfirmPassword.getBackground().setColorFilter(getResources().getColor(R.color.blue_non_pressed), PorterDuff.Mode.SRC_IN);
+                        //  inputConfirmPassword.getBackground().setColorFilter(getResources().getColor(R.color.blue_non_pressed), PorterDuff.Mode.SRC_IN);
                         inputConfirmPasswordView.setBackgroundColor(getResources().getColor(R.color.green));
                     }
                 }
@@ -329,7 +330,7 @@ public class FTLPasswordValidationFragment extends Fragment {
         accountSettings.SetWhiteLabelCB(new AccountSettings.GetWhiteLabelCB() {
             @Override
             public void getWhiteLabelSuccessCB(List<WhiteLabelResponse> whiteLabelResponses) {
-                if(whiteLabelResponses != null && whiteLabelResponses.size() > 0){
+                if (whiteLabelResponses != null && whiteLabelResponses.size() > 0) {
                     mWhiteLabelResponses = whiteLabelResponses;
                 }
             }
@@ -356,7 +357,7 @@ public class FTLPasswordValidationFragment extends Fragment {
 
         getWhiteLabelProperities();
 
-        if(mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0){
+        if (mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
             String mobileItemEnableColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
             String mobileItemDisableColor = mWhiteLabelResponses.get(0).getItem_Unselected_Color();
 
@@ -380,7 +381,7 @@ public class FTLPasswordValidationFragment extends Fragment {
                     mNext.setBackgroundDrawable(shape);
                 }
             } else {
-                if(mobileItemDisableColor != null){
+                if (mobileItemDisableColor != null) {
                     // Initialize a new GradientDrawable
                     GradientDrawable shape = new GradientDrawable();
 
@@ -572,35 +573,47 @@ public class FTLPasswordValidationFragment extends Fragment {
                         BaseApiResponse apiResponse = response.body();
                         if (apiResponse != null) {
                             dialog.dismiss();
-                            if (apiResponse.status.isCode() == false) {
-                                String mMessage = apiResponse.status.getMessage().toString();
-                                //  Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
-                                Intent mIntent = new Intent(mActivity, FTLAgreeTermsAcceptanceActivity.class);
-                                mIntent.putExtra(Constants.USERNAME, mUserName);
-                                mIntent.putExtra(Constants.PASSWORD, inputPassword.getText().toString().trim());
-                                mIntent.putExtra(Constants.ACCESSTOKEN, mAccessToken);
-                                mIntent.putExtra(Constants.SETTERMS, mTerms);
-                                startActivity(mIntent);
-                                mActivity.finish();
-                            } else {
-                                String mMessage = apiResponse.status.getMessage().toString();
-                                // Showing Alert Dialog
-                                AlertDialog mDialog = new AlertDialog.Builder(mActivity).create();
-                                // Setting Dialog Title
-                                mDialog.setTitle("Alert");
-                                // Setting Dialog Message
-                                mDialog.setMessage(mMessage);
 
-                                // Setting OK Button
-                                mDialog.setButton("OK", new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        // Write your code here to execute after dialog closed
-                                        startActivity(new Intent(mActivity, FTLUserValidationActivity.class));
+                            if (apiResponse.status.getCode() instanceof Boolean) {
+
+                                if (apiResponse.status.getCode() == Boolean.FALSE) {
+                                    Intent mIntent = new Intent(mActivity, FTLAgreeTermsAcceptanceActivity.class);
+                                    mIntent.putExtra(Constants.USERNAME, mUserName);
+                                    mIntent.putExtra(Constants.PASSWORD, inputPassword.getText().toString().trim());
+                                    mIntent.putExtra(Constants.ACCESSTOKEN, mAccessToken);
+                                    mIntent.putExtra(Constants.SETTERMS, mTerms);
+                                    startActivity(mIntent);
+                                    mActivity.finish();
+                                } else {
+                                    String mMessage = apiResponse.status.getMessage().toString();
+                                    // Showing Alert Dialog
+                                    AlertDialog mDialog = new AlertDialog.Builder(mActivity).create();
+                                    // Setting Dialog Title
+                                    mDialog.setTitle("Alert");
+                                    // Setting Dialog Message
+                                    mDialog.setMessage(mMessage);
+
+                                    // Setting OK Button
+                                    mDialog.setButton("OK", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            // Write your code here to execute after dialog closed
+                                            startActivity(new Intent(mActivity, FTLUserValidationActivity.class));
+                                        }
+                                    });
+
+                                    // Showing Alert Message
+                                    mDialog.show();
+                                }
+
+                            } else if (apiResponse.status.getCode() instanceof Integer) {
+                                String mMessage = apiResponse.status.getMessage().toString();
+                                mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        startActivity(new Intent(mActivity, LoginActivity.class));
+                                        mActivity.finish();
                                     }
-                                });
-
-                                // Showing Alert Message
-                                mDialog.show();
+                                }, false);
                             }
                         }
                     }

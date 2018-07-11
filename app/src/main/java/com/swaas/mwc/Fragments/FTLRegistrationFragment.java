@@ -40,6 +40,7 @@ import com.swaas.mwc.Dialogs.LightLoader;
 import com.swaas.mwc.Dialogs.LoadingProgressDialog;
 import com.swaas.mwc.FTL.FTLPinVerificationActivity;
 import com.swaas.mwc.FTL.FTLRegistrationActivity;
+import com.swaas.mwc.Login.LoginActivity;
 import com.swaas.mwc.Network.NetworkUtils;
 import com.swaas.mwc.R;
 import com.swaas.mwc.Retrofit.RetrofitAPIBuilder;
@@ -140,7 +141,7 @@ public class FTLRegistrationFragment extends Fragment {
 
     public void hideKeyboard(View view) {
 
-        InputMethodManager inputMethodManager =(InputMethodManager) mActivity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        InputMethodManager inputMethodManager = (InputMethodManager) mActivity.getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
@@ -226,22 +227,6 @@ public class FTLRegistrationFragment extends Fragment {
                 dialog.getWindow().setLayout(600, 400);
                 dialog.show();
 
-                /*final LoadingProgressDialog mDialog = new LoadingProgressDialog(mActivity);
-                mDialog.show();*/
-
-                /*final ProgressDialog progressDialog = new ProgressDialog(mActivity,
-                        R.style.AppTheme_Dark_Dialog);
-                progressDialog.setIndeterminate(true);
-                progressDialog.setMax(100); // Progress Dialog Max Value
-                progressDialog.setMessage("Loading..."); // Setting Message
-                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER); // Progress Dialog Style Spinner
-                progressDialog.show(); // Display Progress Dialog
-                progressDialog.setCancelable(false);*/
-
-                /*final LightLoader lightLoader = new LightLoader(mActivity);
-                lightLoader.setMessage("Loading...");
-                lightLoader.show();*/
-
                 Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
 
                 final VerifyFTLDetailsService verifyFTLDetailsService = retrofitAPI.create(VerifyFTLDetailsService.class);
@@ -249,7 +234,7 @@ public class FTLRegistrationFragment extends Fragment {
                 VerifyFTLRequestWithEMail mVerifyFTLRequest = new VerifyFTLRequestWithEMail(email);
                 String request = new Gson().toJson(mVerifyFTLRequest);
                 //Here the json data is add to a hash map with key data
-                Map<String,String> params = new HashMap<String, String>();
+                Map<String, String> params = new HashMap<String, String>();
                 params.put("data", request);
 
                 Call call = verifyFTLDetailsService.getVerifyFTLDetailsWithEmail(params);
@@ -259,80 +244,72 @@ public class FTLRegistrationFragment extends Fragment {
                     public void onResponse(Response<BaseApiResponse<VerifyFTLResponse>> response, Retrofit retrofit) {
                         BaseApiResponse apiResponse = response.body();
                         if (apiResponse != null) {
-                            if (apiResponse.status.isCode() == false) {
-                                String mMessage = apiResponse.status.getMessage().toString();
-                                VerifyFTLResponse mVerifyFTLResponse = response.body().getData();
 
-                                dialog.dismiss();
+                            if (apiResponse.status.getCode() instanceof Boolean) {
 
-                                if (mVerifyFTLResponse != null) {
-                                  //  Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
-                                    if (mVerifyFTLResponse.isCheck_mobile() == true) {
-                                        inputLayoutMobile.setVisibility(View.VISIBLE);
-                                        verifyFTLDetailsWithMobile();
+                                if (apiResponse.status.getCode() == Boolean.FALSE) {
+                                    VerifyFTLResponse mVerifyFTLResponse = response.body().getData();
+
+                                    dialog.dismiss();
+
+                                    if (mVerifyFTLResponse != null) {
+                                        if (mVerifyFTLResponse.isCheck_mobile() == true) {
+                                            String mMessage = apiResponse.status.getMessage().toString();
+                                            mActivity.showMessagebox(mActivity, mMessage, null, false);
+                                            inputLayoutMobile.setVisibility(View.VISIBLE);
+                                            verifyFTLDetailsWithMobile();
+                                        } else {
+                                            inputLayoutMobile.setVisibility(View.GONE);
+                                        }
                                     } else {
-                                        inputLayoutMobile.setVisibility(View.GONE);
+
+                                        final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+                                        LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+                                        builder.setView(view);
+                                        builder.setCancelable(false);
+
+                                        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+                                        txtMessage.setText(getString(R.string.pin_verification_dialog_msg));
+
+                                        Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+                                        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+                                        sendPinButton.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                mAlertDialog.dismiss();
+                                                sendFTLPin(email);
+                                            }
+                                        });
+
+                                        cancelButton.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                mAlertDialog.dismiss();
+                                            }
+                                        });
+
+                                        mAlertDialog = builder.create();
+                                        mAlertDialog.show();
                                     }
                                 } else {
-                                    /*MaterialStyledDialog dialog = new MaterialStyledDialog.Builder(mActivity)
-                                            .setTitle("Pin verification")
-                                            .setDescription(getString(R.string.pin_verification_dialog_msg))
-                                            // .setStyle(Style.HEADER_WITH_ICON)
-                                            .setStyle(Style.HEADER_WITH_TITLE)
-                                            .setPositiveText(R.string.send_pin)
-                                            .setNegativeText(R.string.cancel)
-                                            .onPositive(new MaterialDialog.SingleButtonCallback() {
-                                                @Override
-                                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                                    dialog.dismiss();
-                                                    sendFTLPin(email);
-                                                }
-                                            })
-                                            .onNegative(new MaterialDialog.SingleButtonCallback() {
-                                                @Override
-                                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                                    dialog.dismiss();
-                                                }
-                                            })
-                                            .build();
-                                    dialog.show();*/
-
-                                    final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-                                    LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                    View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                                    builder.setView(view);
-                                    builder.setCancelable(false);
-
-                                    TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                                    txtMessage.setText(getString(R.string.pin_verification_dialog_msg));
-
-                                    Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                                    Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                                    sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            mAlertDialog.dismiss();
-                                            sendFTLPin(email);
-                                        }
-                                    });
-
-                                    cancelButton.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            mAlertDialog.dismiss();
-                                        }
-                                    });
-
-                                    mAlertDialog = builder.create();
-                                    mAlertDialog.show();
+                                    String mMessage = apiResponse.status.getMessage().toString();
+                                    dialog.dismiss();
+                                    mActivity.showMessagebox(mActivity, mMessage, null, false);
                                 }
-                            } else {
+
+                            } else if (apiResponse.status.getCode() instanceof Integer) {
+
                                 String mMessage = apiResponse.status.getMessage().toString();
-                                dialog.dismiss();
-                                mActivity.showMessagebox(mActivity,mMessage,null,false);
-                               // Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
+                                mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        startActivity(new Intent(mActivity, LoginActivity.class));
+                                        mActivity.finish();
+                                    }
+                                }, false);
                             }
                         }
                     }
@@ -351,8 +328,6 @@ public class FTLRegistrationFragment extends Fragment {
         final String email = inputEmail.getText().toString().trim();
         final String mobile = inputMobile.getText().toString().trim();
 
-        final Long mMobile = Long.parseLong(mobile);
-
         if (validateEmail() && validateMobile()) {
             if (NetworkUtils.isNetworkAvailable(mActivity)) {
 
@@ -364,11 +339,11 @@ public class FTLRegistrationFragment extends Fragment {
 
                 final VerifyFTLDetailsService verifyFTLDetailsService = retrofitAPI.create(VerifyFTLDetailsService.class);
 
-                VerifyFTLRequest mVerifyFTLRequest = new VerifyFTLRequest(email, mMobile);
+                VerifyFTLRequest mVerifyFTLRequest = new VerifyFTLRequest(email, mobile);
                 String request = new Gson().toJson(mVerifyFTLRequest);
 
                 //Here the json data is add to a hash map with key data
-                Map<String,String> params = new HashMap<String, String>();
+                Map<String, String> params = new HashMap<String, String>();
                 params.put("data", request);
 
                 Call call = verifyFTLDetailsService.getVerifyFTLDetails(params);
@@ -377,66 +352,141 @@ public class FTLRegistrationFragment extends Fragment {
                     @Override
                     public void onResponse(Response<BaseApiResponse<VerifyFTLResponse>> response, Retrofit retrofit) {
                         BaseApiResponse apiResponse = response.body();
+
                         if (apiResponse != null) {
-                            if (apiResponse.status.isCode() == false) {
-                                String mMessage = apiResponse.status.getMessage().toString();
-                                VerifyFTLResponse mVerifyFTLResponse = response.body().getData();
 
-                                dialog.dismiss();
-                              //  Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
+                            if (apiResponse.status.getCode() instanceof Boolean) {
 
-                                if (mVerifyFTLResponse != null) {
-                                    MaterialStyledDialog dialog = new MaterialStyledDialog.Builder(mActivity)
-                                            .setTitle("Pin verification")
-                                            .setDescription(getString(R.string.pin_verification_dialog_msg))
-                                           // .setStyle(Style.HEADER_WITH_ICON)
-                                            .setStyle(Style.HEADER_WITH_TITLE)
-                                            .setPositiveText(R.string.send_pin)
-                                            .setNegativeText(R.string.cancel)
-                                            .onPositive(new MaterialDialog.SingleButtonCallback() {
-                                                @Override
-                                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                                    dialog.dismiss();
-                                                    sendFTLPinWithMobile(email, mMobile);
-                                                }
-                                            })
-                                            .onNegative(new MaterialDialog.SingleButtonCallback() {
-                                                @Override
-                                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                                    dialog.dismiss();
-                                                }
-                                            })
-                                            .build();
-                                           dialog.show();
+                                if (apiResponse.status.getCode() == Boolean.FALSE) {
+
+                                    VerifyFTLResponse mVerifyFTLResponse = response.body().getData();
+                                    dialog.dismiss();
+                                    if (mVerifyFTLResponse != null) {
+                                        /*MaterialStyledDialog dialog = new MaterialStyledDialog.Builder(mActivity)
+                                                .setTitle("Pin verification")
+                                                .setDescription(getString(R.string.pin_verification_dialog_msg))
+                                                // .setStyle(Style.HEADER_WITH_ICON)
+                                                .setStyle(Style.HEADER_WITH_TITLE)
+                                                .setPositiveText(R.string.send_pin)
+                                                .setNegativeText(R.string.cancel)
+                                                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                                    @Override
+                                                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                                        dialog.dismiss();
+                                                        sendFTLPinWithMobile(email, mMobile);
+                                                    }
+                                                })
+                                                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                                                    @Override
+                                                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                                        dialog.dismiss();
+                                                    }
+                                                })
+                                                .build();
+                                        dialog.show();*/
+
+                                        final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+                                        LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+                                        builder.setView(view);
+                                        builder.setCancelable(false);
+
+                                        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+                                        txtMessage.setText(getString(R.string.pin_verification_dialog_msg));
+
+                                        Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+                                        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+                                        sendPinButton.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                mAlertDialog.dismiss();
+                                                sendFTLPinWithMobile(email, mobile);
+                                            }
+                                        });
+
+                                        cancelButton.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                mAlertDialog.dismiss();
+                                            }
+                                        });
+
+                                        mAlertDialog = builder.create();
+                                        mAlertDialog.show();
+
+                                    } else {
+                                        /*MaterialStyledDialog dialog = new MaterialStyledDialog.Builder(mActivity)
+                                                .setTitle("Pin verification")
+                                                .setDescription(getString(R.string.pin_verification_dialog_msg))
+                                                // .setStyle(Style.HEADER_WITH_ICON)
+                                                .setStyle(Style.HEADER_WITH_TITLE)
+                                                .setPositiveText(R.string.send_pin)
+                                                .setNegativeText(R.string.cancel)
+                                                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                                    @Override
+                                                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                                        dialog.dismiss();
+                                                        sendFTLPinWithMobile(email, mMobile);
+                                                    }
+                                                })
+                                                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                                                    @Override
+                                                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                                        dialog.dismiss();
+                                                    }
+                                                })
+                                                .build();
+                                        dialog.show();*/
+
+                                        final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+                                        LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+                                        builder.setView(view);
+                                        builder.setCancelable(false);
+
+                                        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+                                        txtMessage.setText(getString(R.string.pin_verification_dialog_msg));
+
+                                        Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+                                        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+                                        sendPinButton.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                mAlertDialog.dismiss();
+                                                sendFTLPinWithMobile(email, mobile);
+                                            }
+                                        });
+
+                                        cancelButton.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                mAlertDialog.dismiss();
+                                            }
+                                        });
+
+                                        mAlertDialog = builder.create();
+                                        mAlertDialog.show();
+                                    }
                                 } else {
-                                    MaterialStyledDialog dialog = new MaterialStyledDialog.Builder(mActivity)
-                                            .setTitle("Pin verification")
-                                            .setDescription(getString(R.string.pin_verification_dialog_msg))
-                                            // .setStyle(Style.HEADER_WITH_ICON)
-                                            .setStyle(Style.HEADER_WITH_TITLE)
-                                            .setPositiveText(R.string.send_pin)
-                                            .setNegativeText(R.string.cancel)
-                                            .onPositive(new MaterialDialog.SingleButtonCallback() {
-                                                @Override
-                                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                                    dialog.dismiss();
-                                                    sendFTLPinWithMobile(email, mMobile);
-                                                }
-                                            })
-                                            .onNegative(new MaterialDialog.SingleButtonCallback() {
-                                                @Override
-                                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                                    dialog.dismiss();
-                                                }
-                                            })
-                                            .build();
-                                    dialog.show();
+                                    String mMessage = apiResponse.status.getMessage().toString();
+                                    dialog.dismiss();
+                                    mActivity.showMessagebox(mActivity, mMessage, null, false);
                                 }
-                            } else {
+
+                            } else if (apiResponse.status.getCode() instanceof Integer) {
+
                                 String mMessage = apiResponse.status.getMessage().toString();
-                                dialog.dismiss();
-                                mActivity.showMessagebox(mActivity,mMessage,null,false);
-                               // Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
+                                mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        startActivity(new Intent(mActivity, LoginActivity.class));
+                                        mActivity.finish();
+                                    }
+                                }, false);
                             }
                         }
                     }
@@ -444,7 +494,6 @@ public class FTLRegistrationFragment extends Fragment {
                     @Override
                     public void onFailure(Throwable t) {
                         dialog.dismiss();
-                      //  Toast.makeText(mActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -453,7 +502,7 @@ public class FTLRegistrationFragment extends Fragment {
 
     private void sendFTLPin(final String email) {
 
-        if(NetworkUtils.isNetworkAvailable(mActivity)){
+        if (NetworkUtils.isNetworkAvailable(mActivity)) {
 
             final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -466,7 +515,7 @@ public class FTLRegistrationFragment extends Fragment {
 
             String request = new Gson().toJson(mVerifyFTLRequest);
             //Here the json data is add to a hash map with key data
-            Map<String,String> params = new HashMap<String, String>();
+            Map<String, String> params = new HashMap<String, String>();
             params.put("data", request);
 
             Call call = sendFTLPINService.getFTLPIN(params);
@@ -477,16 +526,29 @@ public class FTLRegistrationFragment extends Fragment {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
                         dialog.dismiss();
-                        if (apiResponse.status.isCode() == false) {
+
+                        if (apiResponse.status.getCode() instanceof Boolean) {
+                            if (apiResponse.status.getCode() == Boolean.FALSE) {
+
+                                Intent mIntent = new Intent(mActivity, FTLPinVerificationActivity.class);
+                                mIntent.putExtra(Constants.EMAIL, email);
+                                startActivity(mIntent);
+                                mActivity.finish();
+                            } else {
+                                String mMessage = apiResponse.status.getMessage().toString();
+                                // Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
+                            }
+
+                        } else if (apiResponse.status.getCode() instanceof Integer) {
+
                             String mMessage = apiResponse.status.getMessage().toString();
-                          //  Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
-                            Intent mIntent = new Intent(mActivity, FTLPinVerificationActivity.class);
-                            mIntent.putExtra(Constants.EMAIL, email);
-                            startActivity(mIntent);
-                            mActivity.finish();
-                        } else {
-                            String mMessage = apiResponse.status.getMessage().toString();
-                           // Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
+                            mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    startActivity(new Intent(mActivity, LoginActivity.class));
+                                    mActivity.finish();
+                                }
+                            }, false);
                         }
                     }
                 }
@@ -494,15 +556,14 @@ public class FTLRegistrationFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     dialog.dismiss();
-                   // Toast.makeText(mActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
         }
     }
 
-    private void sendFTLPinWithMobile(final String email, final long mobile) {
+    private void sendFTLPinWithMobile(final String email, final String mobile) {
 
-        if(NetworkUtils.isNetworkAvailable(mActivity)){
+        if (NetworkUtils.isNetworkAvailable(mActivity)) {
 
             final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -515,7 +576,7 @@ public class FTLRegistrationFragment extends Fragment {
 
             String request = new Gson().toJson(mVerifyFTLRequest);
             //Here the json data is add to a hash map with key data
-            Map<String,String> params = new HashMap<String, String>();
+            Map<String, String> params = new HashMap<String, String>();
             params.put("data", request);
 
             Call call = sendFTLPINService.getFTLPIN(params);
@@ -525,18 +586,30 @@ public class FTLRegistrationFragment extends Fragment {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
                         dialog.dismiss();
-                        if (apiResponse.status.isCode() == false) {
+
+                        if (apiResponse.status.getCode() instanceof Boolean) {
+
+                            if (apiResponse.status.getCode() == Boolean.FALSE) {
+                                Intent mIntent = new Intent(mActivity, FTLPinVerificationActivity.class);
+                                mIntent.putExtra(Constants.EMAIL, email);
+                                mIntent.putExtra(Constants.MOBILE, mobile);
+                                startActivity(mIntent);
+                                mActivity.finish();
+                            } else {
+                                String mMessage = apiResponse.status.getMessage().toString();
+                                mActivity.showMessagebox(mActivity, mMessage, null, false);
+                            }
+
+                        } else if (apiResponse.status.getCode() instanceof Integer) {
+
                             String mMessage = apiResponse.status.getMessage().toString();
-                          //  Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
-                            Intent mIntent = new Intent(mActivity, FTLPinVerificationActivity.class);
-                            mIntent.putExtra(Constants.EMAIL, email);
-                            mIntent.putExtra(Constants.MOBILE, mobile);
-                            startActivity(mIntent);
-                            mActivity.finish();
-                        } else {
-                            String mMessage = apiResponse.status.getMessage().toString();
-                            mActivity.showMessagebox(mActivity,mMessage,null,false);
-                           // Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
+                            mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    startActivity(new Intent(mActivity, LoginActivity.class));
+                                    mActivity.finish();
+                                }
+                            }, false);
                         }
                     }
                 }

@@ -3,6 +3,8 @@ package com.swaas.mwc.API.Model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
 /**
  * Created by harika on 25-06-2018.
  */
@@ -15,9 +17,9 @@ public class VerifyFTLRequest {
 
     @SerializedName("mobile")
     @Expose
-    private Long mobile;
+    private String mobile;
 
-    public VerifyFTLRequest(String email, Long mobile){
+    public VerifyFTLRequest(String email, String mobile){
         this.email = email;
         this.mobile = mobile;
     }
@@ -30,11 +32,11 @@ public class VerifyFTLRequest {
         this.email = email;
     }
 
-    public long getMobile() {
+    public String getMobile() {
         return mobile;
     }
 
-    public void setMobile(long mobile) {
+    public void setMobile(String mobile) {
         this.mobile = mobile;
     }
 }

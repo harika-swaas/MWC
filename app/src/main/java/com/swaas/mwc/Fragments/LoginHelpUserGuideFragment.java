@@ -29,6 +29,7 @@ import com.swaas.mwc.API.Service.SetUserPreferenceGuideService;
 import com.swaas.mwc.Database.AccountSettings;
 import com.swaas.mwc.FTL.WebviewLoaderTermsActivity;
 import com.swaas.mwc.Login.Dashboard;
+import com.swaas.mwc.Login.LoginActivity;
 import com.swaas.mwc.Login.LoginHelpUserGuideActivity;
 import com.swaas.mwc.Network.NetworkUtils;
 import com.swaas.mwc.Preference.PreferenceUtils;
@@ -57,7 +58,7 @@ public class LoginHelpUserGuideFragment extends Fragment {
     TextView cancel;
     CheckBox checkBox;
     TextView assistancePopupBody;
-    String mAssistancePopupBody,mHelpGuideURL;
+    String mAssistancePopupBody, mHelpGuideURL;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -92,18 +93,30 @@ public class LoginHelpUserGuideFragment extends Fragment {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
 
-                        if (apiResponse.status.isCode() == false) {
+                        if (apiResponse.status.getCode() instanceof Boolean) {
+                            if (apiResponse.status.getCode() == Boolean.FALSE) {
+                                GetAssistancePopupContentResponse mGetAssistancePopupContentResponse = response.body().getData();
+                                if (mGetAssistancePopupContentResponse != null) {
+                                    mAssistancePopupBody = mGetAssistancePopupContentResponse.getAssistance_popup_message();
+                                    mHelpGuideURL = mGetAssistancePopupContentResponse.getHelp_guide_url();
 
-                            GetAssistancePopupContentResponse mGetAssistancePopupContentResponse = response.body().getData();
-                            if (mGetAssistancePopupContentResponse != null) {
-                                mAssistancePopupBody = mGetAssistancePopupContentResponse.getAssistance_popup_message();
-                                mHelpGuideURL = mGetAssistancePopupContentResponse.getHelp_guide_url();
+                                    setAssistancePopupBody(mAssistancePopupBody, mHelpGuideURL);
+                                }
 
-                                setAssistancePopupBody(mAssistancePopupBody,mHelpGuideURL);
+                            } else {
+
                             }
 
-                        } else {
+                        } else if (apiResponse.status.getCode() instanceof Integer) {
 
+                            String mMessage = apiResponse.status.getMessage().toString();
+                            mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    startActivity(new Intent(mActivity, LoginActivity.class));
+                                    mActivity.finish();
+                                }
+                            }, false);
                         }
                     }
                 }
@@ -116,9 +129,9 @@ public class LoginHelpUserGuideFragment extends Fragment {
     }
 
     private void setAssistancePopupBody(String mAssistancePopupBody, String mHelpGuideURL) {
-        if(!TextUtils.isEmpty(mAssistancePopupBody) && !TextUtils.isEmpty(mHelpGuideURL)) {
+        if (!TextUtils.isEmpty(mAssistancePopupBody) && !TextUtils.isEmpty(mHelpGuideURL)) {
             assistancePopupBody.setText(mAssistancePopupBody);
-            setLinkTextView(mAssistancePopupBody,mHelpGuideURL);
+            setLinkTextView(mAssistancePopupBody, mHelpGuideURL);
         }
     }
 
@@ -128,8 +141,8 @@ public class LoginHelpUserGuideFragment extends Fragment {
             @Override
             public void onClick(View textView) {
                 String mUri = mHelpGuideURL;
-                Intent mIntent = new Intent(mActivity,WebviewLoaderTermsActivity.class);
-                mIntent.putExtra(Constants.SETASSISTANCEPOPUPCONTENTURL,mUri);
+                Intent mIntent = new Intent(mActivity, WebviewLoaderTermsActivity.class);
+                mIntent.putExtra(Constants.SETASSISTANCEPOPUPCONTENTURL, mUri);
                 startActivity(mIntent);
             }
 
@@ -157,7 +170,7 @@ public class LoginHelpUserGuideFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 updateHelpAcceptedAndLoggedInStatus();
-                startActivity(new Intent(mActivity,Dashboard.class));
+                startActivity(new Intent(mActivity, Dashboard.class));
                 mActivity.finish();
 
                 if (checkBox.isChecked()) {
@@ -200,17 +213,29 @@ public class LoginHelpUserGuideFragment extends Fragment {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
                         dialog.dismiss();
-                        if (apiResponse.status.isCode() == false) {
+
+                        if (apiResponse.status.getCode() instanceof Boolean) {
+
+                            if (apiResponse.status.getCode() == Boolean.FALSE) {
+                                Intent mIntent = new Intent(mActivity, Dashboard.class);
+                                startActivity(mIntent);
+                                mActivity.finish();
+                                updateHelpAcceptedAndLoggedInStatus();
+                            } else {
+                                String mMessage = apiResponse.status.getMessage().toString();
+                                mActivity.showMessagebox(mActivity, mMessage, null, false);
+                            }
+
+                        } else if (apiResponse.status.getCode() instanceof Integer) {
+
                             String mMessage = apiResponse.status.getMessage().toString();
-                            // Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
-                            Intent mIntent = new Intent(mActivity, Dashboard.class);
-                            startActivity(mIntent);
-                            mActivity.finish();
-                            updateHelpAcceptedAndLoggedInStatus();
-                        } else {
-                            String mMessage = apiResponse.status.getMessage().toString();
-                            mActivity.showMessagebox(mActivity, mMessage, null, false);
-                            // Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
+                            mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    startActivity(new Intent(mActivity, LoginActivity.class));
+                                    mActivity.finish();
+                                }
+                            }, false);
                         }
                     }
                 }

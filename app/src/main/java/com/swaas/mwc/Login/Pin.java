@@ -85,12 +85,8 @@ public class Pin extends Activity {
                 public void onResponse(Response<BaseApiResponse<ListPinDevices>> response, Retrofit retrofit) {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
-                        if (apiResponse.status.isCode() == false) {
-                       //     mListPinDevices = response.body().getData();
-                        }
-                    } /*else {
 
-                      }*/
+                    }
                 }
 
                 @Override
@@ -126,7 +122,7 @@ public class Pin extends Activity {
                     public void onResponse(Response<BaseApiResponse<LoginResponse>> response, Retrofit retrofit) {
                         BaseApiResponse apiResponse = response.body();
                         if (apiResponse != null) {
-                            if (apiResponse.status.isCode() == false) {
+                            /*if (apiResponse.status.isCode() == false) {
                                 dialog.dismiss();
                                 String mMessage = apiResponse.status.getMessage().toString();
                                 Toast.makeText(pinActivity, mMessage, Toast.LENGTH_SHORT).show();
@@ -137,7 +133,7 @@ public class Pin extends Activity {
                                 String mMessage = apiResponse.status.getMessage().toString();
                                 Toast.makeText(pinActivity, mMessage, Toast.LENGTH_SHORT).show();
                                 dialog.dismiss();
-                            }
+                            }*/
                         }
                     }
 

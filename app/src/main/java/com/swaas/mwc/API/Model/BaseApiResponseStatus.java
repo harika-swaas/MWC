@@ -13,17 +13,17 @@ public class BaseApiResponseStatus {
 
     @SerializedName("code")
     @Expose
-    private boolean code;
+    private Object code;
 
     @SerializedName("message")
     @Expose
     private String message;
 
-    public boolean isCode() {
+    public Object getCode() {
         return code;
     }
 
-    public void setCode(boolean code) {
+    public void setCode(Object code) {
         this.code = code;
     }
 

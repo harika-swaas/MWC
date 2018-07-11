@@ -36,6 +36,7 @@ import com.swaas.mwc.Database.AccountSettings;
 import com.swaas.mwc.FTL.FTLPasswordValidationActivity;
 import com.swaas.mwc.FTL.FTLPinVerificationActivity;
 import com.swaas.mwc.FTL.FTLUserValidationActivity;
+import com.swaas.mwc.Login.LoginActivity;
 import com.swaas.mwc.Network.NetworkUtils;
 import com.swaas.mwc.Preference.PreferenceUtils;
 import com.swaas.mwc.R;
@@ -59,11 +60,11 @@ public class FTLUserValidationFragment extends Fragment {
     FTLUserValidationActivity mActivity;
     View mView;
     Button mNext;
-    String mTextBackgroundColor,mTextForeGroundColor,mAppBackGroundColor;
+    String mTextBackgroundColor, mTextForeGroundColor, mAppBackGroundColor;
     TextInputLayout inputLayoutUserName;
     EditText inputUserName;
     TextView welcomeMsg;
-    String mUserName,mEmail,mWelcomeMsg,mTerms;
+    String mUserName, mEmail, mWelcomeMsg, mTerms;
     String mAccessToken;
     ImageView mBackIv;
     AlertDialog mBackDialog;
@@ -83,7 +84,7 @@ public class FTLUserValidationFragment extends Fragment {
         intializeViews();
         getIntentData();
         getFTLProcess();
-      //  setUserName();
+        //  setUserName();
         setButtonBackgroundColor();
         addListenersToViews();
         return mView;
@@ -100,22 +101,22 @@ public class FTLUserValidationFragment extends Fragment {
 
     private void getIntentData() {
 
-        if(mActivity.getIntent() != null){
+        if (mActivity.getIntent() != null) {
             mAccessToken = mActivity.getIntent().getStringExtra(Constants.ACCESSTOKEN);
         }
     }
 
     private void setUserName() {
 
-        if(mWelcomeMsg != null && !TextUtils.isEmpty(mWelcomeMsg)){
+        if (mWelcomeMsg != null && !TextUtils.isEmpty(mWelcomeMsg)) {
             welcomeMsg.setText(mWelcomeMsg);
         } else {
             welcomeMsg.setText(getString(R.string.welcome));
         }
 
-        if(mEmail != null && !TextUtils.isEmpty(mEmail)){
+        if (mEmail != null && !TextUtils.isEmpty(mEmail)) {
             inputUserName.setText(mEmail);
-        } else if(mUserName != null && !TextUtils.isEmpty(mUserName)){
+        } else if (mUserName != null && !TextUtils.isEmpty(mUserName)) {
             inputUserName.setText(mUserName);
         } else {
             inputUserName.setHint(getString(R.string.user_name));
@@ -178,7 +179,7 @@ public class FTLUserValidationFragment extends Fragment {
 
         getWhiteLabelProperities();
 
-        if(mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
+        if (mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
             String mobileItemEnableColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
             String mobileItemDisableColor = mWhiteLabelResponses.get(0).getItem_Unselected_Color();
 
@@ -186,7 +187,7 @@ public class FTLUserValidationFragment extends Fragment {
             int itemDisableColor = Color.parseColor(mobileItemDisableColor);
 
             if (TextUtils.isEmpty(username) && username.length() == 0) {
-                if(mobileItemDisableColor != null) {
+                if (mobileItemDisableColor != null) {
                     //   mNext.setBackgroundColor(itemDisableColor);
 
                     // Initialize a new GradientDrawable
@@ -204,7 +205,7 @@ public class FTLUserValidationFragment extends Fragment {
                     mNext.setBackgroundDrawable(shape);
                 }
             } else {
-                if(mobileItemEnableColor != null) {
+                if (mobileItemEnableColor != null) {
                     // mNext.setBackgroundColor(itemEnableColor);
 
                     // Initialize a new GradientDrawable
@@ -244,7 +245,7 @@ public class FTLUserValidationFragment extends Fragment {
 
                 getWhiteLabelProperities();
 
-                if(mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
+                if (mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
                     String mobileItemEnableColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
                     String mobileItemDisableColor = mWhiteLabelResponses.get(0).getItem_Unselected_Color();
 
@@ -252,7 +253,7 @@ public class FTLUserValidationFragment extends Fragment {
                     int itemDisableColor = Color.parseColor(mobileItemDisableColor);
 
                     if (TextUtils.isEmpty(username) && username.length() == 0) {
-                        if(mobileItemDisableColor != null) {
+                        if (mobileItemDisableColor != null) {
                             //   mNext.setBackgroundColor(itemDisableColor);
 
                             // Initialize a new GradientDrawable
@@ -270,7 +271,7 @@ public class FTLUserValidationFragment extends Fragment {
                             mNext.setBackgroundDrawable(shape);
                         }
                     } else {
-                        if(mobileItemEnableColor != null) {
+                        if (mobileItemEnableColor != null) {
                             // mNext.setBackgroundColor(itemEnableColor);
 
                             // Initialize a new GradientDrawable
@@ -311,7 +312,7 @@ public class FTLUserValidationFragment extends Fragment {
         mBackIv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               // mActivity.onBackPressed();
+                // mActivity.onBackPressed();
 
                 final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
                 LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -355,26 +356,26 @@ public class FTLUserValidationFragment extends Fragment {
     private void getWhiteLabelProperities() {
 
         AccountSettings accountSettings = new AccountSettings(mActivity);
-       accountSettings.SetWhiteLabelCB(new AccountSettings.GetWhiteLabelCB() {
-           @Override
-           public void getWhiteLabelSuccessCB(List<WhiteLabelResponse> whiteLabelResponses) {
-               if(whiteLabelResponses != null && whiteLabelResponses.size() > 0){
-                   mWhiteLabelResponses = whiteLabelResponses;
-               }
-           }
+        accountSettings.SetWhiteLabelCB(new AccountSettings.GetWhiteLabelCB() {
+            @Override
+            public void getWhiteLabelSuccessCB(List<WhiteLabelResponse> whiteLabelResponses) {
+                if (whiteLabelResponses != null && whiteLabelResponses.size() > 0) {
+                    mWhiteLabelResponses = whiteLabelResponses;
+                }
+            }
 
-           @Override
-           public void getWhiteLabelFailureCB(String message) {
+            @Override
+            public void getWhiteLabelFailureCB(String message) {
 
-           }
-       });
+            }
+        });
 
         accountSettings.getWhiteLabelProperties();
     }
 
     public void hideKeyboard(View view) {
 
-        InputMethodManager inputMethodManager =(InputMethodManager) mActivity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        InputMethodManager inputMethodManager = (InputMethodManager) mActivity.getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
@@ -383,7 +384,7 @@ public class FTLUserValidationFragment extends Fragment {
         if (!validateUserName()) {
             return;
         } else {
-            Intent mIntent = new Intent(mActivity,FTLPasswordValidationActivity.class);
+            Intent mIntent = new Intent(mActivity, FTLPasswordValidationActivity.class);
             mIntent.putExtra(Constants.USERNAME, inputUserName.getText().toString().trim());
             mIntent.putExtra(Constants.WELCOME_MSG, mWelcomeMsg);
             mIntent.putExtra(Constants.ACCESSTOKEN, mAccessToken);
@@ -401,7 +402,7 @@ public class FTLUserValidationFragment extends Fragment {
             inputLayoutUserName.setError(getString(R.string.err_msg_user_name));
             requestFocus(inputUserName);
             return false;
-        } else if (username.length() < 5){
+        } else if (username.length() < 5) {
             inputLayoutUserName.setError(getString(R.string.err_msg_user_name_min_length));
             requestFocus(inputUserName);
             return false;
@@ -453,26 +454,42 @@ public class FTLUserValidationFragment extends Fragment {
                 @Override
                 public void onResponse(Response<BaseApiResponse<FTLProcessResponse>> response, Retrofit retrofit) {
                     BaseApiResponse apiResponse = response.body();
-                    if (apiResponse != null) {
-                        if (apiResponse.status.isCode() == false) {
-                            FTLProcessResponse mFTLProcessResponse = response.body().getData();
-                            if(mFTLProcessResponse.user_details != null) {
-                                mUserName = mFTLProcessResponse.user_details.getUsername();
-                                mEmail = mFTLProcessResponse.user_details.getEmail();
-                                mWelcomeMsg = mFTLProcessResponse.user_details.getEu_ftl_welcome_msg();
-                                mTerms = mFTLProcessResponse.user_details.getDefault_terms_url();
-                                PreferenceUtils.setTermsURL(mActivity, mTerms);
-                                setUserName();
-                            }
-                        } else {
 
+                    if (apiResponse != null) {
+
+                        if (apiResponse.status.getCode() instanceof Boolean) {
+
+                            if (apiResponse.status.getCode() == Boolean.FALSE) {
+                                FTLProcessResponse mFTLProcessResponse = response.body().getData();
+                                if (mFTLProcessResponse.user_details != null) {
+                                    mUserName = mFTLProcessResponse.user_details.getUsername();
+                                    mEmail = mFTLProcessResponse.user_details.getEmail();
+                                    mWelcomeMsg = mFTLProcessResponse.user_details.getEu_ftl_welcome_msg();
+                                    mTerms = mFTLProcessResponse.user_details.getDefault_terms_url();
+                                    PreferenceUtils.setTermsURL(mActivity, mTerms);
+                                    setUserName();
+                                }
+                            } else {
+
+                            }
+
+                        } else if (apiResponse.status.getCode() instanceof Integer) {
+
+                            String mMessage = apiResponse.status.getMessage().toString();
+                            mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    startActivity(new Intent(mActivity, LoginActivity.class));
+                                    mActivity.finish();
+                                }
+                            }, false);
                         }
                     }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
-                    Log.d("FTLProcessErr",t.getMessage());
+                    Log.d("FTLProcessErr", t.getMessage());
                 }
             });
         }
@@ -483,7 +500,6 @@ public class FTLUserValidationFragment extends Fragment {
         super.onResume();
         getIntentData();
         getFTLProcess();
-        //  setUserName();
         setButtonBackgroundColor();
         addListenersToViews();
     }

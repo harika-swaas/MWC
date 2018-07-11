@@ -106,20 +106,17 @@ public class Verify extends Activity {
                 public void onResponse(Response<BaseApiResponse<LoginResponse>> response, Retrofit retrofit) {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
-                        if (apiResponse.status.isCode() == false) {
-
+                        /*if (apiResponse.status.isCode() == false) {
                             String mMessage = apiResponse.status.getMessage().toString();
                             Toast.makeText(vActivity, mMessage, Toast.LENGTH_SHORT).show();
                             dialog.dismiss();
                             Intent intent = new Intent(Verify.this, Touchid.class);
                             startActivity(intent);
-
-
                         } else {
                             String mMessage = apiResponse.status.getMessage().toString();
                             Toast.makeText(vActivity, mMessage, Toast.LENGTH_SHORT).show();
                             dialog.dismiss();
-                        }
+                        }*/
                     }
                 }
 

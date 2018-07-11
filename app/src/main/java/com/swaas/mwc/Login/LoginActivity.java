@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.swaas.mwc.API.Model.AccountSettingsResponse;
 import com.swaas.mwc.Database.AccountSettings;
@@ -30,13 +31,12 @@ import java.util.TimerTask;
  */
 
 public class LoginActivity extends RootActivity {
-    Handler handler;
+
     LoginFragment mLoginFragment;
-    CountDownTimer timer;
-    Authenticate authenticate;
     KeyguardManager keyguardManager;
     private static final int CREDENTIALS_RESULT = 4342;
     List<AccountSettingsResponse> mAccountSettingsResponses = new ArrayList<>();
+    int backButtonCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +57,7 @@ public class LoginActivity extends RootActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()){
             case android.R.id.home:
-                super.onBackPressed();
+                onBackPressed();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -80,7 +80,6 @@ public class LoginActivity extends RootActivity {
         }
 
         if (TextUtils.isEmpty(loginStatus)) {
-           // startActivity(new Intent(LoginActivity.this, LoginActivity.class));
         }
         else if(loginStatus.equalsIgnoreCase(String.valueOf(Constants.Login_Completed))) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -170,8 +169,6 @@ public class LoginActivity extends RootActivity {
                     LoginActivity.this.finish();
                 }
             }, timeout);
-
-
         }
     }
 
@@ -208,6 +205,7 @@ public class LoginActivity extends RootActivity {
             LoginActivity.this.finish();
         }
     }
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void checkCredentials(){
         keyguardManager = (KeyguardManager) this.getSystemService(Context.KEYGUARD_SERVICE);
@@ -216,18 +214,24 @@ public class LoginActivity extends RootActivity {
         if (credentialsIntent != null) {
             startActivityForResult(credentialsIntent, CREDENTIALS_RESULT);
         }
-
     }
+
     public void onActivityResult(int requestCode, int resultCode, Bundle data) {
-
         if (requestCode == CREDENTIALS_RESULT) {
-
             if (resultCode == RESULT_OK) {
-
-
 
             }
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        if (backButtonCount >= 1) {
+            backButtonCount = 0;
+            moveTaskToBack(true);
+        } else {
+            Toast.makeText(this, "Press the back button once again to close the application.", Toast.LENGTH_SHORT).show();
+            backButtonCount++;
+        }
+    }
 }

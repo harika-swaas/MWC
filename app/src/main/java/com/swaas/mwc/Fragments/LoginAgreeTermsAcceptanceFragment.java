@@ -92,18 +92,30 @@ public class LoginAgreeTermsAcceptanceFragment extends Fragment {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
 
-                        if (apiResponse.status.isCode() == false) {
+                        if (apiResponse.status.getCode() instanceof Boolean) {
 
-                            GetTermsPageContentResponse mGetTermsPageContentResponse = response.body().getData();
-                            if (mGetTermsPageContentResponse != null) {
-                                mTermsBody = mGetTermsPageContentResponse.getTerms_body();
-                                mTermsURL = mGetTermsPageContentResponse.getTerms_url();
+                            if (apiResponse.status.getCode() == Boolean.FALSE) {
+                                GetTermsPageContentResponse mGetTermsPageContentResponse = response.body().getData();
+                                if (mGetTermsPageContentResponse != null) {
+                                    mTermsBody = mGetTermsPageContentResponse.getTerms_body();
+                                    mTermsURL = mGetTermsPageContentResponse.getTerms_url();
 
-                                setTermsBody(mTermsBody,mTermsURL);
+                                    setTermsBody(mTermsBody, mTermsURL);
+                                }
+                            } else {
+
                             }
 
-                        } else {
+                        } else if (apiResponse.status.getCode() instanceof Integer) {
 
+                            String mMessage = apiResponse.status.getMessage().toString();
+                            mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    startActivity(new Intent(mActivity, LoginActivity.class));
+                                    mActivity.finish();
+                                }
+                            }, false);
                         }
                     }
                 }
@@ -116,9 +128,9 @@ public class LoginAgreeTermsAcceptanceFragment extends Fragment {
     }
 
     private void setTermsBody(String mTermsBody, String mTermsURL) {
-        if(!TextUtils.isEmpty(mTermsBody) && !TextUtils.isEmpty(mTermsURL)){
+        if (!TextUtils.isEmpty(mTermsBody) && !TextUtils.isEmpty(mTermsURL)) {
             termsBody.setText(mTermsBody);
-            setLinkTextView(mTermsBody,mTermsURL);
+            setLinkTextView(mTermsBody, mTermsURL);
         }
     }
 
@@ -128,8 +140,8 @@ public class LoginAgreeTermsAcceptanceFragment extends Fragment {
             @Override
             public void onClick(View textView) {
                 String mUri = mTermsURL;
-                Intent mIntent = new Intent(mActivity,WebviewLoaderTermsActivity.class);
-                mIntent.putExtra(Constants.SETTERMSPAGECONTENTURL,mUri);
+                Intent mIntent = new Intent(mActivity, WebviewLoaderTermsActivity.class);
+                mIntent.putExtra(Constants.SETTERMSPAGECONTENTURL, mUri);
                 startActivity(mIntent);
             }
 
@@ -196,17 +208,29 @@ public class LoginAgreeTermsAcceptanceFragment extends Fragment {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
                         dialog.dismiss();
-                        if (apiResponse.status.isCode() == false) {
+
+                        if(apiResponse.status.getCode() instanceof Boolean) {
+
+                            if (apiResponse.status.getCode() == Boolean.FALSE) {
+                                Intent mIntent = new Intent(mActivity, LoginHelpUserGuideActivity.class);
+                                startActivity(mIntent);
+                                mActivity.finish();
+                                updateIsTermsAcceptedAndLoggedInStatus();
+                            } else {
+                                String mMessage = apiResponse.status.getMessage().toString();
+                                mActivity.showMessagebox(mActivity, mMessage, null, false);
+                            }
+
+                        } else if(apiResponse.status.getCode() instanceof Integer) {
+
                             String mMessage = apiResponse.status.getMessage().toString();
-                            // Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
-                            Intent mIntent = new Intent(mActivity, LoginHelpUserGuideActivity.class);
-                            startActivity(mIntent);
-                            mActivity.finish();
-                            updateIsTermsAcceptedAndLoggedInStatus();
-                        } else {
-                            String mMessage = apiResponse.status.getMessage().toString();
-                            mActivity.showMessagebox(mActivity, mMessage, null, false);
-                            // Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
+                            mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    startActivity(new Intent(mActivity, LoginActivity.class));
+                                    mActivity.finish();
+                                }
+                            }, false);
                         }
                     }
                 }

@@ -24,6 +24,7 @@ import com.swaas.mwc.API.Service.SendPinService;
 import com.swaas.mwc.Adapters.PinDeviceAdapter;
 import com.swaas.mwc.Common.SimpleDividerItemDecoration;
 import com.swaas.mwc.FTL.FTLPinVerificationActivity;
+import com.swaas.mwc.Login.LoginActivity;
 import com.swaas.mwc.Login.PinVerificationActivity;
 import com.swaas.mwc.Network.NetworkUtils;
 import com.swaas.mwc.Preference.PreferenceUtils;
@@ -99,12 +100,23 @@ public class PinVerificationFragment extends Fragment {
                 @Override
                 public void onResponse(Response<ListPinDevicesResponse<ListPinDevices>> response, Retrofit retrofit) {
                     ListPinDevicesResponse apiResponse = response.body();
-
                     if (apiResponse != null) {
 
-                        if (apiResponse.status.isCode() == false) {
-                            mListPinDevices = response.body().getData();
-                            setAdapter(mListPinDevices);
+                        if (apiResponse.status.getCode() instanceof Boolean) {
+                            if (apiResponse.status.getCode() == Boolean.FALSE) {
+                                mListPinDevices = response.body().getData();
+                                setAdapter(mListPinDevices);
+                            }
+
+                        } else if (apiResponse.status.getCode() instanceof Integer) {
+                            String mMessage = apiResponse.status.getMessage().toString();
+                            mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    startActivity(new Intent(mActivity, LoginActivity.class));
+                                    mActivity.finish();
+                                }
+                            }, false);
                         }
                     }
                 }
@@ -139,32 +151,42 @@ public class PinVerificationFragment extends Fragment {
             String request = new Gson().toJson(sendPinRequest);
 
             //Here the json data is add to a hash map with key data
-            Map<String,String> params = new HashMap<String, String>();
+            Map<String, String> params = new HashMap<String, String>();
             params.put("data", request);
 
-            Call call = sendPinService.getSendPin(params,PreferenceUtils.getAccessToken(mActivity));
+            Call call = sendPinService.getSendPin(params, PreferenceUtils.getAccessToken(mActivity));
 
             call.enqueue(new Callback<ListPinDevicesResponse<LoginResponse>>() {
                 @Override
                 public void onResponse(Response<ListPinDevicesResponse<LoginResponse>> response, Retrofit retrofit) {
                     ListPinDevicesResponse apiResponse = response.body();
                     if (apiResponse != null) {
-                        if (apiResponse.status.isCode() == false) {
-                           /* String mMessage = apiResponse.status.getMessage().toString();
-                            Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();*/
-                            Intent intent = new Intent(mActivity,FTLPinVerificationActivity.class);
-                            intent.putExtra(Constants.IS_FROM_LOGIN,true);
-                            startActivity(intent);
-                            dialog.dismiss();
-                            //Toast.makeText(mActivity,"Pin Resent Successfully", Toast.LENGTH_SHORT).show();
 
+                        if (apiResponse.status.getCode() instanceof Boolean) {
+
+                            if (apiResponse.status.getCode() == Boolean.FALSE) {
+                                Intent intent = new Intent(mActivity, FTLPinVerificationActivity.class);
+                                intent.putExtra(Constants.IS_FROM_LOGIN, true);
+                                startActivity(intent);
+                                dialog.dismiss();
+                            }
+
+                        } else if (apiResponse.status.getCode() instanceof Integer) {
+
+                            String mMessage = apiResponse.status.getMessage().toString();
+                            mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    startActivity(new Intent(mActivity, LoginActivity.class));
+                                    mActivity.finish();
+                                }
+                            }, false);
                         }
                     }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
-                    // Toast.makeText(pinActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
                     dialog.dismiss();
                 }
             });

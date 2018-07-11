@@ -123,10 +123,10 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
             @Override
             public void onClick(View textView) {
                 String mUri = PreferenceUtils.getTermsURL(mActivity);
-                Intent mIntent = new Intent(mActivity,WebviewLoaderTermsActivity.class);
-                mIntent.putExtra(Constants.SETTERMS,mUri);
+                Intent mIntent = new Intent(mActivity, WebviewLoaderTermsActivity.class);
+                mIntent.putExtra(Constants.SETTERMS, mUri);
                 startActivity(mIntent);
-               // Intent mIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(mUri));
+                // Intent mIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(mUri));
             }
 
             @Override
@@ -173,7 +173,7 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
 
         getWhiteLabelProperities();
 
-        if(mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
+        if (mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
             String mobileItemEnableColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
             int itemEnableColor = Color.parseColor(mobileItemEnableColor);
 
@@ -212,7 +212,7 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
         accountSettings.SetWhiteLabelCB(new AccountSettings.GetWhiteLabelCB() {
             @Override
             public void getWhiteLabelSuccessCB(List<WhiteLabelResponse> whiteLabelResponses) {
-                if(whiteLabelResponses != null && whiteLabelResponses.size() > 0){
+                if (whiteLabelResponses != null && whiteLabelResponses.size() > 0) {
                     mWhiteLabelResponses = whiteLabelResponses;
                 }
             }
@@ -253,7 +253,7 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
 
             final FTLProcessService ftlProcessService = retrofitAPI.create(FTLProcessService.class);
 
-            AddFTLDetailsRequest mAddFTLDetailsRequest = new AddFTLDetailsRequest(mUserName, mPassword, "ftl_link");
+            final AddFTLDetailsRequest mAddFTLDetailsRequest = new AddFTLDetailsRequest(mUserName, mPassword, "ftl_link");
             String request = new Gson().toJson(mAddFTLDetailsRequest);
             //Here the json data is add to a hash map with key data
             Map<String, String> params = new HashMap<String, String>();
@@ -266,13 +266,23 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
                 public void onResponse(Response<BaseApiResponse<VerifyFTLResponse>> response, Retrofit retrofit) {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
-                        if (apiResponse.status.isCode() == false) {
-                            setTermsAcceptance(dialog);
-                        } else {
-                            dialog.dismiss();
+                        if (apiResponse.status.getCode() instanceof Boolean) {
+                            if (apiResponse.status.getCode() == Boolean.FALSE) {
+                                setTermsAcceptance(dialog);
+                            } else {
+                                dialog.dismiss();
+                                String mMessage = apiResponse.status.getMessage().toString();
+                                mActivity.showMessagebox(mActivity, mMessage, null, false);
+                            }
+                        } else if (apiResponse.status.getCode() instanceof Integer) {
                             String mMessage = apiResponse.status.getMessage().toString();
-                            mActivity.showMessagebox(mActivity, mMessage, null, false);
-                            //  Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
+                            mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    startActivity(new Intent(mActivity, LoginActivity.class));
+                                    mActivity.finish();
+                                }
+                            }, false);
                         }
                     }
                 }
@@ -308,18 +318,26 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
                         dialog.dismiss();
-                        if (apiResponse.status.isCode() == false) {
+                        if (apiResponse.status.getCode() instanceof Boolean) {
+                            if (apiResponse.status.getCode() == Boolean.FALSE) {
+                                insertAccountSettings();
+                                Intent mIntent = new Intent(mActivity, Touchid.class);
+                                mIntent.putExtra(Constants.IS_FROM_FTL, true);
+                                startActivity(mIntent);
+                                mActivity.finish();
+                            } else {
+                                String mMessage = apiResponse.status.getMessage().toString();
+                                mActivity.showMessagebox(mActivity, mMessage, null, false);
+                            }
+                        } else if (apiResponse.status.getCode() instanceof Integer) {
                             String mMessage = apiResponse.status.getMessage().toString();
-                            // Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
-                            insertAccountSettings();
-                            Intent mIntent = new Intent(mActivity, Touchid.class);
-                            mIntent.putExtra(Constants.IS_FROM_FTL,true);
-                            startActivity(mIntent);
-                            mActivity.finish();
-                        } else {
-                            String mMessage = apiResponse.status.getMessage().toString();
-                            mActivity.showMessagebox(mActivity, mMessage, null, false);
-                            // Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
+                            mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    startActivity(new Intent(mActivity, LoginActivity.class));
+                                    mActivity.finish();
+                                }
+                            }, false);
                         }
                     }
                 }
@@ -339,7 +357,7 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
 
     private void getUserPreferences() {
 
-        if(NetworkUtils.isNetworkAvailable(mActivity)){
+        if (NetworkUtils.isNetworkAvailable(mActivity)) {
 
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
             final GetUserPreferencesService getUserPreferencesService = retrofitAPI.create(GetUserPreferencesService.class);
@@ -352,14 +370,28 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
                         String assistance_popup = "";
-                        if (apiResponse.status.isCode() == false) {
-                            GetUserPreferencesResponse mGetUserPreferencesResponse = response.body().getData();
-                            if(mGetUserPreferencesResponse != null) {
-                                assistance_popup = mGetUserPreferencesResponse.getAssistance_popup();
+
+                        if (apiResponse.status.getCode() instanceof Boolean) {
+
+                            if (apiResponse.status.getCode() == Boolean.FALSE) {
+                                GetUserPreferencesResponse mGetUserPreferencesResponse = response.body().getData();
+                                if (mGetUserPreferencesResponse != null) {
+                                    assistance_popup = mGetUserPreferencesResponse.getAssistance_popup();
+                                }
+
+                            } else {
+
                             }
 
-                        } else {
-
+                        } else if (apiResponse.status.getCode() instanceof Integer) {
+                            String mMessage = apiResponse.status.getMessage().toString();
+                            mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    startActivity(new Intent(mActivity, LoginActivity.class));
+                                    mActivity.finish();
+                                }
+                            }, false);
                         }
 
                         Gson gson = new Gson();
@@ -384,7 +416,7 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
 
                 @Override
                 public void onFailure(Throwable t) {
-                    Log.d("PINVerErr",t.getMessage());
+                    Log.d("PINVerErr", t.getMessage());
                 }
             });
         }
