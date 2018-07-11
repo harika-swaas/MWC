@@ -36,38 +36,38 @@ import java.util.List;
 
 public class SplashScreen extends RootActivity {
 
-    AccountSettings accountSettings;
-    Handler handler;
     String mCompanyName;
     String msplashscreen;
 
     List<AccountSettingsResponse> mAccountSettingsResponses = new ArrayList<>();
     List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList<>();
+
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splashscreen);
-        ImageView logo = (ImageView)findViewById(R.id.LOGO);
-        RelativeLayout relativeLayout =(RelativeLayout)findViewById(R.id.BG);
+        ImageView logo = (ImageView) findViewById(R.id.LOGO);
+        RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.BG);
         getAccountSettings();
         getWhiteLabelSettings();
 
-
-
-        if(mAccountSettingsResponses != null && mAccountSettingsResponses.size() > 0){
+        if (mAccountSettingsResponses != null && mAccountSettingsResponses.size() > 0) {
             mCompanyName = mAccountSettingsResponses.get(0).getCompany_Name();
         }
-        if(mWhiteLabelResponses!=null && mWhiteLabelResponses.size()>0){
-            msplashscreen =mWhiteLabelResponses.get(0).getSplash_Screen_Color();
+
+        if (mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
+            msplashscreen = mWhiteLabelResponses.get(0).getSplash_Screen_Color();
         }
-        if(msplashscreen!=null) {
+
+        if (msplashscreen != null) {
             int itemEnableColor = Color.parseColor(msplashscreen);
             GradientDrawable shape = new GradientDrawable();
             shape.setShape(GradientDrawable.RECTANGLE);
             shape.setColor(itemEnableColor);
             relativeLayout.setBackgroundDrawable(shape);
         }
+
         Uri.Builder builder = new Uri.Builder();
         builder.scheme("http")
                 .authority("172.16.40.51")
@@ -77,7 +77,7 @@ public class SplashScreen extends RootActivity {
                 .appendPath(mCompanyName)
                 .appendPath("mwc-logo.png");
         String myUrl = builder.build().toString();
-        AQuery aq=new AQuery(this); // intsialze aquery
+        AQuery aq = new AQuery(this); // intsialze aquery
         aq.id(logo).image(myUrl);
     }
 
@@ -87,7 +87,7 @@ public class SplashScreen extends RootActivity {
         accountSettings.SetLoggedInCB(new AccountSettings.GetLoggedInCB() {
             @Override
             public void getLoggedInSuccessCB(List<AccountSettingsResponse> accountSettingsResponses) {
-                if(accountSettingsResponses != null && accountSettingsResponses.size() > 0){
+                if (accountSettingsResponses != null && accountSettingsResponses.size() > 0) {
                     mAccountSettingsResponses = accountSettingsResponses;
                 }
             }
@@ -97,16 +97,16 @@ public class SplashScreen extends RootActivity {
 
             }
         });
-
         accountSettings.getLoggedInStatusDetails();
     }
+
     private void getWhiteLabelSettings() {
 
         final AccountSettings accountSettings = new AccountSettings(SplashScreen.this);
         accountSettings.SetWhiteLabelCB(new AccountSettings.GetWhiteLabelCB() {
             @Override
             public void getWhiteLabelSuccessCB(List<WhiteLabelResponse> whiteLabelResponses) {
-                if(whiteLabelResponses != null && whiteLabelResponses.size() > 0){
+                if (whiteLabelResponses != null && whiteLabelResponses.size() > 0) {
                     mWhiteLabelResponses = whiteLabelResponses;
                 }
             }
@@ -115,8 +115,8 @@ public class SplashScreen extends RootActivity {
             public void getWhiteLabelFailureCB(String message) {
 
             }
-
         });
+
         accountSettings.getWhiteLabelProperties();
     }
 }
