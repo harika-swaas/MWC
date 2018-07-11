@@ -156,7 +156,9 @@ public class LoginHelpUserGuideFragment extends Fragment {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateLoggedInStatus();
+                updateHelpAcceptedAndLoggedInStatus();
+                startActivity(new Intent(mActivity,Dashboard.class));
+                mActivity.finish();
 
                 if (checkBox.isChecked()) {
                     setUserPreferences();
@@ -169,6 +171,7 @@ public class LoginHelpUserGuideFragment extends Fragment {
             public void onClick(View v) {
                 Intent intent = new Intent(mActivity, Dashboard.class);
                 startActivity(intent);
+                mActivity.finish();
                 updateLoggedInStatus();
             }
         });

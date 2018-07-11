@@ -158,12 +158,12 @@ public class LoginFragment extends Fragment {
                         mLoginRequest.setPassword(password);
 
                         Call call = loginService.getLogin(params);
-                        call.enqueue(new Callback<BaseApiResponse<LoginResponse>>() {
+                        call.enqueue(new Callback<ApiResponse<LoginResponse>>() {
                             @Override
-                            public void onResponse(Response<BaseApiResponse<LoginResponse>> response, Retrofit retrofit) {
-                                BaseApiResponse apiResponse = response.body();
+                            public void onResponse(Response<ApiResponse<LoginResponse>> response, Retrofit retrofit) {
+                                ApiResponse apiResponse = response.body();
                                 if (apiResponse != null) {
-                                    if (apiResponse.status.isCode() == false) {
+                                    if (apiResponse.status.getCode() == false) {
                                         LoginResponse mLoginResponse = response.body().getData();
 
                                         //setting login response obj to preference utils
@@ -191,20 +191,38 @@ public class LoginFragment extends Fragment {
                                             }
 
                                         } else {
-                                            String mMessage = apiResponse.status.getMessage().toString();
                                             dialog.dismiss();
-                                            mActivity.showMessagebox(mActivity,mMessage,null,false);
+                                            if(apiResponse.status.getMessage() instanceof String){
+                                                String mMessage = apiResponse.status.getMessage().toString();
+                                                mActivity.showMessagebox(mActivity,mMessage,null,false);
+                                            }
+                                            else if(apiResponse.status.getMessage() instanceof List){
+                                                String mMessage = ((List) apiResponse.status.getMessage()).get(0).toString();
+                                                mActivity.showMessagebox(mActivity,mMessage,null,false);
+                                            }
                                         }
 
                                     } else {
-                                        String mMessage = apiResponse.status.getMessage().toString();
                                         dialog.dismiss();
-                                        mActivity.showMessagebox(mActivity,mMessage,null,false);
+                                        if(apiResponse.status.getMessage() instanceof String){
+                                            String mMessage = apiResponse.status.getMessage().toString();
+                                            mActivity.showMessagebox(mActivity,mMessage,null,false);
+                                        }
+                                        else if(apiResponse.status.getMessage() instanceof List){
+                                            String mMessage = ((List) apiResponse.status.getMessage()).get(0).toString();
+                                            mActivity.showMessagebox(mActivity,mMessage,null,false);
+                                        }
                                     }
                                 } else {
-                                    String mMessage = apiResponse.status.getMessage().toString();
                                     dialog.dismiss();
-                                    mActivity.showMessagebox(mActivity,mMessage,null,false);
+                                    if(apiResponse.status.getMessage() instanceof String){
+                                        String mMessage = apiResponse.status.getMessage().toString();
+                                        mActivity.showMessagebox(mActivity,mMessage,null,false);
+                                    }
+                                    else if(apiResponse.status.getMessage() instanceof List){
+                                        String mMessage = ((List) apiResponse.status.getMessage()).get(0).toString();
+                                        mActivity.showMessagebox(mActivity,mMessage,null,false);
+                                    }
                                 }
 
                             }

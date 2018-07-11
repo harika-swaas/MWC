@@ -17,7 +17,7 @@ public class Status {
 
     @SerializedName("message")
     @Expose
-    private List<String> message;
+    private Object message;
 
     public boolean getCode() {
         return code;
@@ -35,11 +35,19 @@ public class Status {
         this.code = code;
     }*/
 
-    public List<String> getMessage() {
+    /*public List<String> getMessage() {
         return message;
     }
 
     public void setMessage(List<String> message) {
+        this.message = message;
+    }*/
+
+    public Object getMessage() {
+        return message;
+    }
+
+    public void setMessage(Object message) {
         this.message = message;
     }
 }

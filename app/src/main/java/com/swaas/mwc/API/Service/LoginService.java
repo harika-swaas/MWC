@@ -21,5 +21,5 @@ public interface LoginService {
 
     @POST("/login")
     @FormUrlEncoded
-    Call<BaseApiResponse<LoginResponse>> getLogin(@FieldMap Map<String,String> params);
+    Call<ApiResponse<LoginResponse>> getLogin(@FieldMap Map<String,String> params);
 }

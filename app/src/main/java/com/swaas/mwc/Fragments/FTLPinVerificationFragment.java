@@ -443,13 +443,11 @@ public class FTLPinVerificationFragment extends Fragment {
                             if(mGetUISettingsResponse != null){
 
                                 if(mGetUISettingsResponse.ui_properties!= null){
+
                                     String mobileItemEnableColor = mGetUISettingsResponse.ui_properties.getMobile_item_enable_color();
                                     String mobileItemDisableColor = mGetUISettingsResponse.ui_properties.getMobile_item_disable_color();
                                     String splashScreenColor = mGetUISettingsResponse.ui_properties.getMobile_splash_screen_background_color();
                                     String folderColor = mGetUISettingsResponse.ui_properties.getMobile_folder_color();
-
-                                   // PreferenceUtils.setMobileItemEnableColor(mActivity,mobileItemEnableColor);
-                                   // PreferenceUtils.setMobileItemDisableColor(mActivity,mobileItemDisableColor);
 
                                     AccountSettings accountSettings = new AccountSettings(mActivity);
                                     WhiteLabelResponse whiteLabelResponse = new WhiteLabelResponse();
@@ -457,6 +455,7 @@ public class FTLPinVerificationFragment extends Fragment {
                                     whiteLabelResponse.setItem_Unselected_Color(mobileItemDisableColor);
                                     whiteLabelResponse.setSplash_Screen_Color(splashScreenColor);
                                     whiteLabelResponse.setFolder_Color(folderColor);
+
                                     accountSettings.InsertWhiteLabelDetails(whiteLabelResponse);
                                 }
                             }
