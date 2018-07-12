@@ -22,6 +22,7 @@ import com.swaas.mwc.API.Model.VerifyFTLResponse;
 import com.swaas.mwc.API.Service.ListPinDevicesService;
 import com.swaas.mwc.API.Service.SendFTLPINService;
 import com.swaas.mwc.API.Service.SendPinService;
+import com.swaas.mwc.Dialogs.LoadingProgressDialog;
 import com.swaas.mwc.FTL.FTLUserValidationActivity;
 import com.swaas.mwc.Network.NetworkUtils;
 import com.swaas.mwc.Preference.PreferenceUtils;
@@ -107,8 +108,11 @@ public class Pin extends Activity {
                 Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
                 final SendPinService sendPinService = retrofitAPI.create(SendPinService.class);
 
-                final AlertDialog dialog = new SpotsDialog(pinActivity, R.style.Custom);
-                dialog.show();
+                /*final AlertDialog dialog = new SpotsDialog(pinActivity, R.style.Custom);
+                dialog.show();*/
+
+                final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(pinActivity);
+                transparentProgressDialog.show();
 
                 String request = new Gson().toJson(sendPinService);
                 //Here the json data is add to a hash map with key data
@@ -140,7 +144,7 @@ public class Pin extends Activity {
                     @Override
                     public void onFailure(Throwable t) {
                         Toast.makeText(pinActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
-                        dialog.dismiss();
+                        transparentProgressDialog.dismiss();
                     }
                 });
             }

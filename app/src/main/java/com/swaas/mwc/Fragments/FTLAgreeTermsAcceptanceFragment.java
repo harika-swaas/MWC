@@ -42,6 +42,7 @@ import com.swaas.mwc.API.Service.GetUserPreferencesService;
 import com.swaas.mwc.API.Service.SetTermsAcceptanceService;
 import com.swaas.mwc.API.Service.UpdateFTLStatusService;
 import com.swaas.mwc.Database.AccountSettings;
+import com.swaas.mwc.Dialogs.LoadingProgressDialog;
 import com.swaas.mwc.FTL.FTLAgreeTermsAcceptanceActivity;
 import com.swaas.mwc.FTL.WebviewLoaderTermsActivity;
 import com.swaas.mwc.Login.Authenticate;
@@ -246,8 +247,11 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
     private void addFTLDetails() {
 
         if (NetworkUtils.isNetworkAvailable(mActivity)) {
-            final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
-            dialog.show();
+            /*final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
+            dialog.show();*/
+
+            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
+            transparentProgressDialog.show();
 
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
 
@@ -268,9 +272,9 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
                     if (apiResponse != null) {
                         if (apiResponse.status.getCode() instanceof Boolean) {
                             if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                setTermsAcceptance(dialog);
+                                setTermsAcceptance(transparentProgressDialog);
                             } else {
-                                dialog.dismiss();
+                                transparentProgressDialog.dismiss();
                                 String mMessage = apiResponse.status.getMessage().toString();
                                 mActivity.showMessagebox(mActivity, mMessage, null, false);
                             }
@@ -289,7 +293,7 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
 
                 @Override
                 public void onFailure(Throwable t) {
-                    dialog.dismiss();
+                    transparentProgressDialog.dismiss();
                     // Toast.makeText(mActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });

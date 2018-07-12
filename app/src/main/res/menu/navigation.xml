@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_folder"
+        android:icon="@mipmap/ic_myfolder"
+        android:title="@string/my_folder" />
+
+    <item
+        android:id="@+id/navigation_shared"
+        android:icon="@mipmap/ic_shared"
+        android:title="@string/shared" />
+
+    <item
+        android:id="@+id/navigation_settings"
+        android:icon="@mipmap/ic_settings"
+        android:title="@string/settings" />
+</menu>

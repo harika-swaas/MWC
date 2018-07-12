@@ -20,6 +20,7 @@ import com.swaas.mwc.API.Model.VerifyPinRequest;
 import com.swaas.mwc.API.Service.FTLProcessService;
 import com.swaas.mwc.API.Service.SendPinService;
 import com.swaas.mwc.API.Service.VerifyPinService;
+import com.swaas.mwc.Dialogs.LoadingProgressDialog;
 import com.swaas.mwc.Network.NetworkUtils;
 import com.swaas.mwc.Preference.PreferenceUtils;
 import com.swaas.mwc.R;
@@ -90,9 +91,8 @@ public class Verify extends Activity {
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
             final VerifyPinService verifyPinService = retrofitAPI.create(VerifyPinService.class);
 
-            final AlertDialog dialog = new SpotsDialog(vActivity, R.style.Custom);
-            dialog.show();
-
+            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(vActivity);
+            transparentProgressDialog.show();
 
             String request = new Gson().toJson(verifyPinService);
             //Here the json data is add to a hash map with key data
@@ -123,7 +123,7 @@ public class Verify extends Activity {
                 @Override
                 public void onFailure(Throwable t) {
                     Toast.makeText(vActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
-                    dialog.dismiss();
+                    transparentProgressDialog.dismiss();
                 }
             });
         }

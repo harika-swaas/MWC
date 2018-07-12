@@ -36,6 +36,7 @@ import com.swaas.mwc.API.Model.VerifyFTLRequestWithEMail;
 import com.swaas.mwc.API.Model.VerifyFTLResponse;
 import com.swaas.mwc.API.Service.SendFTLPINService;
 import com.swaas.mwc.API.Service.VerifyFTLDetailsService;
+import com.swaas.mwc.Common.TransparentProgressDialog;
 import com.swaas.mwc.Dialogs.LightLoader;
 import com.swaas.mwc.Dialogs.LoadingProgressDialog;
 import com.swaas.mwc.FTL.FTLPinVerificationActivity;
@@ -72,6 +73,7 @@ public class FTLRegistrationFragment extends Fragment {
     ImageView mBackIv;
     TextInputLayout inputLayoutEmail, inputLayoutMobile;
     AlertDialog mAlertDialog;
+    AlertDialog mCustomAlertDialog;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -109,7 +111,11 @@ public class FTLRegistrationFragment extends Fragment {
                 inputMobile.addTextChangedListener(new MyTextWatcher(inputMobile));
 
                 verifyFTLDetails();
-                verifyFTLDetailsWithEmail();
+                if(inputLayoutEmail.getVisibility() == View.VISIBLE && inputLayoutMobile.getVisibility() == View.GONE) {
+                    verifyFTLDetailsWithEmail();
+                } else if(inputLayoutEmail.getVisibility() == View.VISIBLE && inputLayoutMobile.getVisibility() == View.VISIBLE){
+                    verifyFTLDetailsWithMobile();
+                }
             }
         });
 
@@ -173,7 +179,7 @@ public class FTLRegistrationFragment extends Fragment {
     private boolean validateMobile() {
         String mobile = inputMobile.getText().toString().trim();
 
-        if (mobile.isEmpty() || mobile.length() > 10) {
+        if (mobile.isEmpty() || mobile.length() > 11) {
             inputLayoutMobile.setError(getString(R.string.err_msg_mobile));
             requestFocus(inputMobile);
             return false;
@@ -222,10 +228,13 @@ public class FTLRegistrationFragment extends Fragment {
         if (validateEmail()) {
             if (NetworkUtils.isNetworkAvailable(mActivity)) {
 
-                final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
+                /*final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
                 dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
                 dialog.getWindow().setLayout(600, 400);
-                dialog.show();
+                dialog.show();*/
+
+                final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
+                transparentProgressDialog.show();
 
                 Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
 
@@ -250,14 +259,41 @@ public class FTLRegistrationFragment extends Fragment {
                                 if (apiResponse.status.getCode() == Boolean.FALSE) {
                                     VerifyFTLResponse mVerifyFTLResponse = response.body().getData();
 
-                                    dialog.dismiss();
+                                    transparentProgressDialog.dismiss();
 
                                     if (mVerifyFTLResponse != null) {
                                         if (mVerifyFTLResponse.isCheck_mobile() == true) {
                                             String mMessage = apiResponse.status.getMessage().toString();
-                                            mActivity.showMessagebox(mActivity, mMessage, null, false);
-                                            inputLayoutMobile.setVisibility(View.VISIBLE);
-                                            verifyFTLDetailsWithMobile();
+                                            final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+                                            LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+                                            builder.setView(view);
+                                            builder.setCancelable(false);
+
+                                            TextView txtTitle = (TextView) view.findViewById(R.id.title);
+                                            txtTitle.setText("Alert");
+
+                                            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+                                            txtMessage.setText(mMessage);
+
+                                            Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+                                            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+                                            cancelButton.setVisibility(View.GONE);
+                                            sendPinButton.setText("OK");
+
+                                            sendPinButton.setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    mCustomAlertDialog.dismiss();
+                                                    inputLayoutMobile.setVisibility(View.VISIBLE);
+                                                   // verifyFTLDetailsWithMobile();
+                                                }
+                                            });
+
+                                            mCustomAlertDialog = builder.create();
+                                            mCustomAlertDialog.show();
+
                                         } else {
                                             inputLayoutMobile.setVisibility(View.GONE);
                                         }
@@ -296,7 +332,7 @@ public class FTLRegistrationFragment extends Fragment {
                                     }
                                 } else {
                                     String mMessage = apiResponse.status.getMessage().toString();
-                                    dialog.dismiss();
+                                    transparentProgressDialog.dismiss();
                                     mActivity.showMessagebox(mActivity, mMessage, null, false);
                                 }
 
@@ -316,7 +352,7 @@ public class FTLRegistrationFragment extends Fragment {
 
                     @Override
                     public void onFailure(Throwable t) {
-                        dialog.dismiss();
+                        transparentProgressDialog.dismiss();
                     }
                 });
             }
@@ -331,9 +367,12 @@ public class FTLRegistrationFragment extends Fragment {
         if (validateEmail() && validateMobile()) {
             if (NetworkUtils.isNetworkAvailable(mActivity)) {
 
-                final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
+                /*final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
                 dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-                dialog.show();
+                dialog.show();*/
+
+                final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
+                transparentProgressDialog.show();
 
                 Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
 
@@ -355,12 +394,16 @@ public class FTLRegistrationFragment extends Fragment {
 
                         if (apiResponse != null) {
 
+                            transparentProgressDialog.dismiss();
+
                             if (apiResponse.status.getCode() instanceof Boolean) {
 
                                 if (apiResponse.status.getCode() == Boolean.FALSE) {
 
+                                    transparentProgressDialog.dismiss();
+
                                     VerifyFTLResponse mVerifyFTLResponse = response.body().getData();
-                                    dialog.dismiss();
+
                                     if (mVerifyFTLResponse != null) {
                                         /*MaterialStyledDialog dialog = new MaterialStyledDialog.Builder(mActivity)
                                                 .setTitle("Pin verification")
@@ -473,7 +516,7 @@ public class FTLRegistrationFragment extends Fragment {
                                     }
                                 } else {
                                     String mMessage = apiResponse.status.getMessage().toString();
-                                    dialog.dismiss();
+                                    transparentProgressDialog.dismiss();
                                     mActivity.showMessagebox(mActivity, mMessage, null, false);
                                 }
 
@@ -493,7 +536,7 @@ public class FTLRegistrationFragment extends Fragment {
 
                     @Override
                     public void onFailure(Throwable t) {
-                        dialog.dismiss();
+                        transparentProgressDialog.dismiss();
                     }
                 });
             }
@@ -504,9 +547,12 @@ public class FTLRegistrationFragment extends Fragment {
 
         if (NetworkUtils.isNetworkAvailable(mActivity)) {
 
-            final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
+            /*final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-            dialog.show();
+            dialog.show();*/
+
+            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
+            transparentProgressDialog.show();
 
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
             final SendFTLPINService sendFTLPINService = retrofitAPI.create(SendFTLPINService.class);
@@ -525,7 +571,7 @@ public class FTLRegistrationFragment extends Fragment {
                 public void onResponse(Response<BaseApiResponse<VerifyFTLResponse>> response, Retrofit retrofit) {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
-                        dialog.dismiss();
+                        transparentProgressDialog.dismiss();
 
                         if (apiResponse.status.getCode() instanceof Boolean) {
                             if (apiResponse.status.getCode() == Boolean.FALSE) {
@@ -555,7 +601,7 @@ public class FTLRegistrationFragment extends Fragment {
 
                 @Override
                 public void onFailure(Throwable t) {
-                    dialog.dismiss();
+                    transparentProgressDialog.dismiss();
                 }
             });
         }
@@ -565,9 +611,8 @@ public class FTLRegistrationFragment extends Fragment {
 
         if (NetworkUtils.isNetworkAvailable(mActivity)) {
 
-            final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
-            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-            dialog.show();
+            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
+            transparentProgressDialog.show();
 
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
             final SendFTLPINService sendFTLPINService = retrofitAPI.create(SendFTLPINService.class);
@@ -585,7 +630,7 @@ public class FTLRegistrationFragment extends Fragment {
                 public void onResponse(Response<BaseApiResponse<VerifyFTLResponse>> response, Retrofit retrofit) {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
-                        dialog.dismiss();
+                        transparentProgressDialog.dismiss();
 
                         if (apiResponse.status.getCode() instanceof Boolean) {
 
@@ -616,7 +661,7 @@ public class FTLRegistrationFragment extends Fragment {
 
                 @Override
                 public void onFailure(Throwable t) {
-                    dialog.dismiss();
+                    transparentProgressDialog.dismiss();
                 }
             });
         }

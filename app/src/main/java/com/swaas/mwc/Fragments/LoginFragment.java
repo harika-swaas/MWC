@@ -31,6 +31,7 @@ import com.swaas.mwc.API.Model.LoginRequest;
 import com.swaas.mwc.API.Model.LoginResponse;
 import com.swaas.mwc.API.Service.LoginService;
 import com.swaas.mwc.Database.AccountSettings;
+import com.swaas.mwc.Dialogs.LoadingProgressDialog;
 import com.swaas.mwc.FTL.FTLActivity;
 import com.swaas.mwc.FTL.FTLUserValidationActivity;
 import com.swaas.mwc.Login.Authenticate;
@@ -143,14 +144,18 @@ public class LoginFragment extends Fragment {
                 } else {
 
                     if (NetworkUtils.isNetworkAvailable(mActivity)) {
-                        final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
-                        dialog.show();
+                        /*final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
+                        dialog.show();*/
+
+                        final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
+                        transparentProgressDialog.show();
+
                         Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
                         final LoginService loginService = retrofitAPI.create(LoginService.class);
 
                         LoginRequest mLoginRequest = new LoginRequest(username, password);
 
-                        String request = new Gson().toJson(mLoginRequest);
+                        final String request = new Gson().toJson(mLoginRequest);
                         //Here the json data is add to a hash map with key data
                         Map<String, String> params = new HashMap<String, String>();
                         params.put("data", request);
@@ -172,13 +177,13 @@ public class LoginFragment extends Fragment {
 
                                         if (mLoginResponse != null) {
 
-                                            dialog.dismiss();
+                                            transparentProgressDialog.dismiss();
                                             String accessToken = mLoginResponse.getAccessToken();
                                             PreferenceUtils.setAccessToken(mActivity, accessToken);
 
                                             updateLoggedInStatus();
                                             updateHelpAcceptedAndLoggedInStatus();
-
+                                            
                                             if (mLoginResponse.nextStep != null) {
 
                                                 if (mLoginResponse.nextStep.isPin_authentication_required() == true) {
@@ -196,7 +201,7 @@ public class LoginFragment extends Fragment {
                                             }
 
                                         } else {
-                                            dialog.dismiss();
+                                            transparentProgressDialog.dismiss();
                                             if(apiResponse.status.getMessage() instanceof String){
                                                 String mMessage = apiResponse.status.getMessage().toString();
                                                 mActivity.showMessagebox(mActivity,mMessage,null,false);
@@ -208,7 +213,7 @@ public class LoginFragment extends Fragment {
                                         }
 
                                     } else {
-                                        dialog.dismiss();
+                                        transparentProgressDialog.dismiss();
                                         if(apiResponse.status.getMessage() instanceof String){
                                             String mMessage = apiResponse.status.getMessage().toString();
                                             mActivity.showMessagebox(mActivity,mMessage,null,false);
@@ -219,7 +224,7 @@ public class LoginFragment extends Fragment {
                                         }
                                     }
                                 } else {
-                                    dialog.dismiss();
+                                    transparentProgressDialog.dismiss();
                                     if(apiResponse.status.getMessage() instanceof String){
                                         String mMessage = apiResponse.status.getMessage().toString();
                                         mActivity.showMessagebox(mActivity,mMessage,null,false);
@@ -235,7 +240,7 @@ public class LoginFragment extends Fragment {
                             @Override
                             public void onFailure(Throwable t) {
                                 Log.e("LoginErr", t.toString());
-                                dialog.dismiss();
+                                transparentProgressDialog.dismiss();
                             }
                         });
                     }
@@ -344,6 +349,7 @@ public class LoginFragment extends Fragment {
             mActivity.finish();
         }
     }
+
     private void updateLoggedInStatus() {
 
         AccountSettings accountSettings = new AccountSettings(mActivity);

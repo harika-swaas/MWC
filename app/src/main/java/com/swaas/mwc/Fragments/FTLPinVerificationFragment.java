@@ -55,6 +55,7 @@ import com.swaas.mwc.API.Service.VerifyFTLPINService;
 import com.swaas.mwc.API.Service.VerifyPinService;
 import com.swaas.mwc.Components.LinkTextView;
 import com.swaas.mwc.Database.AccountSettings;
+import com.swaas.mwc.Dialogs.LoadingProgressDialog;
 import com.swaas.mwc.FTL.FTLPinVerificationActivity;
 import com.swaas.mwc.FTL.FTLRegistrationActivity;
 import com.swaas.mwc.FTL.FTLUserValidationActivity;
@@ -283,9 +284,13 @@ public class FTLPinVerificationFragment extends Fragment {
 
         if (NetworkUtils.isNetworkAvailable(mActivity)) {
 
-            final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
+            /*final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-            dialog.show();
+            dialog.show();*/
+
+            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
+            transparentProgressDialog.show();
+
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
             VerifyFTLPINService verifyFTLPINService = retrofitAPI.create(VerifyFTLPINService.class);
 
@@ -314,7 +319,7 @@ public class FTLPinVerificationFragment extends Fragment {
                         if (apiResponse.status.getCode() instanceof Boolean) {
 
                             if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                dialog.dismiss();
+                                transparentProgressDialog.dismiss();
                                 FTLPINResponse mFTLPINResponse = response.body().getData();
                                 if (mFTLPINResponse != null) {
                                     String accessToken = mFTLPINResponse.getAccessToken();
@@ -332,7 +337,7 @@ public class FTLPinVerificationFragment extends Fragment {
                                     }
                                 }
                             } else {
-                                dialog.dismiss();
+                                transparentProgressDialog.dismiss();
                                 String mMessage = apiResponse.status.getMessage().toString();
 
                                 FTLPINResponse mFTLPINResponse = response.body().getData();
@@ -412,7 +417,7 @@ public class FTLPinVerificationFragment extends Fragment {
 
                 @Override
                 public void onFailure(Throwable t) {
-                    dialog.dismiss();
+                    transparentProgressDialog.dismiss();
                 }
             });
         }
@@ -494,8 +499,8 @@ public class FTLPinVerificationFragment extends Fragment {
 
             final VerifyPinRequest mVerifyPinRequest = new VerifyPinRequest(Integer.parseInt(pinNo));
 
-            final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
-            dialog.show();
+            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
+            transparentProgressDialog.show();
 
             String request = new Gson().toJson(mVerifyPinRequest);
             //Here the json data is add to a hash map with key data
@@ -513,13 +518,13 @@ public class FTLPinVerificationFragment extends Fragment {
 
                         if (apiResponse.status.getCode() instanceof Boolean) {
                             if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                dialog.dismiss();
+                                transparentProgressDialog.dismiss();
                                 getUiSettings();
                                 getUserPreferences();
                             } else {
                                 String mMessage = apiResponse.status.getMessage().toString();
                                 mActivity.showMessagebox(mActivity, mMessage, null, false);
-                                dialog.dismiss();
+                                transparentProgressDialog.dismiss();
                             }
 
                         } else if (apiResponse.status.getCode() instanceof Integer) {
@@ -537,7 +542,7 @@ public class FTLPinVerificationFragment extends Fragment {
 
                 @Override
                 public void onFailure(Throwable t) {
-                    dialog.dismiss();
+                    transparentProgressDialog.dismiss();
                     // Toast.makeText(mActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
@@ -616,8 +621,8 @@ public class FTLPinVerificationFragment extends Fragment {
     private void sendFTLPin() {
 
         if (NetworkUtils.isNetworkAvailable(mActivity)) {
-            final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
-            dialog.show();
+            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
+            transparentProgressDialog.show();
 
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
             final SendFTLPINService sendFTLPINService = retrofitAPI.create(SendFTLPINService.class);
@@ -645,14 +650,13 @@ public class FTLPinVerificationFragment extends Fragment {
                         if (apiResponse.status.getCode() instanceof Boolean) {
 
                             if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                dialog.dismiss();
+                                transparentProgressDialog.dismiss();
                                 String mMessage = apiResponse.status.getMessage().toString();
                                 mActivity.showMessagebox(mActivity, "Pin sent successfully", null, false);
                             } else {
-                                dialog.dismiss();
+                                transparentProgressDialog.dismiss();
                                 String mMessage = apiResponse.status.getMessage().toString();
                                 mActivity.showMessagebox(mActivity, "Pin sent successfully", null, false);
-                                // Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
                             }
 
                         } else if (apiResponse.status.getCode() instanceof Integer) {
@@ -671,7 +675,7 @@ public class FTLPinVerificationFragment extends Fragment {
 
                 @Override
                 public void onFailure(Throwable t) {
-                    dialog.dismiss();
+                    transparentProgressDialog.dismiss();
                     Log.d("PINVerErr", t.getMessage());
                 }
             });
@@ -684,8 +688,8 @@ public class FTLPinVerificationFragment extends Fragment {
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
             final SendPinService sendPinService = retrofitAPI.create(SendPinService.class);
 
-            final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
-            dialog.show();
+            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
+            transparentProgressDialog.show();
 
             SendPinRequest sendPinRequest = new SendPinRequest(PreferenceUtils.getUserPinDeviceId(mActivity));
 
@@ -706,7 +710,7 @@ public class FTLPinVerificationFragment extends Fragment {
                         if (apiResponse.status.getCode() instanceof Boolean) {
 
                             if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                dialog.dismiss();
+                                transparentProgressDialog.dismiss();
                                 Toast.makeText(mActivity, "Pin Resent Successfully", Toast.LENGTH_SHORT).show();
                             }
 
@@ -726,8 +730,7 @@ public class FTLPinVerificationFragment extends Fragment {
 
                 @Override
                 public void onFailure(Throwable t) {
-                    dialog.dismiss();
-                    // Toast.makeText(pinActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
+                    transparentProgressDialog.dismiss();
                 }
             });
         }

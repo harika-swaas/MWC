@@ -1,6 +1,7 @@
 package com.swaas.mwc.Login;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.KeyguardManager;
 import android.content.Context;
@@ -15,6 +16,7 @@ import android.provider.Settings;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -41,6 +43,7 @@ public class Notifiy extends Activity {
     TextView skip;
     List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList<>();
     boolean mIsFromFTL;
+    AlertDialog mCustomAlertDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,16 +62,19 @@ public class Notifiy extends Activity {
             @Override
             public void onClick(View v) {
 
-                final Dialog dialog = new Dialog(Notifiy.this);
-                dialog.setContentView(R.layout.custom_dialog);
+                final AlertDialog.Builder builder = new AlertDialog.Builder(Notifiy.this);
+                LayoutInflater inflater = (LayoutInflater) Notifiy.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View view = inflater.inflate(R.layout.custom_dialog, null);
+                builder.setView(view);
+                builder.setCancelable(false);
 
-                final Button BtnAllow = (Button) dialog.findViewById(R.id.allow_button);
-                final Button BtnCancel = (Button) dialog.findViewById(R.id.cancel_button);
-                dialog.show();
+                final Button BtnAllow = (Button) view.findViewById(R.id.allow_button);
+                final Button BtnCancel = (Button) view.findViewById(R.id.cancel_button);
 
                 BtnAllow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        mCustomAlertDialog.dismiss();
                         updatePushNotificationAndLoggedInStatus();
                         if (mIsFromFTL) {
                             Intent intent = new Intent(Notifiy.this, LoginHelpUserGuideActivity.class);
@@ -85,6 +91,7 @@ public class Notifiy extends Activity {
                 BtnCancel.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        mCustomAlertDialog.dismiss();
                         updateLoggedInStatus();
                         if (mIsFromFTL) {
                             Intent intent = new Intent(Notifiy.this, LoginHelpUserGuideActivity.class);
@@ -97,6 +104,9 @@ public class Notifiy extends Activity {
                         }
                     }
                 });
+
+                mCustomAlertDialog = builder.create();
+                mCustomAlertDialog.show();
             }
         });
 

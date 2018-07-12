@@ -37,6 +37,7 @@ import com.swaas.mwc.API.Model.WhiteLabelResponse;
 import com.swaas.mwc.API.Service.UpdateFTLStatusService;
 import com.swaas.mwc.API.Service.VerifyFTLDetailsService;
 import com.swaas.mwc.Database.AccountSettings;
+import com.swaas.mwc.Dialogs.LoadingProgressDialog;
 import com.swaas.mwc.FTL.FTLAgreeTermsAcceptanceActivity;
 import com.swaas.mwc.FTL.FTLPasswordValidationActivity;
 import com.swaas.mwc.FTL.FTLUserValidationActivity;
@@ -552,8 +553,11 @@ public class FTLPasswordValidationFragment extends Fragment {
 
         if (NetworkUtils.isNetworkAvailable(mActivity)) {
             if (validatePassword() && validateConfirmPassword()) {
-                final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
-                dialog.show();
+                /*final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
+                dialog.show();*/
+
+                final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
+                transparentProgressDialog.show();
 
                 Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
 
@@ -572,7 +576,7 @@ public class FTLPasswordValidationFragment extends Fragment {
                     public void onResponse(Response<BaseApiResponse<VerifyFTLResponse>> response, Retrofit retrofit) {
                         BaseApiResponse apiResponse = response.body();
                         if (apiResponse != null) {
-                            dialog.dismiss();
+                            transparentProgressDialog.dismiss();
 
                             if (apiResponse.status.getCode() instanceof Boolean) {
 
@@ -620,7 +624,7 @@ public class FTLPasswordValidationFragment extends Fragment {
 
                     @Override
                     public void onFailure(Throwable t) {
-                        dialog.dismiss();
+                        transparentProgressDialog.dismiss();
                     }
                 });
             }

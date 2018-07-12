@@ -24,6 +24,7 @@ import com.swaas.mwc.API.Service.ListPinDevicesService;
 import com.swaas.mwc.API.Service.SendPinService;
 import com.swaas.mwc.Adapters.PinDeviceAdapter;
 import com.swaas.mwc.Common.SimpleDividerItemDecoration;
+import com.swaas.mwc.Dialogs.LoadingProgressDialog;
 import com.swaas.mwc.FTL.FTLActivity;
 import com.swaas.mwc.FTL.FTLPinVerificationActivity;
 import com.swaas.mwc.FTL.FTLRegistrationActivity;
@@ -155,8 +156,8 @@ public class PinVerificationFragment extends Fragment {
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
             final SendPinService sendPinService = retrofitAPI.create(SendPinService.class);
 
-            final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
-            dialog.show();
+            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
+            transparentProgressDialog.show();
 
             SendPinRequest sendPinRequest = new SendPinRequest(PreferenceUtils.getUserPinDeviceId(mActivity));
 
@@ -177,10 +178,10 @@ public class PinVerificationFragment extends Fragment {
                         if (apiResponse.status.getCode() instanceof Boolean) {
 
                             if (apiResponse.status.getCode() == Boolean.FALSE) {
+                                transparentProgressDialog.dismiss();
                                 Intent intent = new Intent(mActivity, FTLPinVerificationActivity.class);
                                 intent.putExtra(Constants.IS_FROM_LOGIN, true);
                                 startActivity(intent);
-                                dialog.dismiss();
                             }
 
                         } else if (apiResponse.status.getCode() instanceof Integer) {
@@ -199,7 +200,7 @@ public class PinVerificationFragment extends Fragment {
 
                 @Override
                 public void onFailure(Throwable t) {
-                    dialog.dismiss();
+                    transparentProgressDialog.dismiss();
                 }
             });
         }

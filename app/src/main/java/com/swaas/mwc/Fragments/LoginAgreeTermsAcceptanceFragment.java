@@ -27,6 +27,7 @@ import com.swaas.mwc.API.Model.VerifyFTLResponse;
 import com.swaas.mwc.API.Service.GetTermsPageContentService;
 import com.swaas.mwc.API.Service.SetTermsAcceptanceService;
 import com.swaas.mwc.Database.AccountSettings;
+import com.swaas.mwc.Dialogs.LoadingProgressDialog;
 import com.swaas.mwc.FTL.WebviewLoaderTermsActivity;
 import com.swaas.mwc.Login.LoginActivity;
 import com.swaas.mwc.Login.LoginAgreeTermsAcceptanceActivity;
@@ -188,8 +189,9 @@ public class LoginAgreeTermsAcceptanceFragment extends Fragment {
 
         if (NetworkUtils.isNetworkAvailable(mActivity)) {
 
-            final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
-            dialog.show();
+            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
+            transparentProgressDialog.show();
+
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
 
             final SetTermsAcceptanceService setTermsAcceptanceService = retrofitAPI.create(SetTermsAcceptanceService.class);
@@ -207,7 +209,7 @@ public class LoginAgreeTermsAcceptanceFragment extends Fragment {
                 public void onResponse(Response<BaseApiResponse<VerifyFTLResponse>> response, Retrofit retrofit) {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
-                        dialog.dismiss();
+                        transparentProgressDialog.dismiss();
 
                         if(apiResponse.status.getCode() instanceof Boolean) {
 
@@ -237,8 +239,7 @@ public class LoginAgreeTermsAcceptanceFragment extends Fragment {
 
                 @Override
                 public void onFailure(Throwable t) {
-                    dialog.dismiss();
-                    Toast.makeText(mActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
+                    transparentProgressDialog.dismiss();
                 }
             });
         }

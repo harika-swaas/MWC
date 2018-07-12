@@ -72,6 +72,9 @@
         <activity
             android:name=".Login.LoginHelpUserGuideActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".DMS.MyFoldersDMSActivity"
+            android:screenOrientation="portrait"/>
 
         <meta-data
             android:name="io.fabric.ApiKey"

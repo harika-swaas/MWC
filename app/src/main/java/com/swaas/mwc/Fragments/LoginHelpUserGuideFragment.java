@@ -26,7 +26,9 @@ import com.swaas.mwc.API.Model.LoginResponse;
 import com.swaas.mwc.API.Model.UserPreferenceGuideRequest;
 import com.swaas.mwc.API.Service.GetAssistancePopupService;
 import com.swaas.mwc.API.Service.SetUserPreferenceGuideService;
+import com.swaas.mwc.DMS.MyFoldersDMSActivity;
 import com.swaas.mwc.Database.AccountSettings;
+import com.swaas.mwc.Dialogs.LoadingProgressDialog;
 import com.swaas.mwc.FTL.WebviewLoaderTermsActivity;
 import com.swaas.mwc.Login.Dashboard;
 import com.swaas.mwc.Login.LoginActivity;
@@ -170,7 +172,7 @@ public class LoginHelpUserGuideFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 updateHelpAcceptedAndLoggedInStatus();
-                startActivity(new Intent(mActivity, Dashboard.class));
+                startActivity(new Intent(mActivity, MyFoldersDMSActivity.class));
                 mActivity.finish();
 
                 if (checkBox.isChecked()) {
@@ -182,7 +184,7 @@ public class LoginHelpUserGuideFragment extends Fragment {
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(mActivity, Dashboard.class);
+                Intent intent = new Intent(mActivity, MyFoldersDMSActivity.class);
                 startActivity(intent);
                 mActivity.finish();
                 updateLoggedInStatus();
@@ -193,8 +195,12 @@ public class LoginHelpUserGuideFragment extends Fragment {
     public void setUserPreferences() {
         if (NetworkUtils.isNetworkAvailable(mActivity)) {
 
-            final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
-            dialog.show();
+            /*final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
+            dialog.show();*/
+
+            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
+            transparentProgressDialog.show();
+
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
 
             final SetUserPreferenceGuideService setUserPreference_guideService = retrofitAPI.create(SetUserPreferenceGuideService.class);
@@ -212,12 +218,12 @@ public class LoginHelpUserGuideFragment extends Fragment {
                 public void onResponse(Response<BaseApiResponse<LoginResponse>> response, Retrofit retrofit) {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
-                        dialog.dismiss();
+                        transparentProgressDialog.dismiss();
 
                         if (apiResponse.status.getCode() instanceof Boolean) {
 
                             if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                Intent mIntent = new Intent(mActivity, Dashboard.class);
+                                Intent mIntent = new Intent(mActivity, MyFoldersDMSActivity.class);
                                 startActivity(mIntent);
                                 mActivity.finish();
                                 updateHelpAcceptedAndLoggedInStatus();
@@ -242,7 +248,7 @@ public class LoginHelpUserGuideFragment extends Fragment {
 
                 @Override
                 public void onFailure(Throwable t) {
-                    dialog.dismiss();
+                    transparentProgressDialog.dismiss();
                     Toast.makeText(mActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
