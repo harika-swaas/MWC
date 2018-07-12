@@ -55,7 +55,6 @@ import com.swaas.mwc.API.Service.VerifyFTLPINService;
 import com.swaas.mwc.API.Service.VerifyPinService;
 import com.swaas.mwc.Components.LinkTextView;
 import com.swaas.mwc.Database.AccountSettings;
-import com.swaas.mwc.Dialogs.LoadingProgressDialog;
 import com.swaas.mwc.FTL.FTLPinVerificationActivity;
 import com.swaas.mwc.FTL.FTLRegistrationActivity;
 import com.swaas.mwc.FTL.FTLUserValidationActivity;
@@ -99,7 +98,8 @@ public class FTLPinVerificationFragment extends Fragment {
     AlertDialog mAlertDialog;
     AlertDialog mBackDialog;
     private LoginResponse mLoggedInObj;
-
+    String message;
+    String Otp;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -111,9 +111,11 @@ public class FTLPinVerificationFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         mView = inflater.inflate(R.layout.ftl_pin_verification_fragment, container, false);
 
+        recivedSms(message);
         intializeViews();
         getIntentData();
         addListenersToViews();
+        autoverify(Otp);
         return mView;
     }
 
@@ -126,6 +128,25 @@ public class FTLPinVerificationFragment extends Fragment {
         mBackIv = (ImageView) mView.findViewById(R.id.back_image_view);
     }
 
+    public void recivedSms(String message)
+    {
+        try
+        {
+            Otp= message.substring(17,26);
+        }
+        catch (Exception e) {}
+
+
+    }
+
+    public  void autoverify(String pin)
+    {
+        if (pin != null)
+        {
+            verifyPINInFTLProcess();
+            verifyPINInLoginProcess();
+        }
+    }
     private void getIntentData() {
 
         if (mActivity.getIntent() != null) {
@@ -137,6 +158,7 @@ public class FTLPinVerificationFragment extends Fragment {
             }*/
         }
     }
+
 
     private void addListenersToViews() {
         mNext.setOnClickListener(new View.OnClickListener() {
@@ -284,13 +306,9 @@ public class FTLPinVerificationFragment extends Fragment {
 
         if (NetworkUtils.isNetworkAvailable(mActivity)) {
 
-            /*final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
+            final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-            dialog.show();*/
-
-            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
-            transparentProgressDialog.show();
-
+            dialog.show();
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
             VerifyFTLPINService verifyFTLPINService = retrofitAPI.create(VerifyFTLPINService.class);
 
@@ -319,7 +337,7 @@ public class FTLPinVerificationFragment extends Fragment {
                         if (apiResponse.status.getCode() instanceof Boolean) {
 
                             if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
+                                dialog.dismiss();
                                 FTLPINResponse mFTLPINResponse = response.body().getData();
                                 if (mFTLPINResponse != null) {
                                     String accessToken = mFTLPINResponse.getAccessToken();
@@ -337,7 +355,7 @@ public class FTLPinVerificationFragment extends Fragment {
                                     }
                                 }
                             } else {
-                                transparentProgressDialog.dismiss();
+                                dialog.dismiss();
                                 String mMessage = apiResponse.status.getMessage().toString();
 
                                 FTLPINResponse mFTLPINResponse = response.body().getData();
@@ -417,7 +435,7 @@ public class FTLPinVerificationFragment extends Fragment {
 
                 @Override
                 public void onFailure(Throwable t) {
-                    transparentProgressDialog.dismiss();
+                    dialog.dismiss();
                 }
             });
         }
@@ -499,8 +517,8 @@ public class FTLPinVerificationFragment extends Fragment {
 
             final VerifyPinRequest mVerifyPinRequest = new VerifyPinRequest(Integer.parseInt(pinNo));
 
-            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
-            transparentProgressDialog.show();
+            final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
+            dialog.show();
 
             String request = new Gson().toJson(mVerifyPinRequest);
             //Here the json data is add to a hash map with key data
@@ -518,13 +536,13 @@ public class FTLPinVerificationFragment extends Fragment {
 
                         if (apiResponse.status.getCode() instanceof Boolean) {
                             if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
+                                dialog.dismiss();
                                 getUiSettings();
                                 getUserPreferences();
                             } else {
                                 String mMessage = apiResponse.status.getMessage().toString();
                                 mActivity.showMessagebox(mActivity, mMessage, null, false);
-                                transparentProgressDialog.dismiss();
+                                dialog.dismiss();
                             }
 
                         } else if (apiResponse.status.getCode() instanceof Integer) {
@@ -542,7 +560,7 @@ public class FTLPinVerificationFragment extends Fragment {
 
                 @Override
                 public void onFailure(Throwable t) {
-                    transparentProgressDialog.dismiss();
+                    dialog.dismiss();
                     // Toast.makeText(mActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
@@ -621,8 +639,8 @@ public class FTLPinVerificationFragment extends Fragment {
     private void sendFTLPin() {
 
         if (NetworkUtils.isNetworkAvailable(mActivity)) {
-            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
-            transparentProgressDialog.show();
+            final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
+            dialog.show();
 
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
             final SendFTLPINService sendFTLPINService = retrofitAPI.create(SendFTLPINService.class);
@@ -650,13 +668,14 @@ public class FTLPinVerificationFragment extends Fragment {
                         if (apiResponse.status.getCode() instanceof Boolean) {
 
                             if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
+                                dialog.dismiss();
                                 String mMessage = apiResponse.status.getMessage().toString();
                                 mActivity.showMessagebox(mActivity, "Pin sent successfully", null, false);
                             } else {
-                                transparentProgressDialog.dismiss();
+                                dialog.dismiss();
                                 String mMessage = apiResponse.status.getMessage().toString();
                                 mActivity.showMessagebox(mActivity, "Pin sent successfully", null, false);
+                                // Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
                             }
 
                         } else if (apiResponse.status.getCode() instanceof Integer) {
@@ -675,7 +694,7 @@ public class FTLPinVerificationFragment extends Fragment {
 
                 @Override
                 public void onFailure(Throwable t) {
-                    transparentProgressDialog.dismiss();
+                    dialog.dismiss();
                     Log.d("PINVerErr", t.getMessage());
                 }
             });
@@ -688,8 +707,8 @@ public class FTLPinVerificationFragment extends Fragment {
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
             final SendPinService sendPinService = retrofitAPI.create(SendPinService.class);
 
-            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
-            transparentProgressDialog.show();
+            final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
+            dialog.show();
 
             SendPinRequest sendPinRequest = new SendPinRequest(PreferenceUtils.getUserPinDeviceId(mActivity));
 
@@ -710,7 +729,7 @@ public class FTLPinVerificationFragment extends Fragment {
                         if (apiResponse.status.getCode() instanceof Boolean) {
 
                             if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
+                                dialog.dismiss();
                                 Toast.makeText(mActivity, "Pin Resent Successfully", Toast.LENGTH_SHORT).show();
                             }
 
@@ -730,7 +749,8 @@ public class FTLPinVerificationFragment extends Fragment {
 
                 @Override
                 public void onFailure(Throwable t) {
-                    transparentProgressDialog.dismiss();
+                    dialog.dismiss();
+                    // Toast.makeText(pinActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
         }
