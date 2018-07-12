@@ -218,7 +218,7 @@ public class AccountSettings {
     }
 
     public void getWhiteLabelProperties() {
-        String selectQuery = "SELECT Item_Selected_Color, Item_UnSelected_Color, Splash_Screen_Color, Folder_Color FROM tbl_white_label";
+        String selectQuery = "SELECT * FROM tbl_white_label";
         try {
             DBConnectionOpen();
             Cursor cursor = database.rawQuery(selectQuery, null);

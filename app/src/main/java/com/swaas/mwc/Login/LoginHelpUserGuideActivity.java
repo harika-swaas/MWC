@@ -45,16 +45,6 @@ public class LoginHelpUserGuideActivity extends RootActivity {
 
     @Override
     public void onBackPressed() {
-        if(getVisibleFragment() != null) {
-            if (getVisibleFragment() instanceof LoginHelpUserGuideFragment) {
-                startActivity(new Intent(LoginHelpUserGuideActivity.this, LoginAgreeTermsAcceptanceActivity.class));
-                finish();
-            }else{
 
-            }
-        }else{
-            startActivity(new Intent(LoginHelpUserGuideActivity.this, LoginActivity.class));
-            finish();
-        }
     }
 }

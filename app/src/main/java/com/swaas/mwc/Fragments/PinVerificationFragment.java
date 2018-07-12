@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -23,7 +24,9 @@ import com.swaas.mwc.API.Service.ListPinDevicesService;
 import com.swaas.mwc.API.Service.SendPinService;
 import com.swaas.mwc.Adapters.PinDeviceAdapter;
 import com.swaas.mwc.Common.SimpleDividerItemDecoration;
+import com.swaas.mwc.FTL.FTLActivity;
 import com.swaas.mwc.FTL.FTLPinVerificationActivity;
+import com.swaas.mwc.FTL.FTLRegistrationActivity;
 import com.swaas.mwc.Login.LoginActivity;
 import com.swaas.mwc.Login.PinVerificationActivity;
 import com.swaas.mwc.Network.NetworkUtils;
@@ -53,6 +56,7 @@ public class PinVerificationFragment extends Fragment {
     RecyclerView mRecyclerView;
     PinDeviceAdapter mAdapter;
     Button next;
+    ImageView mBackIv;
     List<ListPinDevices> mListPinDevices;
 
     @Override
@@ -77,6 +81,7 @@ public class PinVerificationFragment extends Fragment {
 
         mRecyclerView = (RecyclerView) mView.findViewById(R.id.recycler_view);
         next = (Button) mView.findViewById(R.id.next_button);
+        mBackIv=(ImageView) mView.findViewById(R.id.back_image_view);
     }
 
     private void addListenersToViews() {
@@ -86,6 +91,13 @@ public class PinVerificationFragment extends Fragment {
             public void onClick(View view) {
 
                 sendPin();
+            }
+        });
+
+        mBackIv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mActivity.onBackPressed();
             }
         });
     }

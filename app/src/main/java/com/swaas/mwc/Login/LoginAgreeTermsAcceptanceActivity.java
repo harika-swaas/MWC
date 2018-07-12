@@ -44,16 +44,5 @@ public class LoginAgreeTermsAcceptanceActivity extends RootActivity {
 
     @Override
     public void onBackPressed() {
-        if(getVisibleFragment() != null) {
-            if (getVisibleFragment() instanceof LoginAgreeTermsAcceptanceFragment) {
-                startActivity(new Intent(LoginAgreeTermsAcceptanceActivity.this, Notifiy.class));
-                finish();
-            }else{
-
-            }
-        }else{
-            startActivity(new Intent(LoginAgreeTermsAcceptanceActivity.this, LoginActivity.class));
-            finish();
-        }
     }
 }

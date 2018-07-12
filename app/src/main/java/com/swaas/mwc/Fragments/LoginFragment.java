@@ -171,9 +171,13 @@ public class LoginFragment extends Fragment {
                                         PreferenceUtils.setDocPortalLoggedInObj(mActivity, mLoginResponse);
 
                                         if (mLoginResponse != null) {
+
                                             dialog.dismiss();
                                             String accessToken = mLoginResponse.getAccessToken();
                                             PreferenceUtils.setAccessToken(mActivity, accessToken);
+
+                                            updateLoggedInStatus();
+                                            updateHelpAcceptedAndLoggedInStatus();
 
                                             if (mLoginResponse.nextStep != null) {
 
@@ -185,6 +189,7 @@ public class LoginFragment extends Fragment {
                                                     startActivity(intent);
                                                 }
                                             } else {
+
                                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                                                     checkSecurity();
                                                 }
@@ -338,6 +343,17 @@ public class LoginFragment extends Fragment {
             startActivity(intent);
             mActivity.finish();
         }
+    }
+    private void updateLoggedInStatus() {
+
+        AccountSettings accountSettings = new AccountSettings(mActivity);
+        accountSettings.updateLocalAuthEnableStatus(String.valueOf(Constants.Login_Completed));
+    }
+
+    private void updateHelpAcceptedAndLoggedInStatus() {
+
+        AccountSettings accountSettings = new AccountSettings(mActivity);
+        accountSettings.updateIsHelpAcceptedAndLoggedInStatus(String.valueOf(Constants.Login_Completed), "0");
     }
 }
 

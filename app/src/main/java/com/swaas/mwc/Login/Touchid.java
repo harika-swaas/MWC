@@ -183,5 +183,6 @@ public class Touchid extends Authenticate {
         AccountSettings accountSettings = new AccountSettings(this);
         accountSettings.updateLocalAuthEnableAndLoggedInStatus(String.valueOf(Constants.Local_Auth_Completed), String.valueOf(Constants.Local_Auth_Completed));
     }
+    public void onBackPressed() { }
 }
 

@@ -192,6 +192,10 @@ public class FTLPinVerificationFragment extends Fragment {
                     mBackDialog = builder.create();
                     mBackDialog.show();
                 }
+                else
+                {
+                    startActivity(new Intent(mActivity,LoginActivity.class));
+                }
             }
         });
 

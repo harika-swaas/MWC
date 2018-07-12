@@ -52,6 +52,7 @@ public class Notifiy extends Activity {
         getIntentData();
         setButtonBackgroundColor();
 
+
         button5.setOnClickListener(new View.OnClickListener() {
 
             @RequiresApi(api = Build.VERSION_CODES.M)
@@ -109,7 +110,7 @@ public class Notifiy extends Activity {
             }
         });
     }
-
+    public void onBackPressed() { }
     private void getIntentData() {
 
         if (getIntent() != null) {
