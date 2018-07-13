@@ -45,7 +45,11 @@ public class ReadSms extends BroadcastReceiver {
                 }
             }
 
-        } catch (Exception e) {}
+        }
+        catch (Exception e)
+        {
+
+        }
     }
 
 }

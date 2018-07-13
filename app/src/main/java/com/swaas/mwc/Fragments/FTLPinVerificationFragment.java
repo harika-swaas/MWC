@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -79,6 +80,7 @@ import retrofit.Call;
 import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
+import com.swaas.mwc.Manifest;
 
 /**
  * Created by harika on 21-06-2018.
@@ -111,12 +113,32 @@ public class FTLPinVerificationFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         mView = inflater.inflate(R.layout.ftl_pin_verification_fragment, container, false);
 
-        recivedSms(message);
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                recivedSms(message);
+            }
+        }, 4000);
         intializeViews();
         getIntentData();
         addListenersToViews();
-        autoverify(Otp);
         return mView;
+    }
+    public void recivedSms(String message)
+    {
+        try
+        {
+            Otp= message.substring(17,26);
+            if(Otp!=null) {
+                inputPIN.setText(Otp);
+            }
+        }
+
+        catch (Exception e) {
+
+        }
+
     }
 
     private void intializeViews() {
@@ -124,29 +146,14 @@ public class FTLPinVerificationFragment extends Fragment {
         linkResendView = (LinkTextView) mView.findViewById(R.id.resend_pin);
         inputLayoutPINNumber = (TextInputLayout) mView.findViewById(R.id.input_layout_pin_number);
         inputPIN = (EditText) mView.findViewById(R.id.input_pin_number);
+        inputPIN.setText(Otp);
         mNext = (Button) mView.findViewById(R.id.next_button);
         mBackIv = (ImageView) mView.findViewById(R.id.back_image_view);
-    }
-
-    public void recivedSms(String message)
-    {
-        try
-        {
-            Otp= message.substring(17,26);
-        }
-        catch (Exception e) {}
-
 
     }
 
-    public  void autoverify(String pin)
-    {
-        if (pin != null)
-        {
-            verifyPINInFTLProcess();
-            verifyPINInLoginProcess();
-        }
-    }
+
+
     private void getIntentData() {
 
         if (mActivity.getIntent() != null) {
