@@ -54,16 +54,6 @@ public class LoginActivity extends RootActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()){
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
         checkAppStatus();
@@ -91,7 +81,7 @@ public class LoginActivity extends RootActivity {
             Intent intent = new Intent(LoginActivity.this, SplashScreen.class);
             startActivity(intent);
 
-            int timeout = 4000; // make the activity visible for 4 seconds
+            int timeout = 2000; // make the activity visible for 2 seconds
 
             Timer timer = new Timer();
             timer.schedule(new TimerTask() {
@@ -111,13 +101,13 @@ public class LoginActivity extends RootActivity {
         }
     }
 
-    private void checkAppStatusAfterPushNotification(List<AccountSettingsResponse> mAccountSettingsResponses) {
+    private void checkAppStatusAfterPushNotification(final List<AccountSettingsResponse> mAccountSettingsResponses) {
 
         if(mAccountSettingsResponses.get(0).getIs_Terms_Accepted().equals("0")){
             Intent intent = new Intent(LoginActivity.this, SplashScreen.class);
             startActivity(intent);
 
-            int timeout = 4000; // make the activity visible for 4 seconds
+            int timeout = 2000; // make the activity visible for 2 seconds
 
             Timer timer = new Timer();
             timer.schedule(new TimerTask() {
@@ -126,7 +116,9 @@ public class LoginActivity extends RootActivity {
                 @Override
                 public void run() {
                     finish();
-                    checkCredentials();
+                    if(mAccountSettingsResponses.get(0).getIs_Local_Auth_Enabled().equalsIgnoreCase(String.valueOf(Constants.Local_Auth_Completed))) {
+                        checkCredentials();
+                    }
                     startActivity(new Intent(LoginActivity.this, LoginAgreeTermsAcceptanceActivity.class));
                     LoginActivity.this.finish();
                 }
@@ -136,7 +128,7 @@ public class LoginActivity extends RootActivity {
             Intent intent = new Intent(LoginActivity.this, SplashScreen.class);
             startActivity(intent);
 
-            int timeout = 4000; // make the activity visible for 4 seconds
+            int timeout = 2000; // make the activity visible for 2 seconds
 
             Timer timer = new Timer();
             timer.schedule(new TimerTask() {
@@ -145,7 +137,9 @@ public class LoginActivity extends RootActivity {
                 @Override
                 public void run() {
                     finish();
-                    checkCredentials();
+                    if(mAccountSettingsResponses.get(0).getIs_Local_Auth_Enabled().equalsIgnoreCase(String.valueOf(Constants.Local_Auth_Completed))) {
+                        checkCredentials();
+                    }
                     startActivity(new Intent(LoginActivity.this, LoginHelpUserGuideActivity.class));
                     LoginActivity.this.finish();
                 }
@@ -155,7 +149,7 @@ public class LoginActivity extends RootActivity {
             Intent intent = new Intent(LoginActivity.this, SplashScreen.class);
             startActivity(intent);
 
-            int timeout = 4000; // make the activity visible for 4 seconds
+            int timeout = 2000; // make the activity visible for 2 seconds
 
             Timer timer = new Timer();
             timer.schedule(new TimerTask() {
@@ -164,7 +158,9 @@ public class LoginActivity extends RootActivity {
                 @Override
                 public void run() {
                     finish();
-                    checkCredentials();
+                    if(mAccountSettingsResponses.get(0).getIs_Local_Auth_Enabled().equalsIgnoreCase(String.valueOf(Constants.Local_Auth_Completed))) {
+                        checkCredentials();
+                    }
                     startActivity(new Intent(LoginActivity.this, Dashboard.class));
                     LoginActivity.this.finish();
                 }

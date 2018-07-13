@@ -9,7 +9,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:background="#2c53a2"
+        android:background="#717171"
         android:visibility="visible">
 
         <LinearLayout
@@ -51,7 +51,9 @@
                 android:id="@+id/text_dialog"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/your_message_here"/>
+                android:text="@string/your_message_here"
+                android:textColor="@color/black"
+                android:alpha="0.87"/>
 
         </LinearLayout>
 
@@ -76,7 +78,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/ok"
-                android:textColor="#2c53a2"
+                android:textColor="#717171"
                 android:background="?android:attr/selectableItemBackground" />
 
         </LinearLayout>

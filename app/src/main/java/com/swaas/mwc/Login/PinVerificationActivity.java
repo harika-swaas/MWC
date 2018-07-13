@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -19,6 +20,9 @@ import com.swaas.mwc.API.Model.SendPinRequest;
 import com.swaas.mwc.API.Service.ListPinDevicesService;
 import com.swaas.mwc.API.Service.SendPinService;
 import com.swaas.mwc.Common.SimpleDividerItemDecoration;
+import com.swaas.mwc.FTL.FTLAgreeTermsAcceptanceActivity;
+import com.swaas.mwc.FTL.FTLPasswordValidationActivity;
+import com.swaas.mwc.Fragments.FTLAgreeTermsAcceptanceFragment;
 import com.swaas.mwc.Fragments.LoginFragment;
 import com.swaas.mwc.Fragments.PinVerificationFragment;
 import com.swaas.mwc.Network.NetworkUtils;
@@ -59,14 +63,27 @@ public class PinVerificationActivity extends RootActivity {
                 addToBackStack(null).commit();
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                super.onBackPressed();
-                return true;
+    private Fragment getVisibleFragment(){
+        List<Fragment> fragmentList = getSupportFragmentManager().getFragments();
+        if(fragmentList != null && fragmentList .size() > 0) {
+            return fragmentList.get(fragmentList.size()-1);
         }
-        return super.onOptionsItemSelected(item);
+        return null;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(getVisibleFragment() != null) {
+            if (getVisibleFragment() instanceof PinVerificationFragment) {
+                startActivity(new Intent(PinVerificationActivity.this, LoginActivity.class));
+                finish();
+            }else{
+
+            }
+        }else{
+            startActivity(new Intent(PinVerificationActivity.this, LoginActivity.class));
+            finish();
+        }
     }
 }
 

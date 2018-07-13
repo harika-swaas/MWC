@@ -16,6 +16,7 @@ import com.swaas.mwc.Fragments.FTLPinVerificationFragment;
 import com.swaas.mwc.Login.LoginActivity;
 import com.swaas.mwc.R;
 import com.swaas.mwc.RootActivity;
+import com.swaas.mwc.Utils.Constants;
 
 import java.util.List;
 
@@ -27,6 +28,7 @@ public class FTLPinVerificationActivity extends RootActivity {
 
     FTLPinVerificationFragment mFTLPinVerificationFragment;
     AlertDialog mBackDialog;
+    boolean isFromLogin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,52 +44,57 @@ public class FTLPinVerificationActivity extends RootActivity {
         getSupportFragmentManager().beginTransaction().replace(R.id.ftl_pin_verification_fragment, mFTLPinVerificationFragment).addToBackStack(null).commit();
     }
 
-    private Fragment getVisibleFragment(){
+    private Fragment getVisibleFragment() {
         List<Fragment> fragmentList = getSupportFragmentManager().getFragments();
-        if(fragmentList != null && fragmentList .size() > 0) {
-            return fragmentList.get(fragmentList.size()-1);
+        if (fragmentList != null && fragmentList.size() > 0) {
+            return fragmentList.get(fragmentList.size() - 1);
         }
         return null;
     }
 
     @Override
     public void onBackPressed() {
-        if(getVisibleFragment() != null) {
+        if (getVisibleFragment() != null) {
             if (getVisibleFragment() instanceof FTLPinVerificationFragment) {
+                if (!isFromLogin) {
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(FTLPinVerificationActivity.this);
+                    LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    View view = inflater.inflate(R.layout.back_custom_alert_layout, null);
+                    builder.setView(view);
+                    builder.setCancelable(false);
 
-                final AlertDialog.Builder builder = new AlertDialog.Builder(FTLPinVerificationActivity.this);
-                LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                View view = inflater.inflate(R.layout.back_custom_alert_layout, null);
-                builder.setView(view);
-                builder.setCancelable(false);
+                    Button yesButton = (Button) view.findViewById(R.id.yes_button);
+                    Button noButton = (Button) view.findViewById(R.id.no_button);
 
-                Button yesButton = (Button) view.findViewById(R.id.yes_button);
-                Button noButton = (Button) view.findViewById(R.id.no_button);
+                    yesButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            mBackDialog.dismiss();
+                            startActivity(new Intent(FTLPinVerificationActivity.this, FTLRegistrationActivity.class));
+                            finish();
+                        }
+                    });
 
-                yesButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mBackDialog.dismiss();
-                        startActivity(new Intent(FTLPinVerificationActivity.this, FTLRegistrationActivity.class));
-                        finish();
-                    }
-                });
+                    noButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            mBackDialog.dismiss();
+                        }
+                    });
 
-                noButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mBackDialog.dismiss();
-                    }
-                });
-
-                mBackDialog = builder.create();
-                mBackDialog.show();
-            }else{
-
+                    mBackDialog = builder.create();
+                    mBackDialog.show();
+                } else {
+                    startActivity(new Intent(FTLPinVerificationActivity.this, LoginActivity.class));
+                    finish();
+                }
             }
-        }else{
-            startActivity(new Intent(FTLPinVerificationActivity.this, LoginActivity.class));
-            finish();
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        isFromLogin = getIntent().getBooleanExtra(Constants.IS_FROM_LOGIN, false);
     }
 }

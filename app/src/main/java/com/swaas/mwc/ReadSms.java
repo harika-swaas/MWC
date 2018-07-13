@@ -39,7 +39,7 @@ public class ReadSms extends BroadcastReceiver {
                         {
 
                             FTLPinVerificationFragment Sms = new FTLPinVerificationFragment();
-                            Sms.recivedSms(message);
+                            Sms.receivedSms(message);
                         }
                     } catch(Exception e){}
                 }

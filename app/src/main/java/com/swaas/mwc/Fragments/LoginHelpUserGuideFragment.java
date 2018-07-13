@@ -2,6 +2,8 @@ package com.swaas.mwc.Fragments;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -24,6 +26,7 @@ import com.swaas.mwc.API.Model.BaseApiResponse;
 import com.swaas.mwc.API.Model.GetAssistancePopupContentResponse;
 import com.swaas.mwc.API.Model.LoginResponse;
 import com.swaas.mwc.API.Model.UserPreferenceGuideRequest;
+import com.swaas.mwc.API.Model.WhiteLabelResponse;
 import com.swaas.mwc.API.Service.GetAssistancePopupService;
 import com.swaas.mwc.API.Service.SetUserPreferenceGuideService;
 import com.swaas.mwc.DMS.MyFoldersDMSActivity;
@@ -33,16 +36,18 @@ import com.swaas.mwc.FTL.WebviewLoaderTermsActivity;
 import com.swaas.mwc.Login.Dashboard;
 import com.swaas.mwc.Login.LoginActivity;
 import com.swaas.mwc.Login.LoginHelpUserGuideActivity;
+import com.swaas.mwc.Login.Notifiy;
 import com.swaas.mwc.Network.NetworkUtils;
 import com.swaas.mwc.Preference.PreferenceUtils;
 import com.swaas.mwc.R;
 import com.swaas.mwc.Retrofit.RetrofitAPIBuilder;
 import com.swaas.mwc.Utils.Constants;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import dmax.dialog.SpotsDialog;
 import retrofit.Call;
 import retrofit.Callback;
 import retrofit.Response;
@@ -61,6 +66,7 @@ public class LoginHelpUserGuideFragment extends Fragment {
     CheckBox checkBox;
     TextView assistancePopupBody;
     String mAssistancePopupBody, mHelpGuideURL;
+    List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList<>();
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -74,6 +80,7 @@ public class LoginHelpUserGuideFragment extends Fragment {
         mView = inflater.inflate(R.layout.login_help_user_guide_fragment, container, false);
         intializeViews();
         getAssistancePopupContent();
+        setButtonBackgroundColor();
         addListenersToViews();
 
         return mView;
@@ -130,6 +137,71 @@ public class LoginHelpUserGuideFragment extends Fragment {
         }
     }
 
+    private void setButtonBackgroundColor() {
+
+        getWhiteLabelProperities();
+
+        if (mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
+            String mobileItemEnableColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
+            String mobileItemDisableColor = mWhiteLabelResponses.get(0).getItem_Unselected_Color();
+
+            int itemEnableColor = Color.parseColor(mobileItemEnableColor);
+            int itemDisableColor = Color.parseColor(mobileItemDisableColor);
+
+            if (mobileItemEnableColor != null) {
+                // Initialize a new GradientDrawable
+                GradientDrawable shape = new GradientDrawable();
+
+                // Specify the shape of drawable
+                shape.setShape(GradientDrawable.RECTANGLE);
+
+                // Make the border rounded
+                shape.setCornerRadius(50f);
+
+                // Set the fill color of drawable
+                shape.setColor(itemEnableColor);
+
+                submit.setBackgroundDrawable(shape);
+            } else if (mobileItemDisableColor != null) {
+                // Initialize a new GradientDrawable
+                GradientDrawable shape = new GradientDrawable();
+
+                // Specify the shape of drawable
+                shape.setShape(GradientDrawable.RECTANGLE);
+
+                // Make the border rounded
+                shape.setCornerRadius(50f);
+
+                // Set the fill color of drawable
+                shape.setColor(itemDisableColor);
+
+                submit.setBackgroundDrawable(shape);
+            }
+        } else {
+            submit.setBackgroundResource(R.drawable.next);
+        }
+    }
+
+    private void getWhiteLabelProperities() {
+
+        AccountSettings accountSettings = new AccountSettings(mActivity);
+        accountSettings.SetWhiteLabelCB(new AccountSettings.GetWhiteLabelCB() {
+            @Override
+            public void getWhiteLabelSuccessCB(List<WhiteLabelResponse> whiteLabelResponses) {
+                if (whiteLabelResponses != null && whiteLabelResponses.size() > 0) {
+                    mWhiteLabelResponses = whiteLabelResponses;
+                }
+            }
+
+            @Override
+            public void getWhiteLabelFailureCB(String message) {
+
+            }
+        });
+
+        accountSettings.getWhiteLabelProperties();
+    }
+
     private void setAssistancePopupBody(String mAssistancePopupBody, String mHelpGuideURL) {
         if (!TextUtils.isEmpty(mAssistancePopupBody) && !TextUtils.isEmpty(mHelpGuideURL)) {
             assistancePopupBody.setText(mAssistancePopupBody);
@@ -172,7 +244,7 @@ public class LoginHelpUserGuideFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 updateHelpAcceptedAndLoggedInStatus();
-                startActivity(new Intent(mActivity, MyFoldersDMSActivity.class));
+                startActivity(new Intent(mActivity, Dashboard.class));
                 mActivity.finish();
 
                 if (checkBox.isChecked()) {
@@ -184,7 +256,7 @@ public class LoginHelpUserGuideFragment extends Fragment {
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(mActivity, MyFoldersDMSActivity.class);
+                Intent intent = new Intent(mActivity, Dashboard.class);
                 startActivity(intent);
                 mActivity.finish();
                 updateLoggedInStatus();
@@ -223,7 +295,7 @@ public class LoginHelpUserGuideFragment extends Fragment {
                         if (apiResponse.status.getCode() instanceof Boolean) {
 
                             if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                Intent mIntent = new Intent(mActivity, MyFoldersDMSActivity.class);
+                                Intent mIntent = new Intent(mActivity, Dashboard.class);
                                 startActivity(mIntent);
                                 mActivity.finish();
                                 updateHelpAcceptedAndLoggedInStatus();

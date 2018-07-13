@@ -59,7 +59,8 @@
                 android:layout_centerInParent="true"
                 android:layout_centerVertical="true"
                 android:layout_marginTop="38dp"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:visibility="gone">
 
                 <TextView
                     android:id="@+id/welcome_msg"
@@ -97,7 +98,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        app:layout_heightPercent="50%"
+        app:layout_heightPercent="85%"
         android:id="@+id/frameLayout">
 
         <RelativeLayout
@@ -131,7 +132,7 @@
                     android:layout_gravity="center_vertical"
                     android:gravity="center_horizontal"
                     android:text="@string/ftl_username_text"
-                    android:textSize="14sp"
+                    android:textSize="16sp"
                     android:textColor="@color/black"
                     android:alpha="0.64"/>
 
@@ -175,7 +176,7 @@
                     android:id="@+id/input_layout_username"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp">
+                    android:layout_marginTop="32dp">
 
                     <EditText
                         android:theme="@style/TextLabel"

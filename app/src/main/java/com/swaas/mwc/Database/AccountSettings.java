@@ -335,6 +335,8 @@ public class AccountSettings {
             DBConnectionOpen();
             database.delete(TABLE_ACCOUNT_SETTINGS,null,null);
             database.delete(TABLE_WHITE_LABEL,null,null);
+        } catch (Exception e){
+            e.printStackTrace();
         } finally {
             DBConnectionClose();
         }

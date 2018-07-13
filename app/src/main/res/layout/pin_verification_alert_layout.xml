@@ -11,7 +11,7 @@
             android:id="@+id/rl_alert_title"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:background="@color/colorPrimaryDark"
+            android:background="#717171"
             android:visibility="visible">
 
             <RelativeLayout
@@ -54,7 +54,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Your message here"
-                    android:textSize="15sp"/>
+                    android:textSize="15sp"
+                    android:textColor="@color/black"
+                    android:alpha="0.87"/>
 
             </LinearLayout>
 
@@ -81,7 +83,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/cancel"
-                    android:textColor="@color/dark_cyan"
+                    android:textColor="#717171"
                     android:background="?android:attr/selectableItemBackground"
                     android:textSize="16sp"/>
 
@@ -90,7 +92,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/send_pin"
-                    android:textColor="@color/dark_cyan"
+                    android:textColor="#717171"
                     android:background="?android:attr/selectableItemBackground"
                     android:textSize="16sp"/>
 

@@ -24,6 +24,7 @@ import android.Manifest;
 import android.widget.Toast;
 
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.swaas.mwc.API.Model.AccountSettingsResponse;
 import com.swaas.mwc.API.Model.WhiteLabelResponse;
 import com.swaas.mwc.Database.AccountSettings;
 import com.swaas.mwc.Preference.PreferenceUtils;
@@ -41,6 +42,7 @@ public class Notifiy extends Activity {
 
     Button button5;
     TextView skip;
+    List<AccountSettingsResponse> mAccountSettingsResponses = new ArrayList<>();
     List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList<>();
     boolean mIsFromFTL;
     AlertDialog mCustomAlertDialog;
@@ -54,6 +56,7 @@ public class Notifiy extends Activity {
 
         getIntentData();
         setButtonBackgroundColor();
+        getAccountSettings();
 
 
         button5.setOnClickListener(new View.OnClickListener() {
@@ -81,9 +84,17 @@ public class Notifiy extends Activity {
                             startActivity(intent);
                             finish();
                         } else {
-                            Intent intent = new Intent(Notifiy.this, LoginAgreeTermsAcceptanceActivity.class);
-                            startActivity(intent);
-                            finish();
+                            if(mAccountSettingsResponses != null && mAccountSettingsResponses.size() > 0){
+                                if(mAccountSettingsResponses.get(0).getIs_Terms_Accepted().equals("0")){
+                                    Intent intent = new Intent(Notifiy.this, LoginAgreeTermsAcceptanceActivity.class);
+                                    startActivity(intent);
+                                    finish();
+                                } else if(mAccountSettingsResponses.get(0).getIs_Terms_Accepted().equals("1")){
+                                    Intent intent = new Intent(Notifiy.this, LoginHelpUserGuideActivity.class);
+                                    startActivity(intent);
+                                    finish();
+                                }
+                            }
                         }
                     }
                 });
@@ -98,9 +109,17 @@ public class Notifiy extends Activity {
                             startActivity(intent);
                             finish();
                         } else {
-                            Intent intent = new Intent(Notifiy.this, LoginAgreeTermsAcceptanceActivity.class);
-                            startActivity(intent);
-                            finish();
+                            if(mAccountSettingsResponses != null && mAccountSettingsResponses.size() > 0){
+                                if(mAccountSettingsResponses.get(0).getIs_Terms_Accepted().equals("0")){
+                                    Intent intent = new Intent(Notifiy.this, LoginAgreeTermsAcceptanceActivity.class);
+                                    startActivity(intent);
+                                    finish();
+                                } else if(mAccountSettingsResponses.get(0).getIs_Terms_Accepted().equals("1")){
+                                    Intent intent = new Intent(Notifiy.this, LoginHelpUserGuideActivity.class);
+                                    startActivity(intent);
+                                    finish();
+                                }
+                            }
                         }
                     }
                 });
@@ -114,12 +133,46 @@ public class Notifiy extends Activity {
             @Override
             public void onClick(View v) {
                 updateLoggedInStatus();
-                Intent intent = new Intent(Notifiy.this, LoginAgreeTermsAcceptanceActivity.class);
-                startActivity(intent);
-                finish();
+                if (mIsFromFTL) {
+                    Intent intent = new Intent(Notifiy.this, LoginHelpUserGuideActivity.class);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    if(mAccountSettingsResponses != null && mAccountSettingsResponses.size() > 0){
+                        if(mAccountSettingsResponses.get(0).getIs_Terms_Accepted().equals("0")){
+                            Intent intent = new Intent(Notifiy.this, LoginAgreeTermsAcceptanceActivity.class);
+                            startActivity(intent);
+                            finish();
+                        } else if(mAccountSettingsResponses.get(0).getIs_Terms_Accepted().equals("1")){
+                            Intent intent = new Intent(Notifiy.this, LoginHelpUserGuideActivity.class);
+                            startActivity(intent);
+                            finish();
+                        }
+                    }
+                }
             }
         });
     }
+
+    private void getAccountSettings() {
+        AccountSettings accountSettings = new AccountSettings(Notifiy.this);
+        accountSettings.SetLoggedInCB(new AccountSettings.GetLoggedInCB() {
+            @Override
+            public void getLoggedInSuccessCB(List<AccountSettingsResponse> accountSettingsResponses) {
+                if(accountSettingsResponses != null && accountSettingsResponses.size() > 0){
+                    mAccountSettingsResponses = accountSettingsResponses;
+                }
+            }
+
+            @Override
+            public void getLoggedInFailureCB(String message) {
+
+            }
+        });
+
+        accountSettings.getLoggedInStatusDetails();
+    }
+
     public void onBackPressed() { }
     private void getIntentData() {
 

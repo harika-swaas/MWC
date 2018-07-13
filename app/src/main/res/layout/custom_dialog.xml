@@ -8,7 +8,7 @@
             android:id="@+id/rl_alert_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/colorPrimaryDark">
+            android:background="#717171">
 
             <RelativeLayout
                 android:layout_width="wrap_content"
@@ -91,7 +91,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/cancel"
-                    android:textColor="@color/dark_cyan"
+                    android:textColor="#717171"
                     android:background="?android:attr/selectableItemBackground"
                     android:textSize="16sp"/>
 
@@ -100,7 +100,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/allow_alert"
-                    android:textColor="@color/dark_cyan"
+                    android:textColor="#717171"
                     android:background="?android:attr/selectableItemBackground"
                     android:textSize="16sp"/>
 

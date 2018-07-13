@@ -49,11 +49,11 @@
     <string name="personal_email">Personal Email</string>
     <string name="personal_number">Personal Number</string>
     <string name="touch_id_title">DOC PORTAL</string>
-    <string name="touch_id_head">Protection for your document vault</string>
+    <string name="touch_id_head">Protection for your documents</string>
     <string name="enable_touch">PROTECT MY DOCUMENT VAULT NOW</string>
     <string name="skip">Skip</string>
     <string name="touch_id_ques">Would you like to use the device unlock method to access DOC PORTAL</string>
-    <string name="touch_id_body">As an additional security after your login, we would like you to enable this feature. Every time when you launch the app, DOC PORTAL will ensure by prompting the device unlock screen</string>
+    <string name="touch_id_body">As an additional security step,enable finger print or password based access to prevent unauthorized access to your DOC PORTAL App.</string>
     <string name="login_verification_text">As an additional security step to protect your document vault, we will now send you a unique PIN code to a telephone number you have pre-registered with us. The PIN will be sent as an SMS text message to mobiles, or as a voice message to landlines.</string>
     <string name="enable_notification">Notification for "DOC PORTAL"</string>
     <string name="enable_notification_button">Enable Notification"</string>

@@ -2,6 +2,8 @@ package com.swaas.mwc.Fragments;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -24,6 +26,7 @@ import com.swaas.mwc.API.Model.FTLProcessResponse;
 import com.swaas.mwc.API.Model.GetTermsPageContentResponse;
 import com.swaas.mwc.API.Model.SetTermsAcceptanceRequest;
 import com.swaas.mwc.API.Model.VerifyFTLResponse;
+import com.swaas.mwc.API.Model.WhiteLabelResponse;
 import com.swaas.mwc.API.Service.GetTermsPageContentService;
 import com.swaas.mwc.API.Service.SetTermsAcceptanceService;
 import com.swaas.mwc.Database.AccountSettings;
@@ -38,7 +41,9 @@ import com.swaas.mwc.R;
 import com.swaas.mwc.Retrofit.RetrofitAPIBuilder;
 import com.swaas.mwc.Utils.Constants;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import dmax.dialog.SpotsDialog;
@@ -59,6 +64,7 @@ public class LoginAgreeTermsAcceptanceFragment extends Fragment {
     Button mIAgreeButton;
     TextView cancel;
     String mTermsBody, mTermsURL;
+    List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList<>();
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -73,6 +79,7 @@ public class LoginAgreeTermsAcceptanceFragment extends Fragment {
 
         intializeViews();
         getTermsPageContent();
+        setButtonBackgroundColor();
         addListenersToViews();
         return mView;
     }
@@ -158,6 +165,71 @@ public class LoginAgreeTermsAcceptanceFragment extends Fragment {
         termsBody.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
+    private void setButtonBackgroundColor() {
+
+        getWhiteLabelProperities();
+
+        if (mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
+            String mobileItemEnableColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
+            String mobileItemDisableColor = mWhiteLabelResponses.get(0).getItem_Unselected_Color();
+
+            int itemEnableColor = Color.parseColor(mobileItemEnableColor);
+            int itemDisableColor = Color.parseColor(mobileItemDisableColor);
+
+            if (mobileItemEnableColor != null) {
+                // Initialize a new GradientDrawable
+                GradientDrawable shape = new GradientDrawable();
+
+                // Specify the shape of drawable
+                shape.setShape(GradientDrawable.RECTANGLE);
+
+                // Make the border rounded
+                shape.setCornerRadius(50f);
+
+                // Set the fill color of drawable
+                shape.setColor(itemEnableColor);
+
+                mIAgreeButton.setBackgroundDrawable(shape);
+            } else if (mobileItemDisableColor != null) {
+                // Initialize a new GradientDrawable
+                GradientDrawable shape = new GradientDrawable();
+
+                // Specify the shape of drawable
+                shape.setShape(GradientDrawable.RECTANGLE);
+
+                // Make the border rounded
+                shape.setCornerRadius(50f);
+
+                // Set the fill color of drawable
+                shape.setColor(itemDisableColor);
+
+                mIAgreeButton.setBackgroundDrawable(shape);
+            }
+        } else {
+            mIAgreeButton.setBackgroundResource(R.drawable.next);
+        }
+    }
+
+    private void getWhiteLabelProperities() {
+
+        AccountSettings accountSettings = new AccountSettings(mActivity);
+        accountSettings.SetWhiteLabelCB(new AccountSettings.GetWhiteLabelCB() {
+            @Override
+            public void getWhiteLabelSuccessCB(List<WhiteLabelResponse> whiteLabelResponses) {
+                if (whiteLabelResponses != null && whiteLabelResponses.size() > 0) {
+                    mWhiteLabelResponses = whiteLabelResponses;
+                }
+            }
+
+            @Override
+            public void getWhiteLabelFailureCB(String message) {
+
+            }
+        });
+
+        accountSettings.getWhiteLabelProperties();
+    }
+
     private void intializeViews() {
 
         termsBody = (TextView) mView.findViewById(R.id.set_terms_acceptance_txt);
@@ -179,6 +251,8 @@ public class LoginAgreeTermsAcceptanceFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
+                AccountSettings accountSettings = new AccountSettings(mActivity);
+                accountSettings.deleteAll();
                 startActivity(new Intent(mActivity, LoginActivity.class));
                 mActivity.finish();
             }
