@@ -6,28 +6,41 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
+import com.swaas.mwc.Adapters.DmsAdapter;
+import com.swaas.mwc.Adapters.DmsAdapterList;
 import com.swaas.mwc.DMS.MyFoldersDMSActivity;
 import com.swaas.mwc.R;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by harika on 11-07-2018.
  */
 
 public class MyFoldersDMSFragment extends Fragment {
-
+    RecyclerView recyclerView;
     MyFoldersDMSActivity mActivity;
+    DmsAdapter dmsAdapter;
     View mView;
     BottomNavigationView mBottomNavigationView;
-
+    ImageView toggle;
+    public boolean check = true;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mActivity = (MyFoldersDMSActivity) getActivity();
+
+
     }
 
     @Nullable
@@ -36,16 +49,48 @@ public class MyFoldersDMSFragment extends Fragment {
         mView = inflater.inflate(R.layout.my_folders_dms_fragment, container, false);
         intializeViews();
         addListenersToViews();
-
-        return mView;
+        recyclerView= (RecyclerView) mView.findViewById(R.id.recycler_dms);
+        display();
+       return mView;
     }
 
     private void intializeViews() {
 
         mBottomNavigationView = (BottomNavigationView) mView.findViewById(R.id.navigation);
+        toggle =(ImageView) mView.findViewById(R.id.toggle);
+
     }
 
     private void addListenersToViews() {
+
+        toggle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (check==true) {
+                    toggle.setImageResource(R.mipmap.ic_list);
+                    recyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
+                    List<String> input = new ArrayList<>();
+                    for (int i = 0; i < 20; i++) {
+                        input.add("Test" + i);
+                    }
+                    DmsAdapterList dmsAdapterList = new DmsAdapterList(input);
+                    recyclerView.setAdapter(dmsAdapterList);
+                    check=false;
+                }
+                else {
+                    toggle.setImageResource(R.mipmap.ic_grid);
+                    recyclerView.setLayoutManager(new GridLayoutManager(mActivity,3));
+                    List<String> input = new ArrayList<>();
+                    for (int i = 0; i < 20; i++) {
+                        input.add("Test" + i);
+                    }
+                    DmsAdapter dmsAdapter = new DmsAdapter(input);
+                    recyclerView.setAdapter(dmsAdapter);
+                    check=true;
+                }
+            }
+        });
 
         mBottomNavigationView.setOnNavigationItemSelectedListener
                 (new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -69,10 +114,22 @@ public class MyFoldersDMSFragment extends Fragment {
                         return true;
                     }
                 });
-
         //Manually displaying the first fragment - one time only
         FragmentTransaction transaction = mActivity.getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.frame_layout, ItemNavigationFolderFragment.newInstance());
         transaction.commit();
+    }
+   public View display(){
+       recyclerView= (RecyclerView) mView.findViewById(R.id.recycler_dms);
+       recyclerView.setLayoutManager(new GridLayoutManager(mActivity,3));
+
+       List<String> input = new ArrayList<>();
+       for (int i = 0; i < 20; i++) {
+           input.add("Test" + i);
+       }
+       DmsAdapter dmsAdapter = new DmsAdapter(input);
+       recyclerView.setAdapter(dmsAdapter);
+       return mView;
+
     }
 }

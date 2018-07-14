@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_margin="4dp"
+    android:padding="4dp"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/parent_layout">
+    <RelativeLayout
+        android:layout_margin="4dp"
+        android:padding="4dp"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/list_click">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/lay3">
+    <ImageView
+        android:id="@+id/folder"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="15dp"
+        android:background="@mipmap/ic_folder"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="10dp"
+
+        android:id="@+id/lay1">
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_below="@+id/lay1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="35dp"
+        android:id="@+id/lay2"
+        android:layout_marginLeft="-45dp">
+
+    </RelativeLayout>
+
+        <TextView
+            android:id="@+id/folder_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/lay1"
+            android:layout_marginLeft="26dp"
+            android:layout_marginStart="26dp"
+            android:layout_toEndOf="@+id/lay3"
+            android:layout_toRightOf="@+id/lay3"
+            android:text="File"
+            android:textColor="@color/black_semi_transparent"
+            android:textSize="20dp" />
+
+        <TextView
+            android:id="@+id/folder_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/folder_name"
+            android:layout_marginLeft="13dp"
+            android:layout_marginStart="13dp"
+            android:layout_toEndOf="@+id/lay3"
+            android:layout_toRightOf="@+id/lay3"
+            android:text="Date Created"
+            android:textColor="@color/black_semi_transparent"
+            android:textSize="15dp">
+
+        </TextView>
+    </RelativeLayout>
+</LinearLayout>

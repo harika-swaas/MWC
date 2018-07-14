@@ -244,7 +244,7 @@ public class LoginHelpUserGuideFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 updateHelpAcceptedAndLoggedInStatus();
-                startActivity(new Intent(mActivity, Dashboard.class));
+                startActivity(new Intent(mActivity, MyFoldersDMSActivity.class));
                 mActivity.finish();
 
                 if (checkBox.isChecked()) {
@@ -256,7 +256,7 @@ public class LoginHelpUserGuideFragment extends Fragment {
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(mActivity, Dashboard.class);
+                Intent intent = new Intent(mActivity, MyFoldersDMSActivity.class);
                 startActivity(intent);
                 mActivity.finish();
                 updateLoggedInStatus();
@@ -295,7 +295,7 @@ public class LoginHelpUserGuideFragment extends Fragment {
                         if (apiResponse.status.getCode() instanceof Boolean) {
 
                             if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                Intent mIntent = new Intent(mActivity, Dashboard.class);
+                                Intent mIntent = new Intent(mActivity, MyFoldersDMSActivity.class);
                                 startActivity(mIntent);
                                 mActivity.finish();
                                 updateHelpAcceptedAndLoggedInStatus();

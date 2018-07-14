@@ -14,7 +14,7 @@
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:fitsSystemWindows="true"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
 
             <android.support.design.widget.CollapsingToolbarLayout
                 android:id="@+id/collapsing_toolbar"
@@ -33,12 +33,28 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="top"
                     android:layout_marginTop="5dp"
-                    android:padding="8dp">
+                    android:padding="8dp"
+                    >
+                    <RelativeLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="left">
+
+                        <ImageView
+                            android:id="@+id/back_image_view"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentLeft="true"
+                            android:layout_centerVertical="true"
+                            android:src="@mipmap/ic_back" />
+                    </RelativeLayout>
+
 
                     <RelativeLayout
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true">
+                        android:layout_marginStart="250dp"
+                        android:layout_marginLeft="250dp">
 
                         <ImageView
                             android:id="@+id/search"
@@ -92,14 +108,15 @@
                                 android:layout_gravity="center_vertical"
                                 android:text="@string/name"
                                 android:textAppearance="?android:textAppearanceSmall"
-                                android:textColor="@android:color/white" />
+                                android:textColor="@android:color/black" />
 
                             <ImageView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginLeft="10dp"
                                 android:layout_toRightOf="@+id/name_sort"
-                                android:src="@mipmap/ic_sort" />
+                                android:src="@mipmap/ic_sort"
+                                />
 
                         </LinearLayout>
 
@@ -113,7 +130,8 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginRight="10dp"
-                                android:src="@mipmap/ic_grid" />
+                                android:src="@mipmap/ic_grid"
+                                android:id="@+id/toggle"/>
 
                         </RelativeLayout>
                     </RelativeLayout>
@@ -126,8 +144,28 @@
                     android:layout_height="?attr/actionBarSize"
                     android:layout_marginTop="45dp"
                     app:layout_collapseMode="pin"
-                    app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+                    app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
 
+
+                    <RelativeLayout
+
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:layout_marginStart="45dp"
+                        android:layout_marginLeft="45dp">
+
+                        <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="My Folder"
+                                android:textSize="25dp"
+                                android:textStyle="bold"
+                                android:textColor="@color/black">
+
+                        </TextView>
+
+                    </RelativeLayout>
+                </android.support.v7.widget.Toolbar>
             </android.support.design.widget.CollapsingToolbarLayout>
 
             <View
@@ -144,6 +182,12 @@
             android:layout_above="@+id/navigation"
             android:layout_below="@+id/appbar"
             android:animateLayoutChanges="true">
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recycler_dms"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+            </android.support.v7.widget.RecyclerView>
 
         </FrameLayout>
 
@@ -152,8 +196,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:background="@color/grey"
-            app:itemTextColor="@color/colorGray"
+            android:background="@color/gray_non_pressed"
+            app:itemTextColor="@color/black_semi_transparent"
             app:menu="@menu/navigation" />
 
         <!--<include layout="@layout/activity_dms_bottom_navigation_view" />-->

@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.swaas.mwc.API.Model.AccountSettingsResponse;
+import com.swaas.mwc.DMS.MyFoldersDMSActivity;
 import com.swaas.mwc.Database.AccountSettings;
 import com.swaas.mwc.Fragments.LoginFragment;
 import com.swaas.mwc.R;
@@ -161,7 +162,7 @@ public class LoginActivity extends RootActivity {
                     if(mAccountSettingsResponses.get(0).getIs_Local_Auth_Enabled().equalsIgnoreCase(String.valueOf(Constants.Local_Auth_Completed))) {
                         checkCredentials();
                     }
-                    startActivity(new Intent(LoginActivity.this, Dashboard.class));
+                    startActivity(new Intent(LoginActivity.this, MyFoldersDMSActivity.class));
                     LoginActivity.this.finish();
                 }
             }, timeout);
