@@ -52,6 +52,7 @@
     <color name="cyan">#00695C</color>
     <color name="dark_gray">#9e9e9e</color>
     <color name="gray_non_pressed">#DFDFDF</color>
+    <color name="bottomnavigation">#f7f8f8</color>
     <color name="grey_non_pressed">#979797</color>
     <color name="transparent">#00000000</color>
     <color name="iron">#CCCCCC</color>

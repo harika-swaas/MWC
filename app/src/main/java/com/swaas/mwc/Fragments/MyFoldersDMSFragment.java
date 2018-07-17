@@ -15,11 +15,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 
 import com.swaas.mwc.Adapters.DmsAdapter;
 import com.swaas.mwc.Adapters.DmsAdapterList;
 import com.swaas.mwc.DMS.MyFoldersDMSActivity;
 import com.swaas.mwc.R;
+import com.swaas.mwc.Utils.BottomSheet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,13 +32,16 @@ import java.util.List;
  */
 
 public class MyFoldersDMSFragment extends Fragment {
-    RecyclerView recyclerView;
+    RecyclerView recyclerView,bottomview;
     MyFoldersDMSActivity mActivity;
     DmsAdapter dmsAdapter;
+    LinearLayout sort;
     View mView;
+    ListView listView;
     BottomNavigationView mBottomNavigationView;
     ImageView toggle;
     public boolean check = true;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,13 +67,21 @@ public class MyFoldersDMSFragment extends Fragment {
 
         mBottomNavigationView = (BottomNavigationView) mView.findViewById(R.id.navigation);
         toggle =(ImageView) mView.findViewById(R.id.toggle);
-
-
-
+        sort = (LinearLayout)mView.findViewById(R.id.sort);
 
     }
 
     private void addListenersToViews() {
+
+        sort.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                BottomSheet dialog = new BottomSheet(mActivity);
+                dialog.show();
+
+            }
+        });
+
 
         toggle.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -138,4 +152,5 @@ public class MyFoldersDMSFragment extends Fragment {
        return mView;
 
     }
+
 }
