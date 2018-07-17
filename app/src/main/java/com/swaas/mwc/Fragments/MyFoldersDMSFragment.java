@@ -53,7 +53,7 @@ public class MyFoldersDMSFragment extends Fragment {
         recyclerView= (RecyclerView) mView.findViewById(R.id.recycler_dms);
         display();
         CollapsingToolbarLayout collapsingToolbarLayout=(CollapsingToolbarLayout)mView.findViewById(R.id.collapsing_toolbar);
-        collapsingToolbarLayout.setContentScrimColor(getResources().getColor(R.color.background));
+        collapsingToolbarLayout.setContentScrimColor(getResources().getColor(R.color.white));
 
         return mView;
     }
