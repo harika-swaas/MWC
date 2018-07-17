@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.GridLayoutManager;
@@ -51,13 +52,18 @@ public class MyFoldersDMSFragment extends Fragment {
         addListenersToViews();
         recyclerView= (RecyclerView) mView.findViewById(R.id.recycler_dms);
         display();
-       return mView;
-    }
+        CollapsingToolbarLayout collapsingToolbarLayout=(CollapsingToolbarLayout)mView.findViewById(R.id.collapsing_toolbar);
+        collapsingToolbarLayout.setContentScrimColor(getResources().getColor(R.color.background));
 
+        return mView;
+    }
     private void intializeViews() {
 
         mBottomNavigationView = (BottomNavigationView) mView.findViewById(R.id.navigation);
         toggle =(ImageView) mView.findViewById(R.id.toggle);
+
+
+
 
     }
 
@@ -109,14 +115,14 @@ public class MyFoldersDMSFragment extends Fragment {
                                 break;
                         }
                         FragmentTransaction transaction = mActivity.getSupportFragmentManager().beginTransaction();
-                        transaction.replace(R.id.frame_layout, selectedFragment);
+                        transaction.replace(R.id.container, selectedFragment);
                         transaction.commit();
                         return true;
                     }
                 });
         //Manually displaying the first fragment - one time only
         FragmentTransaction transaction = mActivity.getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.frame_layout, ItemNavigationFolderFragment.newInstance());
+        transaction.replace(R.id.container, ItemNavigationFolderFragment.newInstance());
         transaction.commit();
     }
    public View display(){
