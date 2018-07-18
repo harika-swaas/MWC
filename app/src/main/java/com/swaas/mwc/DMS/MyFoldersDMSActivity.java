@@ -5,30 +5,21 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.swaas.mwc.Adapters.ItemAdapter;
-import com.swaas.mwc.Fragments.Item;
 import com.swaas.mwc.Fragments.ItemNavigationFolderFragment;
 import com.swaas.mwc.Fragments.ItemNavigationSettingsFragment;
 import com.swaas.mwc.Fragments.ItemNavigationSharedFragment;
 import com.swaas.mwc.R;
 import com.swaas.mwc.RootActivity;
-import com.swaas.mwc.Utils.BottomSheet;
 import com.swaas.mwc.Utils.Constants;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by harika on 11-07-2018.
@@ -47,6 +38,7 @@ public class MyFoldersDMSActivity extends RootActivity {
     ItemNavigationFolderFragment mFolderFragment;
     ItemNavigationSharedFragment mSharedFragment;
     ItemNavigationSettingsFragment mSettingsFragment;
+    ImageView select;
     ImageView toggle;
     boolean check = false;
     int backButtonCount=0;
@@ -71,9 +63,17 @@ public class MyFoldersDMSActivity extends RootActivity {
         sortingView = (LinearLayout) findViewById(R.id.sort);
         CollapsingToolbarLayout collapsingToolbarLayout=(CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
         collapsingToolbarLayout.setContentScrimColor(getResources().getColor(R.color.white));
+        select= (ImageView) findViewByIdInContent(R.id.checklist);
     }
 
     private void addListenersToViews() {
+        select.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
 
         toggle.setOnClickListener(new View.OnClickListener() {
             @Override
