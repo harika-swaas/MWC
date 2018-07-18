@@ -1,33 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_margin="4dp"
-    android:padding="4dp"
+    android:id="@+id/parent_layout1"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:id="@+id/parent_layout1">
-<RelativeLayout
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:id="@+id/grid_click">
-    <ImageView
-        android:id="@+id/folder"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_marginStart="15dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginLeft="15dp"
-        android:background="@mipmap/ic_folder"/>
+    android:padding="4dp">
 
-    <TextView
+    <RelativeLayout
+        android:id="@+id/grid_click"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/folder"
-        android:id="@+id/folder_name"
-        android:layout_marginStart="40dp"
-        android:layout_marginLeft="15dp"
-        android:text="File"
-        android:textSize="20dp"/>
-</RelativeLayout>
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/folder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="16dp"
+            android:layout_marginLeft="16dp"
+            android:src="@mipmap/ic_folder" />
+
+        <TextView
+            android:id="@+id/folder_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/folder"
+            android:gravity="center"
+            android:text="File"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:alpha="0.87"
+            android:layout_centerHorizontal="true"/>
+
+        <ImageView
+            android:layout_below="@+id/folder_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:src="@mipmap/ic_more"
+            android:layout_centerHorizontal="true"/>
+
+    </RelativeLayout>
 
 </LinearLayout>

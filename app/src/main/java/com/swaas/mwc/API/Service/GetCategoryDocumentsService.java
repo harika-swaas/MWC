@@ -1,7 +1,7 @@
 package com.swaas.mwc.API.Service;
 
-import com.swaas.mwc.API.Model.BaseApiResponse;
 import com.swaas.mwc.API.Model.GetCategoryDocumentsResponse;
+import com.swaas.mwc.API.Model.ListPinDevicesResponse;
 
 import java.util.Map;
 
@@ -19,5 +19,21 @@ public interface GetCategoryDocumentsService {
 
     @POST("/v2/get-category-documents?page=1&per-page=20")
     @FormUrlEncoded
-    Call<BaseApiResponse<GetCategoryDocumentsResponse>> getCategoryDocumentsV2(@FieldMap Map<String,String> params, @Header("access-token") String accessToken);
+    Call<ListPinDevicesResponse<GetCategoryDocumentsResponse>> getCategoryDocumentsV2(@FieldMap Map<String,String> params, @Header("access-token") String accessToken);
+
+    @POST("v2/get-category-documents?page=1&per-page=20&sort=-type")
+    @FormUrlEncoded
+    Call<ListPinDevicesResponse<GetCategoryDocumentsResponse>> getCategoryDocumentsV2SortByType(@FieldMap Map<String,String> params, @Header("access-token") String accessToken);
+
+    @POST("v2/get-category-documents?page=1&per-page=20&sort=-name")
+    @FormUrlEncoded
+    Call<ListPinDevicesResponse<GetCategoryDocumentsResponse>> getCategoryDocumentsV2SortByName(@FieldMap Map<String,String> params, @Header("access-token") String accessToken);
+
+    @POST("v2/get-category-documents?page=1&per-page=20&sort=filesize")
+    @FormUrlEncoded
+    Call<ListPinDevicesResponse<GetCategoryDocumentsResponse>> getCategoryDocumentsV2SortBySize(@FieldMap Map<String,String> params, @Header("access-token") String accessToken);
+
+    @POST("v2/get-category-documents?page=1&per-page=20&sort=-unix_date")
+    @FormUrlEncoded
+    Call<ListPinDevicesResponse<GetCategoryDocumentsResponse>> getCategoryDocumentsV2SortByDate(@FieldMap Map<String,String> params, @Header("access-token") String accessToken);
 }

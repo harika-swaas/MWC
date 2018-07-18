@@ -21,12 +21,10 @@ public class BottomSheet extends BottomSheetDialog {
 
     private Context context;
 
-    public BottomSheet(MyFoldersDMSActivity context){
+    public BottomSheet(MyFoldersDMSActivity context) {
         super(context);
-
         this.context = context;
     }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,17 +32,16 @@ public class BottomSheet extends BottomSheetDialog {
         View view = getLayoutInflater().inflate(R.layout.bottom_sheet, null);
         setContentView(view);
 
-        ArrayList items=new ArrayList();
-        items.add( new Item(R.mipmap.ic_sort_up, "Sort by name",R.mipmap.ic_sort_selected) );
-        items.add( new Item(R.mipmap.ic_empty, "Sort by newest",R.mipmap.ic_empty) );
-        items.add( new Item(R.mipmap.ic_empty, "Sort by size",R.mipmap.ic_empty) );
-        items.add(new Item(R.mipmap.ic_empty, "Sort by type",R.mipmap.ic_empty));
+        /*ArrayList items = new ArrayList();
+        items.add(new Item(R.mipmap.ic_sort_up, "Sort by name", R.mipmap.ic_sort_selected));
+        items.add(new Item(R.mipmap.ic_empty, "Sort by newest", R.mipmap.ic_empty));
+        items.add(new Item(R.mipmap.ic_empty, "Sort by size", R.mipmap.ic_empty));
+        items.add(new Item(R.mipmap.ic_empty, "Sort by type", R.mipmap.ic_empty));
 
-        ItemAdapter adapter = new ItemAdapter( this.context, items );
+        ItemAdapter adapter = new ItemAdapter(this.context, items);
 
         //ListView for the items
         ListView listView = (ListView) view.findViewById(R.id.listview);
-        listView.setAdapter(adapter);
-
+        listView.setAdapter(adapter);*/
     }
-    }
+}

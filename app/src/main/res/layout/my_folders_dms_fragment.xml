@@ -28,7 +28,6 @@
                 app:layout_scrollFlags="scroll|exitUntilCollapsed"
                 android:background="@color/white">
 
-
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -47,11 +46,12 @@
                         android:layout_alignParentTop="true">
 
                         <LinearLayout
+                            android:id="@+id/sort"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentLeft="true"
                             android:orientation="horizontal"
-                            android:id="@+id/sort">
+                            android:onClick="openBottomSheet">
 
                             <TextView
                                 android:id="@+id/name_sort"
@@ -93,7 +93,7 @@
                     android:id="@+id/toolbar"
                     android:layout_width="wrap_content"
                     android:layout_height="100dp"
-                    android:layout_below="@id/l1"
+                    android:layout_below="@+id/l1"
                     android:layout_marginLeft="60dp"
                     android:layout_marginStart="0dp"
                     android:layout_marginTop="0dp"
@@ -114,11 +114,12 @@
                             android:layout_alignParentLeft="true"
                             android:layout_alignParentStart="true"
                             android:layout_alignParentTop="true"
-                            android:layout_marginTop="5dp"
-                            android:text="My Folder"
+                            android:layout_marginTop="32dp"
+                            android:text="My Folders"
                             android:textColor="@color/black"
-                            android:textSize="25dp"
-                            android:textStyle="bold">
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:alpha="0.87">
 
                         </TextView>
 
@@ -183,8 +184,16 @@
                     </RelativeLayout>
 
                 </LinearLayout>
+
             </android.support.design.widget.CollapsingToolbarLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/grey"/>
+
         </android.support.design.widget.AppBarLayout>
+
         <android.support.v4.widget.NestedScrollView
             android:id="@+id/nest_scrollview"
             android:layout_width="match_parent"
@@ -218,13 +227,6 @@
             app:menu="@menu/navigation" />
 
         <!--<include layout="@layout/activity_dms_bottom_navigation_view" />-->
-    <!-- Adding bottom sheet after main content -->
-    <include layout="@layout/bottom_sheet"
-        android:layout_marginTop="600dp"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"/>
-
-
 
 </RelativeLayout>
 

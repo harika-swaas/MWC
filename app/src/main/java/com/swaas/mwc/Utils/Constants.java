@@ -27,6 +27,11 @@ public class Constants {
     public static final String TEXT_BACKGROUND_COLOR = "text_background_color";
     public static final String TEXT_FOREGROUND_COLOR = "text_foreground_color";
     public static final String APP_BACKGROUND_COLOR = "app_background_color";
+    public static final String TOOGLEGRID = "toogle-grid";
+    public static final String SORT_BY_NAME = "sort_by_name";
+    public static final String SORT_BY_NEWEST = "sort_by_newest";
+    public static final String SORT_BY_SIZE = "sort_by_size";
+    public static final String SORT_BY_DATE = "sort_by_date";
 
     //Login Status
     public static final int Login_Not_Completed = 0;

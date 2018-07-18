@@ -1,6 +1,5 @@
 package com.swaas.mwc.Fragments;
 
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -9,7 +8,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,10 +18,8 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 import com.swaas.mwc.API.Model.GetCategoryDocumentsRequest;
 import com.swaas.mwc.API.Model.GetCategoryDocumentsResponse;
-import com.swaas.mwc.API.Model.ListPinDevices;
 import com.swaas.mwc.API.Model.ListPinDevicesResponse;
 import com.swaas.mwc.API.Service.GetCategoryDocumentsService;
-import com.swaas.mwc.API.Service.ListPinDevicesService;
 import com.swaas.mwc.Adapters.DmsAdapter;
 import com.swaas.mwc.Adapters.DmsAdapterList;
 import com.swaas.mwc.Common.SimpleDividerItemDecoration;
@@ -45,22 +41,20 @@ import retrofit.Response;
 import retrofit.Retrofit;
 
 /**
- * Created by harika on 11-07-2018.
+ * Created by harika on 16-07-2018.
  */
 
-public class ItemNavigationFolderFragment extends Fragment {
+public class ItemNavigationFolderListFragment extends Fragment {
 
-    DmsAdapter mAdapter;
     DmsAdapterList mAdapterList;
     RecyclerView mRecyclerView;
     View mView;
     AlertDialog mAlertDialog;
     List<GetCategoryDocumentsResponse> mGetCategoryDocumentsResponses;
     boolean mToogleGrid;
-    boolean isSortByName, isSortByNewest, isSortBySize, isSortByDate;
 
-    public static ItemNavigationFolderFragment newInstance() {
-        ItemNavigationFolderFragment fragment = new ItemNavigationFolderFragment();
+    public static ItemNavigationFolderListFragment newInstance() {
+        ItemNavigationFolderListFragment fragment = new ItemNavigationFolderListFragment();
         return fragment;
     }
 
@@ -75,7 +69,6 @@ public class ItemNavigationFolderFragment extends Fragment {
         mView =  inflater.inflate(R.layout.fragment_item_navigation_folder, container, false);
 
         intiaizeViews();
-        getBundleArguments();
         getCategoryDocuments();
 
         return mView;
@@ -84,27 +77,6 @@ public class ItemNavigationFolderFragment extends Fragment {
     private void intiaizeViews() {
 
         mRecyclerView = (RecyclerView) mView.findViewById(R.id.recycler_dms);
-    }
-
-    private void getBundleArguments() {
-
-        Bundle myFolderBundleArgs = getArguments();
-        if(myFolderBundleArgs != null) {
-            mToogleGrid = myFolderBundleArgs.getBoolean(Constants.TOOGLEGRID);
-            isSortByName = myFolderBundleArgs.getBoolean(Constants.SORT_BY_NAME);
-            isSortByNewest = myFolderBundleArgs.getBoolean(Constants.SORT_BY_NEWEST);
-            isSortBySize = myFolderBundleArgs.getBoolean(Constants.SORT_BY_SIZE);
-            isSortByDate = myFolderBundleArgs.getBoolean(Constants.SORT_BY_DATE);
-        } else {
-            mToogleGrid = false;
-        }
-    }
-
-    private void setGridAdapterToView(List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses) {
-
-        mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(),3));
-        mAdapter = new DmsAdapter(getCategoryDocumentsResponses,getActivity());
-        mRecyclerView.setAdapter(mAdapter);
     }
 
     private void getCategoryDocuments() {
@@ -125,20 +97,7 @@ public class ItemNavigationFolderFragment extends Fragment {
             params.put("data", request);
 
             final GetCategoryDocumentsService mGetCategoryDocumentsService = retrofitAPI.create(GetCategoryDocumentsService.class);
-
-            Call call = null;
-
-            if(isSortByName == true) {
-                call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortByName(params, PreferenceUtils.getAccessToken(getActivity()));
-            } else if(isSortByNewest == true) {
-                call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortByType(params, PreferenceUtils.getAccessToken(getActivity()));
-            } else if(isSortBySize == true) {
-                call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortBySize(params, PreferenceUtils.getAccessToken(getActivity()));
-            } else if(isSortByDate == true) {
-                call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortByDate(params, PreferenceUtils.getAccessToken(getActivity()));
-            } else {
-                call = mGetCategoryDocumentsService.getCategoryDocumentsV2(params, PreferenceUtils.getAccessToken(getActivity()));
-            }
+            Call call = mGetCategoryDocumentsService.getCategoryDocumentsV2(params, PreferenceUtils.getAccessToken(getActivity()));
 
             call.enqueue(new Callback<ListPinDevicesResponse<GetCategoryDocumentsResponse>>() {
                 @Override
@@ -152,14 +111,7 @@ public class ItemNavigationFolderFragment extends Fragment {
                             if (apiResponse.status.getCode() == Boolean.FALSE) {
                                 transparentProgressDialog.dismiss();
                                 mGetCategoryDocumentsResponses = response.body().getData();
-                                if(mToogleGrid == false)
-                                {
-                                    setGridAdapterToView(mGetCategoryDocumentsResponses);
-                                }
-                                else
-                                {
-                                    setListAdapterToView(mGetCategoryDocumentsResponses);
-                                }
+                                setListAdapterToView(mGetCategoryDocumentsResponses);
                             }
 
                         } else if (apiResponse.status.getCode() instanceof Integer) {
@@ -215,4 +167,5 @@ public class ItemNavigationFolderFragment extends Fragment {
         mAdapterList = new DmsAdapterList(mGetCategoryDocumentsResponses,getActivity());
         mRecyclerView.setAdapter(mAdapterList);
     }
+
 }

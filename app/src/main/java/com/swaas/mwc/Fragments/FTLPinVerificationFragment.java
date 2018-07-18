@@ -3,17 +3,19 @@ package com.swaas.mwc.Fragments;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.KeyguardManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -21,7 +23,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -30,14 +31,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.afollestad.materialdialogs.DialogAction;
-import com.afollestad.materialdialogs.MaterialDialog;
-import com.github.javiersantos.materialstyleddialogs.MaterialStyledDialog;
-import com.github.javiersantos.materialstyleddialogs.enums.Style;
-import com.google.android.gms.vision.text.Text;
 import com.google.gson.Gson;
-import com.stfalcon.smsverifycatcher.OnSmsCatchListener;
-import com.stfalcon.smsverifycatcher.SmsVerifyCatcher;
 import com.swaas.mwc.API.Model.AccountSettingsResponse;
 import com.swaas.mwc.API.Model.BaseApiResponse;
 import com.swaas.mwc.API.Model.FTLPINResponse;
@@ -63,32 +57,22 @@ import com.swaas.mwc.Dialogs.LoadingProgressDialog;
 import com.swaas.mwc.FTL.FTLPinVerificationActivity;
 import com.swaas.mwc.FTL.FTLRegistrationActivity;
 import com.swaas.mwc.FTL.FTLUserValidationActivity;
-import com.swaas.mwc.Login.Authenticate;
 import com.swaas.mwc.Login.LoginActivity;
 import com.swaas.mwc.Login.Notifiy;
 import com.swaas.mwc.Login.Touchid;
-import com.swaas.mwc.Login.Verify;
 import com.swaas.mwc.Network.NetworkUtils;
 import com.swaas.mwc.Preference.PreferenceUtils;
 import com.swaas.mwc.R;
 import com.swaas.mwc.Retrofit.RetrofitAPIBuilder;
-import com.swaas.mwc.SMSReader.SmsListener;
-import com.swaas.mwc.SMSReader.SmsReceiver;
 import com.swaas.mwc.Utils.Constants;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import dmax.dialog.SpotsDialog;
 import retrofit.Call;
 import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
-import com.swaas.mwc.Manifest;
 
 /**
  * Created by harika on 21-06-2018.
@@ -100,7 +84,7 @@ public class FTLPinVerificationFragment extends Fragment {
     View mView;
     Button mNext;
     TextInputLayout inputLayoutPINNumber;
-    EditText inputPIN;
+    static EditText inputPIN;
     String mEmail, mMobile;
     LinkTextView linkResendView;
     ImageView mBackIv;
@@ -109,7 +93,7 @@ public class FTLPinVerificationFragment extends Fragment {
     AlertDialog mBackDialog;
     private LoginResponse mLoggedInObj;
     String message;
-    String Otp;
+    static String Otp;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -125,16 +109,29 @@ public class FTLPinVerificationFragment extends Fragment {
         intializeViews();
         getIntentData();
         addListenersToViews();
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                receivedSms(message);
-            }
-        }, 4000);
         return mView;
     }
 
-    public void receivedSms(String message) {
+    /*private BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equalsIgnoreCase("otp")) {
+                final String message = intent.getStringExtra("message");
+                inputPIN.setText(message);
+            }
+        }
+    };*/
+
+    public static void receivedSms(final String message) {
+
+        Otp = message.substring(17, 25);
+
+        if(Otp != null) {
+            inputPIN.setText(Otp);
+        }
+    }
+
+    /*public void receivedSms(String message) {
         try
         {
             Otp= message.substring(17,26);
@@ -145,7 +142,7 @@ public class FTLPinVerificationFragment extends Fragment {
 
         catch (Exception e) {
         }
-    }
+    }*/
 
     private void intializeViews() {
 

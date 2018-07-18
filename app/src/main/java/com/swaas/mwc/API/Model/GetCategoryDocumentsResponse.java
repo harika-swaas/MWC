@@ -37,6 +37,10 @@ public class GetCategoryDocumentsResponse {
     @Expose
     private String unix_date;
 
+    @SerializedName("type")
+    @Expose
+    private String type;
+
     public Permissions permission;
 
     public String getObject_id() {
@@ -93,5 +97,13 @@ public class GetCategoryDocumentsResponse {
 
     public void setUnix_date(String unix_date) {
         this.unix_date = unix_date;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

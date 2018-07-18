@@ -4,5 +4,11 @@
     android:layout_height="match_parent"
     tools:context=".DMS.MyFoldersDMSActivity">
 
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_dms"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </android.support.v7.widget.RecyclerView>
 
 </RelativeLayout>

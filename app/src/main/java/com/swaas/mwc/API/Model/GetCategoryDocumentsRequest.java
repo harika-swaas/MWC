@@ -29,6 +29,14 @@ public class GetCategoryDocumentsRequest {
     @Expose
     private String isBuUser;
 
+    public GetCategoryDocumentsRequest(int category_id, String type, String categoryType, String get_folders, String isBuUser){
+        this.category_id = category_id;
+        this.type = type;
+        this.categoryType = categoryType;
+        this.get_folders = get_folders;
+         this.isBuUser = isBuUser;
+    }
+
     public int getCategory_id() {
         return category_id;
     }
