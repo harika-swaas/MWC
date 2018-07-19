@@ -52,6 +52,17 @@
                         android:layout_marginStart="15dp"
                         android:src="@mipmap/ic_folder" />
 
+                    <ImageView
+                        android:id="@+id/selected_item"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_alignParentLeft="@+id/folder"
+                        android:layout_alignTop="@+id/folder"
+                        android:background="@drawable/circle_color"
+                        android:padding="4dp"
+                        android:src="@mipmap/ic_sort_selected"
+                        android:visibility="gone"/>
+
                 </RelativeLayout>
 
                 <RelativeLayout

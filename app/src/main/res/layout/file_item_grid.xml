@@ -39,6 +39,17 @@
             android:src="@mipmap/ic_more"
             android:layout_centerHorizontal="true"/>
 
+        <ImageView
+            android:id="@+id/selected_item"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_alignRight="@+id/folder"
+            android:layout_alignTop="@+id/folder"
+            android:background="@drawable/circle_color"
+            android:padding="4dp"
+            android:src="@mipmap/ic_sort_selected"
+            android:visibility="gone"/>
+
     </RelativeLayout>
 
 </LinearLayout>

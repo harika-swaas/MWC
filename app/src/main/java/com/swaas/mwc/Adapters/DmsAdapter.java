@@ -8,6 +8,11 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,13 +20,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.swaas.mwc.API.Model.GetCategoryDocumentsRequest;
 import com.swaas.mwc.API.Model.GetCategoryDocumentsResponse;
 import com.swaas.mwc.API.Model.ListPinDevicesResponse;
+import com.swaas.mwc.API.Model.WhiteLabelResponse;
 import com.swaas.mwc.API.Service.GetCategoryDocumentsService;
+import com.swaas.mwc.Database.AccountSettings;
 import com.swaas.mwc.Dialogs.LoadingProgressDialog;
 import com.swaas.mwc.Login.LoginActivity;
 import com.swaas.mwc.Network.NetworkUtils;
@@ -29,7 +37,9 @@ import com.swaas.mwc.Preference.PreferenceUtils;
 import com.swaas.mwc.R;
 import com.swaas.mwc.Retrofit.RetrofitAPIBuilder;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -40,33 +50,131 @@ import retrofit.Retrofit;
 
 public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
 
-    final Context context;
+    private Context context;
     private List<GetCategoryDocumentsResponse> mGetCategoryDocumentsResponses;
     private List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses;
-    private OnItemClickListener listener;
+    List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList<>();
     AlertDialog mAlertDialog;
+    private ItemClickListener mClickListener;
 
-    public DmsAdapter(List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses, Activity context) {
+    private HashSet<Integer> mSelected;
+
+    private static final int GRID_ITEM = 0;
+    private static final int LIST_ITEM = 1;
+
+    boolean isSwitchView = true;
+
+    public DmsAdapter(List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses, Activity context){
         this.context = context;
         this.mGetCategoryDocumentsResponses = getCategoryDocumentsResponses;
+        mSelected = new HashSet<>();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        public ImageView imageView;
+    private void setButtonBackgroundColor() {
+
+        getWhiteLabelProperities();
+    }
+
+    private void getWhiteLabelProperities() {
+
+        AccountSettings accountSettings = new AccountSettings(context);
+        accountSettings.SetWhiteLabelCB(new AccountSettings.GetWhiteLabelCB() {
+            @Override
+            public void getWhiteLabelSuccessCB(List<WhiteLabelResponse> whiteLabelResponses) {
+                if (whiteLabelResponses != null && whiteLabelResponses.size() > 0) {
+                    mWhiteLabelResponses = whiteLabelResponses;
+                }
+            }
+
+            @Override
+            public void getWhiteLabelFailureCB(String message) {
+
+            }
+        });
+
+        accountSettings.getWhiteLabelProperties();
+    }
+
+    public void toggleSelection(int pos) {
+        if (mSelected.contains(pos))
+            mSelected.remove(pos);
+        else
+            mSelected.add(pos);
+        notifyItemChanged(pos);
+    }
+
+    public void selectRange(int start, int end, boolean selected) {
+        for (int i = start; i <= end; i++) {
+            if (selected)
+                mSelected.add(i);
+            else
+                mSelected.remove(i);
+        }
+        notifyItemRangeChanged(start, end - start + 1);
+    }
+
+    public HashSet<Integer> getSelection()
+    {
+        return mSelected;
+    }
+
+    public void setClickListener(ItemClickListener itemClickListener)
+    {
+        mClickListener = itemClickListener;
+    }
+
+    public interface ItemClickListener
+    {
+        void onItemClick(View view, int position);
+        boolean onItemLongClick(View view, int position);
+    }
+
+
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener{
+
+        public RelativeLayout gridClick;
+        public ImageView imageView, selectedItemIv;
         public TextView text;
         public View layout;
         ViewHolder vh;
 
-        public ViewHolder(View mView) {
-            super(mView);
-            layout = mView;
-            text = (TextView) mView.findViewById(R.id.folder_name);
-            imageView = (ImageView) mView.findViewById(R.id.folder);
+        public ViewHolder(View itemView) {
+            super(itemView);
+            layout = itemView;
+            text = (TextView) itemView.findViewById(R.id.folder_name);
+            imageView = (ImageView) itemView.findViewById(R.id.folder);
+            selectedItemIv = (ImageView) itemView.findViewById(R.id.selected_item);
+            gridClick = (RelativeLayout) itemView.findViewById(R.id.grid_click);
+            this.itemView.setOnClickListener(this);
+            this.itemView.setOnLongClickListener(this);
+        }
+
+        @Override
+        public void onClick(View view)
+        {
+            if (mClickListener != null)
+                mClickListener.onItemClick(view, getAdapterPosition());
+        }
+
+        @Override
+        public boolean onLongClick(View view)
+        {
+            if (mClickListener != null)
+                return mClickListener.onItemLongClick(view, getAdapterPosition());
+            return false;
         }
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        /*View itemView;
+        if (viewType == LIST_ITEM){
+            itemView = LayoutInflater.from(parent.getContext()).inflate( R.layout.file_items, null);
+        }else{
+            itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.file_item_grid, null);
+        }
+
+        return new ViewHolder(itemView);*/
 
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View v = inflater.inflate(R.layout.file_item_grid, parent, false);
@@ -75,16 +183,51 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
     }
 
     @Override
+    public int getItemViewType (int position) {
+        if (!isSwitchView){
+            return LIST_ITEM;
+        }else{
+            return GRID_ITEM;
+        }
+    }
+
+    @Override
+    public int getItemCount() {
+        return mGetCategoryDocumentsResponses.size();
+    }
+
+    public boolean toggleItemViewType () {
+        isSwitchView = !isSwitchView;
+        return isSwitchView;
+    }
+
+    @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
 
         if (mGetCategoryDocumentsResponses != null && mGetCategoryDocumentsResponses.size() > 0) {
 
+            setButtonBackgroundColor();
+
             if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("category")) {
-                holder.imageView.setImageResource(R.mipmap.ic_folder);
+
+                if (mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
+                    String folderColor = mWhiteLabelResponses.get(0).getFolder_Color();
+                    int itemFolderColor = Color.parseColor(folderColor);
+
+                    if(folderColor != null){
+                        changeDrawableColor(context,R.mipmap.ic_folder, itemFolderColor);
+                    } else {
+                        holder.imageView.setImageResource(R.mipmap.ic_folder);
+                    }
+                }
+
             } else if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document")) {
                 if (mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("pdf")) {
                     holder.imageView.setImageResource(R.mipmap.ic_pdf);
-                } else if (mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("xlsx")) {
+                } else if (mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("xlsx") ||
+                        mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("xls")) {
+                    holder.imageView.setImageResource(R.mipmap.ic_excel);
+                } else {
                     holder.imageView.setImageResource(R.mipmap.ic_excel);
                 }
             }
@@ -100,7 +243,19 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                     }
                 }
             });
+
+            if (mSelected.contains(position)) {
+                holder.selectedItemIv.setVisibility(View.VISIBLE);
+            } else {
+                holder.selectedItemIv.setVisibility(View.GONE);
+            }
         }
+    }
+
+    public static Drawable changeDrawableColor(Context context, int icon, int itemFolderColor) {
+        Drawable mDrawable = ContextCompat.getDrawable(context, icon).mutate();
+        mDrawable.setColorFilter(new PorterDuffColorFilter(itemFolderColor, PorterDuff.Mode.SRC_IN));
+        return mDrawable;
     }
 
     private void getSubCategoryDocuments(String object_id) {
@@ -187,14 +342,5 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         this.mGetCategoryDocumentsResponses.clear();
         this.mGetCategoryDocumentsResponses.addAll(getCategoryDocumentsResponses);
         notifyDataSetChanged();
-    }
-
-    @Override
-    public int getItemCount() {
-        return mGetCategoryDocumentsResponses.size();
-    }
-
-    public interface OnItemClickListener {
-        void onItemClick(String item);
     }
 }

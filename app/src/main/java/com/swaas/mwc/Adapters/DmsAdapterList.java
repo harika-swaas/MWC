@@ -27,6 +27,7 @@ import com.swaas.mwc.R;
 import com.swaas.mwc.Retrofit.RetrofitAPIBuilder;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -41,15 +42,88 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
     private List<GetCategoryDocumentsResponse> mGetCategoryDocumentsResponses;
     private List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses;
     AlertDialog mAlertDialog;
+    private ItemClickListener mClickListener;
+
+    private HashSet<Integer> mSelected;
 
     public DmsAdapterList(List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses, Activity context) {
         this.context = context;
         this.mGetCategoryDocumentsResponses = getCategoryDocumentsResponses;
+        mSelected = new HashSet<>();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public void toggleSelection(int pos)
+    {
+        if (mSelected.contains(pos))
+            mSelected.remove(pos);
+        else
+            mSelected.add(pos);
+        notifyItemChanged(pos);
+    }
 
-        public ImageView imageView;
+    public void select(int pos, boolean selected)
+    {
+        if (selected)
+            mSelected.add(pos);
+        else
+            mSelected.remove(pos);
+        notifyItemChanged(pos);
+    }
+
+    public void selectRange(int start, int end, boolean selected)
+    {
+        for (int i = start; i <= end; i++)
+        {
+            if (selected)
+                mSelected.add(i);
+            else
+                mSelected.remove(i);
+        }
+        notifyItemRangeChanged(start, end - start + 1);
+    }
+
+    public void deselectAll()
+    {
+        // this is not beautiful...
+        mSelected.clear();
+        notifyDataSetChanged();
+    }
+
+    /*public void selectAll()
+    {
+        for (int i = 0; i < mGetCategoryDocumentsResponses; i++)
+            mSelected.add(i);
+        notifyDataSetChanged();
+    }*/
+
+    public int getCountSelected()
+    {
+        return mSelected.size();
+    }
+
+    public HashSet<Integer> getSelection()
+    {
+        return mSelected;
+    }
+
+    // ----------------------
+    // Click Listener
+    // ----------------------
+
+    public void setClickListener(ItemClickListener itemClickListener)
+    {
+        mClickListener = itemClickListener;
+    }
+
+    public interface ItemClickListener
+    {
+        void onItemClick(View view, int position);
+        boolean onItemLongClick(View view, int position);
+    }
+
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
+
+        public ImageView imageView, selectedItemIv;
         public TextView folder_name;
         public View layout;
         public TextView folder_date;
@@ -63,8 +137,26 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
             folder_name = (TextView) mView.findViewById(R.id.folder_name);
             imageView = (ImageView) mView.findViewById(R.id.folder);
             folder_date = (TextView) mView.findViewById(R.id.folder_date);
+            selectedItemIv = (ImageView) itemView.findViewById(R.id.selected_item);
             indicatorParentView = (RelativeLayout) mView.findViewById(R.id.nameIndicatorParentView);
             indicatorTextValue = (TextView) mView.findViewById(R.id.indicatorTextValueView);
+            this.itemView.setOnClickListener(this);
+            this.itemView.setOnLongClickListener(this);
+        }
+
+        @Override
+        public void onClick(View view)
+        {
+            if (mClickListener != null)
+                mClickListener.onItemClick(view, getAdapterPosition());
+        }
+
+        @Override
+        public boolean onLongClick(View view)
+        {
+            if (mClickListener != null)
+                return mClickListener.onItemLongClick(view, getAdapterPosition());
+            return false;
         }
     }
 
@@ -130,6 +222,12 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                     }
                 }
             });
+
+            if (mSelected.contains(position)) {
+                holder.selectedItemIv.setVisibility(View.VISIBLE);
+            } else {
+                holder.selectedItemIv.setVisibility(View.GONE);
+            }
         }
     }
 

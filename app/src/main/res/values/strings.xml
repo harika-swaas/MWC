@@ -98,4 +98,17 @@
     <string name="sort_by_newest">Sort by newest</string>
     <string name="sort_by_size">Sort by size</string>
     <string name="sort_by_date">Sort by date</string>
+    <string name="menu_item_delete">Delete</string>
+    <string name="menu_item_share">Share</string>
+    <string name="menu_item_more">more</string>
+    <string name="clear_selection">Clear selection</string>
+    <string name="share_item">Share</string>
+    <string name="copy">Copy</string>
+    <string name="move">Move</string>
+    <string name="delete">Delete</string>
+    <string name="rename">Rename</string>
+    <string name="available_offline">Available offline</string>
+    <string name="menu_item_search">Search</string>
+    <string name="menu_item_add">Add</string>
+    <string name="menu_item_move">Move</string>
 </resources>
