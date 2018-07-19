@@ -67,12 +67,12 @@ public class MyFoldersDMSActivity extends RootActivity {
     }
 
     private void addListenersToViews() {
-        select.setOnClickListener(new View.OnClickListener() {
+      /*  select.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
             }
-        });
+        });*/
 
 
         toggle.setOnClickListener(new View.OnClickListener() {
@@ -83,7 +83,7 @@ public class MyFoldersDMSActivity extends RootActivity {
                 {
                     toggle.setImageResource(R.mipmap.ic_list);
                     if(mSelectedItem != 0) {
-                        if (mSelectedItem == FOLDER_FRAGMENT) {
+                            if (mSelectedItem == FOLDER_FRAGMENT) {
 
                             Bundle mBundle = new Bundle();
                             ItemNavigationFolderFragment itemNavigationFolderFragment = ItemNavigationFolderFragment.newInstance();

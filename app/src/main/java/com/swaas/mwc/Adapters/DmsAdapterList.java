@@ -1,9 +1,5 @@
 package com.swaas.mwc.Adapters;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -15,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
@@ -28,6 +25,10 @@ import com.swaas.mwc.Network.NetworkUtils;
 import com.swaas.mwc.Preference.PreferenceUtils;
 import com.swaas.mwc.R;
 import com.swaas.mwc.Retrofit.RetrofitAPIBuilder;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import retrofit.Call;
 import retrofit.Callback;
@@ -53,6 +54,8 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
         public View layout;
         public TextView folder_date;
         ViewHolder vh;
+        RelativeLayout indicatorParentView;
+        TextView indicatorTextValue;
 
         public ViewHolder(View mView) {
             super(mView);
@@ -60,6 +63,8 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
             folder_name = (TextView) mView.findViewById(R.id.folder_name);
             imageView = (ImageView) mView.findViewById(R.id.folder);
             folder_date = (TextView) mView.findViewById(R.id.folder_date);
+            indicatorParentView = (RelativeLayout) mView.findViewById(R.id.nameIndicatorParentView);
+            indicatorTextValue = (TextView) mView.findViewById(R.id.indicatorTextValueView);
         }
     }
 
@@ -74,6 +79,9 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
 
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
+
+        final GetCategoryDocumentsResponse resp = mGetCategoryDocumentsResponses.get(position);
+       // DmsAdapterList1();
 
         if(mGetCategoryDocumentsResponses != null && mGetCategoryDocumentsResponses.size() > 0) {
 
@@ -93,6 +101,27 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
             final String createdDate = mGetCategoryDocumentsResponses.get(position).getCreated_date();
             holder.folder_date.setText(createdDate);
 
+            if(position > 0){
+                char poschar = resp.getName().toUpperCase().charAt(0);
+                char prevchar = mGetCategoryDocumentsResponses.get(position-1).getName().toUpperCase().charAt(0);
+                if(poschar == prevchar){
+                    holder.indicatorParentView.setVisibility(View.GONE);
+                }else{
+                    holder.indicatorParentView.setVisibility(View.VISIBLE);
+                    holder.indicatorTextValue.setText(String.valueOf(mGetCategoryDocumentsResponses.get(position).getName().charAt(0)));
+                }
+            }else{
+                holder.indicatorParentView.setVisibility(View.VISIBLE);
+                holder.indicatorTextValue.setText(String.valueOf(mGetCategoryDocumentsResponses.get(position).getName().charAt(0)));
+            }
+
+            /*if (!TextUtils.isEmpty(mGetCategoryDocumentsResponses.get(position).getName())) {
+                holder.indicatorParentView.setVisibility(View.VISIBLE);
+                holder.indicatorTextValue.setText(String.valueOf(mGetCategoryDocumentsResponses.get(position).getName().charAt(0)));
+            }
+            else {
+                holder.indicatorParentView.setVisibility(View.GONE);
+            }*/
             holder.imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -194,4 +223,17 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
         this.mGetCategoryDocumentsResponses.addAll(getCategoryDocumentsResponses);
         notifyDataSetChanged();
     }
+    /*public List<List<GetCategoryDocumentsResponse>> DmsAdapterList1() {
+        char j='a',k = 'A';
+       List<List<GetCategoryDocumentsResponse>> sortedlist = null;
+       for (int i=0;i<getCategoryDocumentsResponses.size();i++)
+       {
+           for(j='a',k='A';j<='z'&& k<='Z';++j,++k)
+           if((String.valueOf(mGetCategoryDocumentsResponses.get(i).getName().charAt(0))=="j")||(String.valueOf(mGetCategoryDocumentsResponses.get(i).getName().charAt(0))=="k"))
+           {
+                sortedlist.add(getCategoryDocumentsResponses);
+           }
+       }
+       return sortedlist;
+    }*/
 }

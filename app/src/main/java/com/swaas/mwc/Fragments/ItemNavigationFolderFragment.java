@@ -9,7 +9,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,10 +19,8 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 import com.swaas.mwc.API.Model.GetCategoryDocumentsRequest;
 import com.swaas.mwc.API.Model.GetCategoryDocumentsResponse;
-import com.swaas.mwc.API.Model.ListPinDevices;
 import com.swaas.mwc.API.Model.ListPinDevicesResponse;
 import com.swaas.mwc.API.Service.GetCategoryDocumentsService;
-import com.swaas.mwc.API.Service.ListPinDevicesService;
 import com.swaas.mwc.Adapters.DmsAdapter;
 import com.swaas.mwc.Adapters.DmsAdapterList;
 import com.swaas.mwc.Common.SimpleDividerItemDecoration;
@@ -35,6 +32,8 @@ import com.swaas.mwc.R;
 import com.swaas.mwc.Retrofit.RetrofitAPIBuilder;
 import com.swaas.mwc.Utils.Constants;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -102,6 +101,12 @@ public class ItemNavigationFolderFragment extends Fragment {
 
     private void setGridAdapterToView(List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses) {
 
+        Collections.sort(mGetCategoryDocumentsResponses, new Comparator<GetCategoryDocumentsResponse>() {
+            @Override
+            public int compare(GetCategoryDocumentsResponse lhs, GetCategoryDocumentsResponse rhs) {
+                return lhs.getName().compareTo(rhs.getName());
+            }
+        });
         mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(),3));
         mAdapter = new DmsAdapter(getCategoryDocumentsResponses,getActivity());
         mRecyclerView.setAdapter(mAdapter);
@@ -208,6 +213,8 @@ public class ItemNavigationFolderFragment extends Fragment {
     }
 
     private void setListAdapterToView(List<GetCategoryDocumentsResponse> mGetCategoryDocumentsResponses) {
+
+
 
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
