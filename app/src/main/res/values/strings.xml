@@ -111,4 +111,17 @@
     <string name="menu_item_search">Search</string>
     <string name="menu_item_add">Add</string>
     <string name="menu_item_move">Move</string>
+    <string name="File_Name">File Name</string>
+    <string name="Name">Name</string>
+    <string name="Version">Version</string>
+    <string name="Type">Type</string>
+    <string name="Size">Size</string>
+    <string name="Uploaded_date">Uploaded Date</string>
+    <string name="Author">Author</string>
+    <string name="Creation_date">Creation Date</string>
+    <string name="Search_tags">Search Tags</string>
+    <string name="Certificates">Certificates</string>
+    <string name="Createdby">Johnsmith on 12 May</string>
+    <string name="lorem">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla mollis urna a mollis sagittis. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Proin pellentesque rhoncus ligula eu aliquam.</string>
+    <string name="identity">Identity Validation</string>
 </resources>
