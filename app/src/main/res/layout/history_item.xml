@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="20dp"
+        android:id="@+id/r1">
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/his_filename"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Certificates.pdf"
+                android:textSize="20sp"
+                android:textColor="@color/black"/>
+            <TextView
+                android:id="@+id/his_version"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Version number 1"
+                android:textColor="@color/black"
+                android:layout_marginTop="30dp"
+                android:textSize="15sp"/>
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="60dp">
+            <TextView
+                android:id="@+id/his_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Updated on Apr 12 2018"/>
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    <view
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@+id/r1"/>
+</LinearLayout>

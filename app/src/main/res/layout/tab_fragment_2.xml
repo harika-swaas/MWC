@@ -1,84 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.swaas.mwc.Fragments.Notes_Fragment">
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="20dp"
-        android:id="@+id/r1">
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/Certificates"
-                android:textSize="20sp"
-                android:textColor="@color/black"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/Createdby"
-                android:textColor="@color/black"
-                android:layout_marginTop="30dp"
-                android:textSize="15sp"/>
-        </RelativeLayout>
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="60dp">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/lorem"/>
-        </RelativeLayout>
 
-    </RelativeLayout>
-
-    <view
+    <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_below="@+id/r1"/>
-    <RelativeLayout
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="20dp"
-        android:id="@+id/r2"
-        android:layout_below="@id/r1">
+        android:id="@+id/notes">
+    </android.support.v7.widget.RecyclerView>
 
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/identity"
-                android:textSize="20sp"
-                android:textColor="@color/black"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/Createdby"
-                android:textColor="@color/black"
-                android:layout_marginTop="30dp"
-                android:textSize="15sp"/>
-        </RelativeLayout>
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="60dp">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/lorem"/>
-        </RelativeLayout>
-
-    </RelativeLayout>
-    <view
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_below="@+id/r2"/>
 </RelativeLayout>

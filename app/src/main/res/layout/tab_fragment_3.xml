@@ -4,81 +4,10 @@
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.swaas.mwc.Fragments.History_Fragment">
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="20dp"
-        android:id="@+id/r1">
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Certificates.pdf"
-                android:textSize="20sp"
-                android:textColor="@color/black"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Version number 1"
-                android:textColor="@color/black"
-                android:layout_marginTop="30dp"
-                android:textSize="15sp"/>
-        </RelativeLayout>
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="60dp">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Updated on Apr 12 2018"/>
-        </RelativeLayout>
 
-    </RelativeLayout>
-
-    <view
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/lis_history"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_below="@+id/r1"/>
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="20dp"
-        android:id="@+id/r2"
-        android:layout_below="@id/r1">
-
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Identity Certificates.pdf"
-                android:textSize="20sp"
-                android:textColor="@color/black"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Version number 1"
-                android:textColor="@color/black"
-                android:layout_marginTop="30dp"
-                android:textSize="15sp"/>
-        </RelativeLayout>
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="60dp">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Updated on May 02 2018"/>
-        </RelativeLayout>
-
-    </RelativeLayout>
-    <view
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_below="@+id/r2"/>
+        android:layout_height="wrap_content">
+    </android.support.v7.widget.RecyclerView>
 </RelativeLayout>

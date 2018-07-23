@@ -121,7 +121,8 @@
     <string name="Creation_date">Creation Date</string>
     <string name="Search_tags">Search Tags</string>
     <string name="Certificates">Certificates</string>
-    <string name="Createdby">Johnsmith on 12 May</string>
+    <string name="Createdby">Johnsmith </string>
+    <string name="date">on 12 May</string>
     <string name="lorem">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla mollis urna a mollis sagittis. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Proin pellentesque rhoncus ligula eu aliquam.</string>
     <string name="identity">Identity Validation</string>
 </resources>

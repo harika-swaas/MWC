@@ -78,6 +78,9 @@
         <activity
             android:name=".DMS.MyFoldersDMSActivity"
             android:screenOrientation="portrait"/>
+        <activity
+            android:name=".DMS.Tab_Activity"
+            android:screenOrientation="portrait"/>
 
         <receiver android:name=".ReadSms">
             <intent-filter>

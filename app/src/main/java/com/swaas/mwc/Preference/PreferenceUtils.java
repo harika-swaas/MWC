@@ -21,7 +21,9 @@ public class PreferenceUtils {
     private static final String MOBILE_ITEM_ENABLE_COLOR = "mobileItemEnableColor";
     private static final String MOBILE_ITEM_DISABLE_COLOR = "mobileItemDisableColor";
     private static final String DOC_PORTAL_LOGGED_IN_OBJ = "doc_portal_logged_in_obj";
+    private static final String DOCUMENT_VERSION_ID = "document_version_id";
     private static final int TERMS_ACCEPT = 1;
+    private static  final String DOCUMENT_ID="document_id";
 
     public static void setAccessToken(Context context, String accesstoken) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
@@ -137,4 +139,30 @@ public class PreferenceUtils {
         String loggedInString = sharedPreferences.getString("loggedFTLObj", null);
         return loggedInString;
     }
+
+    public static void setDocumentVersionId(Context context, String documentVersionId) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(DOCUMENT_VERSION_ID, documentVersionId);
+        editor.commit();
+    }
+
+    public static String getDocumentVersionId(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        String documentVersionId = sharedPreferences.getString(DOCUMENT_VERSION_ID, null);
+        return documentVersionId;
+    }
+    public static void setDocument_Id(Context context, String document_id) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(DOCUMENT_ID, document_id);
+        editor.commit();
+    }
+
+    public static String getDocument_Id(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        String document_id = sharedPreferences.getString(DOCUMENT_ID, null);
+        return document_id;
+    }
+
 }

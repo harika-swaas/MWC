@@ -12,14 +12,17 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -66,7 +69,7 @@ import retrofit.Retrofit;
  */
 
 public class MyFoldersDMSActivity extends RootActivity {
-
+    static Boolean isTouched = false;
     public static final int FOLDER_FRAGMENT = 1;
     public static final int SHARED_FRAGMENT = 2;
     public static final int SETTINGS_FRAGMENT = 3;
@@ -80,6 +83,7 @@ public class MyFoldersDMSActivity extends RootActivity {
     ItemNavigationSettingsFragment mSettingsFragment;
     ImageView select;
     ImageView toggle;
+    Button button;
     boolean check = false;
     int backButtonCount=0;
     CollapsingToolbarLayout collapsingToolbarLayout;
@@ -117,7 +121,7 @@ public class MyFoldersDMSActivity extends RootActivity {
         mBottomNavigationView = (BottomNavigationView) findViewById(R.id.navigation);
         toggle = (ImageView) findViewById(R.id.toggle);
         sortingView = (LinearLayout) findViewById(R.id.sort);
-
+        button=(Button) findViewById(R.id.button2);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
@@ -135,7 +139,14 @@ public class MyFoldersDMSActivity extends RootActivity {
     }
 
     private void addListenersToViews() {
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
+                Intent intent = new Intent(MyFoldersDMSActivity.this,Tab_Activity.class);
+                startActivity(intent);
+            }
+        });
         sortingView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -665,13 +676,39 @@ public class MyFoldersDMSActivity extends RootActivity {
         TextView delete = (TextView) view.findViewById(R.id.delete);
         RelativeLayout availableOfflineLayout = (RelativeLayout) view.findViewById(R.id.available_offline_layout);
         RelativeLayout shareLayout = (RelativeLayout) view.findViewById(R.id.share_layout);
-
+        SwitchCompat download=(SwitchCompat) view.findViewById(R.id.switchButton_download);
         final Dialog mBottomSheetDialog = new Dialog(this, R.style.MaterialDialogSheet);
         mBottomSheetDialog.setContentView(view);
         mBottomSheetDialog.setCancelable(true);
         mBottomSheetDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         mBottomSheetDialog.getWindow().setGravity(Gravity.BOTTOM);
         mBottomSheetDialog.show();
+
+        download.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                isTouched = true;
+                return false;
+            }
+        });
+
+        download.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
+        {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+            {
+                if (isTouched) {
+                    isTouched = false;
+                    if (isChecked) {
+
+                        downloaddoc();
+                    }
+                    else {
+                    }
+                }
+            }
+        });
+
 
         List<GetCategoryDocumentsResponse> categoryDocumentsResponseFolderList = new ArrayList<>();
         List<GetCategoryDocumentsResponse> categoryDocumentsResponseDocumentList = new ArrayList<>();
@@ -721,6 +758,11 @@ public class MyFoldersDMSActivity extends RootActivity {
 
             }
         });
+    }
+
+    private void downloaddoc() {
+
+
     }
 
     private void setListAdapterToView(final List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses) {

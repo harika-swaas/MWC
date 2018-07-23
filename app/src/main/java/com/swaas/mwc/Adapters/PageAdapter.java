@@ -14,7 +14,7 @@ import com.swaas.mwc.Fragments.Properties_Fragment;
 
 public class PageAdapter extends FragmentStatePagerAdapter {
     int mNumOfTabs;
-
+    Fragment mfragment;
     public PageAdapter(FragmentManager fm, int NumOfTabs) {
         super(fm);
         this.mNumOfTabs = NumOfTabs;
