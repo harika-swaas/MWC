@@ -8,6 +8,9 @@ public class DocumentPropertiesRequest {
 
     String document_version_id;
 
+    public DocumentPropertiesRequest(String ver_id) {
+        this.document_version_id=ver_id;
+    }
 
 
     public String getDocument_version_id() {

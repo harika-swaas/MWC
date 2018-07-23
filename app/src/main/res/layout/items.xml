@@ -24,7 +24,7 @@
         android:layout_marginTop="10dp"
         android:text="@string/email"
         android:textColor="@color/black_semi_transparent"
-        android:textSize="17dp" />
+        android:textSize="14dp" />
 
     <RadioButton
         android:id="@+id/user_pin_device_radio_type"

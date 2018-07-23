@@ -9,6 +9,10 @@ public class DocumentHistoryRequest {
 
     String document_id;
 
+    public  DocumentHistoryRequest(String doc_id){
+        this.document_id=doc_id;
+    }
+
     public String getDocument_id() {
         return document_id;
     }

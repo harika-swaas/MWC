@@ -57,15 +57,15 @@ public class Properties_Fragment extends Fragment{
 
             View mView= inflater.inflate(R.layout.tab_fragment_1, container, false);
 
-            filename= (TextView) mView.findViewById(R.id.textView18);
-            name= (TextView) mView.findViewById(R.id.textView12);
-            version= (TextView) mView.findViewById(R.id.filename);
-            type= (TextView) mView.findViewById(R.id.textView10);
-            size= (TextView) mView.findViewById(R.id.textView14);
-            uploaded_date= (TextView) mView.findViewById(R.id.textView15);
-            author= (TextView) mView.findViewById(R.id.textView16);
-            created_date= (TextView) mView.findViewById(R.id.textView13);
-            search_tags= (TextView) mView.findViewById(R.id.textView11);
+            filename= (TextView) mView.findViewById(R.id.filename);
+            name= (TextView) mView.findViewById(R.id.name);
+            version= (TextView) mView.findViewById(R.id.version);
+            type= (TextView) mView.findViewById(R.id.type);
+            size= (TextView) mView.findViewById(R.id.size);
+            uploaded_date= (TextView) mView.findViewById(R.id.uploaded_date);
+            author= (TextView) mView.findViewById(R.id.author);
+            created_date= (TextView) mView.findViewById(R.id.creation_date);
+            search_tags= (TextView) mView.findViewById(R.id.tags);
             getdocumentdetails();
             /*intiaizeViews();*/
             return mView;
@@ -94,8 +94,7 @@ public class Properties_Fragment extends Fragment{
             final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(getActivity());
             transparentProgressDialog.show();
 
-            DocumentPropertiesRequest documentPropertiesRequest = new DocumentPropertiesRequest();
-            documentPropertiesRequest.setDocument_version_id("12178");
+            DocumentPropertiesRequest documentPropertiesRequest = new DocumentPropertiesRequest(PreferenceUtils.getDocumentVersionId(getActivity()));
             String request = new Gson().toJson(documentPropertiesRequest);
 
             //Here the json data is add to a hash map with key data
@@ -123,7 +122,13 @@ public class Properties_Fragment extends Fragment{
                                 uploaded_date.setText(String.valueOf(documentPropertiesResponse.get(0).getUploaded_date()));
                                 version.setText(String.valueOf(documentPropertiesResponse.get(0).getVersion_number()));
                                 created_date.setText(String.valueOf(documentPropertiesResponse.get(0).getCreation_date()));
-                                search_tags.setText(String.valueOf(documentPropertiesResponse.get(0).getTag()));
+                                String tags = String.valueOf(documentPropertiesResponse.get(0).getTag());
+
+                                for(int i = 0; i<tags.length() ; i++)
+                                {
+
+                                }
+                                search_tags.setText(documentPropertiesResponse.get(0).getTag());
                             }
 
                         else {

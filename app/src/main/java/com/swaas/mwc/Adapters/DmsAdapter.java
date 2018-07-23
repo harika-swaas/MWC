@@ -205,7 +205,8 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
     public void onBindViewHolder(ViewHolder holder, final int position) {
 
         if (mGetCategoryDocumentsResponses != null && mGetCategoryDocumentsResponses.size() > 0) {
-
+            PreferenceUtils.setDocumentVersionId(context,mGetCategoryDocumentsResponses.get(position).getDocument_version_id());
+            PreferenceUtils.setDocument_Id(context,mGetCategoryDocumentsResponses.get(position).getObject_id());
             setButtonBackgroundColor();
 
             if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("category")) {

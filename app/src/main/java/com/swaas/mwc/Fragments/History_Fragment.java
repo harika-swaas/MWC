@@ -36,6 +36,8 @@ import retrofit.Retrofit;
 public class History_Fragment extends android.support.v4.app.Fragment {
     Tab_Activity mActivity;
     RecyclerView recyclerView;
+    HistoryAdapter historyAdapter;
+
     List<DocumentHistoryResponse> documentHistoryResponses;
     public static History_Fragment newInstance() {
         History_Fragment fragment = new History_Fragment();
@@ -66,8 +68,7 @@ public class History_Fragment extends android.support.v4.app.Fragment {
             final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(getActivity());
             transparentProgressDialog.show();
 
-            DocumentHistoryRequest documentHistoryRequest = new DocumentHistoryRequest();
-            documentHistoryRequest.setDocument_id("11871");
+            DocumentHistoryRequest documentHistoryRequest = new DocumentHistoryRequest(PreferenceUtils.getDocument_Id(getActivity()));
             final String request = new Gson().toJson(documentHistoryRequest);
 
             //Here the json data is add to a hash map with key data
@@ -85,7 +86,7 @@ public class History_Fragment extends android.support.v4.app.Fragment {
                         if (apiResponse.status.getCode() == Boolean.FALSE) {
                             transparentProgressDialog.dismiss();
                             documentHistoryResponses = response.body().getData();
-                            onBindAdapter();
+                            onBindAdapter(documentHistoryResponses);
 
                         }
 
@@ -112,12 +113,13 @@ public class History_Fragment extends android.support.v4.app.Fragment {
         }
     }
 
-    private void onBindAdapter() {
+    private void onBindAdapter(List<DocumentHistoryResponse> documentHistoryResponses) {
 
-        HistoryAdapter historyAdapter;
-        historyAdapter = new HistoryAdapter(documentHistoryResponses,getActivity());
+
+
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        historyAdapter = new HistoryAdapter(documentHistoryResponses,getActivity());
         recyclerView.setAdapter(historyAdapter);
 
 

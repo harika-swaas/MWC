@@ -8,6 +8,10 @@ public class DocumentNotesRequest {
 
 
     String document_id;
+    public  DocumentNotesRequest(String doc_id)
+    {
+        this.document_id=doc_id;
+    }
 
     public String getDocument_id() {
         return document_id;

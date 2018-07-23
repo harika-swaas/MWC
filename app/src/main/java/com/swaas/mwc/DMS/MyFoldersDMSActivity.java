@@ -121,7 +121,6 @@ public class MyFoldersDMSActivity extends RootActivity {
         mBottomNavigationView = (BottomNavigationView) findViewById(R.id.navigation);
         toggle = (ImageView) findViewById(R.id.toggle);
         sortingView = (LinearLayout) findViewById(R.id.sort);
-        button=(Button) findViewById(R.id.button2);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
@@ -139,14 +138,7 @@ public class MyFoldersDMSActivity extends RootActivity {
     }
 
     private void addListenersToViews() {
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-                Intent intent = new Intent(MyFoldersDMSActivity.this,Tab_Activity.class);
-                startActivity(intent);
-            }
-        });
         sortingView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -671,7 +663,7 @@ public class MyFoldersDMSActivity extends RootActivity {
 
         TextView clearSelection = (TextView) view.findViewById(R.id.clear_selection);
         TextView copy = (TextView) view.findViewById(R.id.copy);
-        TextView move = (TextView) view.findViewById(R.id.move);
+        final TextView move = (TextView) view.findViewById(R.id.move);
         TextView rename = (TextView) view.findViewById(R.id.rename);
         TextView delete = (TextView) view.findViewById(R.id.delete);
         RelativeLayout availableOfflineLayout = (RelativeLayout) view.findViewById(R.id.available_offline_layout);
@@ -683,6 +675,14 @@ public class MyFoldersDMSActivity extends RootActivity {
         mBottomSheetDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         mBottomSheetDialog.getWindow().setGravity(Gravity.BOTTOM);
         mBottomSheetDialog.show();
+
+        rename.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent (MyFoldersDMSActivity.this,Tab_Activity.class);
+                startActivity(intent);
+            }
+        });
 
         download.setOnTouchListener(new View.OnTouchListener() {
             @Override
