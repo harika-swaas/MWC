@@ -240,10 +240,12 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
                                 if(mToogleGrid == false)
                                 {
                                        setGridAdapterToView(mGetCategoryDocumentsResponses);
+                                       mAdapter.notifyDataSetChanged();
                                 }
                                 else
                                 {
                                     setListAdapterToView(mGetCategoryDocumentsResponses);
+                                    mAdapterList.notifyDataSetChanged();
                                 }
                             }
 

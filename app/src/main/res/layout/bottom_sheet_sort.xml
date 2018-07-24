@@ -51,7 +51,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:layout_marginLeft="24dp"
+                    android:layout_marginLeft="5dp"
                     android:layout_toRightOf="@+id/download_image"
                     android:alpha="0.87"
                     android:gravity="center_vertical"
@@ -92,7 +92,7 @@
                     android:id="@+id/share"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="24dp"
+                    android:layout_marginLeft="5dp"
                     android:layout_toRightOf="@+id/share_image"
                     android:alpha="0.87"
                     android:gravity="center_vertical"
@@ -101,7 +101,7 @@
                     android:textColor="@color/black"
                     android:textSize="16sp"
                     android:visibility="visible"
-                    android:layout_centerVertical="true"/>
+                     />
 
                 <android.support.v7.widget.SwitchCompat
                     android:id="@+id/switchButton_share"

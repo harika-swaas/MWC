@@ -1,10 +1,16 @@
 package com.swaas.mwc.DMS;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -29,13 +35,20 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.clans.fab.FloatingActionButton;
+import com.github.clans.fab.FloatingActionMenu;
 import com.google.gson.Gson;
 import com.michaelflisar.dragselectrecyclerview.DragSelectTouchListener;
 import com.michaelflisar.dragselectrecyclerview.DragSelectionProcessor;
+import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.RequestBody;
 import com.swaas.mwc.API.Model.GetCategoryDocumentsRequest;
 import com.swaas.mwc.API.Model.GetCategoryDocumentsResponse;
 import com.swaas.mwc.API.Model.ListPinDevicesResponse;
+import com.swaas.mwc.API.Model.UploadEndUserDocumentsRequest;
+import com.swaas.mwc.API.Model.UploadEndUsersDocumentResponse;
 import com.swaas.mwc.API.Service.GetCategoryDocumentsService;
+import com.swaas.mwc.API.Service.UploadEndUsersDocumentService;
 import com.swaas.mwc.Adapters.DmsAdapter;
 import com.swaas.mwc.Adapters.DmsAdapterList;
 import com.swaas.mwc.Common.SimpleDividerItemDecoration;
@@ -51,12 +64,17 @@ import com.swaas.mwc.Retrofit.RetrofitAPIBuilder;
 import com.swaas.mwc.RootActivity;
 import com.swaas.mwc.Utils.Constants;
 
+import java.io.File;
+import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import retrofit.Call;
@@ -101,6 +119,11 @@ public class MyFoldersDMSActivity extends RootActivity {
     private DragSelectTouchListener mDragSelectTouchListener;
     private DragSelectionProcessor mDragSelectionProcessor;
     MenuItem menuItemAdd, menuItemSearch, menuItemDelete, menuItemShare, menuItemMove, menuItemMore;
+    FloatingActionMenu floatingActionMenu;
+    FloatingActionButton actionUpload,actionCamera,actionNewFolder;
+    Uri fileUri;
+    private static final int REQUEST_GALLERY_CODE = 200;
+    private static final int READ_REQUEST_CODE = 300;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,6 +144,11 @@ public class MyFoldersDMSActivity extends RootActivity {
         mBottomNavigationView = (BottomNavigationView) findViewById(R.id.navigation);
         toggle = (ImageView) findViewById(R.id.toggle);
         sortingView = (LinearLayout) findViewById(R.id.sort);
+        floatingActionMenu = (FloatingActionMenu) findViewById(R.id.floating_action_menu);
+        actionUpload = (FloatingActionButton) findViewById(R.id.menu_upload_item);
+        actionCamera = (FloatingActionButton) findViewById(R.id.menu_camera_item);
+        actionNewFolder = (FloatingActionButton) findViewById(R.id.menu_new_folder_item);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
@@ -137,7 +165,145 @@ public class MyFoldersDMSActivity extends RootActivity {
         collapsingToolbarLayout.setExpandedTitleTextAppearance(R.style.expandedappbar);
     }
 
+    private void openFloatingBottomSheet() {
+
+        View view = getLayoutInflater().inflate(R.layout.bottom_sheet_floating_action_menu, null);
+
+        final TextView upload = (TextView) view.findViewById(R.id.upload);
+        TextView newFolder = (TextView) view.findViewById(R.id.new_folder);
+
+        final Dialog mBottomSheetDialog = new Dialog(MyFoldersDMSActivity.this, R.style.MaterialDialogSheet);
+        mBottomSheetDialog.setContentView(view);
+        mBottomSheetDialog.setCancelable(true);
+        mBottomSheetDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        mBottomSheetDialog.getWindow().setGravity(Gravity.BOTTOM);
+        mBottomSheetDialog.show();
+
+        upload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mBottomSheetDialog.dismiss();
+                openUploadBottomSheet();
+            }
+        });
+
+        newFolder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mBottomSheetDialog.dismiss();
+            }
+        });
+    }
+
+    private void openUploadBottomSheet() {
+        View view = getLayoutInflater().inflate(R.layout.bottom_sheet_upload, null);
+
+        final TextView camera = (TextView) view.findViewById(R.id.camera);
+        TextView photoLibrary = (TextView) view.findViewById(R.id.photo_library);
+        TextView browse = (TextView) view.findViewById(R.id.browse);
+        TextView cancel = (TextView) view.findViewById(R.id.cancel);
+
+        final Dialog mBottomSheetDialog = new Dialog(MyFoldersDMSActivity.this, R.style.MaterialDialogSheet);
+        mBottomSheetDialog.setContentView(view);
+        mBottomSheetDialog.setCancelable(true);
+        mBottomSheetDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        mBottomSheetDialog.getWindow().setGravity(Gravity.BOTTOM);
+        mBottomSheetDialog.show();
+
+        camera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mBottomSheetDialog.dismiss();
+                /*Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                fileUri = getOutputMediaFileUri(1);
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+                startActivityForResult(intent,1001);*/
+            }
+        });
+
+        photoLibrary.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mBottomSheetDialog.dismiss();
+            }
+        });
+
+        browse.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mBottomSheetDialog.dismiss();
+                Intent openGalleryIntent = new Intent(Intent.ACTION_PICK);
+                openGalleryIntent.setType("image/*");
+                startActivityForResult(openGalleryIntent, REQUEST_GALLERY_CODE);
+            }
+        });
+
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mBottomSheetDialog.dismiss();
+            }
+        });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        //EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, MyFoldersDMSActivity.this);
+    }
+
+    /*public Uri getOutputMediaFileUri(int type) {
+        return Uri.fromFile(getOutputMediaFile(type));
+    }*/
+
+    /*private static File getOutputMediaFile(int type) {
+
+        File mediaStorageDir = new File(
+                Environment
+                        .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                ServerConfig.IMAGE_DIRECTORY_NAME);
+
+        if (!mediaStorageDir.exists()) {
+            if (!mediaStorageDir.mkdirs()) {
+                Log.d(TAG, "Oops! Failed create "
+                        + ServerConfig.IMAGE_DIRECTORY_NAME + " directory");
+                return null;
+            }
+        }
+
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss",
+                Locale.getDefault()).format(new Date());
+        File mediaFile;
+        if (type == MEDIA_TYPE_IMAGE) {
+            mediaFile = new File(mediaStorageDir.getPath() + File.separator
+                    + "IMG_" + timeStamp + ".jpg");
+        }else {
+            return null;
+        }
+
+        return mediaFile;
+    }*/
+
     private void addListenersToViews() {
+
+        actionUpload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent openGalleryIntent = new Intent(Intent.ACTION_PICK);
+                openGalleryIntent.setType("image/*");
+                startActivityForResult(openGalleryIntent, REQUEST_GALLERY_CODE);
+            }
+        });
+
+        actionCamera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                /*Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                fileUri = getOutputMediaFileUri(1);
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+                startActivityForResult(intent,1001);*/
+            }
+        });
 
         sortingView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -179,7 +345,6 @@ public class MyFoldersDMSActivity extends RootActivity {
                     toggle.setImageResource(R.mipmap.ic_grid);
                     setGridAdapterToView(mGetCategoryDocumentsResponses);
                     mAdapter.notifyDataSetChanged();
-
                     check = true;
                 }
             }
@@ -439,8 +604,8 @@ public class MyFoldersDMSActivity extends RootActivity {
     private void switchFragment(int fragment){
         getSupportFragmentManager().popBackStackImmediate();
         switch (fragment) {
-            case FOLDER_FRAGMENT:
-                /*mSelectedItem = FOLDER_FRAGMENT;
+            /*case FOLDER_FRAGMENT:
+                mSelectedItem = FOLDER_FRAGMENT;
                 if (mFolderFragment == null) {
                     mFolderFragment = ItemNavigationFolderFragment.newInstance();
                 }
@@ -755,7 +920,9 @@ public class MyFoldersDMSActivity extends RootActivity {
         shareLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent mIntent = new Intent(MyFoldersDMSActivity.this,MyFolderSharedDocuments.class);
+                mIntent.putExtra(Constants.OBJ, (Serializable) mSelectedDocumentList);
+                startActivity(mIntent);
             }
         });
     }
@@ -836,5 +1003,142 @@ public class MyFoldersDMSActivity extends RootActivity {
                 .withSelectListener(mDragSelectionProcessor);
         updateSelectionListener();
         mRecyclerView.addOnItemTouchListener(mDragSelectTouchListener);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+         if(requestCode == REQUEST_GALLERY_CODE && resultCode == Activity.RESULT_OK) {
+            fileUri = data.getData();
+
+             String filePath = getRealPathFromURIPath(fileUri, MyFoldersDMSActivity.this);
+             File file = new File(filePath);
+
+             if (NetworkUtils.isNetworkAvailable(this)) {
+
+                 Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+
+                 /*final UploadEndUserDocumentsRequest mUploadEndUserDocumentsRequest = new UploadEndUserDocumentsRequest(PreferenceUtils.getObjectId(MyFoldersDMSActivity.this),
+                         file.getName(),"","","");
+
+                 String request = new Gson().toJson(mUploadEndUserDocumentsRequest);
+
+                 Map<String, String> params = new HashMap<String, String>();
+                 params.put("data", request);*/
+
+                 /*Map<String, RequestBody> requestMap = new HashMap<>();
+
+                 requestMap.put("object_id", toRequestBody(PreferenceUtils.getObjectId(MyFoldersDMSActivity.this)));
+                 requestMap.put("filename", toRequestBody(file.getName()));
+                 requestMap.put("tag", toRequestBody(""));
+                 requestMap.put("insurance", toRequestBody(""));
+                 requestMap.put("doc_created_date", toRequestBody(""));*/
+
+                 final UploadEndUserDocumentsRequest mUploadEndUserDocumentsRequest = new UploadEndUserDocumentsRequest(PreferenceUtils.getObjectId(MyFoldersDMSActivity.this),
+                         file.getName(),"","","");
+
+                 String request = new Gson().toJson(mUploadEndUserDocumentsRequest);
+
+                 Map<String, RequestBody> requestMap = new HashMap<>();
+                // requestMap.put("data", request);
+
+                 Map<String, RequestBody> requestBodyMap = new HashMap<>();
+                 RequestBody requestBody = RequestBody.create(MediaType.parse("image/*"), file);
+                 requestBodyMap.put("file\"; filename=\"" + file.getName(), requestBody);
+
+
+                 /*String fileName = "file\"; filename=\"" + file.getName();
+                 RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), file);
+
+               //  RequestBody id = RequestBody.create(MediaType.parse("multipart/form-data"), observation_id);
+
+                 Map<String, RequestBody> requestBodyMap = new HashMap<>();
+              //   requestBodyMap.put("id", id);
+                 requestBodyMap.put(fileName, requestBody);*/
+
+                 RequestBody fileBody = RequestBody.create(MediaType.parse("*/*"), file);
+
+                 final UploadEndUsersDocumentService mUploadEndUsersDocumentService = retrofitAPI.create(UploadEndUsersDocumentService.class);
+
+                 Call call = mUploadEndUsersDocumentService.getUploadEndUsersDocument(requestMap, requestBodyMap, PreferenceUtils.getAccessToken(this));
+
+                 call.enqueue(new Callback<ListPinDevicesResponse<UploadEndUsersDocumentResponse>>() {
+                     @Override
+                     public void onResponse(Response<ListPinDevicesResponse<UploadEndUsersDocumentResponse>> response, Retrofit retrofit) {
+                         ListPinDevicesResponse apiResponse = response.body();
+                         if (apiResponse != null) {
+
+                           //  transparentProgressDialog.dismiss();
+
+                             if (apiResponse.status.getCode() instanceof Boolean) {
+                                 if (apiResponse.status.getCode() == Boolean.FALSE) {
+
+                                     String mMessage = apiResponse.status.getMessage().toString();
+                                     Toast.makeText(MyFoldersDMSActivity.this, mMessage, Toast.LENGTH_SHORT).show();
+                                 }
+                             }
+                         }
+                     }
+
+                     @Override
+                     public void onFailure(Throwable t) {
+                        // transparentProgressDialog.dismiss();
+                         Log.d("PinDevice error", t.getMessage());
+                     }
+                 });
+             }
+
+            /*if (EasyPermissions.hasPermissions(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                String filePath = getRealPathFromURIPath(uri, MainActivity.this);
+                File file = new File(filePath);
+                Log.d(TAG, "Filename " + file.getName());
+                //RequestBody mFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
+                RequestBody mFile = RequestBody.create(MediaType.parse("image*//*"), file);
+                MultipartBody.Part fileToUpload = MultipartBody.Part.createFormData("file", file.getName(), mFile);
+                RequestBody filename = RequestBody.create(MediaType.parse("text/plain"), file.getName());
+                Retrofit retrofit = new Retrofit.Builder()
+                        .baseUrl(SERVER_PATH)
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build();
+                UploadImageInterface uploadImage = retrofit.create(UploadImageInterface.class);
+                Call<UploadObject> fileUpload = uploadImage.uploadFile(fileToUpload, filename);
+                fileUpload.enqueue(new Callback<UploadObject>() {
+                    @Override
+                    public void onResponse(Call<UploadObject> call, Response<UploadObject> response) {
+                        Toast.makeText(MainActivity.this, "Response " + response.raw().message(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(MainActivity.this, "Success " + response.body().getSuccess(), Toast.LENGTH_LONG).show();
+                    }
+
+                    @Override
+                    public void onFailure(Call<UploadObject> call, Throwable t) {
+                        Log.d(TAG, "Error " + t.getMessage());
+                    }
+                });
+            } else {
+                EasyPermissions.requestPermissions(this, getString(R.string.read_file), READ_REQUEST_CODE, Manifest.permission.READ_EXTERNAL_STORAGE);
+            }*/
+        }
+    }
+
+    // This method  converts String to RequestBody
+    public static RequestBody toRequestBody (String value) {
+        RequestBody body = RequestBody.create(MediaType.parse("text/plain"), value);
+        return body ;
+    }
+
+    private String getRealPathFromURIPath(Uri contentURI, Activity activity) {
+        Cursor cursor = activity.getContentResolver().query(contentURI, null, null, null, null);
+        if (cursor == null) {
+            return contentURI.getPath();
+        } else {
+            cursor.moveToFirst();
+            int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+            return cursor.getString(idx);
+        }
+    }
+
+    private void uploadImage(String mImagePath) {
+
+        final File fileToUpload = new File(mImagePath);
     }
 }

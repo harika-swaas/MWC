@@ -321,17 +321,4 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
         this.mGetCategoryDocumentsResponses.addAll(getCategoryDocumentsResponses);
         notifyDataSetChanged();
     }
-    /*public List<List<GetCategoryDocumentsResponse>> DmsAdapterList1() {
-        char j='a',k = 'A';
-       List<List<GetCategoryDocumentsResponse>> sortedlist = null;
-       for (int i=0;i<getCategoryDocumentsResponses.size();i++)
-       {
-           for(j='a',k='A';j<='z'&& k<='Z';++j,++k)
-           if((String.valueOf(mGetCategoryDocumentsResponses.get(i).getName().charAt(0))=="j")||(String.valueOf(mGetCategoryDocumentsResponses.get(i).getName().charAt(0))=="k"))
-           {
-                sortedlist.add(getCategoryDocumentsResponses);
-           }
-       }
-       return sortedlist;
-    }*/
 }

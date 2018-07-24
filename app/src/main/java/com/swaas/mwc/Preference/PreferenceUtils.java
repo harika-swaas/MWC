@@ -22,8 +22,9 @@ public class PreferenceUtils {
     private static final String MOBILE_ITEM_DISABLE_COLOR = "mobileItemDisableColor";
     private static final String DOC_PORTAL_LOGGED_IN_OBJ = "doc_portal_logged_in_obj";
     private static final String DOCUMENT_VERSION_ID = "document_version_id";
+    private static final String DOCUMENT_ID = "document_id";
     private static final int TERMS_ACCEPT = 1;
-    private static  final String DOCUMENT_ID="document_id";
+    private static final String OBJECT_ID = "object_id";
 
     public static void setAccessToken(Context context, String accesstoken) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
@@ -152,6 +153,7 @@ public class PreferenceUtils {
         String documentVersionId = sharedPreferences.getString(DOCUMENT_VERSION_ID, null);
         return documentVersionId;
     }
+
     public static void setDocument_Id(Context context, String document_id) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -165,5 +167,16 @@ public class PreferenceUtils {
         return document_id;
     }
 
+    public static void setObjectId(Context context, String objectId) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(OBJECT_ID, objectId);
+        editor.commit();
+    }
 
+    public static String getObjectId(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        String objectId = sharedPreferences.getString(OBJECT_ID, null);
+        return objectId;
+    }
 }

@@ -32,6 +32,7 @@ public class Constants {
     public static final String SORT_BY_NEWEST = "sort_by_newest";
     public static final String SORT_BY_SIZE = "sort_by_size";
     public static final String SORT_BY_DATE = "sort_by_date";
+    public static final String OBJ = "obj";
 
     //Login Status
     public static final int Login_Not_Completed = 0;

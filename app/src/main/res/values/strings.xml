@@ -125,4 +125,9 @@
     <string name="date">on 12 May</string>
     <string name="lorem">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla mollis urna a mollis sagittis. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Proin pellentesque rhoncus ligula eu aliquam.</string>
     <string name="identity">Identity Validation</string>
+    <string name="upload">Upload</string>
+    <string name="new_folder">New Folder</string>
+    <string name="camera">Camera</string>
+    <string name="photo_library">Photo library</string>
+    <string name="browse">Browse</string>
 </resources>

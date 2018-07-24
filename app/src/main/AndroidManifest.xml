@@ -11,6 +11,7 @@
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
     <application
         android:name=".MWCApplication"
@@ -77,6 +78,9 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".DMS.MyFoldersDMSActivity"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".DMS.MyFolderSharedDocuments"
             android:screenOrientation="portrait"/>
         <activity
             android:name=".DMS.Tab_Activity"

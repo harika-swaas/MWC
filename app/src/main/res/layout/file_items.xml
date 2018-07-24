@@ -6,17 +6,17 @@
     android:orientation="horizontal"
     android:padding="4dp">
 
-
     <RelativeLayout
         android:id="@+id/lay3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
         <RelativeLayout
             android:id="@+id/nameIndicatorParentView"
             android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:background="@color/gray_non_pressed"
-            android:visibility="visible"
-            android:layout_height="wrap_content">
+            android:visibility="visible">
 
             <TextView
                 android:id="@+id/indicatorTextValueView"
@@ -31,8 +31,8 @@
             android:id="@+id/list_click"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_below="@+id/nameIndicatorParentView">
+            android:layout_below="@+id/nameIndicatorParentView"
+            android:orientation="horizontal">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -61,7 +61,7 @@
                         android:background="@drawable/circle_color"
                         android:padding="4dp"
                         android:src="@mipmap/ic_sort_selected"
-                        android:visibility="gone"/>
+                        android:visibility="gone" />
 
                 </RelativeLayout>
 

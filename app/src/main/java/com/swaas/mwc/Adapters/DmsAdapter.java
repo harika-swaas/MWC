@@ -167,15 +167,6 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        /*View itemView;
-        if (viewType == LIST_ITEM){
-            itemView = LayoutInflater.from(parent.getContext()).inflate( R.layout.file_items, null);
-        }else{
-            itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.file_item_grid, null);
-        }
-
-        return new ViewHolder(itemView);*/
-
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View v = inflater.inflate(R.layout.file_item_grid, parent, false);
         ViewHolder vh = new ViewHolder(v);
@@ -240,6 +231,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                 @Override
                 public void onClick(View v) {
                     if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("category")) {
+                        PreferenceUtils.setObjectId(context,mGetCategoryDocumentsResponses.get(position).getObject_id());
                         getSubCategoryDocuments(mGetCategoryDocumentsResponses.get(position).getObject_id());
                     }
                 }
