@@ -53,6 +53,10 @@ public class Notes_Fragment extends android.support.v4.app.Fragment{
         View mView = inflater.inflate(R.layout.tab_fragment_2, container, false);
         recyclerView =(RecyclerView)mView.findViewById(R.id.notes);
         getNotes();
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        notesAdapter = new NotesAdapter(documentNotesResponse,getActivity());
+        recyclerView.setAdapter(notesAdapter);
         return  mView;
             }
 
@@ -82,7 +86,6 @@ public class Notes_Fragment extends android.support.v4.app.Fragment{
                         if (apiResponse.status.getCode() == Boolean.FALSE) {
                             transparentProgressDialog.dismiss();
                             documentNotesResponse = response.body().getData();
-                            onBindAdapter();
 
                         }
 
@@ -109,16 +112,5 @@ public class Notes_Fragment extends android.support.v4.app.Fragment{
         }
     }
 
-    private void onBindAdapter() {
-
-
-
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        notesAdapter = new NotesAdapter(documentNotesResponse,getActivity());
-        recyclerView.setAdapter(notesAdapter);
-
-
-    }
 }
 

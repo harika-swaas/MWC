@@ -56,6 +56,10 @@ public class History_Fragment extends android.support.v4.app.Fragment {
         View mView= inflater.inflate(R.layout.tab_fragment_3, container, false);
         recyclerView =(RecyclerView) mView.findViewById(R.id.lis_history);
         gethistory();
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        historyAdapter = new HistoryAdapter(documentHistoryResponses,getActivity());
+        recyclerView.setAdapter(historyAdapter);
         return mView;
     }
 
@@ -86,8 +90,6 @@ public class History_Fragment extends android.support.v4.app.Fragment {
                         if (apiResponse.status.getCode() == Boolean.FALSE) {
                             transparentProgressDialog.dismiss();
                             documentHistoryResponses = response.body().getData();
-                            onBindAdapter(documentHistoryResponses);
-
                         }
 
                         else {
@@ -113,15 +115,4 @@ public class History_Fragment extends android.support.v4.app.Fragment {
         }
     }
 
-    private void onBindAdapter(List<DocumentHistoryResponse> documentHistoryResponses) {
-
-
-
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        historyAdapter = new HistoryAdapter(documentHistoryResponses,getActivity());
-        recyclerView.setAdapter(historyAdapter);
-
-
-    }
 }
