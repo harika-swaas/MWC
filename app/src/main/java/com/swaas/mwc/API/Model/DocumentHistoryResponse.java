@@ -21,9 +21,9 @@ public class DocumentHistoryResponse {
     @Expose
     String filename;
 
-    @SerializedName("doc_created_date")
+    @SerializedName("created_date")
     @Expose
-    String doc_created_date;
+    String created_date;
 
     @SerializedName("is_current_version")
     @Expose
@@ -54,11 +54,11 @@ public class DocumentHistoryResponse {
     }
 
     public String getDoc_created_date() {
-        return doc_created_date;
+        return created_date;
     }
 
     public void setDoc_created_date(String doc_created_date) {
-        this.doc_created_date = doc_created_date;
+        this.created_date = doc_created_date;
     }
 
     public String getIs_current_version() {

@@ -126,7 +126,7 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
             }
         });
         mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(),3));
-        mAdapter = new DmsAdapter(getCategoryDocumentsResponses,getActivity());
+       // mAdapter = new DmsAdapter(getCategoryDocumentsResponses,getActivity());
         mRecyclerView.setAdapter(mAdapter);
         mAdapter.setClickListener(new DmsAdapter.ItemClickListener()
         {
@@ -299,7 +299,7 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity().getApplicationContext()));
-        mAdapterList = new DmsAdapterList(getCategoryDocumentsResponses,getActivity());
+       // mAdapterList = new DmsAdapterList(getCategoryDocumentsResponses,getActivity());
         mRecyclerView.setAdapter(mAdapterList);
 
         mAdapterList.setClickListener(new DmsAdapterList.ItemClickListener()
@@ -444,7 +444,6 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_multi_select, menu);
-        menuItemAdd = menu.findItem(R.id.action_add);
         menuItemSearch = menu.findItem(R.id.action_search);
         menuItemDelete = menu.findItem(R.id.action_delete);
         menuItemShare = menu.findItem(R.id.action_share);

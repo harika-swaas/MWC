@@ -1,5 +1,6 @@
 package com.swaas.mwc.Adapters;
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -9,7 +10,9 @@ import android.widget.TextView;
 
 import com.swaas.mwc.API.Model.DocumentHistoryResponse;
 import com.swaas.mwc.R;
+import com.swaas.mwc.Utils.DateHelper;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,15 +21,13 @@ import java.util.List;
 
 public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryViewHolder>{
 
-    List<DocumentHistoryResponse> responseList;
+    List<DocumentHistoryResponse> responseList = new ArrayList<>();
     Context context;
 
-    public HistoryAdapter(List<DocumentHistoryResponse> responseList, Context context){
+    public HistoryAdapter(List<DocumentHistoryResponse> responseList, Activity context) {
         this.responseList = responseList;
         this.context = context;
     }
-
-
 
     @Override
     public HistoryViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -39,18 +40,19 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
     @Override
     public void onBindViewHolder(HistoryViewHolder holder, int position) {
 
-        DocumentHistoryResponse documentHistoryResponse = responseList.get(position);
-        holder.filename.setText(documentHistoryResponse.getFilename());
-        holder.date.setText(documentHistoryResponse.getDoc_created_date());
-        holder.version.setText(documentHistoryResponse.getVersion_number());
+        if(responseList != null && responseList.size() > 0){
+            DocumentHistoryResponse documentHistoryResponse = responseList.get(position);
 
+            holder.filename.setText(documentHistoryResponse.getFilename());
+            holder.date.setText("Updated on " + DateHelper.getDisplayFormat(documentHistoryResponse.getDoc_created_date(),"dd/MM/yyyy"));
+            holder.version.setText("Version Number " + documentHistoryResponse.getVersion_number());
+        }
     }
 
     @Override
     public int getItemCount() {
         return responseList.size();
     }
-
 
     public class HistoryViewHolder extends RecyclerView.ViewHolder {
         TextView filename;// init the item view's

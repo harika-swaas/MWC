@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -14,7 +13,6 @@ import android.support.v4.content.ContextCompat;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextPaint;
-import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.util.Log;
@@ -32,21 +30,16 @@ import com.swaas.mwc.API.Model.AddFTLDetailsRequest;
 import com.swaas.mwc.API.Model.BaseApiResponse;
 import com.swaas.mwc.API.Model.FTLPINResponse;
 import com.swaas.mwc.API.Model.GetUserPreferencesResponse;
-import com.swaas.mwc.API.Model.LoginResponse;
 import com.swaas.mwc.API.Model.SetTermsAcceptanceRequest;
-import com.swaas.mwc.API.Model.UpdateFTLStatusRequest;
 import com.swaas.mwc.API.Model.VerifyFTLResponse;
 import com.swaas.mwc.API.Model.WhiteLabelResponse;
 import com.swaas.mwc.API.Service.FTLProcessService;
 import com.swaas.mwc.API.Service.GetUserPreferencesService;
 import com.swaas.mwc.API.Service.SetTermsAcceptanceService;
-import com.swaas.mwc.API.Service.UpdateFTLStatusService;
 import com.swaas.mwc.Database.AccountSettings;
 import com.swaas.mwc.Dialogs.LoadingProgressDialog;
 import com.swaas.mwc.FTL.FTLAgreeTermsAcceptanceActivity;
 import com.swaas.mwc.FTL.WebviewLoaderTermsActivity;
-import com.swaas.mwc.Login.Authenticate;
-import com.swaas.mwc.Login.Dashboard;
 import com.swaas.mwc.Login.LoginActivity;
 import com.swaas.mwc.Login.Touchid;
 import com.swaas.mwc.Network.NetworkUtils;
@@ -60,7 +53,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import dmax.dialog.SpotsDialog;
 import retrofit.Call;
 import retrofit.Callback;
 import retrofit.Response;
@@ -278,15 +270,17 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
                                 String mMessage = apiResponse.status.getMessage().toString();
                                 mActivity.showMessagebox(mActivity, mMessage, null, false);
                             }
-                        } else if (apiResponse.status.getCode() instanceof Integer) {
+                        } else if (apiResponse.status.getCode() instanceof Double) {
                             String mMessage = apiResponse.status.getMessage().toString();
-                            mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    startActivity(new Intent(mActivity, LoginActivity.class));
-                                    mActivity.finish();
-                                }
-                            }, false);
+                            Object obj = 401.0;
+                            if(obj.equals(401.0)) {
+                                mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        startActivity(new Intent(mActivity, LoginActivity.class));
+                                    }
+                                }, false);
+                            }
                         }
                     }
                 }
@@ -333,15 +327,17 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
                                 String mMessage = apiResponse.status.getMessage().toString();
                                 mActivity.showMessagebox(mActivity, mMessage, null, false);
                             }
-                        } else if (apiResponse.status.getCode() instanceof Integer) {
+                        } else if (apiResponse.status.getCode() instanceof Double) {
                             String mMessage = apiResponse.status.getMessage().toString();
-                            mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    startActivity(new Intent(mActivity, LoginActivity.class));
-                                    mActivity.finish();
-                                }
-                            }, false);
+                            Object obj = 401.0;
+                            if(obj.equals(401.0)) {
+                                mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        startActivity(new Intent(mActivity, LoginActivity.class));
+                                    }
+                                }, false);
+                            }
                         }
                     }
                 }
@@ -387,15 +383,17 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
 
                             }
 
-                        } else if (apiResponse.status.getCode() instanceof Integer) {
+                        } else if (apiResponse.status.getCode() instanceof Double) {
                             String mMessage = apiResponse.status.getMessage().toString();
-                            mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    startActivity(new Intent(mActivity, LoginActivity.class));
-                                    mActivity.finish();
-                                }
-                            }, false);
+                            Object obj = 401.0;
+                            if(obj.equals(401.0)) {
+                                mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        startActivity(new Intent(mActivity, LoginActivity.class));
+                                    }
+                                }, false);
+                            }
                         }
 
                         Gson gson = new Gson();

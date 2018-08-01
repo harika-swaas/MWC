@@ -1,6 +1,5 @@
 package com.swaas.mwc.Fragments;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
@@ -33,10 +32,8 @@ import com.swaas.mwc.DMS.MyFoldersDMSActivity;
 import com.swaas.mwc.Database.AccountSettings;
 import com.swaas.mwc.Dialogs.LoadingProgressDialog;
 import com.swaas.mwc.FTL.WebviewLoaderTermsActivity;
-import com.swaas.mwc.Login.Dashboard;
 import com.swaas.mwc.Login.LoginActivity;
 import com.swaas.mwc.Login.LoginHelpUserGuideActivity;
-import com.swaas.mwc.Login.Notifiy;
 import com.swaas.mwc.Network.NetworkUtils;
 import com.swaas.mwc.Preference.PreferenceUtils;
 import com.swaas.mwc.R;
@@ -244,7 +241,10 @@ public class LoginHelpUserGuideFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 updateHelpAcceptedAndLoggedInStatus();
-                startActivity(new Intent(mActivity, MyFoldersDMSActivity.class));
+              //  startActivity(new Intent(mActivity, MyFoldersDMSActivity.class));
+                Intent intent = new Intent(mActivity, MyFoldersDMSActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
                 mActivity.finish();
 
                 if (checkBox.isChecked()) {
@@ -257,6 +257,7 @@ public class LoginHelpUserGuideFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(mActivity, MyFoldersDMSActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
                 mActivity.finish();
                 updateLoggedInStatus();
@@ -295,10 +296,12 @@ public class LoginHelpUserGuideFragment extends Fragment {
                         if (apiResponse.status.getCode() instanceof Boolean) {
 
                             if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                Intent mIntent = new Intent(mActivity, MyFoldersDMSActivity.class);
-                                startActivity(mIntent);
-                                mActivity.finish();
-                                updateHelpAcceptedAndLoggedInStatus();
+                                if (isAdded() && mActivity != null) {
+
+                                    updateHelpAcceptedAndLoggedInStatus();
+                                } else {
+                                    updateHelpAcceptedAndLoggedInStatus();
+                                }
                             } else {
                                 String mMessage = apiResponse.status.getMessage().toString();
                                 mActivity.showMessagebox(mActivity, mMessage, null, false);

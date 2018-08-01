@@ -6,6 +6,7 @@ package com.swaas.mwc.Fragments;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -20,6 +21,7 @@ import com.swaas.mwc.API.Model.ListPinDevicesResponse;
 import com.swaas.mwc.API.Service.DocumentPropertiesService;
 import com.swaas.mwc.DMS.Tab_Activity;
 import com.swaas.mwc.Dialogs.LoadingProgressDialog;
+import com.swaas.mwc.Login.LoginActivity;
 import com.swaas.mwc.MessageDialog;
 import com.swaas.mwc.Network.NetworkUtils;
 import com.swaas.mwc.Preference.PreferenceUtils;
@@ -129,20 +131,19 @@ public class Properties_Fragment extends Fragment{
 
                                 }
                                 search_tags.setText(documentPropertiesResponse.get(0).getTag());
-                            }
 
-                        else {
-
-                            String mMessage = apiResponse.status.getMessage().toString();
-                           /*// mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener()
-                                {
-                                @Override
-                                public void onClick(View view) {
-                                    startActivity(new Intent(mActivity, LoginActivity.class));
-                                    mActivity.finish();
+                            } else if (apiResponse.status.getCode() instanceof Double) {
+                                String mMessage = apiResponse.status.getMessage().toString();
+                                Object obj = 401.0;
+                                if(obj.equals(401.0)) {
+                                    mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            startActivity(new Intent(mActivity, LoginActivity.class));
+                                        }
+                                    }, false);
                                 }
-                            }, false);
-                        */}
+                            }
                     }
                 }
 

@@ -7,14 +7,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
 import com.swaas.mwc.API.Model.WhiteLabelResponse;
 import com.swaas.mwc.Database.AccountSettings;
-import com.swaas.mwc.Preference.PreferenceUtils;
 import com.swaas.mwc.R;
 import com.swaas.mwc.Utils.Constants;
 
@@ -51,6 +49,7 @@ public class Touchid extends Authenticate {
                 Intent intent = new Intent(Touchid.this, Notifiy.class);
                 intent.putExtra(Constants.IS_FROM_FTL,mIsFromFTL);
                 startActivity(intent);
+                finish();
                 checkCredentials();
                 updateLocalAuthAndLoggedInStatus();
             }
@@ -64,6 +63,7 @@ public class Touchid extends Authenticate {
                 updateLoggedInStatus();
                 Intent intent = new Intent(Touchid.this, Notifiy.class);
                 startActivity(intent);
+                finish();
             }
         });
     }

@@ -1,28 +1,17 @@
 package com.swaas.mwc.API.Model;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
+import java.io.Serializable;
 
 /**
  * Created by harika on 19-07-2018.
  */
 
-public class GetEndUserSharedParentFoldersResponse {
+public class GetEndUserSharedParentFoldersResponse implements Serializable{
 
-    @SerializedName("category_name")
-    @Expose
+
     private String category_name;
-
-    @SerializedName("category_id")
-    @Expose
     private String category_id;
-
-    @SerializedName("full_path")
-    @Expose
     private String full_path;
-
-    @SerializedName("workspace_id")
-    @Expose
     private String workspace_id;
 
     public String getCategory_name() {

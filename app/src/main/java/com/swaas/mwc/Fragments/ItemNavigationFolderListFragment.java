@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -20,7 +19,6 @@ import com.swaas.mwc.API.Model.GetCategoryDocumentsRequest;
 import com.swaas.mwc.API.Model.GetCategoryDocumentsResponse;
 import com.swaas.mwc.API.Model.ListPinDevicesResponse;
 import com.swaas.mwc.API.Service.GetCategoryDocumentsService;
-import com.swaas.mwc.Adapters.DmsAdapter;
 import com.swaas.mwc.Adapters.DmsAdapterList;
 import com.swaas.mwc.Common.SimpleDividerItemDecoration;
 import com.swaas.mwc.Dialogs.LoadingProgressDialog;
@@ -29,7 +27,6 @@ import com.swaas.mwc.Network.NetworkUtils;
 import com.swaas.mwc.Preference.PreferenceUtils;
 import com.swaas.mwc.R;
 import com.swaas.mwc.Retrofit.RetrofitAPIBuilder;
-import com.swaas.mwc.Utils.Constants;
 
 import java.util.HashMap;
 import java.util.List;
@@ -164,7 +161,7 @@ public class ItemNavigationFolderListFragment extends Fragment {
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity().getApplicationContext()));
-        mAdapterList = new DmsAdapterList(mGetCategoryDocumentsResponses,getActivity());
+      //  mAdapterList = new DmsAdapterList(mGetCategoryDocumentsResponses,getActivity());
         mRecyclerView.setAdapter(mAdapterList);
     }
 

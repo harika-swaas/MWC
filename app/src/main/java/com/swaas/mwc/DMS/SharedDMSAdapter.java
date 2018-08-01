@@ -1,4 +1,4 @@
-package com.swaas.mwc.Adapters;
+package com.swaas.mwc.DMS;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -21,7 +21,6 @@ import com.swaas.mwc.API.Model.GetEndUserAllowedSharedFoldersRequest;
 import com.swaas.mwc.API.Model.GetEndUserSharedParentFoldersResponse;
 import com.swaas.mwc.API.Model.ListPinDevicesResponse;
 import com.swaas.mwc.API.Service.GetEndUserAllowedSharedFoldersService;
-import com.swaas.mwc.DMS.MyFolderEndUserAllowedSharedFoldersActivity;
 import com.swaas.mwc.Dialogs.LoadingProgressDialog;
 import com.swaas.mwc.Login.LoginActivity;
 import com.swaas.mwc.Network.NetworkUtils;
@@ -47,17 +46,19 @@ public class SharedDMSAdapter extends RecyclerView.Adapter<SharedDMSAdapter.View
     final Context context;
     private List<GetEndUserSharedParentFoldersResponse> mGetEndUserSharedParentFoldersResponses;
     private List<GetEndUserSharedParentFoldersResponse> getEndUserSharedParentFoldersResponses;
+    List<GetCategoryDocumentsResponse> mSelectedDocumentList;
     AlertDialog mAlertDialog;
     private ItemClickListener mClickListener;
     private HashSet<Integer> mSelected;
 
-    public SharedDMSAdapter(List<GetEndUserSharedParentFoldersResponse> mGetEndUserSharedParentFoldersResponses, Activity context) {
+    public SharedDMSAdapter(List<GetEndUserSharedParentFoldersResponse> mGetEndUserSharedParentFoldersResponses, List<GetCategoryDocumentsResponse> mSelectedDocumentList, Activity context) {
         this.context = context;
         this.mGetEndUserSharedParentFoldersResponses = mGetEndUserSharedParentFoldersResponses;
+        this.mSelectedDocumentList = mSelectedDocumentList;
         mSelected = new HashSet<>();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener{
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
         public ImageView imageView, selectedItemIv, moreImage;
         public TextView folder_name;
@@ -124,8 +125,7 @@ public class SharedDMSAdapter extends RecyclerView.Adapter<SharedDMSAdapter.View
         notifyItemRangeChanged(start, end - start + 1);
     }
 
-    public HashSet<Integer> getSelection()
-    {
+    public HashSet<Integer> getSelection() {
         return mSelected;
     }
 
@@ -135,6 +135,7 @@ public class SharedDMSAdapter extends RecyclerView.Adapter<SharedDMSAdapter.View
 
     public interface ItemClickListener {
         void onItemClick(View view, int position);
+
         boolean onItemLongClick(View view, int position);
     }
 
@@ -145,19 +146,19 @@ public class SharedDMSAdapter extends RecyclerView.Adapter<SharedDMSAdapter.View
 
         holder.moreImage.setVisibility(View.GONE);
 
-        if(mGetEndUserSharedParentFoldersResponses != null && mGetEndUserSharedParentFoldersResponses.size() > 0){
+        if (mGetEndUserSharedParentFoldersResponses != null && mGetEndUserSharedParentFoldersResponses.size() > 0) {
             holder.folder_name.setText(mGetEndUserSharedParentFoldersResponses.get(position).getCategory_name());
 
-            if(position > 0){
+            if (position > 0) {
                 char poschar = resp.getCategory_name().toUpperCase().charAt(0);
-                char prevchar = mGetEndUserSharedParentFoldersResponses.get(position-1).getCategory_name().toUpperCase().charAt(0);
-                if(poschar == prevchar){
+                char prevchar = mGetEndUserSharedParentFoldersResponses.get(position - 1).getCategory_name().toUpperCase().charAt(0);
+                if (poschar == prevchar) {
                     holder.indicatorParentView.setVisibility(View.GONE);
-                }else{
+                } else {
                     holder.indicatorParentView.setVisibility(View.VISIBLE);
                     holder.indicatorTextValue.setText(String.valueOf(mGetEndUserSharedParentFoldersResponses.get(position).getCategory_name().charAt(0)));
                 }
-            }else{
+            } else {
                 holder.indicatorParentView.setVisibility(View.VISIBLE);
                 holder.indicatorTextValue.setText(String.valueOf(mGetEndUserSharedParentFoldersResponses.get(position).getCategory_name().charAt(0)));
             }
@@ -165,12 +166,10 @@ public class SharedDMSAdapter extends RecyclerView.Adapter<SharedDMSAdapter.View
             holder.parentLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    /*Intent mIntent = new Intent(context, MyFolderEndUserAllowedSharedFoldersActivity.class);
-                    mIntent.putExtra(Constants.OBJ, (Serializable) mGetEndUserSharedParentFoldersResponses.get(position));
-                    context.startActivity(mIntent);*/
-
-                    getEndUserParentSharedFolders(mGetEndUserSharedParentFoldersResponses.get(position).getWorkspace_id(),
-                            mGetEndUserSharedParentFoldersResponses.get(position).getCategory_id());
+                    Intent mIntent = new Intent(context, MyFolderEndUserAllowedSharedFoldersActivity.class);
+                    mIntent.putExtra(Constants.SHAREDMSOBJ, (Serializable) mGetEndUserSharedParentFoldersResponses.get(position));
+                    mIntent.putExtra(Constants.OBJ, (Serializable) mSelectedDocumentList);
+                    context.startActivity(mIntent);
                 }
             });
         }
@@ -268,7 +267,7 @@ public class SharedDMSAdapter extends RecyclerView.Adapter<SharedDMSAdapter.View
         notifyDataSetChanged();
     }
 
-    public GetEndUserSharedParentFoldersResponse getItemAt(final int position){
+    public GetEndUserSharedParentFoldersResponse getItemAt(final int position) {
         return mGetEndUserSharedParentFoldersResponses.get(position);
     }
 }

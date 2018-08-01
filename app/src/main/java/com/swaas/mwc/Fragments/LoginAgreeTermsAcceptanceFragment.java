@@ -1,6 +1,5 @@
 package com.swaas.mwc.Fragments;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
@@ -18,11 +17,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.swaas.mwc.API.Model.BaseApiResponse;
-import com.swaas.mwc.API.Model.FTLProcessResponse;
 import com.swaas.mwc.API.Model.GetTermsPageContentResponse;
 import com.swaas.mwc.API.Model.SetTermsAcceptanceRequest;
 import com.swaas.mwc.API.Model.VerifyFTLResponse;
@@ -46,7 +43,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import dmax.dialog.SpotsDialog;
 import retrofit.Call;
 import retrofit.Callback;
 import retrofit.Response;
@@ -288,10 +284,11 @@ public class LoginAgreeTermsAcceptanceFragment extends Fragment {
                         if(apiResponse.status.getCode() instanceof Boolean) {
 
                             if (apiResponse.status.getCode() == Boolean.FALSE) {
+                                updateIsTermsAcceptedAndLoggedInStatus();
+                                //update help user guide status
                                 Intent mIntent = new Intent(mActivity, LoginHelpUserGuideActivity.class);
                                 startActivity(mIntent);
                                 mActivity.finish();
-                                updateIsTermsAcceptedAndLoggedInStatus();
                             } else {
                                 String mMessage = apiResponse.status.getMessage().toString();
                                 mActivity.showMessagebox(mActivity, mMessage, null, false);

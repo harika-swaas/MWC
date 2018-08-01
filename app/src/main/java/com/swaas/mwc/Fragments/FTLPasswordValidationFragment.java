@@ -4,11 +4,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.GradientDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
@@ -25,17 +22,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.android.gms.vision.text.Text;
 import com.google.gson.Gson;
 import com.swaas.mwc.API.Model.BaseApiResponse;
 import com.swaas.mwc.API.Model.UpdateFTLStatusRequest;
-import com.swaas.mwc.API.Model.VerifyFTLRequestWithEMail;
 import com.swaas.mwc.API.Model.VerifyFTLResponse;
 import com.swaas.mwc.API.Model.WhiteLabelResponse;
 import com.swaas.mwc.API.Service.UpdateFTLStatusService;
-import com.swaas.mwc.API.Service.VerifyFTLDetailsService;
 import com.swaas.mwc.Database.AccountSettings;
 import com.swaas.mwc.Dialogs.LoadingProgressDialog;
 import com.swaas.mwc.FTL.FTLAgreeTermsAcceptanceActivity;
@@ -43,7 +36,6 @@ import com.swaas.mwc.FTL.FTLPasswordValidationActivity;
 import com.swaas.mwc.FTL.FTLUserValidationActivity;
 import com.swaas.mwc.Login.LoginActivity;
 import com.swaas.mwc.Network.NetworkUtils;
-import com.swaas.mwc.Preference.PreferenceUtils;
 import com.swaas.mwc.R;
 import com.swaas.mwc.Retrofit.RetrofitAPIBuilder;
 import com.swaas.mwc.Utils.Constants;
@@ -55,7 +47,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import dmax.dialog.SpotsDialog;
 import retrofit.Call;
 import retrofit.Callback;
 import retrofit.Response;
@@ -609,15 +600,17 @@ public class FTLPasswordValidationFragment extends Fragment {
                                     mDialog.show();
                                 }
 
-                            } else if (apiResponse.status.getCode() instanceof Integer) {
+                            } else if (apiResponse.status.getCode() instanceof Double) {
                                 String mMessage = apiResponse.status.getMessage().toString();
-                                mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        startActivity(new Intent(mActivity, LoginActivity.class));
-                                        mActivity.finish();
-                                    }
-                                }, false);
+                                Object obj = 401.0;
+                                if(obj.equals(401.0)) {
+                                    mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            startActivity(new Intent(mActivity, LoginActivity.class));
+                                        }
+                                    }, false);
+                                }
                             }
                         }
                     }

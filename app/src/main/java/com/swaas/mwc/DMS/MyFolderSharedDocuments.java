@@ -14,17 +14,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.swaas.mwc.API.Model.GetCategoryDocumentsRequest;
 import com.swaas.mwc.API.Model.GetCategoryDocumentsResponse;
 import com.swaas.mwc.API.Model.GetEndUserSharedParentFoldersResponse;
 import com.swaas.mwc.API.Model.ListPinDevicesResponse;
 import com.swaas.mwc.API.Model.ShareEndUserDocumentsRequest;
 import com.swaas.mwc.API.Service.GetEndUserParentSHaredFoldersService;
 import com.swaas.mwc.API.Service.ShareEndUserDocumentsService;
-import com.swaas.mwc.Adapters.SharedDMSAdapter;
 import com.swaas.mwc.Common.SimpleDividerItemDecoration;
+import com.swaas.mwc.Database.AccountSettings;
 import com.swaas.mwc.Dialogs.LoadingProgressDialog;
 import com.swaas.mwc.Login.LoginActivity;
 import com.swaas.mwc.Network.NetworkUtils;
@@ -53,7 +53,7 @@ public class MyFolderSharedDocuments extends RootActivity {
     CollapsingToolbarLayout collapsingToolbarLayout;
     RecyclerView mRecyclerView;
     SharedDMSAdapter mAdapterList;
-    Button shareButton,cancelButton;
+    TextView shareButton,cancelButton;
     List<GetEndUserSharedParentFoldersResponse> mGetEndUserSharedParentFoldersResponse;
     GetEndUserSharedParentFoldersResponse documentsResponseObj;
     List<GetCategoryDocumentsResponse> mSelectedDocumentList;
@@ -71,9 +71,9 @@ public class MyFolderSharedDocuments extends RootActivity {
 
     private void intializeViews() {
 
-        shareButton = (Button) findViewById(R.id.share);
-        cancelButton = (Button) findViewById(R.id.cancel);
-        mRecyclerView = (RecyclerView) findViewById(R.id.recycler_dms);
+        shareButton = (TextView) findViewById(R.id.share);
+        cancelButton = (TextView) findViewById(R.id.cancel);
+        mRecyclerView = (RecyclerView) findViewById(R.id.recycler_shared_dms);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
@@ -123,38 +123,45 @@ public class MyFolderSharedDocuments extends RootActivity {
                                 setAdapterToView(mGetEndUserSharedParentFoldersResponse);
                             }
 
-                        } else if (apiResponse.status.getCode() instanceof Integer) {
+                        } else if (apiResponse.status.getCode() instanceof Double) {
                             transparentProgressDialog.dismiss();
                             String mMessage = apiResponse.status.getMessage().toString();
 
-                            final AlertDialog.Builder builder = new AlertDialog.Builder(MyFolderSharedDocuments.this);
-                            LayoutInflater inflater = (LayoutInflater) MyFolderSharedDocuments.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                            builder.setView(view);
-                            builder.setCancelable(false);
+                            Object obj = 401.0;
+                            if(obj.equals(401.0)) {
+                                final AlertDialog.Builder builder = new AlertDialog.Builder(MyFolderSharedDocuments.this);
+                                LayoutInflater inflater = (LayoutInflater) MyFolderSharedDocuments.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+                                builder.setView(view);
+                                builder.setCancelable(false);
 
-                            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+                                TextView title = (TextView) view.findViewById(R.id.title);
+                                title.setText("Alert");
 
-                            txtMessage.setText(mMessage);
+                                TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 
-                            Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+                                txtMessage.setText(mMessage);
 
-                            cancelButton.setVisibility(View.GONE);
+                                Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+                                Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
-                            sendPinButton.setText("OK");
+                                cancelButton.setVisibility(View.GONE);
 
-                            sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    mAlertDialog.dismiss();
-                                    startActivity(new Intent(MyFolderSharedDocuments.this, LoginActivity.class));
-                                    finish();
-                                }
-                            });
+                                sendPinButton.setText("OK");
 
-                            mAlertDialog = builder.create();
-                            mAlertDialog.show();
+                                sendPinButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        mAlertDialog.dismiss();
+                                        AccountSettings accountSettings = new AccountSettings(MyFolderSharedDocuments.this);
+                                        accountSettings.deleteAll();
+                                        startActivity(new Intent(MyFolderSharedDocuments.this, LoginActivity.class));
+                                    }
+                                });
+
+                                mAlertDialog = builder.create();
+                                mAlertDialog.show();
+                            }
                         }
                     }
                 }
@@ -173,7 +180,7 @@ public class MyFolderSharedDocuments extends RootActivity {
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(MyFolderSharedDocuments.this));
         mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getApplicationContext()));
-        mAdapterList = new SharedDMSAdapter(mGetEndUserSharedParentFoldersResponse,MyFolderSharedDocuments.this);
+        mAdapterList = new SharedDMSAdapter(mGetEndUserSharedParentFoldersResponse, mSelectedDocumentList, MyFolderSharedDocuments.this);
         mRecyclerView.setAdapter(mAdapterList);
         mAdapterList.setClickListener(new SharedDMSAdapter.ItemClickListener() {
             @Override
@@ -213,7 +220,7 @@ public class MyFolderSharedDocuments extends RootActivity {
                         }
                     }
                     
-                    final ShareEndUserDocumentsRequest mShareEndUserDocumentsRequest = new ShareEndUserDocumentsRequest(document_ids,Integer.parseInt(documentsResponseObj.getWorkspace_id()), Integer.parseInt(documentsResponseObj.getCategory_id()));
+                    final ShareEndUserDocumentsRequest mShareEndUserDocumentsRequest = new ShareEndUserDocumentsRequest(document_ids,PreferenceUtils.getWorkspaceId(MyFolderSharedDocuments.this), PreferenceUtils.getCategoryId(MyFolderSharedDocuments.this));
 
                     String request = new Gson().toJson(mShareEndUserDocumentsRequest);
 
@@ -235,41 +242,54 @@ public class MyFolderSharedDocuments extends RootActivity {
                                 if (apiResponse.status.getCode() instanceof Boolean) {
                                     if (apiResponse.status.getCode() == Boolean.FALSE) {
                                         transparentProgressDialog.dismiss();
-                                        mGetEndUserSharedParentFoldersResponse = response.body().getData();
+                                        String mMessage = apiResponse.status.getMessage().toString();
+                                        Toast.makeText(MyFolderSharedDocuments.this,mMessage,Toast.LENGTH_SHORT).show();
+                                        startActivity(new Intent(MyFolderSharedDocuments.this,MyFoldersDMSActivity.class));
+                                        finish();
+                                    } else {
+                                        String mMessage = apiResponse.status.getMessage().toString();
+                                        Toast.makeText(MyFolderSharedDocuments.this,mMessage,Toast.LENGTH_SHORT).show();
                                     }
 
-                                } else if (apiResponse.status.getCode() instanceof Integer) {
+                                } else if (apiResponse.status.getCode() instanceof Double) {
                                     transparentProgressDialog.dismiss();
                                     String mMessage = apiResponse.status.getMessage().toString();
 
-                                    final AlertDialog.Builder builder = new AlertDialog.Builder(MyFolderSharedDocuments.this);
-                                    LayoutInflater inflater = (LayoutInflater) MyFolderSharedDocuments.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                    View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                                    builder.setView(view);
-                                    builder.setCancelable(false);
+                                    Object obj = 401.0;
+                                    if(obj.equals(401.0)) {
+                                        final AlertDialog.Builder builder = new AlertDialog.Builder(MyFolderSharedDocuments.this);
+                                        LayoutInflater inflater = (LayoutInflater) MyFolderSharedDocuments.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+                                        builder.setView(view);
+                                        builder.setCancelable(false);
 
-                                    TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+                                        TextView title = (TextView) view.findViewById(R.id.title);
+                                        title.setText("Alert");
 
-                                    txtMessage.setText(mMessage);
+                                        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 
-                                    Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                                    Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+                                        txtMessage.setText(mMessage);
 
-                                    cancelButton.setVisibility(View.GONE);
+                                        Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+                                        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
-                                    sendPinButton.setText("OK");
+                                        cancelButton.setVisibility(View.GONE);
 
-                                    sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            mAlertDialog.dismiss();
-                                            startActivity(new Intent(MyFolderSharedDocuments.this, LoginActivity.class));
-                                            finish();
-                                        }
-                                    });
+                                        sendPinButton.setText("OK");
 
-                                    mAlertDialog = builder.create();
-                                    mAlertDialog.show();
+                                        sendPinButton.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                mAlertDialog.dismiss();
+                                                AccountSettings accountSettings = new AccountSettings(MyFolderSharedDocuments.this);
+                                                accountSettings.deleteAll();
+                                                startActivity(new Intent(MyFolderSharedDocuments.this, LoginActivity.class));
+                                            }
+                                        });
+
+                                        mAlertDialog = builder.create();
+                                        mAlertDialog.show();
+                                    }
                                 }
                             }
                         }
@@ -281,6 +301,14 @@ public class MyFolderSharedDocuments extends RootActivity {
                         }
                     });
                 }
+            }
+        });
+
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MyFolderSharedDocuments.this,MyFoldersDMSActivity.class));
+                finish();
             }
         });
     }

@@ -84,7 +84,33 @@
     <color name="orange">#E8741A</color>
     <color name="sky_blue">#42C0F0</color>
     <color name="ftl_text_input_grey">#007aff</color>
-
+    <color name="thumbnail_pdf_color">#ed1c24</color>
+    <color name="thumbnail_pdf_corner_color">#b11116</color>
+    <color name="thumbnail_xls_color">#00a14b</color>
+    <color name="thumbnail_xls_corner_color">#007b38</color>
+    <color name="thumbnail_doc_color">#184889</color>
+    <color name="thumbnail_doc_corner_color">#0d3268</color>
+    <color name="thumbnail_ppt_color">#f7941e</color>
+    <color name="thumbnail_ppt_corner_color">#b76e11</color>
+    <color name="thumbnail_xml_color">#939598</color>
+    <color name="thumbnail_xml_corner_color">#58595b</color>
+    <color name="thumbnail_msg_color">#184889</color>
+    <color name="thumbnail_msg_corner_color">#0d3268</color>
+    <color name="thumbnail_pages_color">#f7941e</color>
+    <color name="thumbnail_pages_corner_color">#b76e11</color>
+    <color name="thumbnail_pub_color">#00a14b</color>
+    <color name="thumbnail_pub_corner_color">#007b38</color>
+    <color name="thumbnail_gif_color">#00aeef</color>
+    <color name="thumbnail_gif_corner_color">#0084b6</color>
+    <color name="thumbnail_avi_color">#c49a6c</color>
+    <color name="thumbnail_avi_corner_color">#927450</color>
+    <color name="thumbnail_mp3_color">#662d91</color>
+    <color name="thumbnail_mp3_corner_color">#4d186e</color>
+    <color name="thumbnail_dot_color">#184889</color>
+    <color name="thumbnail_dot_corner_color">#0d3268</color>
+    <color name="thumbnail_default_color">#e7e8e9</color>
+    <color name="thumbnail_default_corner_color">#737474</color>
+    <color name="folder_color">#d3d3d3</color>
 
     <integer-array name="contacts_text_background_colors">
         <item>0xFF9C27B0</item>

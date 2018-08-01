@@ -17,19 +17,37 @@
             android:background="@color/white"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/clear_selection"
+            <RelativeLayout
+                android:id="@+id/clear_selection_layout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:alpha="0.87"
-                android:drawableLeft="@mipmap/ic_sort_selected"
-                android:drawablePadding="24dp"
-                android:gravity="center_vertical"
-                android:padding="16dp"
-                android:text="@string/clear_selection"
-                android:textColor="@color/black"
-                android:textSize="16sp"
-                android:visibility="visible" />
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/clear_selection_image"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:src="@mipmap/ic_sort_selected"
+                    android:layout_marginLeft="18dp"/>
+
+                <TextView
+                    android:id="@+id/clear_selection"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="5dp"
+                    android:layout_toRightOf="@+id/clear_selection_image"
+                    android:alpha="0.87"
+                    android:gravity="center_vertical"
+                    android:padding="16dp"
+                    android:text="@string/clear_selection"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
+                    android:visibility="visible" />
+
+            </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/available_offline_layout"
@@ -37,7 +55,7 @@
                 android:layout_height="wrap_content">
 
                 <ImageView
-                    android:id="@+id/download_image"
+                    android:id="@+id/available_offline_image"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentLeft="true"
@@ -52,7 +70,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="5dp"
-                    android:layout_toRightOf="@+id/download_image"
+                    android:layout_toRightOf="@+id/available_offline_image"
                     android:alpha="0.87"
                     android:gravity="center_vertical"
                     android:padding="16dp"
@@ -69,7 +87,8 @@
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
                     android:layout_marginRight="24dp"
-                    android:checked="false" />
+                    android:checked="false"
+                    android:visibility="visible"/>
 
             </RelativeLayout>
 
@@ -111,51 +130,106 @@
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
                     android:layout_marginRight="24dp"
-                    android:checked="false" />
+                    android:checked="false"
+                    android:visibility="visible"/>
 
             </RelativeLayout>
 
-            <TextView
-                android:id="@+id/copy"
+            <RelativeLayout
+                android:id="@+id/copy_layout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:alpha="0.87"
-                android:drawableLeft="@mipmap/ic_copy"
-                android:drawablePadding="24dp"
-                android:gravity="center_vertical"
-                android:padding="16dp"
-                android:text="@string/copy"
-                android:textColor="@color/black"
-                android:textSize="16sp"
-                android:visibility="visible" />
+                android:layout_height="wrap_content">
 
-            <TextView
-                android:id="@+id/move"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:alpha="0.87"
-                android:drawableLeft="@mipmap/ic_move"
-                android:drawablePadding="24dp"
-                android:gravity="center_vertical"
-                android:padding="16dp"
-                android:text="@string/move"
-                android:textColor="@color/black"
-                android:textSize="16sp"
-                android:visibility="visible" />
+                <ImageView
+                    android:id="@+id/copy_image"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:src="@mipmap/ic_copy"
+                    android:layout_marginLeft="18dp"/>
 
-            <TextView
-                android:id="@+id/rename"
+                <TextView
+                    android:id="@+id/copy"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="5dp"
+                    android:layout_toRightOf="@+id/copy_image"
+                    android:alpha="0.87"
+                    android:gravity="center_vertical"
+                    android:padding="16dp"
+                    android:text="@string/copy"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
+                    android:visibility="visible" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/move_layout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:alpha="0.87"
-                android:drawableLeft="@mipmap/ic_rename"
-                android:drawablePadding="24dp"
-                android:gravity="center_vertical"
-                android:padding="16dp"
-                android:text="@string/rename"
-                android:textColor="@color/black"
-                android:textSize="16sp"
-                android:visibility="visible" />
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/move_image"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:src="@mipmap/ic_move"
+                    android:layout_marginLeft="18dp"/>
+
+                <TextView
+                    android:id="@+id/move"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="5dp"
+                    android:layout_toRightOf="@+id/move_image"
+                    android:alpha="0.87"
+                    android:gravity="center_vertical"
+                    android:padding="16dp"
+                    android:text="@string/move"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
+                    android:visibility="visible" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/rename_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/rename_image"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:src="@mipmap/ic_rename"
+                    android:layout_marginLeft="18dp"/>
+
+                <TextView
+                    android:id="@+id/rename"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="5dp"
+                    android:layout_toRightOf="@+id/rename_image"
+                    android:alpha="0.87"
+                    android:gravity="center_vertical"
+                    android:padding="16dp"
+                    android:text="@string/rename"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
+                    android:visibility="visible" />
+
+            </RelativeLayout>
 
             <TextView
                 android:id="@+id/delete"

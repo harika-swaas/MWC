@@ -1,16 +1,17 @@
 package com.swaas.mwc.API.Service;
 
 import com.squareup.okhttp.RequestBody;
+import com.swaas.mwc.API.Model.BaseApiResponse;
 import com.swaas.mwc.API.Model.ListPinDevicesResponse;
 import com.swaas.mwc.API.Model.UploadEndUsersDocumentResponse;
 
 import java.util.Map;
 
 import retrofit.Call;
-import retrofit.http.FieldMap;
 import retrofit.http.Header;
 import retrofit.http.Multipart;
 import retrofit.http.POST;
+import retrofit.http.Part;
 import retrofit.http.PartMap;
 
 /**
@@ -21,7 +22,12 @@ public interface UploadEndUsersDocumentService {
 
     @Multipart
     @POST("/upload-end-users-document")
-    Call<ListPinDevicesResponse<UploadEndUsersDocumentResponse>> getUploadEndUsersDocument(@PartMap Map<String, RequestBody> userParams,
-                                                                                           @PartMap Map<String, RequestBody> params,
+    Call<ListPinDevicesResponse<UploadEndUsersDocumentResponse>> getUploadEndUsersDocument(@Part("data") RequestBody data,
+                                                                                           @PartMap Map<String, RequestBody> fileParams,
                                                                                            @Header("access-token") String accessToken);
+    @Multipart
+    @POST("/upload-end-users-document")
+    Call<BaseApiResponse<UploadEndUsersDocumentResponse>> getUploadUsersDocument(@Part("data") RequestBody data,
+                                                                                 @PartMap Map<String, RequestBody> fileParams,
+                                                                                 @Header("access-token") String accessToken);
 }

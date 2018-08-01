@@ -9,7 +9,6 @@ import retrofit.Call;
 import retrofit.http.FieldMap;
 import retrofit.http.FormUrlEncoded;
 import retrofit.http.Header;
-import retrofit.http.Headers;
 import retrofit.http.POST;
 
 /**
@@ -18,7 +17,6 @@ import retrofit.http.POST;
 
 public interface DocumentNotesService {
 
-    @Headers("content-type: application/x-www-form-urlencoded")
     @POST("/get-user-notes-list")
     @FormUrlEncoded
     Call<ListPinDevicesResponse<DocumentNotesResponse>> getdocumentnotes(@FieldMap Map<String, String> params, @Header("access-token") String accessToken);

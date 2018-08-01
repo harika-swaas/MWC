@@ -5,11 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.CountDownTimer;
-import android.os.Handler;
 import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
-import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.swaas.mwc.API.Model.AccountSettingsResponse;
@@ -32,7 +29,7 @@ import java.util.TimerTask;
  */
 
 public class LoginActivity extends RootActivity {
-
+    Authenticate authenticate ;
     LoginFragment mLoginFragment;
     KeyguardManager keyguardManager;
     private static final int CREDENTIALS_RESULT = 4342;
@@ -54,12 +51,16 @@ public class LoginActivity extends RootActivity {
                 addToBackStack(null).commit();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onResume() {
         super.onResume();
+
         checkAppStatus();
+
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void checkAppStatus() {
         String loginStatus = "";
         getLoggedInStatus();
@@ -81,6 +82,7 @@ public class LoginActivity extends RootActivity {
 
             Intent intent = new Intent(LoginActivity.this, SplashScreen.class);
             startActivity(intent);
+            finish();
 
             int timeout = 2000; // make the activity visible for 2 seconds
 
@@ -97,16 +99,22 @@ public class LoginActivity extends RootActivity {
                 }
             }, timeout);
         }
+
         else {
             checkAppStatusAfterPushNotification(mAccountSettingsResponses);
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void checkAppStatusAfterPushNotification(final List<AccountSettingsResponse> mAccountSettingsResponses) {
 
         if(mAccountSettingsResponses.get(0).getIs_Terms_Accepted().equals("0")){
+            if(mAccountSettingsResponses.get(0).getIs_Local_Auth_Enabled().equalsIgnoreCase("2")) {
+                checkCredentials();
+            }
             Intent intent = new Intent(LoginActivity.this, SplashScreen.class);
             startActivity(intent);
+            finish();
 
             int timeout = 2000; // make the activity visible for 2 seconds
 
@@ -117,17 +125,19 @@ public class LoginActivity extends RootActivity {
                 @Override
                 public void run() {
                     finish();
-                    if(mAccountSettingsResponses.get(0).getIs_Local_Auth_Enabled().equalsIgnoreCase(String.valueOf(Constants.Local_Auth_Completed))) {
-                        checkCredentials();
-                    }
+
                     startActivity(new Intent(LoginActivity.this, LoginAgreeTermsAcceptanceActivity.class));
                     LoginActivity.this.finish();
                 }
             }, timeout);
         }
-        else if(mAccountSettingsResponses.get(0).getIs_Help_Accepted().equals("1")){
+        else if(mAccountSettingsResponses.get(0).getIs_Help_Accepted().equals("0")){
+            if(mAccountSettingsResponses.get(0).getIs_Local_Auth_Enabled().equalsIgnoreCase("2")) {
+                checkCredentials();
+            }
             Intent intent = new Intent(LoginActivity.this, SplashScreen.class);
             startActivity(intent);
+            finish();
 
             int timeout = 2000; // make the activity visible for 2 seconds
 
@@ -138,17 +148,16 @@ public class LoginActivity extends RootActivity {
                 @Override
                 public void run() {
                     finish();
-                    if(mAccountSettingsResponses.get(0).getIs_Local_Auth_Enabled().equalsIgnoreCase(String.valueOf(Constants.Local_Auth_Completed))) {
-                        checkCredentials();
-                    }
                     startActivity(new Intent(LoginActivity.this, LoginHelpUserGuideActivity.class));
                     LoginActivity.this.finish();
                 }
             }, timeout);
         }
         else {
+
             Intent intent = new Intent(LoginActivity.this, SplashScreen.class);
             startActivity(intent);
+            finish();
 
             int timeout = 2000; // make the activity visible for 2 seconds
 
@@ -159,11 +168,12 @@ public class LoginActivity extends RootActivity {
                 @Override
                 public void run() {
                     finish();
-                    if(mAccountSettingsResponses.get(0).getIs_Local_Auth_Enabled().equalsIgnoreCase(String.valueOf(Constants.Local_Auth_Completed))) {
-                        checkCredentials();
-                    }
+
                     startActivity(new Intent(LoginActivity.this, MyFoldersDMSActivity.class));
                     LoginActivity.this.finish();
+                    if(mAccountSettingsResponses.get(0).getIs_Local_Auth_Enabled().equalsIgnoreCase("2")) {
+                        checkCredentials();
+                    }
                 }
             }, timeout);
         }
@@ -202,7 +212,6 @@ public class LoginActivity extends RootActivity {
             LoginActivity.this.finish();
         }
     }
-
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void checkCredentials(){
         keyguardManager = (KeyguardManager) this.getSystemService(Context.KEYGUARD_SERVICE);
@@ -211,11 +220,17 @@ public class LoginActivity extends RootActivity {
         if (credentialsIntent != null) {
             startActivityForResult(credentialsIntent, CREDENTIALS_RESULT);
         }
-    }
 
+        else {
+            //no password needed
+        }
+    }
     public void onActivityResult(int requestCode, int resultCode, Bundle data) {
+
         if (requestCode == CREDENTIALS_RESULT) {
+
             if (resultCode == RESULT_OK) {
+
 
             }
         }

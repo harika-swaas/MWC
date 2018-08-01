@@ -1,48 +1,29 @@
 package com.swaas.mwc.API.Model;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
+import java.io.Serializable;
 
 /**
  * Created by harika on 12-07-2018.
  */
 
-public class GetCategoryDocumentsResponse {
+public class GetCategoryDocumentsResponse implements Serializable{
 
-    @SerializedName("object_id")
-    @Expose
     private String object_id;
 
-    @SerializedName("document_version_id")
-    @Expose
     private String document_version_id;
 
-    @SerializedName("name")
-    @Expose
     private String name;
 
-    @SerializedName("created_date")
-    @Expose
     private String created_date;
 
-    @SerializedName("filetype")
-    @Expose
     private String filetype;
 
-    @SerializedName("filesize")
-    @Expose
     private String filesize;
 
-    @SerializedName("unix_date")
-    @Expose
     private String unix_date;
 
-    @SerializedName("type")
-    @Expose
     private String type;
-
-    public Permissions permission;
-
+    
     public String getObject_id() {
         return object_id;
     }

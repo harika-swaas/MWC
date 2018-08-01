@@ -1,6 +1,7 @@
 package com.swaas.mwc.Fragments;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -13,7 +14,7 @@ import com.swaas.mwc.API.Model.DocumentHistoryResponse;
 import com.swaas.mwc.API.Model.ListPinDevicesResponse;
 import com.swaas.mwc.API.Service.DocumentHistoryService;
 import com.swaas.mwc.Adapters.HistoryAdapter;
-import com.swaas.mwc.DMS.Tab_Activity;
+import com.swaas.mwc.Common.SimpleDividerItemDecoration;
 import com.swaas.mwc.Dialogs.LoadingProgressDialog;
 import com.swaas.mwc.Network.NetworkUtils;
 import com.swaas.mwc.Preference.PreferenceUtils;
@@ -33,12 +34,14 @@ import retrofit.Retrofit;
  * Created by barath on 7/19/2018.
  */
 
-public class History_Fragment extends android.support.v4.app.Fragment {
-    Tab_Activity mActivity;
-    RecyclerView recyclerView;
-    HistoryAdapter historyAdapter;
+public class History_Fragment extends Fragment {
+
+    RecyclerView mRecyclerView;
+    HistoryAdapter mAdapter;
 
     List<DocumentHistoryResponse> documentHistoryResponses;
+
+
     public static History_Fragment newInstance() {
         History_Fragment fragment = new History_Fragment();
         return fragment;
@@ -53,22 +56,19 @@ public class History_Fragment extends android.support.v4.app.Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View mView= inflater.inflate(R.layout.tab_fragment_3, container, false);
-        recyclerView =(RecyclerView) mView.findViewById(R.id.lis_history);
+        View mView = inflater.inflate(R.layout.tab_fragment_3, container, false);
+        mRecyclerView = (RecyclerView) mView.findViewById(R.id.history_view);
         gethistory();
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        historyAdapter = new HistoryAdapter(documentHistoryResponses,getActivity());
-        recyclerView.setAdapter(historyAdapter);
+
         return mView;
     }
 
-    public void gethistory()
-    {
+    public void gethistory() {
         if (NetworkUtils.isNetworkAvailable(getActivity())) {
+
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
             final DocumentHistoryService documentHistoryService = retrofitAPI.create(DocumentHistoryService.class);
-            final DocumentHistoryResponse documentHistoryResponse ;
+
             final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(getActivity());
             transparentProgressDialog.show();
 
@@ -90,20 +90,9 @@ public class History_Fragment extends android.support.v4.app.Fragment {
                         if (apiResponse.status.getCode() == Boolean.FALSE) {
                             transparentProgressDialog.dismiss();
                             documentHistoryResponses = response.body().getData();
+                            setAdapterToView(documentHistoryResponses);
+                        } else {
                         }
-
-                        else {
-
-                            String mMessage = apiResponse.status.getMessage().toString();
-                           /*// mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener()
-                                {
-                                @Override
-                                public void onClick(View view) {
-                                    startActivity(new Intent(mActivity, LoginActivity.class));
-                                    mActivity.finish();
-                                }
-                            }, false);
-                        */}
                     }
                 }
 
@@ -113,6 +102,15 @@ public class History_Fragment extends android.support.v4.app.Fragment {
                 }
             });
         }
+    }
+
+    private void setAdapterToView(List<DocumentHistoryResponse> documentHistoryResponses) {
+
+        mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity().getApplicationContext()));
+        mAdapter = new HistoryAdapter(documentHistoryResponses, getActivity());
+        mRecyclerView.setAdapter(mAdapter);
     }
 
 }

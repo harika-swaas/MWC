@@ -53,7 +53,7 @@
     <string name="enable_touch">PROTECT MY DOCUMENT VAULT NOW</string>
     <string name="skip">Skip</string>
     <string name="touch_id_ques">Would you like to use the device unlock method to access DOC PORTAL</string>
-    <string name="touch_id_body">As an additional security step,enable finger print or password based access to prevent unauthorized access to your DOC PORTAL App.</string>
+    <string name="touch_id_body">As an additional security step, enable finger print or password based access to prevent unauthorized access to your DOC PORTAL App.</string>
     <string name="login_verification_text">As an additional security step to protect your document vault, we will now send you a unique PIN code to a telephone number you have pre-registered with us. The PIN will be sent as an SMS text message to mobiles, or as a voice message to landlines.</string>
     <string name="enable_notification">Notification for "DOC PORTAL"</string>
     <string name="enable_notification_button">Enable Notification"</string>
@@ -130,4 +130,5 @@
     <string name="camera">Camera</string>
     <string name="photo_library">Photo library</string>
     <string name="browse">Browse</string>
+    <string name="video">Video</string>
 </resources>

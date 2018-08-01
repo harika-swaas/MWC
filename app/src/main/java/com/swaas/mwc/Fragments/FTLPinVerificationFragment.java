@@ -3,19 +3,15 @@ package com.swaas.mwc.Fragments;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.KeyguardManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -425,15 +421,17 @@ public class FTLPinVerificationFragment extends Fragment {
                                 }
                             }
 
-                        } else if (apiResponse.status.getCode() instanceof Integer) {
+                        } else if (apiResponse.status.getCode() instanceof Double) {
                             String mMessage = apiResponse.status.getMessage().toString();
-                            mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    startActivity(new Intent(mActivity, LoginActivity.class));
-                                    mActivity.finish();
-                                }
-                            }, false);
+                            Object obj = 401.0;
+                            if(obj.equals(401.0)) {
+                                mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        startActivity(new Intent(mActivity, LoginActivity.class));
+                                    }
+                                }, false);
+                            }
                         }
                     }
                 }
@@ -489,15 +487,17 @@ public class FTLPinVerificationFragment extends Fragment {
                             } else {
 
                             }
-                        } else if (apiResponse.status.getCode() instanceof Integer) {
+                        } else if (apiResponse.status.getCode() instanceof Double) {
                             String mMessage = apiResponse.status.getMessage().toString();
-                            mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    startActivity(new Intent(mActivity, LoginActivity.class));
-                                    mActivity.finish();
-                                }
-                            }, false);
+                            Object obj = 401.0;
+                            if(obj.equals(401.0)) {
+                                mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        startActivity(new Intent(mActivity, LoginActivity.class));
+                                    }
+                                }, false);
+                            }
                         }
                     }
                 }
@@ -550,15 +550,17 @@ public class FTLPinVerificationFragment extends Fragment {
                                 transparentProgressDialog.dismiss();
                             }
 
-                        } else if (apiResponse.status.getCode() instanceof Integer) {
+                        } else if (apiResponse.status.getCode() instanceof Double) {
                             String mMessage = apiResponse.status.getMessage().toString();
-                            mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    startActivity(new Intent(mActivity, LoginActivity.class));
-                                    mActivity.finish();
-                                }
-                            }, false);
+                            Object obj = 401.0;
+                            if(obj.equals(401.0)) {
+                                mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        startActivity(new Intent(mActivity, LoginActivity.class));
+                                    }
+                                }, false);
+                            }
                         }
                     }
                 }
@@ -615,15 +617,17 @@ public class FTLPinVerificationFragment extends Fragment {
 
                             }
 
-                        } else if (apiResponse.status.getCode() instanceof Integer) {
+                        } else if (apiResponse.status.getCode() instanceof Double) {
                             String mMessage = apiResponse.status.getMessage().toString();
-                            mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    startActivity(new Intent(mActivity, LoginActivity.class));
-                                    mActivity.finish();
-                                }
-                            }, false);
+                            Object obj = 401.0;
+                            if(obj.equals(401.0)) {
+                                mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        startActivity(new Intent(mActivity, LoginActivity.class));
+                                    }
+                                }, false);
+                            }
                         }
 
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -682,16 +686,17 @@ public class FTLPinVerificationFragment extends Fragment {
                                 // Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
                             }
 
-                        } else if (apiResponse.status.getCode() instanceof Integer) {
-
+                        } else if (apiResponse.status.getCode() instanceof Double) {
                             String mMessage = apiResponse.status.getMessage().toString();
-                            mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    startActivity(new Intent(mActivity, LoginActivity.class));
-                                    mActivity.finish();
-                                }
-                            }, false);
+                            Object obj = 401.0;
+                            if(obj.equals(401.0)) {
+                                mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        startActivity(new Intent(mActivity, LoginActivity.class));
+                                    }
+                                }, false);
+                            }
                         }
                     }
                 }
@@ -737,16 +742,17 @@ public class FTLPinVerificationFragment extends Fragment {
                                 Toast.makeText(mActivity, "Pin Resent Successfully", Toast.LENGTH_SHORT).show();
                             }
 
-                        } else if (apiResponse.status.getCode() instanceof Integer) {
-
+                        } else if (apiResponse.status.getCode() instanceof Double) {
                             String mMessage = apiResponse.status.getMessage().toString();
-                            mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    startActivity(new Intent(mActivity, LoginActivity.class));
-                                    mActivity.finish();
-                                }
-                            }, false);
+                            Object obj = 401.0;
+                            if(obj.equals(401.0)) {
+                                mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        startActivity(new Intent(mActivity, LoginActivity.class));
+                                    }
+                                }, false);
+                            }
                         }
                     }
                 }

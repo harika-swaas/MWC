@@ -1,11 +1,7 @@
 package com.swaas.mwc.Login;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
@@ -15,27 +11,20 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.swaas.mwc.API.Model.BaseApiResponse;
 import com.swaas.mwc.API.Model.ListPinDevices;
-import com.swaas.mwc.API.Model.ListPinDevicesResponse;
 import com.swaas.mwc.API.Model.LoginResponse;
-import com.swaas.mwc.API.Model.VerifyFTLRequest;
-import com.swaas.mwc.API.Model.VerifyFTLResponse;
 import com.swaas.mwc.API.Service.ListPinDevicesService;
-import com.swaas.mwc.API.Service.SendFTLPINService;
 import com.swaas.mwc.API.Service.SendPinService;
 import com.swaas.mwc.Dialogs.LoadingProgressDialog;
-import com.swaas.mwc.FTL.FTLUserValidationActivity;
 import com.swaas.mwc.Network.NetworkUtils;
 import com.swaas.mwc.Preference.PreferenceUtils;
 import com.swaas.mwc.R;
 import com.swaas.mwc.Retrofit.RetrofitAPIBuilder;
+import com.swaas.mwc.RootActivity;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import dmax.dialog.SpotsDialog;
 import retrofit.Call;
 import retrofit.Callback;
 import retrofit.Response;
@@ -45,7 +34,7 @@ import retrofit.Retrofit;
  * Created by barath on 6/24/2018.
  */
 
-public class Pin extends Activity {
+public class Pin extends RootActivity {
     Button button1;
     RecyclerView recyclerView;
     Pin pinActivity;

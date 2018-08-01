@@ -97,6 +97,7 @@
                     android:drawableLeft="@mipmap/ic_username"
                     android:drawablePadding="24dp"
                     android:hint="@string/user_name"
+                    android:singleLine="true"
                     android:inputType="textEmailAddress"
                     android:paddingBottom="10dp"
                     android:paddingLeft="24dp"
@@ -104,7 +105,8 @@
                     android:paddingTop="10dp"
                     android:textColor="@color/black_semi_transparent"
                     android:textSize="16sp"
-                    android:textStyle="normal" />
+                    android:textStyle="normal"
+                    android:imeOptions="actionGo"/>
 
                 <EditText
                     android:id="@+id/edit_password"
@@ -122,7 +124,8 @@
                     android:paddingTop="10dp"
                     android:textColor="@color/black_semi_transparent"
                     android:textSize="16sp"
-                    android:textStyle="normal" />
+                    android:textStyle="normal"
+                    />
 
                 <android.support.v7.widget.AppCompatButton
                     android:id="@+id/sign_in"

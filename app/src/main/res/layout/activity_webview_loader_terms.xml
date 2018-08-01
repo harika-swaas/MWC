@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black"
+    android:background="@color/white"
     android:orientation="vertical">
 
     <WebView
@@ -26,9 +26,10 @@
         style="@style/AVLoadingIndicatorView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="visible"
+        android:visibility="gone"
         app:indicatorColor="@color/orange"
         app:indicatorName="BallPulseIndicator"
-        android:layout_centerInParent="true"/>
+        android:layout_centerInParent="true"
+       />
 
 </RelativeLayout>

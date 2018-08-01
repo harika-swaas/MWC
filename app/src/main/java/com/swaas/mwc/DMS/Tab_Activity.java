@@ -6,12 +6,12 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 
 import com.swaas.mwc.Fragments.History_Fragment;
 import com.swaas.mwc.Fragments.Notes_Fragment;
 import com.swaas.mwc.Fragments.Properties_Fragment;
 import com.swaas.mwc.R;
+import com.swaas.mwc.RootActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +20,7 @@ import java.util.List;
  * Created by barath on 7/19/2018.
  */
 
-public class Tab_Activity extends AppCompatActivity {
+public class Tab_Activity extends RootActivity {
 
     private TabLayout tabLayout;
     private ViewPager viewPager;
@@ -28,9 +28,7 @@ public class Tab_Activity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.document_history_tab_layout);
-
-
+        setMainContentView(R.layout.document_history_tab_layout);
 
         viewPager = (ViewPager) findViewById(R.id.simpleViewPager);
         addTabs(viewPager);

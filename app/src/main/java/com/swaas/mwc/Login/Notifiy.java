@@ -2,32 +2,21 @@ package com.swaas.mwc.Login;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.support.annotation.RequiresApi;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.Manifest;
-import android.widget.Toast;
 
-import com.google.firebase.messaging.FirebaseMessaging;
 import com.swaas.mwc.API.Model.AccountSettingsResponse;
 import com.swaas.mwc.API.Model.WhiteLabelResponse;
 import com.swaas.mwc.Database.AccountSettings;
-import com.swaas.mwc.Preference.PreferenceUtils;
 import com.swaas.mwc.R;
 import com.swaas.mwc.Utils.Constants;
 
@@ -94,6 +83,10 @@ public class Notifiy extends Activity {
                                     startActivity(intent);
                                     finish();
                                 }
+                            } else {
+                                Intent intent = new Intent(Notifiy.this, LoginHelpUserGuideActivity.class);
+                                startActivity(intent);
+                                finish();
                             }
                         }
                     }

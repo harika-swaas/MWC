@@ -23,15 +23,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.swaas.mwc.API.Model.AccountSettingsResponse;
 import com.swaas.mwc.API.Model.BaseApiResponse;
 import com.swaas.mwc.API.Model.FTLProcessResponse;
-import com.swaas.mwc.API.Model.VerifyFTLRequestWithEMail;
 import com.swaas.mwc.API.Model.WhiteLabelResponse;
 import com.swaas.mwc.API.Service.FTLProcessService;
-import com.swaas.mwc.API.Service.VerifyFTLDetailsService;
 import com.swaas.mwc.Database.AccountSettings;
 import com.swaas.mwc.FTL.FTLPasswordValidationActivity;
 import com.swaas.mwc.FTL.FTLPinVerificationActivity;
@@ -473,16 +469,17 @@ public class FTLUserValidationFragment extends Fragment {
 
                             }
 
-                        } else if (apiResponse.status.getCode() instanceof Integer) {
-
+                        } else if (apiResponse.status.getCode() instanceof Double) {
                             String mMessage = apiResponse.status.getMessage().toString();
-                            mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    startActivity(new Intent(mActivity, LoginActivity.class));
-                                    mActivity.finish();
-                                }
-                            }, false);
+                            Object obj = 401.0;
+                            if(obj.equals(401.0)) {
+                                mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        startActivity(new Intent(mActivity, LoginActivity.class));
+                                    }
+                                }, false);
+                            }
                         }
                     }
                 }

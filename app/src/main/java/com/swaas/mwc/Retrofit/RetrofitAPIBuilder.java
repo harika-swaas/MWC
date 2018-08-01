@@ -1,7 +1,10 @@
 package com.swaas.mwc.Retrofit;
 
+import android.os.Build;
+
 import com.facebook.stetho.okhttp.StethoInterceptor;
 import com.squareup.okhttp.OkHttpClient;
+import com.swaas.mwc.BuildConfig;
 import com.swaas.mwc.Utils.Constants;
 
 import java.util.concurrent.TimeUnit;
@@ -16,11 +19,18 @@ import retrofit.Retrofit;
 public class RetrofitAPIBuilder {
 
     static Retrofit retrofit = null;
+
     public static synchronized Retrofit getInstance() {
 
         /*String UA = System.getProperty("http.agent");*/
 
-        String UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36";
+        int versionCode = BuildConfig.VERSION_CODE;
+        String versionName = BuildConfig.VERSION_NAME;
+        String versionRelease = Build.VERSION.RELEASE;
+        String MwcApp = "MWCApp";
+
+        String UA = "(MWCAndroid)"+"("+MwcApp + " " + versionName+"["+versionCode+"]"+")"+"(Android" + " " + versionRelease+")";
+      //  String UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36";
 
         final OkHttpClient okHttpClient = new OkHttpClient();
         okHttpClient.setReadTimeout(600, TimeUnit.SECONDS);

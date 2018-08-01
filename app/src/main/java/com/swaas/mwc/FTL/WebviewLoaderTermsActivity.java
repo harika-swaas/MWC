@@ -12,6 +12,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 
+import com.swaas.mwc.Dialogs.LoadingProgressDialog;
 import com.swaas.mwc.R;
 import com.swaas.mwc.Utils.Constants;
 import com.wang.avi.AVLoadingIndicatorView;
@@ -25,7 +26,7 @@ public class WebviewLoaderTermsActivity extends AppCompatActivity {
     private WebView mHelpWebview;
     ProgressBar mProgressBar;
     private AVLoadingIndicatorView mAviLoadingIndicatorView;
-    String mUrl, mTermsPageContentUrl, mAssistanceHelpGuideUrl;
+    String mUrl, mTermsPageContentUrl, mAssistanceHelpGuideUrl, mDocumentPDFUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,9 +57,14 @@ public class WebviewLoaderTermsActivity extends AppCompatActivity {
             mHelpWebview.loadUrl(mTermsPageContentUrl);
         } else if (!TextUtils.isEmpty(mAssistanceHelpGuideUrl)) {
             mHelpWebview.loadUrl(mAssistanceHelpGuideUrl);
+        } else if (!TextUtils.isEmpty(mDocumentPDFUrl)) {
+            mHelpWebview.loadUrl("http://docs.google.com/gview?embedded=true&url=" + mDocumentPDFUrl);
         }
 
-        mAviLoadingIndicatorView.show();
+      //  mAviLoadingIndicatorView.show();
+
+        final LoadingProgressDialog loadingProgressDialog = new LoadingProgressDialog(WebviewLoaderTermsActivity.this);
+        loadingProgressDialog.show();
 
         WebViewClient webViewClient = new WebViewClient() {
             @Override
@@ -66,7 +72,7 @@ public class WebviewLoaderTermsActivity extends AppCompatActivity {
                 super.onPageStarted(view, url, favicon);
 
                 Log.d("<==>Loading","Loading");
-                mAviLoadingIndicatorView.show();
+                loadingProgressDialog.show();
             }
 
             @Override
@@ -74,7 +80,7 @@ public class WebviewLoaderTermsActivity extends AppCompatActivity {
                 super.onPageFinished(view, url);
 
                 mHelpWebview.setVisibility(View.VISIBLE);
-                mAviLoadingIndicatorView.hide();
+                loadingProgressDialog.dismiss();
                 Log.d("<==>Finished","Finished");
             }
 
@@ -99,6 +105,15 @@ public class WebviewLoaderTermsActivity extends AppCompatActivity {
             mUrl = getIntent().getStringExtra(Constants.SETTERMS);
             mTermsPageContentUrl = getIntent().getStringExtra(Constants.SETTERMSPAGECONTENTURL);
             mAssistanceHelpGuideUrl = getIntent().getStringExtra(Constants.SETASSISTANCEPOPUPCONTENTURL);
+            mDocumentPDFUrl = getIntent().getStringExtra(Constants.DOCUMENTPDFURL);
+        }
+    }
+
+    private class Callback extends WebViewClient {
+        @Override
+        public boolean shouldOverrideUrlLoading(
+                WebView view, String url) {
+            return(false);
         }
     }
 }

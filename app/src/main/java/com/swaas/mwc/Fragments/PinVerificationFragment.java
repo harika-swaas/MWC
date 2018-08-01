@@ -1,6 +1,5 @@
 package com.swaas.mwc.Fragments;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -13,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.swaas.mwc.API.Model.ListPinDevices;
@@ -23,11 +21,8 @@ import com.swaas.mwc.API.Model.SendPinRequest;
 import com.swaas.mwc.API.Service.ListPinDevicesService;
 import com.swaas.mwc.API.Service.SendPinService;
 import com.swaas.mwc.Adapters.PinDeviceAdapter;
-import com.swaas.mwc.Common.SimpleDividerItemDecoration;
 import com.swaas.mwc.Dialogs.LoadingProgressDialog;
-import com.swaas.mwc.FTL.FTLActivity;
 import com.swaas.mwc.FTL.FTLPinVerificationActivity;
-import com.swaas.mwc.FTL.FTLRegistrationActivity;
 import com.swaas.mwc.Login.LoginActivity;
 import com.swaas.mwc.Login.PinVerificationActivity;
 import com.swaas.mwc.Network.NetworkUtils;
@@ -40,7 +35,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import dmax.dialog.SpotsDialog;
 import retrofit.Call;
 import retrofit.Callback;
 import retrofit.Response;
@@ -107,6 +101,8 @@ public class PinVerificationFragment extends Fragment {
 
         if (NetworkUtils.isNetworkAvailable(mActivity)) {
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+            final LoadingProgressDialog loadingProgressDialog = new LoadingProgressDialog(mActivity);
+            loadingProgressDialog.show();
             final ListPinDevicesService listPinDevicesService = retrofitAPI.create(ListPinDevicesService.class);
             Call call = listPinDevicesService.getPinDevices(PreferenceUtils.getAccessToken(mActivity));
             call.enqueue(new Callback<ListPinDevicesResponse<ListPinDevices>>() {
@@ -115,27 +111,31 @@ public class PinVerificationFragment extends Fragment {
                     ListPinDevicesResponse apiResponse = response.body();
                     if (apiResponse != null) {
 
+                        loadingProgressDialog.dismiss();
                         if (apiResponse.status.getCode() instanceof Boolean) {
                             if (apiResponse.status.getCode() == Boolean.FALSE) {
                                 mListPinDevices = response.body().getData();
                                 setAdapter(mListPinDevices);
                             }
 
-                        } else if (apiResponse.status.getCode() instanceof Integer) {
+                        } else if (apiResponse.status.getCode() instanceof Double) {
                             String mMessage = apiResponse.status.getMessage().toString();
-                            mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    startActivity(new Intent(mActivity, LoginActivity.class));
-                                    mActivity.finish();
-                                }
-                            }, false);
+                            Object obj = 401.0;
+                            if(obj.equals(401.0)) {
+                                mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        startActivity(new Intent(mActivity, LoginActivity.class));
+                                    }
+                                }, false);
+                            }
                         }
                     }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
+                    loadingProgressDialog.dismiss();
                     Log.d("PinDevice error", t.getMessage());
                 }
             });
@@ -184,16 +184,17 @@ public class PinVerificationFragment extends Fragment {
                                 startActivity(intent);
                             }
 
-                        } else if (apiResponse.status.getCode() instanceof Integer) {
-
+                        } else if (apiResponse.status.getCode() instanceof Double) {
                             String mMessage = apiResponse.status.getMessage().toString();
-                            mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    startActivity(new Intent(mActivity, LoginActivity.class));
-                                    mActivity.finish();
-                                }
-                            }, false);
+                            Object obj = 401.0;
+                            if(obj.equals(401.0)) {
+                                mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        startActivity(new Intent(mActivity, LoginActivity.class));
+                                    }
+                                }, false);
+                            }
                         }
                     }
                 }
