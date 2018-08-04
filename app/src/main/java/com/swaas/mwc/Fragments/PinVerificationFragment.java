@@ -44,7 +44,7 @@ import retrofit.Retrofit;
  * Created by harika on 02-07-2018.
  */
 
-public class PinVerificationFragment extends Fragment {
+public class  PinVerificationFragment extends Fragment {
 
     PinVerificationActivity mActivity;
     View mView;

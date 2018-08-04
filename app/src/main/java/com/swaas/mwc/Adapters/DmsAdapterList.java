@@ -29,6 +29,7 @@ import com.swaas.mwc.API.Model.ListPinDevicesResponse;
 import com.swaas.mwc.API.Model.WhiteLabelResponse;
 import com.swaas.mwc.API.Service.DocumentPreviewService;
 import com.swaas.mwc.API.Service.GetCategoryDocumentsService;
+import com.swaas.mwc.DMS.MyFolderActivity;
 import com.swaas.mwc.DMS.MyFolderSharedDocuments;
 import com.swaas.mwc.DMS.MyFoldersDMSActivity;
 import com.swaas.mwc.DMS.Tab_Activity;
@@ -70,13 +71,15 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
     List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList<>();
 
     DocumentPreviewResponse getDocumentPreviewResponses;
-
+    String pageCount = "1";
     public DmsAdapterList(List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses,List<GetCategoryDocumentsResponse> mSelectedList, Activity context) {
         this.context = context;
         this.mGetCategoryDocumentsResponses = getCategoryDocumentsResponses;
         this.mSelectedList=mSelectedList;
         mSelected = new HashSet<>();
     }
+
+
 
     public void toggleSelection(int pos)
     {
@@ -339,7 +342,7 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                 @Override
                 public void onClick(View v) {
                     if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("category")) {
-                        getSubCategoryDocuments(mGetCategoryDocumentsResponses.get(position).getObject_id());
+                        getSubCategoryDocuments(mGetCategoryDocumentsResponses.get(position).getObject_id(),pageCount);
 
                         doc_id.add(mGetCategoryDocumentsResponses.get(position).getObject_id());
                     }
@@ -480,6 +483,14 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
 
         docText.setText(name);
 
+        moveImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, MyFolderActivity.class);
+                context.startActivity(intent);
+            }
+        });
+
         doclayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -616,7 +627,7 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
         mBottomSheetDialog.show();
     }
 
-    public void getSubCategoryDocuments(String object_id) {
+    public void getSubCategoryDocuments(String object_id,String page) {
 
         if (NetworkUtils.isNetworkAvailable(context)) {
 
@@ -634,7 +645,7 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
             params.put("data", request);
 
             final GetCategoryDocumentsService mGetCategoryDocumentsService = retrofitAPI.create(GetCategoryDocumentsService.class);
-            Call call = mGetCategoryDocumentsService.getCategoryDocumentsV2(params, PreferenceUtils.getAccessToken(context));
+            Call call = mGetCategoryDocumentsService.getCategoryDocumentsV2(params, PreferenceUtils.getAccessToken(context),page);
 
             call.enqueue(new Callback<ListPinDevicesResponse<GetCategoryDocumentsResponse>>() {
                 @Override
@@ -649,6 +660,20 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                                 transparentProgressDialog.dismiss();
                                 getCategoryDocumentsResponses = response.body().getData();
                                 refreshAdapterToView(getCategoryDocumentsResponses);
+
+                                if(response.headers() != null)
+                                {
+                                    String paging =  response.headers().get("X-Pagination-Page-Count");
+                                    pageCount = paging;
+
+
+/*
+                                    getCategoryDocumentsResponses.add(getCategoryDocumentsResponses.size()-1, (GetCategoryDocumentsResponse) mGetCategoryDocumentsResponses);
+*/
+
+
+                                }
+
                             }
 
                         } else if (apiResponse.status.getCode() instanceof Integer) {

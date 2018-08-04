@@ -8,6 +8,10 @@ import java.io.Serializable;
 
 public class GetCategoryDocumentsResponse implements Serializable{
 
+    private int Is_Loading;
+
+
+
     private String object_id;
 
     private String document_version_id;
@@ -86,5 +90,13 @@ public class GetCategoryDocumentsResponse implements Serializable{
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public int getIs_Loading() {
+        return Is_Loading;
+    }
+
+    public void setIs_Loading(int is_Loading) {
+        Is_Loading = is_Loading;
     }
 }

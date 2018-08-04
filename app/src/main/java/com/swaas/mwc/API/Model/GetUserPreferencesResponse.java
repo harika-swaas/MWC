@@ -6,7 +6,7 @@ package com.swaas.mwc.API.Model;
 
 public class GetUserPreferencesResponse {
 
-    private String preview_pane;
+    private String preview_pane ;
     private String view_type;
     private String shared_preview_pane;
     private String shared_view_type;

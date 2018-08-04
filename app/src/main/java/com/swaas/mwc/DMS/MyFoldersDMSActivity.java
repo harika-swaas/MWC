@@ -19,6 +19,7 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -32,11 +33,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -82,8 +85,6 @@ import java.io.File;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -133,10 +134,12 @@ public class MyFoldersDMSActivity extends RootActivity {
     boolean sortByDateAsc = true;
     boolean isSortByDefault = true;
     List<GetCategoryDocumentsResponse> mGetCategoryDocumentsResponses;
+    List<GetCategoryDocumentsResponse> listGetCategoryDocuments = new ArrayList<>();
     List<GetCategoryDocumentsResponse> mSelectedDocumentList = new ArrayList<>();
     RecyclerView mRecyclerView;
     DmsAdapter mAdapter;
     DmsAdapterList mAdapterList;
+    RelativeLayout indicatorParentView;
     private DragSelectionProcessor.Mode mMode = DragSelectionProcessor.Mode.Simple;
     private DragSelectTouchListener mDragSelectTouchListener;
     private DragSelectionProcessor mDragSelectionProcessor;
@@ -161,25 +164,204 @@ public class MyFoldersDMSActivity extends RootActivity {
     private boolean isLoading = false;
     private boolean isLastPage = false;
     // limiting to 5 for this tutorial, since total pages in actual API is very large. Feel free to modify.
-    private int TOTAL_PAGES = 5;
+
     private int currentPage = PAGE_START;
     LinearLayoutManager linearLayoutManager;
     TextView sort;
     String imageEncoded;
     List<WhiteLabelResponse> mWhiteLabelResponses;
-
+    NestedScrollView scrollView;
+    int pageNumber = 0;
+    int totalPages=1;
+    String obj="0";
+    Context context=this;
+    List<GetCategoryDocumentsResponse> paginationList = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.my_folders_dms_fragment);
 
         intializeViews();
+        mRecyclerView.setNestedScrollingEnabled(false);
         loadBottomNavigation();
         // switchFragment(FOLDER_FRAGMENT);
-        getCategoryDocuments();
+        getCategoryDocuments("0",String.valueOf(pageNumber));
         getWhiteLabelProperities();
 
         addListenersToViews();
+
+       /* mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+
+                if (dy > 0) {
+
+                    // Recycle view scrolling down...
+
+                }
+            }
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if(mRecyclerView.SCROLL_STATE_IDLE==newState){
+                    if(recyclerView.canScrollVertically(RecyclerView.SCROLL_STATE_DRAGGING) == false){
+                       // Toast.makeText(MyFoldersDMSActivity.this, "Reached the end of recycler view", Toast.LENGTH_SHORT).show()
+                        String object= PreferenceUtils.getObjectId(MyFoldersDMSActivity.this);
+                        getCategoryDocuments(object,pageCount);
+
+                    }
+                    //fragProductLl.setVisibility(View.GONE);
+                }
+
+            }
+
+        });*/
+
+        scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+            @Override
+            public void onScrollChanged() {
+                if (scrollView != null) {
+                    if (scrollView.getChildAt(0).getBottom() == (scrollView.getHeight() + scrollView.getScrollY())) {
+                        //scroll view is at bottom
+                        String object= PreferenceUtils.getObjectId(MyFoldersDMSActivity.this);
+                        obj=object;
+
+                        Toast.makeText(MyFoldersDMSActivity.this, "end position", Toast.LENGTH_SHORT).show();
+
+                        if(pageNumber < totalPages) {
+                            pageNumber=pageNumber+1;
+                            getCategoryDocumentsNext(obj, String.valueOf(pageNumber));
+
+                        }
+                    }
+                    else {
+                        //scroll view is not at bottom
+                    }
+                }
+            }
+        });
+
+
+
+    }
+
+    public void getCategoryDocumentsNext(String obj, String page)
+    {
+
+        if (NetworkUtils.isNetworkAvailable(MyFoldersDMSActivity.this)) {
+
+            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+
+            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(this);
+            transparentProgressDialog.show();
+
+            final GetCategoryDocumentsRequest mGetCategoryDocumentsRequest;
+
+            mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(Integer.parseInt(obj), "list", "category", "1", "0");
+
+            String request = new Gson().toJson(mGetCategoryDocumentsRequest);
+
+            //Here the json data is add to a hash map with key data
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("data", request);
+
+            final GetCategoryDocumentsService mGetCategoryDocumentsService = retrofitAPI.create(GetCategoryDocumentsService.class);
+
+            Call call = mGetCategoryDocumentsService.getCategoryDocumentsV2(params, PreferenceUtils.getAccessToken(this),page);
+
+            call.enqueue(new Callback<ListPinDevicesResponse<GetCategoryDocumentsResponse>>() {
+                @Override
+                public void onResponse(Response<ListPinDevicesResponse<GetCategoryDocumentsResponse>> response, Retrofit retrofit) {
+                    ListPinDevicesResponse apiResponse = response.body();
+                    if (apiResponse != null) {
+
+                        transparentProgressDialog.dismiss();
+
+                        if (apiResponse.status.getCode() instanceof Boolean) {
+                            if (apiResponse.status.getCode() == Boolean.FALSE) {
+                                transparentProgressDialog.dismiss();
+
+                                listGetCategoryDocuments = response.body().getData();
+                                //mGetCategoryDocumentsResponses = response.body().getData();
+
+                                mGetCategoryDocumentsResponses.addAll(listGetCategoryDocuments);
+                                totalPages   = Integer.parseInt(response.headers().get("X-Pagination-Page-Count"));
+                                pageNumber = Integer.parseInt(response.headers().get("X-Pagination-Current-Page"));
+
+/*
+                                 if(Integer.parseInt(pageCount) > 1)
+                                {
+                                    paginationList = response.body().getData();
+                                    mGetCategoryDocumentsResponses.addAll(paginationList);
+
+                                }
+*/
+                                if( isFromList == true)
+                                {
+                                    setListAdapterToView(mGetCategoryDocumentsResponses);
+                                }
+                                else
+                                {
+                                    setGridAdapterToView(mGetCategoryDocumentsResponses);
+                                }
+
+                                //     paginationList.clear();
+
+
+
+                            }
+
+                        } else if (apiResponse.status.getCode() instanceof Double) {
+                            transparentProgressDialog.dismiss();
+                            String mMessage = apiResponse.status.getMessage().toString();
+
+                            Object obj = 401.0;
+                            if (obj.equals(401.0)) {
+                                final AlertDialog.Builder builder = new AlertDialog.Builder(MyFoldersDMSActivity.this);
+                                LayoutInflater inflater = (LayoutInflater) MyFoldersDMSActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+                                builder.setView(view);
+                                builder.setCancelable(false);
+
+                                TextView title = (TextView) view.findViewById(R.id.title);
+                                title.setText("Alert");
+
+                                TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+                                txtMessage.setText(mMessage);
+
+                                Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+                                Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+                                cancelButton.setVisibility(View.GONE);
+
+                                sendPinButton.setText("OK");
+
+                                sendPinButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        mAlertDialog.dismiss();
+                                        AccountSettings accountSettings = new AccountSettings(MyFoldersDMSActivity.this);
+                                        accountSettings.deleteAll();
+                                        startActivity(new Intent(MyFoldersDMSActivity.this, LoginActivity.class));
+                                    }
+                                });
+
+                                mAlertDialog = builder.create();
+                                mAlertDialog.show();
+                            }
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    transparentProgressDialog.dismiss();
+                    Log.d("PinDevice error", t.getMessage());
+                }
+            });
+        }
     }
 
     private void intializeViews() {
@@ -195,6 +377,8 @@ public class MyFoldersDMSActivity extends RootActivity {
         actionVideo = (FloatingActionButton) findViewById(R.id.menu_camera_video_item);
         sort = (TextView) findViewById(R.id.name_sort);
         toggleView = (RelativeLayout) findViewById(R.id.toggle_view);
+        indicatorParentView=(RelativeLayout) findViewById(R.id.nameIndicatorParentView);
+        scrollView = (NestedScrollView) findViewById(R.id.nest_scrollview);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -320,9 +504,9 @@ public class MyFoldersDMSActivity extends RootActivity {
         });
     }
 
-    private void getCategoryDocuments() {
+    public void getCategoryDocuments(String obj, String page) {
 
-        if (NetworkUtils.isNetworkAvailable(this)) {
+        if (NetworkUtils.isNetworkAvailable(context)) {
 
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
 
@@ -331,7 +515,7 @@ public class MyFoldersDMSActivity extends RootActivity {
 
             final GetCategoryDocumentsRequest mGetCategoryDocumentsRequest;
 
-            mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(0, "list", "category", "1", "0");
+            mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(Integer.parseInt(obj), "list", "category", "1", "0");
 
             String request = new Gson().toJson(mGetCategoryDocumentsRequest);
 
@@ -341,7 +525,7 @@ public class MyFoldersDMSActivity extends RootActivity {
 
             final GetCategoryDocumentsService mGetCategoryDocumentsService = retrofitAPI.create(GetCategoryDocumentsService.class);
 
-            Call call = mGetCategoryDocumentsService.getCategoryDocumentsV2(params, PreferenceUtils.getAccessToken(this));
+            Call call = mGetCategoryDocumentsService.getCategoryDocumentsV2(params, PreferenceUtils.getAccessToken(this),page);
 
             call.enqueue(new Callback<ListPinDevicesResponse<GetCategoryDocumentsResponse>>() {
                 @Override
@@ -354,8 +538,31 @@ public class MyFoldersDMSActivity extends RootActivity {
                         if (apiResponse.status.getCode() instanceof Boolean) {
                             if (apiResponse.status.getCode() == Boolean.FALSE) {
                                 transparentProgressDialog.dismiss();
+
+                         //      listGetCategoryDocuments = response.body().getData();
                                 mGetCategoryDocumentsResponses = response.body().getData();
+
+/*
+                                mGetCategoryDocumentsResponses.add((GetCategoryDocumentsResponse) listGetCategoryDocuments);
+*/
+
+                                totalPages  = Integer.parseInt(response.headers().get("X-Pagination-Page-Count"));
+                                pageNumber = Integer.parseInt(response.headers().get("X-Pagination-Current-Page"));
+
+/*
+                                if(Integer.parseInt(pageCount) > 1)
+                                {
+                                    paginationList = response.body().getData();
+                                    mGetCategoryDocumentsResponses.addAll(paginationList);
+
+                                }
+*/
+
                                 setGridAdapterToView(mGetCategoryDocumentsResponses);
+                           //     paginationList.clear();
+
+
+
                             }
 
                         } else if (apiResponse.status.getCode() instanceof Double) {
@@ -427,10 +634,11 @@ public class MyFoldersDMSActivity extends RootActivity {
             //Here the json data is add to a hash map with key data
             Map<String, String> params = new HashMap<String, String>();
             params.put("data", request);
+            params.put("page","2");
 
             final GetCategoryDocumentsService mGetCategoryDocumentsService = retrofitAPI.create(GetCategoryDocumentsService.class);
 
-            Call call = mGetCategoryDocumentsService.getCategoryDocumentsV2(params, PreferenceUtils.getAccessToken(this));
+            Call call = mGetCategoryDocumentsService.getCategoryDocumentsV2(params, PreferenceUtils.getAccessToken(this),"1");
 
             call.enqueue(new Callback<ListPinDevicesResponse<GetCategoryDocumentsResponse>>() {
                 @Override
@@ -446,6 +654,11 @@ public class MyFoldersDMSActivity extends RootActivity {
 
                                 mGetCategoryDocumentsResponses = response.body().getData();
                                 setGridAdapterToView(mGetCategoryDocumentsResponses);
+                                if(response.headers() != null)
+                                {
+                                    totalPages = Integer.parseInt(response.headers().get("X-Pagination-Page-Count"));
+                                    pageNumber = Integer.parseInt(response.headers().get("X-Pagination-Current-Page"));
+                                }
                             }
 
                         } else if (apiResponse.status.getCode() instanceof Double) {
@@ -502,6 +715,7 @@ public class MyFoldersDMSActivity extends RootActivity {
     }
 
     private void openBottomSheet() {
+
         View view = getLayoutInflater().inflate(R.layout.bottom_sheet, null);
 
         final TextView mSortByName = (TextView) view.findViewById(R.id.sort_by_name);
@@ -585,7 +799,14 @@ public class MyFoldersDMSActivity extends RootActivity {
                 sortNewestDoneImage.setVisibility(View.INVISIBLE);
                 sortSizeDoneImage.setVisibility(View.INVISIBLE);
                 sortDateDoneImage.setVisibility(View.INVISIBLE);
-                getCategoryDocumentsSortByName();
+            //    pageNumber=0;
+                totalPages=1;
+                mGetCategoryDocumentsResponses.clear();
+                listGetCategoryDocuments.clear();
+
+                getCategoryDocumentsSortByName("1");
+                scrollView.fullScroll(ScrollView.FOCUS_UP);
+
             }
         });
 
@@ -602,13 +823,18 @@ public class MyFoldersDMSActivity extends RootActivity {
                 sortNewestImage.setVisibility(View.VISIBLE);
                 sortSizeImage.setVisibility(View.INVISIBLE);
                 sortDateImage.setVisibility(View.INVISIBLE);
-
+               // indicatorParentView.setVisibility(View.INVISIBLE);
                 sortNameDoneImage.setVisibility(View.INVISIBLE);
                 sortNewestDoneImage.setVisibility(View.VISIBLE);
                 sortSizeDoneImage.setVisibility(View.INVISIBLE);
                 sortDateDoneImage.setVisibility(View.INVISIBLE);
+             //   pageNumber=0;
+                totalPages=1;
+                mGetCategoryDocumentsResponses.clear();
+                listGetCategoryDocuments.clear();
+                getCategoryDocumentsSortByNewest("1");
+                scrollView.fullScroll(ScrollView.FOCUS_UP);
 
-                getCategoryDocumentsSortByNewest();
             }
         });
 
@@ -625,13 +851,18 @@ public class MyFoldersDMSActivity extends RootActivity {
                 sortNewestImage.setVisibility(View.INVISIBLE);
                 sortSizeImage.setVisibility(View.VISIBLE);
                 sortDateImage.setVisibility(View.INVISIBLE);
-
+                // indicatorParentView.setVisibility(View.INVISIBLE);
                 sortNameDoneImage.setVisibility(View.INVISIBLE);
                 sortNewestDoneImage.setVisibility(View.INVISIBLE);
                 sortSizeDoneImage.setVisibility(View.VISIBLE);
                 sortDateDoneImage.setVisibility(View.INVISIBLE);
+            //    pageNumber=0;
+                totalPages=1;
+                mGetCategoryDocumentsResponses.clear();
+                listGetCategoryDocuments.clear();
+                getCategoryDocumentsSortBySize("1");
+                scrollView.fullScroll(ScrollView.FOCUS_UP);
 
-                getCategoryDocumentsSortBySize();
             }
         });
 
@@ -648,18 +879,24 @@ public class MyFoldersDMSActivity extends RootActivity {
                 sortNewestImage.setVisibility(View.INVISIBLE);
                 sortSizeImage.setVisibility(View.INVISIBLE);
                 sortDateImage.setVisibility(View.VISIBLE);
-
+                // indicatorParentView.setVisibility(View.INVISIBLE);
                 sortNameDoneImage.setVisibility(View.INVISIBLE);
                 sortNewestDoneImage.setVisibility(View.INVISIBLE);
                 sortSizeDoneImage.setVisibility(View.INVISIBLE);
                 sortDateDoneImage.setVisibility(View.VISIBLE);
+          //      pageNumber=0;
+                totalPages=1;
+                mGetCategoryDocumentsResponses.clear();
+                listGetCategoryDocuments.clear();
+                getCategoryDocumentsSortByDate("1");
+                scrollView.fullScroll(ScrollView.FOCUS_UP);
 
-                getCategoryDocumentsSortByDate();
+
             }
         });
     }
 
-    private void getCategoryDocumentsSortByDate() {
+    private void getCategoryDocumentsSortByDate(String page) {
 
         if (NetworkUtils.isNetworkAvailable(this)) {
 
@@ -687,10 +924,10 @@ public class MyFoldersDMSActivity extends RootActivity {
             Call call = null;
 
             if(sortByDateAsc == true) {
-                call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortByDate(params, PreferenceUtils.getAccessToken(this));
+                call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortByDate(params, PreferenceUtils.getAccessToken(this),page);
                 sortByDateAsc = false;
             } else {
-                call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortByDateDesc(params, PreferenceUtils.getAccessToken(this));
+                call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortByDateDesc(params, PreferenceUtils.getAccessToken(this),page);
                 sortByDateAsc = true;
             }
 
@@ -712,6 +949,9 @@ public class MyFoldersDMSActivity extends RootActivity {
                                 } else {
                                     setGridAdapterToView(mGetCategoryDocumentsResponses);
                                 }
+
+                                totalPages = Integer.parseInt(response.headers().get("X-Pagination-Page-Count"));
+                                pageNumber= Integer.parseInt(response.headers().get("X-Pagination-Current-Page"));
                             }
 
                             sort.setText("Date");
@@ -769,7 +1009,7 @@ public class MyFoldersDMSActivity extends RootActivity {
 
     }
 
-    private void getCategoryDocumentsSortBySize() {
+    private void getCategoryDocumentsSortBySize(String page) {
 
         if (NetworkUtils.isNetworkAvailable(this)) {
 
@@ -797,10 +1037,10 @@ public class MyFoldersDMSActivity extends RootActivity {
             Call call = null;
 
             if(sortBySizeAsc == true) {
-                call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortBySize(params, PreferenceUtils.getAccessToken(this));
+                call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortBySize(params, PreferenceUtils.getAccessToken(this),page);
                 sortBySizeAsc = false;
             } else {
-                call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortBySizeDesc(params, PreferenceUtils.getAccessToken(this));
+                call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortBySizeDesc(params, PreferenceUtils.getAccessToken(this),page);
                 sortBySizeAsc = true;
             }
 
@@ -821,6 +1061,9 @@ public class MyFoldersDMSActivity extends RootActivity {
                                 } else {
                                     setGridAdapterToView(mGetCategoryDocumentsResponses);
                                 }
+
+                                totalPages = Integer.parseInt(response.headers().get("X-Pagination-Page-Count"));
+                               pageNumber = Integer.parseInt(response.headers().get("X-Pagination-Current-Page"));
                             }
 
                             sort.setText("Size");
@@ -878,7 +1121,7 @@ public class MyFoldersDMSActivity extends RootActivity {
 
     }
 
-    private void getCategoryDocumentsSortByNewest() {
+    private void getCategoryDocumentsSortByNewest(String page) {
         if (NetworkUtils.isNetworkAvailable(this)) {
 
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
@@ -905,10 +1148,10 @@ public class MyFoldersDMSActivity extends RootActivity {
             Call call = null;
 
             if(sortByTypeAsc == true) {
-                call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortByType(params, PreferenceUtils.getAccessToken(this));
+                call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortByType(params, PreferenceUtils.getAccessToken(this),page);
                 sortByTypeAsc = false;
             } else {
-                call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortByTypeDesc(params, PreferenceUtils.getAccessToken(this));
+                call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortByTypeDesc(params, PreferenceUtils.getAccessToken(this),page);
                 sortByTypeAsc = true;
             }
 
@@ -929,6 +1172,8 @@ public class MyFoldersDMSActivity extends RootActivity {
                                 } else {
                                     setGridAdapterToView(mGetCategoryDocumentsResponses);
                                 }
+                                totalPages = Integer.parseInt(response.headers().get("X-Pagination-Page-Count"));
+                                pageNumber = Integer.parseInt(response.headers().get("X-Pagination-Current-Page"));
                             }
 
                             sort.setText("Type");
@@ -986,7 +1231,7 @@ public class MyFoldersDMSActivity extends RootActivity {
 
     }
 
-    private void getCategoryDocumentsSortByName() {
+    private void getCategoryDocumentsSortByName(String page) {
 
         if (NetworkUtils.isNetworkAvailable(this)) {
 
@@ -1014,10 +1259,10 @@ public class MyFoldersDMSActivity extends RootActivity {
             Call call = null;
 
             if(sortByNameAsc == true) {
-                call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortByName(params, PreferenceUtils.getAccessToken(this));
+                call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortByName(params, PreferenceUtils.getAccessToken(this),page);
                 sortByNameAsc = false;
             } else {
-                call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortByNameDesc(params, PreferenceUtils.getAccessToken(this));
+                call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortByNameDesc(params, PreferenceUtils.getAccessToken(this),page);
                 sortByNameAsc = true;
             }
 
@@ -1038,6 +1283,9 @@ public class MyFoldersDMSActivity extends RootActivity {
                                 } else {
                                     setGridAdapterToView(mGetCategoryDocumentsResponses);
                                 }
+                                totalPages = Integer.parseInt(response.headers().get("X-Pagination-Page-Count"));
+                                pageNumber = Integer.parseInt(response.headers().get("X-Pagination-Current-Page"));
+                               // pageNumber= pageNumber+1;
                             }
                             sort.setText("Name");
 
@@ -1153,12 +1401,12 @@ public class MyFoldersDMSActivity extends RootActivity {
 
     private void setGridAdapterToView(List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses) {
 
-        Collections.sort(mGetCategoryDocumentsResponses, new Comparator<GetCategoryDocumentsResponse>() {
+        /*Collections.sort(mGetCategoryDocumentsResponses, new Comparator<GetCategoryDocumentsResponse>() {
             @Override
             public int compare(GetCategoryDocumentsResponse lhs, GetCategoryDocumentsResponse rhs) {
                 return lhs.getName().compareTo(rhs.getName());
             }
-        });
+        });*/
 
         // Setup the RecyclerView
         mRecyclerView.setLayoutManager(new GridLayoutManager(this, 3));
@@ -1373,20 +1621,20 @@ public class MyFoldersDMSActivity extends RootActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
         int i = mAdapter.getArrayList().size();
         switch (item.getItemId()) {
             case android.R.id.home:
                 i = i - 2;
                 if (i > -1) {
                     String id = mAdapter.getArrayList().get(i);
-                    mAdapter.getSubCategoryDocuments(id);
+                    mAdapter.getSubCategoryDocuments(id,String.valueOf(pageNumber));
                     mAdapter.setArrayList(mAdapter.getArrayList().size() - 1);
 
                 } else {
                     startActivity(new Intent(MyFoldersDMSActivity.this, MyFoldersDMSActivity.class));
                     return true;
-
 
                 }
                 break;
@@ -1428,6 +1676,16 @@ public class MyFoldersDMSActivity extends RootActivity {
         mBottomSheetDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         mBottomSheetDialog.getWindow().setGravity(Gravity.BOTTOM);
         mBottomSheetDialog.show();
+
+
+        moveLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MyFoldersDMSActivity.this,MyFolderActivity.class);
+                startActivity(intent);
+
+            }
+        });
 
         rename.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1611,7 +1869,7 @@ public class MyFoldersDMSActivity extends RootActivity {
         }
     }
 
-    private void setListAdapterToView(final List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses) {
+    public void setListAdapterToView(final List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses) {
 
         mRecyclerView.setHasFixedSize(true);
         linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
@@ -1620,7 +1878,7 @@ public class MyFoldersDMSActivity extends RootActivity {
         mAdapterList = new DmsAdapterList(getCategoryDocumentsResponses, mSelectedDocumentList, MyFoldersDMSActivity.this);
         mRecyclerView.setAdapter(mAdapterList);
 
-        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+       /* mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView,
                                              int newState) {
@@ -1634,15 +1892,15 @@ public class MyFoldersDMSActivity extends RootActivity {
                 int totalItemCount = linearLayoutManager.getItemCount();
                 int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
 
-                /*if (!mIsLoading && !mIsLastPage) {
+                *//*if (!mIsLoading && !mIsLastPage) {
                     if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
                             && firstVisibleItemPosition >= 0) {
                         loadNextPage();
                     }
-                }*/
+                }*//*
             }
         });
-
+*/
         mAdapterList.setClickListener(new DmsAdapterList.ItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {

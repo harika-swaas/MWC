@@ -131,7 +131,7 @@ public class LoginActivity extends RootActivity {
                 }
             }, timeout);
         }
-        else if(mAccountSettingsResponses.get(0).getIs_Help_Accepted().equals("0")){
+        else if(mAccountSettingsResponses.get(0).getIs_Help_Accepted().equals("1")){
             if(mAccountSettingsResponses.get(0).getIs_Local_Auth_Enabled().equalsIgnoreCase("2")) {
                 checkCredentials();
             }

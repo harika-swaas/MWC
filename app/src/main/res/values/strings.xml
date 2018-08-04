@@ -95,7 +95,7 @@
     <string name="share">SHARE</string>
     <string name="cancel_menu">CANCEL</string>
     <string name="sort_by_name">Sort by name</string>
-    <string name="sort_by_newest">Sort by newest</string>
+    <string name="sort_by_type">Sort by type</string>
     <string name="sort_by_size">Sort by size</string>
     <string name="sort_by_date">Sort by date</string>
     <string name="menu_item_delete">Delete</string>

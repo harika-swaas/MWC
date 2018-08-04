@@ -94,7 +94,7 @@ public class ItemNavigationFolderListFragment extends Fragment {
             params.put("data", request);
 
             final GetCategoryDocumentsService mGetCategoryDocumentsService = retrofitAPI.create(GetCategoryDocumentsService.class);
-            Call call = mGetCategoryDocumentsService.getCategoryDocumentsV2(params, PreferenceUtils.getAccessToken(getActivity()));
+            Call call = mGetCategoryDocumentsService.getCategoryDocumentsV2(params, PreferenceUtils.getAccessToken(getActivity()),"2");
 
             call.enqueue(new Callback<ListPinDevicesResponse<GetCategoryDocumentsResponse>>() {
                 @Override

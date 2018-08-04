@@ -36,11 +36,11 @@ import com.swaas.mwc.API.Model.ListPinDevicesResponse;
 import com.swaas.mwc.API.Model.WhiteLabelResponse;
 import com.swaas.mwc.API.Service.DocumentPreviewService;
 import com.swaas.mwc.API.Service.GetCategoryDocumentsService;
+import com.swaas.mwc.DMS.MyFolderActivity;
 import com.swaas.mwc.DMS.MyFolderSharedDocuments;
 import com.swaas.mwc.DMS.MyFoldersDMSActivity;
 import com.swaas.mwc.Database.AccountSettings;
 import com.swaas.mwc.Dialogs.LoadingProgressDialog;
-import com.swaas.mwc.FTL.WebviewLoaderTermsActivity;
 import com.swaas.mwc.Login.DocumentPreview;
 import com.swaas.mwc.Login.LoginActivity;
 import com.swaas.mwc.Network.NetworkUtils;
@@ -64,8 +64,9 @@ import retrofit.Retrofit;
 public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
     ArrayList<String> doc_id = new ArrayList<String>();
     private Context context;
+    List<GetCategoryDocumentsResponse> paginationList = new ArrayList<>();
     private List<GetCategoryDocumentsResponse> mGetCategoryDocumentsResponses;
-    private List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses;
+    List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses = new ArrayList<>();
    DocumentPreviewResponse getDocumentPreviewResponses;
     List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList<>();
     AlertDialog mAlertDialog;
@@ -73,9 +74,13 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
 
     private HashSet<Integer> mSelected;
     List<GetCategoryDocumentsResponse> selectedList;
-
+    int lastItemPosition ;
     private static final int GRID_ITEM = 0;
     private static final int LIST_ITEM = 1;
+    int pageNumber=1;
+    int totalPage=1;
+    String obj = "0";
+
 
     boolean isSwitchView = true;
 
@@ -84,8 +89,9 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
     public DmsAdapter(List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses, List<GetCategoryDocumentsResponse> selectedList,Activity context) {
         this.context = context;
         this.mGetCategoryDocumentsResponses = getCategoryDocumentsResponses;
-        this.selectedList=selectedList;
+        this.selectedList = selectedList;
         mSelected = new HashSet<>();
+
     }
 
     private void setButtonBackgroundColor() {
@@ -322,7 +328,12 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                 public void onClick(View v) {
                     if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("category")) {
                         PreferenceUtils.setObjectId(context, mGetCategoryDocumentsResponses.get(position).getObject_id());
-                        getSubCategoryDocuments(mGetCategoryDocumentsResponses.get(position).getObject_id());
+                        obj = mGetCategoryDocumentsResponses.get(position).getObject_id();
+                        if(context instanceof MyFoldersDMSActivity){
+                            ((MyFoldersDMSActivity)context).getCategoryDocuments(obj,String.valueOf(pageNumber));
+                        }
+
+                     //   myFoldersDMSActivity.getCategoryDocuments(obj,String.valueOf(pageNumber));
                         doc_id.add(mGetCategoryDocumentsResponses.get(position).getObject_id());
                     }
                 }
@@ -389,9 +400,9 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                                 getDocumentPreviewResponses = response.body().getData();
                                 String document_preview_url = getDocumentPreviewResponses.getDocument_pdf_url();
 
-                                Intent mIntent = new Intent(context, WebviewLoaderTermsActivity.class);
+                               /* Intent mIntent = new Intent(context, PDFViewer.class);
                                 mIntent.putExtra(Constants.DOCUMENTPDFURL, document_preview_url);
-                                context.startActivity(mIntent);
+                                context.startActivity(mIntent);*/
                             }
 
                         } else if (apiResponse.status.getCode() instanceof Integer) {
@@ -421,7 +432,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         ImageView thumbnailCornerIcon = (ImageView) view.findViewById(R.id.thumbnail_corner_image);
         TextView thumbnailText = (TextView) view.findViewById(R.id.thumbnail_text);
 
-        ImageView copyImage = (ImageView) view.findViewById(R.id.copy_image);
+        final ImageView copyImage = (ImageView) view.findViewById(R.id.copy_image);
         ImageView moveImage = (ImageView) view.findViewById(R.id.move_image);
         ImageView renameImage = (ImageView) view.findViewById(R.id.rename_image);
         ImageView shareImage = (ImageView) view.findViewById(R.id.share_image);
@@ -529,6 +540,14 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                 context.startActivity(mIntent);
             }
         });
+
+        moveImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, MyFolderActivity.class);
+                context.startActivity(intent);
+            }
+        });
     }
 
     private void openBottomSheetForCategory(String name) {
@@ -574,7 +593,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         return mDrawable;
     }
 
-    public void getSubCategoryDocuments(String object_id) {
+    public void getSubCategoryDocuments(final String object_id, final String page) {
 
         if (NetworkUtils.isNetworkAvailable(context)) {
 
@@ -590,9 +609,8 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
             //Here the json data is add to a hash map with key data
             Map<String, String> params = new HashMap<String, String>();
             params.put("data", request);
-
             final GetCategoryDocumentsService mGetCategoryDocumentsService = retrofitAPI.create(GetCategoryDocumentsService.class);
-            Call call = mGetCategoryDocumentsService.getCategoryDocumentsV2(params, PreferenceUtils.getAccessToken(context));
+            Call call = mGetCategoryDocumentsService.getCategoryDocumentsV2(params, PreferenceUtils.getAccessToken(context),page);
 
             call.enqueue(new Callback<ListPinDevicesResponse<GetCategoryDocumentsResponse>>() {
                 @Override
@@ -601,12 +619,41 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                     if (apiResponse != null) {
 
                         transparentProgressDialog.dismiss();
-
                         if (apiResponse.status.getCode() instanceof Boolean) {
                             if (apiResponse.status.getCode() == Boolean.FALSE) {
                                 transparentProgressDialog.dismiss();
                                 getCategoryDocumentsResponses = response.body().getData();
+                           //     getCategoryDocumentsResponses = response.body().getData();
+                           //     getCategoryDocumentsResponses.addAll(paginationList);
+
+                             //   paginationList.add(getCategoryDocumentsResponses);
+
+
+
+
+/*
+
+                                totalPage = Integer.parseInt(response.headers().get("X-Pagination-Page-Count"));
+
+
+                                if(pageNumber+ 1<=totalPage)
+                                {
+                                  getSubCategoryDocuments(obj,String.valueOf(pageNumber+1));
+                                  pageNumber=pageNumber+1;
+                                }
+*/
+
                                 refreshAdapterToView(getCategoryDocumentsResponses);
+                            //    paginationList.clear();
+/*
+                                while(pageCount!=null&&Integer.parseInt(pageCount)>1){
+                                    getSubCategoryDocuments(obj,pageCount);
+                                    refreshAdapterToView(getCategoryDocumentsResponses);
+
+                                }
+*/
+
+
                             }
 
                         } else if (apiResponse.status.getCode() instanceof Integer) {

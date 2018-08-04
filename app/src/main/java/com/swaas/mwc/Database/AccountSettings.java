@@ -244,10 +244,16 @@ public class AccountSettings {
 
             do {
                 WhiteLabelResponse whiteLabelResponse = new WhiteLabelResponse();
-                whiteLabelResponse.setItem_Selected_Color(cursor.getString(itemSelectedColor));
+        /*        whiteLabelResponse.setItem_Selected_Color(cursor.getString(itemSelectedColor));
                 whiteLabelResponse.setItem_Unselected_Color(cursor.getString(itemUnSelectedColor));
                 whiteLabelResponse.setSplash_Screen_Color(cursor.getString(splashSplashScreenColor));
                 whiteLabelResponse.setFolder_Color(cursor.getString(folderColor));
+*/
+                whiteLabelResponse.setItem_Selected_Color("#007BF5");
+                whiteLabelResponse.setItem_Unselected_Color("#007BF5");
+                whiteLabelResponse.setSplash_Screen_Color("#007BF5");
+                whiteLabelResponse.setFolder_Color("#007BF5");
+
 
                 whiteLabelResponseList.add(whiteLabelResponse);
             } while (cursor.moveToNext());

@@ -73,6 +73,7 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
     private DragSelectTouchListener mDragSelectTouchListener;
     private DragSelectionProcessor mDragSelectionProcessor;
     MenuItem menuItemAdd, menuItemSearch, menuItemDelete, menuItemShare, menuItemMove, menuItemMore;
+    String pageCount = "1";
 
     public static ItemNavigationFolderFragment newInstance() {
         ItemNavigationFolderFragment fragment = new ItemNavigationFolderFragment();
@@ -93,7 +94,7 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
 
         intiaizeViews();
         getBundleArguments();
-        getCategoryDocuments();
+        getCategoryDocuments(pageCount);
 
         return mView;
     }
@@ -192,7 +193,7 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
       //  mToolbar.setSubtitle("Mode: " + mMode.name());
     }
 
-    private void getCategoryDocuments() {
+    private void getCategoryDocuments(String page) {
 
         if (NetworkUtils.isNetworkAvailable(getActivity())) {
 
@@ -214,15 +215,15 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
             Call call = null;
 
             if(isSortByName == true) {
-                call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortByName(params, PreferenceUtils.getAccessToken(getActivity()));
+                call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortByName(params, PreferenceUtils.getAccessToken(getActivity()),page);
             } else if(isSortByNewest == true) {
-                call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortByType(params, PreferenceUtils.getAccessToken(getActivity()));
+                call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortByType(params, PreferenceUtils.getAccessToken(getActivity()),page);
             } else if(isSortBySize == true) {
-                call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortBySize(params, PreferenceUtils.getAccessToken(getActivity()));
+                call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortBySize(params, PreferenceUtils.getAccessToken(getActivity()),page);
             } else if(isSortByDate == true) {
-                call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortByDate(params, PreferenceUtils.getAccessToken(getActivity()));
+                call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortByDate(params, PreferenceUtils.getAccessToken(getActivity()),page);
             } else {
-                call = mGetCategoryDocumentsService.getCategoryDocumentsV2(params, PreferenceUtils.getAccessToken(getActivity()));
+                call = mGetCategoryDocumentsService.getCategoryDocumentsV2(params, PreferenceUtils.getAccessToken(getActivity()),page);
             }
 
             call.enqueue(new Callback<ListPinDevicesResponse<GetCategoryDocumentsResponse>>() {
@@ -247,6 +248,9 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
                                     setListAdapterToView(mGetCategoryDocumentsResponses);
                                     mAdapterList.notifyDataSetChanged();
                                 }
+
+                                String paging = response.headers().get("X-Pagination-Page-Count");
+                                pageCount = paging;
                             }
 
                         } else if (apiResponse.status.getCode() instanceof Integer) {

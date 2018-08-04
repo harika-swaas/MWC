@@ -94,6 +94,8 @@
             android:screenOrientation="portrait"/>
         <activity android:name=".DMS.MyFolderEndUserAllowedSharedFoldersActivity"/>
 
+        <activity android:name=".DMS.MyFolderActivity"/>
+
         <receiver android:name=".ReadSms">
             <intent-filter>
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />

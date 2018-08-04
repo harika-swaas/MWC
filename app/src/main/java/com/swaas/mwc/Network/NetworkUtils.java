@@ -13,6 +13,7 @@ import android.net.NetworkInfo;
 
 public class NetworkUtils {
 
+
     public static android.app.AlertDialog pleaseEnableAlert;
 
     public static boolean isNetworkAvailable(final Context ctx) {
