@@ -73,7 +73,7 @@
             android:padding="12dp"
             android:background="@color/grey"
             android:alpha="0.87"
-            android:visibility="gone">
+            android:visibility="visible">
 
             <TextView
                 android:id="@+id/share"

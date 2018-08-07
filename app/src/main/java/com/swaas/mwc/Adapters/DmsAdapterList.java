@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -23,11 +24,14 @@ import com.google.gson.Gson;
 import com.swaas.mwc.API.Model.BaseApiResponse;
 import com.swaas.mwc.API.Model.DocumentPreviewRequest;
 import com.swaas.mwc.API.Model.DocumentPreviewResponse;
+import com.swaas.mwc.API.Model.EndUserRenameRequest;
 import com.swaas.mwc.API.Model.GetCategoryDocumentsRequest;
 import com.swaas.mwc.API.Model.GetCategoryDocumentsResponse;
 import com.swaas.mwc.API.Model.ListPinDevicesResponse;
+import com.swaas.mwc.API.Model.LoginResponse;
 import com.swaas.mwc.API.Model.WhiteLabelResponse;
 import com.swaas.mwc.API.Service.DocumentPreviewService;
+import com.swaas.mwc.API.Service.EndUserRenameService;
 import com.swaas.mwc.API.Service.GetCategoryDocumentsService;
 import com.swaas.mwc.DMS.MyFolderActivity;
 import com.swaas.mwc.DMS.MyFolderSharedDocuments;
@@ -66,6 +70,8 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
     AlertDialog mAlertDialog;
     private ItemClickListener mClickListener;
     List<GetCategoryDocumentsResponse> mSelectedList;
+    String objectr;
+    String categoryr;
 
     private HashSet<Integer> mSelected;
     List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList<>();
@@ -361,6 +367,8 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                 public void onClick(View v) {
                     if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("category")) {
                         openBottomSheetForCategory(mGetCategoryDocumentsResponses.get(position).getName());
+                        objectr = mGetCategoryDocumentsResponses.get(position).getParent_id();
+                        categoryr = mGetCategoryDocumentsResponses.get(position).getObject_id();
                     } else if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document")) {
                         openBottomSheetForDocument(mGetCategoryDocumentsResponses.get(position).getType(), mGetCategoryDocumentsResponses.get(position).getFiletype(), mGetCategoryDocumentsResponses.get(position).getName());
                     }
@@ -600,6 +608,11 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
         ImageView categoryImage = (ImageView) view.findViewById(R.id.category_image);
         ImageView moveImage = (ImageView) view.findViewById(R.id.move_image);
         ImageView renameImage = (ImageView) view.findViewById(R.id.rename_image);
+        RelativeLayout rename = (RelativeLayout)view.findViewById(R.id.rename1);
+        RelativeLayout move = (RelativeLayout)view.findViewById(R.id.move1);
+        TextView delete = (TextView) view.findViewById(R.id.delete);
+        RelativeLayout share = (RelativeLayout)view.findViewById(R.id.share1);
+
 
         categoryText.setText(name);
         if (mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
@@ -625,7 +638,137 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
         mBottomSheetDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         mBottomSheetDialog.getWindow().setGravity(Gravity.BOTTOM);
         mBottomSheetDialog.show();
+
+        move.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context,MyFolderActivity.class);
+                String object = "0";
+                intent.putExtra(object,"0");
+                context.startActivity(intent);
+            }
+        });
+
+        rename.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    View view = inflater.inflate(R.layout.rename_alert, null);
+                    builder.setView(view);
+                    builder.setCancelable(false);
+
+                    Button cancel = (Button) view.findViewById(R.id.cancel_b);
+                    Button allow = (Button) view.findViewById(R.id.allow);
+                    final EditText namer = (EditText) view.findViewById(R.id.edit_username1);
+                    allow.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            String folder = namer.getText().toString().trim();
+
+                            rename(categoryr,folder,objectr);
+                            mAlertDialog.dismiss();
+                            mBottomSheetDialog.dismiss();
+                        }
+                    });
+
+                    cancel.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            mAlertDialog.dismiss();
+                            mBottomSheetDialog.dismiss();
+                        }
+                    });
+
+                    mAlertDialog = builder.create();
+                    mAlertDialog.show();
+
+
+            }
+        });
     }
+
+    public void rename(String object_id,String name,String parentid)
+    {
+        if (NetworkUtils.isNetworkAvailable(context)) {
+
+            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+
+            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
+            transparentProgressDialog.show();
+
+            final EndUserRenameRequest endUserRenameRequest = new EndUserRenameRequest(object_id,name,parentid);
+
+            String request = new Gson().toJson(endUserRenameRequest);
+
+            //Here the json data is add to a hash map with key data
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("data", request);
+
+            final EndUserRenameService endUserRenameService = retrofitAPI.create(EndUserRenameService.class);
+
+            Call call = endUserRenameService.getRename(params, PreferenceUtils.getAccessToken(context));
+
+            call.enqueue(new Callback<ListPinDevicesResponse<LoginResponse>>() {
+                @Override
+                public void onResponse(Response<ListPinDevicesResponse<LoginResponse>> response, Retrofit retrofit) {
+                    ListPinDevicesResponse apiResponse = response.body();
+                    if (apiResponse != null) {
+
+                        transparentProgressDialog.dismiss();
+
+                        if (apiResponse.status.getCode() instanceof Boolean) {
+                            if (apiResponse.status.getCode() == Boolean.FALSE) {
+                                transparentProgressDialog.dismiss();
+                                getSubCategoryDocuments(objectr,"1");
+                            }
+
+                        } else if (apiResponse.status.getCode() instanceof Integer) {
+                            transparentProgressDialog.dismiss();
+                            String mMessage = apiResponse.status.getMessage().toString();
+
+                            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+                            builder.setView(view);
+                            builder.setCancelable(false);
+
+                            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+                            txtMessage.setText(mMessage);
+
+                            Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+                            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+                            cancelButton.setVisibility(View.GONE);
+
+                            sendPinButton.setText("OK");
+
+                            sendPinButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    mAlertDialog.dismiss();
+                                    context.startActivity(new Intent(context, LoginActivity.class));
+                                }
+                            });
+
+                            mAlertDialog = builder.create();
+                            mAlertDialog.show();
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    transparentProgressDialog.dismiss();
+                    Log.d("PinDevice error", t.getMessage());
+                }
+            });
+        }
+    }
+
+
 
     public void getSubCategoryDocuments(String object_id,String page) {
 
@@ -727,8 +870,9 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
 
     public void refreshAdapterToView(List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses) {
 
-        this.mGetCategoryDocumentsResponses.clear();
-        this.mGetCategoryDocumentsResponses.addAll(getCategoryDocumentsResponses);
+    this.mGetCategoryDocumentsResponses.clear();
+    this.mGetCategoryDocumentsResponses.addAll(getCategoryDocumentsResponses);
+
         notifyDataSetChanged();
     }
     public ArrayList<String> getArrayList(){

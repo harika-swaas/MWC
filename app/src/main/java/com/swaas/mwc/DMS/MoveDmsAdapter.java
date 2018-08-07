@@ -9,6 +9,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,6 +24,7 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 import com.swaas.mwc.API.Model.GetCategoryDocumentsResponse;
 import com.swaas.mwc.API.Model.GetEndUserAllowedSharedFoldersRequest;
+import com.swaas.mwc.API.Model.GetEndUserCategoriesResponse;
 import com.swaas.mwc.API.Model.GetEndUserSharedParentFoldersResponse;
 import com.swaas.mwc.API.Model.ListPinDevicesResponse;
 import com.swaas.mwc.API.Service.GetEndUserAllowedSharedFoldersService;
@@ -49,16 +51,16 @@ import retrofit.Retrofit;
 public class MoveDmsAdapter extends RecyclerView.Adapter<MoveDmsAdapter.ViewHolder> {
 
     final Context context;
-    private List<GetEndUserSharedParentFoldersResponse> mGetEndUserSharedParentFoldersResponses;
-    private List<GetEndUserSharedParentFoldersResponse> getEndUserSharedParentFoldersResponses;
-    List<GetCategoryDocumentsResponse> mSelectedDocumentList;
+    private List<GetEndUserCategoriesResponse> mGetEndUserCategoriesResponse;
+    List<GetEndUserCategoriesResponse> mSelectedDocumentList;
     AlertDialog mAlertDialog;
     private ItemClickListener mClickListener;
     private HashSet<Integer> mSelected;
+    String id=null;
 
-    public MoveDmsAdapter(List<GetCategoryDocumentsResponse>mGetCategoryDocumentsResponse, List<GetCategoryDocumentsResponse> mSelectedDocumentList, Activity context) {
+    public MoveDmsAdapter(List<GetEndUserCategoriesResponse>mGetEndUserCategoriesResponse, List<GetEndUserCategoriesResponse> mSelectedDocumentList, Activity context) {
         this.context = context;
-        this.mGetEndUserSharedParentFoldersResponses = mGetEndUserSharedParentFoldersResponses;
+        this.mGetEndUserCategoriesResponse = mGetEndUserCategoriesResponse;
         this.mSelectedDocumentList = mSelectedDocumentList;
         mSelected = new HashSet<>();
     }
@@ -71,8 +73,10 @@ public class MoveDmsAdapter extends RecyclerView.Adapter<MoveDmsAdapter.ViewHold
         public TextView folder_date;
         ViewHolder vh;
         RelativeLayout indicatorParentView;
+        RelativeLayout imageFile;
         LinearLayout parentLayout;
         TextView indicatorTextValue;
+
 
         public ViewHolder(View mView) {
             super(mView);
@@ -85,8 +89,10 @@ public class MoveDmsAdapter extends RecyclerView.Adapter<MoveDmsAdapter.ViewHold
             moreImage = (ImageView) mView.findViewById(R.id.more);
             indicatorParentView = (RelativeLayout) mView.findViewById(R.id.nameIndicatorParentView);
             indicatorTextValue = (TextView) mView.findViewById(R.id.indicatorTextValueView);
+            imageFile =(RelativeLayout) mView.findViewById(R.id.thumbnail_layout);
             this.itemView.setOnClickListener(this);
             this.itemView.setOnLongClickListener(this);
+
         }
 
         @Override
@@ -141,39 +147,46 @@ public class MoveDmsAdapter extends RecyclerView.Adapter<MoveDmsAdapter.ViewHold
     public interface ItemClickListener {
         void onItemClick(View view, int position);
 
+
         boolean onItemLongClick(View view, int position);
     }
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
 
-        final GetEndUserSharedParentFoldersResponse resp = mGetEndUserSharedParentFoldersResponses.get(position);
+        final GetEndUserCategoriesResponse resp = mGetEndUserCategoriesResponse.get(position);
 
+        holder.imageFile.setVisibility(View.GONE);
         holder.moreImage.setVisibility(View.GONE);
 
-        if (mGetEndUserSharedParentFoldersResponses != null && mGetEndUserSharedParentFoldersResponses.size() > 0) {
-            holder.folder_name.setText(mGetEndUserSharedParentFoldersResponses.get(position).getCategory_name());
+        if (mGetEndUserCategoriesResponse != null && mGetEndUserCategoriesResponse.size() > 0) {
+            holder.folder_name.setText(mGetEndUserCategoriesResponse.get(position).getCategory_name());
 
             if (position > 0) {
                 char poschar = resp.getCategory_name().toUpperCase().charAt(0);
-                char prevchar = mGetEndUserSharedParentFoldersResponses.get(position - 1).getCategory_name().toUpperCase().charAt(0);
+                char prevchar = mGetEndUserCategoriesResponse.get(position - 1).getCategory_name().toUpperCase().charAt(0);
                 if (poschar == prevchar) {
                     holder.indicatorParentView.setVisibility(View.GONE);
                 } else {
                     holder.indicatorParentView.setVisibility(View.VISIBLE);
-                    holder.indicatorTextValue.setText(String.valueOf(mGetEndUserSharedParentFoldersResponses.get(position).getCategory_name().charAt(0)));
+                    holder.indicatorTextValue.setText(String.valueOf(mGetEndUserCategoriesResponse.get(position).getCategory_name().charAt(0)));
                 }
             } else {
                 holder.indicatorParentView.setVisibility(View.VISIBLE);
-                holder.indicatorTextValue.setText(String.valueOf(mGetEndUserSharedParentFoldersResponses.get(position).getCategory_name().charAt(0)));
+                holder.indicatorTextValue.setText(String.valueOf(mGetEndUserCategoriesResponse.get(position).getCategory_name().charAt(0)));
             }
 
             holder.parentLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent mIntent = new Intent(context, MyFolderEndUserAllowedSharedFoldersActivity.class);
-                    mIntent.putExtra(Constants.SHAREDMSOBJ, (Serializable) mGetEndUserSharedParentFoldersResponses.get(position));
-                    mIntent.putExtra(Constants.OBJ, (Serializable) mSelectedDocumentList);
+                    id = String.valueOf(mGetEndUserCategoriesResponse.get(position).getCategory_id());
+
+                    Intent mIntent = new Intent(context, MyFolderActivity.class);
+                    Intent intent = new Intent("custom-message");
+                    mIntent.putExtra("abc",id);
+/*
+                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+*/
                     context.startActivity(mIntent);
                 }
             });
@@ -182,7 +195,7 @@ public class MoveDmsAdapter extends RecyclerView.Adapter<MoveDmsAdapter.ViewHold
 
     @Override
     public int getItemCount() {
-        return mGetEndUserSharedParentFoldersResponses.size();
+        return mGetEndUserCategoriesResponse.size();
     }
 
     private void getEndUserParentSharedFolders(String workspace_id, String category_id) {
@@ -206,9 +219,9 @@ public class MoveDmsAdapter extends RecyclerView.Adapter<MoveDmsAdapter.ViewHold
 
             Call call = mGetEndUserAllowedSharedFoldersService.getEndUserAllowedSharedFolders(params, PreferenceUtils.getAccessToken(context));
 
-            call.enqueue(new Callback<ListPinDevicesResponse<GetEndUserSharedParentFoldersResponse>>() {
+            call.enqueue(new Callback<ListPinDevicesResponse<GetEndUserCategoriesResponse>>() {
                 @Override
-                public void onResponse(Response<ListPinDevicesResponse<GetEndUserSharedParentFoldersResponse>> response, Retrofit retrofit) {
+                public void onResponse(Response<ListPinDevicesResponse<GetEndUserCategoriesResponse>> response, Retrofit retrofit) {
                     ListPinDevicesResponse apiResponse = response.body();
                     if (apiResponse != null) {
 
@@ -217,8 +230,9 @@ public class MoveDmsAdapter extends RecyclerView.Adapter<MoveDmsAdapter.ViewHold
                         if (apiResponse.status.getCode() instanceof Boolean) {
                             if (apiResponse.status.getCode() == Boolean.FALSE) {
                                 transparentProgressDialog.dismiss();
-                                getEndUserSharedParentFoldersResponses = response.body().getData();
-                                refreshAdapterToView(getEndUserSharedParentFoldersResponses);
+                                mSelectedDocumentList = response.body().getData();
+
+                                refreshAdapterToView(mSelectedDocumentList);
                             }
 
                         } else if (apiResponse.status.getCode() instanceof Integer) {
@@ -265,15 +279,14 @@ public class MoveDmsAdapter extends RecyclerView.Adapter<MoveDmsAdapter.ViewHold
         }
     }
 
-    public void refreshAdapterToView(List<GetEndUserSharedParentFoldersResponse> getEndUserSharedParentFoldersResponses) {
+    public void refreshAdapterToView(List<GetEndUserCategoriesResponse> getEndUserSharedParentFoldersResponses) {
 
-        this.mGetEndUserSharedParentFoldersResponses.clear();
-        this.mGetEndUserSharedParentFoldersResponses.addAll(getEndUserSharedParentFoldersResponses);
+        this.mGetEndUserCategoriesResponse.clear();
         notifyDataSetChanged();
     }
 
-    public GetEndUserSharedParentFoldersResponse getItemAt(final int position) {
-        return mGetEndUserSharedParentFoldersResponses.get(position);
+    public GetEndUserCategoriesResponse getItemAt(final int position) {
+        return mGetEndUserCategoriesResponse.get(position);
     }
 }
 

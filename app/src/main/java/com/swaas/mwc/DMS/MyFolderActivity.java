@@ -1,10 +1,13 @@
 package com.swaas.mwc.DMS;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,8 +23,14 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.swaas.mwc.API.Model.GetCategoryDocumentsRequest;
 import com.swaas.mwc.API.Model.GetCategoryDocumentsResponse;
+import com.swaas.mwc.API.Model.GetEndUserCategoriesRequest;
+import com.swaas.mwc.API.Model.GetEndUserCategoriesResponse;
 import com.swaas.mwc.API.Model.ListPinDevicesResponse;
+import com.swaas.mwc.API.Model.LoginResponse;
+import com.swaas.mwc.API.Model.MoveDocumentRequest;
 import com.swaas.mwc.API.Service.GetCategoryDocumentsService;
+import com.swaas.mwc.API.Service.GetEndUserCategoriesService;
+import com.swaas.mwc.API.Service.MoveDocumentService;
 import com.swaas.mwc.Common.SimpleDividerItemDecoration;
 import com.swaas.mwc.Database.AccountSettings;
 import com.swaas.mwc.Dialogs.LoadingProgressDialog;
@@ -47,17 +56,14 @@ import retrofit.Retrofit;
  */
 
 public class MyFolderActivity extends MyFoldersDMSActivity {
-
     CollapsingToolbarLayout collapsingToolbarLayout;
     RecyclerView mRecyclerView;
     MoveDmsAdapter mAdapterList;
     TextView shareButton,cancelButton;
-    int pageNumber = 1;
-    int totalPages=1;
     String obj="0";
-    List<GetCategoryDocumentsResponse> mGetCategoryDocumentsResponses;
-    List<GetCategoryDocumentsResponse> listGetCategoryDocuments = new ArrayList<>();
-    List<GetCategoryDocumentsResponse> mSelectedDocumentList = new ArrayList<>();
+    List<GetEndUserCategoriesResponse> mGetCategoryDocumentsResponses;
+    List<GetEndUserCategoriesResponse> listGetCategoryDocuments = new ArrayList<>();
+    List<GetEndUserCategoriesResponse> mSelectedDocumentList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,36 +71,36 @@ public class MyFolderActivity extends MyFoldersDMSActivity {
         setContentView(R.layout.shared_dms);
 
         intializeViews();
-        getIntentData();
+       // getIntentData();
        // getEndUserParentSharedFolders();
         addListenersToViews();
-        getCategoryDocumentsNext(obj,String.valueOf(pageNumber));
+        if(getIntent()!= null)
+        {
+            obj = getIntent().getStringExtra("abc");
+
+        }
+        if(obj==null){
+            obj="0";
+            getCategoryDocumentsNext(obj);
+        }
+        else
+        {
+            getCategoryDocumentsNext(obj);
+        }
 
 
-        scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
-            @Override
-            public void onScrollChanged() {
-                if (scrollView != null) {
-                    if (scrollView.getChildAt(0).getBottom() == (scrollView.getHeight() + scrollView.getScrollY())) {
-                        //scroll view is at bottom
-                        String object= PreferenceUtils.getObjectId(MyFolderActivity.this);
-                        obj=object;
-
-                        Toast.makeText(MyFolderActivity.this, "end position", Toast.LENGTH_SHORT).show();
-
-                        if(pageNumber < totalPages) {
-                            pageNumber=pageNumber+1;
-                            getCategoryDocumentsNext(obj, String.valueOf(pageNumber));
-
-                        }
-                    }
-                    else {
-                        //scroll view is not at bottom
-                    }
-                }
-            }
-        });
     }
+/*
+    public BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Get extra data included in the Intent
+
+
+
+        }
+    };
+*/
 
     private void intializeViews() {
 
@@ -118,12 +124,13 @@ public class MyFolderActivity extends MyFoldersDMSActivity {
         collapsingToolbarLayout.setExpandedTitleTextAppearance(R.style.expandedappbar);
     }
 
-    private void getIntentData() {
+ /*   private void getIntentData() {
 
-        mSelectedDocumentList = (List<GetCategoryDocumentsResponse>) getIntent().getSerializableExtra(Constants.OBJ);
-    }
 
-    public void getCategoryDocumentsNext(String obj, String page)
+       obj=getIntent().getExtras().getString("abc");
+    }*/
+
+    public void getCategoryDocumentsNext(String object)
     {
 
         if (NetworkUtils.isNetworkAvailable(MyFolderActivity.this)) {
@@ -133,23 +140,23 @@ public class MyFolderActivity extends MyFoldersDMSActivity {
             final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(this);
             transparentProgressDialog.show();
 
-            final GetCategoryDocumentsRequest mGetCategoryDocumentsRequest;
+            final GetEndUserCategoriesRequest getEndUserCategoriesRequest;
 
-            mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(Integer.parseInt(obj), "list", "category", "1", "0");
+            getEndUserCategoriesRequest = new GetEndUserCategoriesRequest(object);
 
-            String request = new Gson().toJson(mGetCategoryDocumentsRequest);
+            String request = new Gson().toJson(getEndUserCategoriesRequest);
 
             //Here the json data is add to a hash map with key data
             Map<String, String> params = new HashMap<String, String>();
             params.put("data", request);
 
-            final GetCategoryDocumentsService mGetCategoryDocumentsService = retrofitAPI.create(GetCategoryDocumentsService.class);
+            final GetEndUserCategoriesService getCategoryDocumentsService = retrofitAPI.create(GetEndUserCategoriesService.class);
 
-            Call call = mGetCategoryDocumentsService.getCategoryDocumentsV2(params, PreferenceUtils.getAccessToken(this),page);
+            Call call = getCategoryDocumentsService.getEndUsercategory(params, PreferenceUtils.getAccessToken(this));
 
-            call.enqueue(new Callback<ListPinDevicesResponse<GetCategoryDocumentsResponse>>() {
+            call.enqueue(new Callback<ListPinDevicesResponse<GetEndUserCategoriesResponse>>() {
                 @Override
-                public void onResponse(Response<ListPinDevicesResponse<GetCategoryDocumentsResponse>> response, Retrofit retrofit) {
+                public void onResponse(Response<ListPinDevicesResponse<GetEndUserCategoriesResponse>> response, Retrofit retrofit) {
                     ListPinDevicesResponse apiResponse = response.body();
                     if (apiResponse != null) {
 
@@ -161,20 +168,15 @@ public class MyFolderActivity extends MyFoldersDMSActivity {
 
                                 listGetCategoryDocuments = response.body().getData();
                                 //mGetCategoryDocumentsResponses = response.body().getData();
-
-                                mGetCategoryDocumentsResponses.addAll(listGetCategoryDocuments);
-                                totalPages   = Integer.parseInt(response.headers().get("X-Pagination-Page-Count"));
-                                pageNumber = Integer.parseInt(response.headers().get("X-Pagination-Current-Page"));
-
 /*
                                  if(Integer.parseInt(pageCount) > 1)
                                 {
                                     paginationList = response.body().getData();
                                     mGetCategoryDocumentsResponses.addAll(paginationList);
 
-                                }
+                               }
 */
-                                setAdapterToView(mGetCategoryDocumentsResponses);
+                                setAdapterToView(listGetCategoryDocuments);
 
                                 //     paginationList.clear();
 
@@ -234,25 +236,25 @@ public class MyFolderActivity extends MyFoldersDMSActivity {
         }
     }
 
-    private void setAdapterToView(List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses) {
+    private void setAdapterToView(List<GetEndUserCategoriesResponse> getEndUserCategoriesResponses) {
 
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(MyFolderActivity.this));
         mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getApplicationContext()));
-        mAdapterList = new MoveDmsAdapter(getCategoryDocumentsResponses, mSelectedDocumentList, MyFolderActivity.this);
+        mAdapterList = new MoveDmsAdapter(getEndUserCategoriesResponses, mSelectedDocumentList, MyFolderActivity.this);
         mRecyclerView.setAdapter(mAdapterList);
         mAdapterList.setClickListener(new MoveDmsAdapter.ItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
                 mAdapterList.toggleSelection(position);
-                GetCategoryDocumentsResponse documentsResponseObj = mGetCategoryDocumentsResponses.get(position);
+                GetEndUserCategoriesResponse documentsResponseObj = mGetCategoryDocumentsResponses.get(position);
                 mSelectedDocumentList.add(documentsResponseObj);
             }
 
             @Override
             public boolean onItemLongClick(View view, int position) {
                 mAdapterList.toggleSelection(position);
-                GetCategoryDocumentsResponse documentsResponseObj = mGetCategoryDocumentsResponses.get(position);
+                GetEndUserCategoriesResponse documentsResponseObj = mGetCategoryDocumentsResponses.get(position);
                 mSelectedDocumentList.add(documentsResponseObj);
 
                 return true;
@@ -261,7 +263,6 @@ public class MyFolderActivity extends MyFoldersDMSActivity {
     }
 
     private void addListenersToViews() {
-/*
         shareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -273,29 +274,30 @@ public class MyFolderActivity extends MyFoldersDMSActivity {
                     transparentProgressDialog.show();
 
                     String[] document_ids = new String[0];
-
+                    String[] category_ids = new String[0];
                     if(mSelectedDocumentList != null){
-                        for(GetCategoryDocumentsResponse categoryDocumentsResponse : mSelectedDocumentList){
+                        for(GetEndUserCategoriesResponse categoryDocumentsResponse : mSelectedDocumentList){
                             List<String> getCategoryDocumentsResponseList = new ArrayList<String>();
-                            getCategoryDocumentsResponseList.add(categoryDocumentsResponse.getDocument_version_id());
+                           // getCategoryDocumentsResponseList.add(categoryDocumentsResponse.getDocument_version_id());
                             document_ids = getCategoryDocumentsResponseList.toArray(new String[getCategoryDocumentsResponseList.size()]);
+                            category_ids = getCategoryDocumentsResponseList.toArray(new String[getCategoryDocumentsResponseList.size()]);
                         }
                     }
 
-                    final ShareEndUserDocumentsRequest mShareEndUserDocumentsRequest = new ShareEndUserDocumentsRequest(document_ids,PreferenceUtils.getWorkspaceId(MyFolderActivity.this), PreferenceUtils.getCategoryId(MyFolderActivity.this));
+                    final MoveDocumentRequest moveDocumentRequest = new MoveDocumentRequest(document_ids,obj,category_ids);
 
-                    String request = new Gson().toJson(mShareEndUserDocumentsRequest);
+                    String request = new Gson().toJson(moveDocumentRequest);
 
                     //Here the json data is add to a hash map with key data
                     Map<String, String> params = new HashMap<String, String>();
                     params.put("data", request);
 
-                    final ShareEndUserDocumentsService mShareEndUserDocumentsService = retrofitAPI.create(ShareEndUserDocumentsService.class);
-                    Call call = mShareEndUserDocumentsService.getSharedEndUserDocuments(params,PreferenceUtils.getAccessToken(MyFolderActivity.this));
+                    final MoveDocumentService moveDocumentService = retrofitAPI.create(MoveDocumentService.class);
+                    Call call = moveDocumentService.getMoveDocuemnt(params,PreferenceUtils.getAccessToken(MyFolderActivity.this));
 
-                    call.enqueue(new Callback<ListPinDevicesResponse<GetEndUserSharedParentFoldersResponse>>() {
+                    call.enqueue(new Callback<ListPinDevicesResponse<LoginResponse>>() {
                         @Override
-                        public void onResponse(Response<ListPinDevicesResponse<GetEndUserSharedParentFoldersResponse>> response, Retrofit retrofit) {
+                        public void onResponse(Response<ListPinDevicesResponse<LoginResponse>> response, Retrofit retrofit) {
                             ListPinDevicesResponse apiResponse = response.body();
                             if (apiResponse != null) {
 
@@ -365,7 +367,6 @@ public class MyFolderActivity extends MyFoldersDMSActivity {
                 }
             }
         });
-*/
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
