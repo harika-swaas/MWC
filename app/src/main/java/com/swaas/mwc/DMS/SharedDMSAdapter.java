@@ -30,6 +30,7 @@ import com.swaas.mwc.Retrofit.RetrofitAPIBuilder;
 import com.swaas.mwc.Utils.Constants;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -50,6 +51,7 @@ public class SharedDMSAdapter extends RecyclerView.Adapter<SharedDMSAdapter.View
     AlertDialog mAlertDialog;
     private ItemClickListener mClickListener;
     private HashSet<Integer> mSelected;
+ String shared_id;
 
     public SharedDMSAdapter(List<GetEndUserSharedParentFoldersResponse> mGetEndUserSharedParentFoldersResponses, List<GetCategoryDocumentsResponse> mSelectedDocumentList, Activity context) {
         this.context = context;
@@ -60,14 +62,15 @@ public class SharedDMSAdapter extends RecyclerView.Adapter<SharedDMSAdapter.View
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
-        public ImageView imageView, selectedItemIv, moreImage;
-        public TextView folder_name;
+        public ImageView imageView, selectedItemIv, moreImage,thumbimage;
+        public TextView folder_name,thumbtext;
         public View layout;
         public TextView folder_date;
         ViewHolder vh;
         RelativeLayout indicatorParentView;
         LinearLayout parentLayout;
         TextView indicatorTextValue;
+
 
         public ViewHolder(View mView) {
             super(mView);
@@ -80,6 +83,11 @@ public class SharedDMSAdapter extends RecyclerView.Adapter<SharedDMSAdapter.View
             moreImage = (ImageView) mView.findViewById(R.id.more);
             indicatorParentView = (RelativeLayout) mView.findViewById(R.id.nameIndicatorParentView);
             indicatorTextValue = (TextView) mView.findViewById(R.id.indicatorTextValueView);
+            thumbimage =(ImageView)mView.findViewById(R.id.thumbnail_image);
+            thumbtext=(TextView)mView.findViewById(R.id.thumbnail_text);
+            thumbimage.setVisibility(View.INVISIBLE);
+            thumbtext.setVisibility(View.INVISIBLE);
+
             this.itemView.setOnClickListener(this);
             this.itemView.setOnLongClickListener(this);
         }
@@ -166,9 +174,12 @@ public class SharedDMSAdapter extends RecyclerView.Adapter<SharedDMSAdapter.View
             holder.parentLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+
+                    String workspace_id = mGetEndUserSharedParentFoldersResponses.get(position).getWorkspace_id();
+                    String category_id = mGetEndUserSharedParentFoldersResponses.get(position).getCategory_id();
+                    PreferenceUtils.setWorkspaceId(context,workspace_id);
+                    PreferenceUtils.setCategoryId(context,category_id);
                     Intent mIntent = new Intent(context, MyFolderEndUserAllowedSharedFoldersActivity.class);
-                    mIntent.putExtra(Constants.SHAREDMSOBJ, (Serializable) mGetEndUserSharedParentFoldersResponses.get(position));
-                    mIntent.putExtra(Constants.OBJ, (Serializable) mSelectedDocumentList);
                     context.startActivity(mIntent);
                 }
             });

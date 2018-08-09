@@ -111,6 +111,8 @@ public class MyFolderCopyActivity extends MyFoldersDMSActivity {
 
         shareButton = (TextView) findViewById(R.id.share);
         shareButton.setText("COPY");
+        TextView text =(TextView)findViewById(R.id.textviewshared);
+        text.setText("My Folders");
         cancelButton = (TextView) findViewById(R.id.cancel);
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_shared_dms);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);

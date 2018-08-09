@@ -202,7 +202,7 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
             final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(getActivity());
             transparentProgressDialog.show();
 
-            final GetCategoryDocumentsRequest mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(0,"list","category","1","0");
+            final GetCategoryDocumentsRequest mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest("0","list","category","1","0");
 
             String request = new Gson().toJson(mGetCategoryDocumentsRequest);
 

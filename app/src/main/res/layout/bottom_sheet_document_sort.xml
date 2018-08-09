@@ -214,7 +214,8 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:id="@+id/copy1">
 
                 <ImageView
                     android:id="@+id/copy_image"
@@ -245,7 +246,8 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:id="@id/move1">
 
                 <ImageView
                     android:id="@+id/move_image"

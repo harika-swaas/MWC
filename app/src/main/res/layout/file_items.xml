@@ -78,7 +78,8 @@
                         android:layout_height="60dp"
                         android:layout_marginLeft="10dp"
                         android:layout_marginRight="10dp"
-                        android:src="@mipmap/ic_thumbnail" />
+                        android:src="@mipmap/ic_thumbnail"
+                        />
 
                     <ImageView
                         android:id="@+id/thumbnail_corner_image"
@@ -97,7 +98,8 @@
                         android:text="pdf"
                         android:textAllCaps="true"
                         android:textColor="@color/white"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        />
 
                 </RelativeLayout>
 

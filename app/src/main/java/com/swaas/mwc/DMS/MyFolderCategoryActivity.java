@@ -108,6 +108,8 @@ public class MyFolderCategoryActivity extends MyFoldersDMSActivity {
         shareButton = (TextView) findViewById(R.id.share);
         shareButton.setText("MOVE");
         cancelButton = (TextView) findViewById(R.id.cancel);
+        TextView text =(TextView)findViewById(R.id.textviewshared);
+        text.setText("My Folders");
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_shared_dms);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

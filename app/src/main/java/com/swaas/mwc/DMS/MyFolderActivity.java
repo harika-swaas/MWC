@@ -70,6 +70,7 @@ public class MyFolderActivity extends MyFoldersDMSActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.shared_dms);
 
+
         intializeViews();
        // getIntentData();
        // getEndUserParentSharedFolders();
@@ -111,6 +112,8 @@ public class MyFolderActivity extends MyFoldersDMSActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
+        TextView text =(TextView)findViewById(R.id.textviewshared);
+        text.setText("My Folders");
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         collapsingToolbarLayout=(CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);

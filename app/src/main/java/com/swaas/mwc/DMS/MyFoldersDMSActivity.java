@@ -36,6 +36,7 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -53,15 +54,20 @@ import com.squareup.okhttp.RequestBody;
 import com.swaas.mwc.API.Model.BaseApiResponse;
 import com.swaas.mwc.API.Model.DownloadDocumentRequest;
 import com.swaas.mwc.API.Model.DownloadDocumentResponse;
+import com.swaas.mwc.API.Model.EndUserRenameRequest;
 import com.swaas.mwc.API.Model.GetCategoryDocumentsRequest;
 import com.swaas.mwc.API.Model.GetCategoryDocumentsResponse;
 import com.swaas.mwc.API.Model.ListPinDevicesResponse;
+import com.swaas.mwc.API.Model.LoginResponse;
 import com.swaas.mwc.API.Model.UploadEndUserDocumentsRequest;
 import com.swaas.mwc.API.Model.UploadEndUsersDocumentResponse;
+import com.swaas.mwc.API.Model.UploadNewFolderRequest;
 import com.swaas.mwc.API.Model.WhiteLabelResponse;
 import com.swaas.mwc.API.Service.DownloadDocumentService;
+import com.swaas.mwc.API.Service.EndUserRenameService;
 import com.swaas.mwc.API.Service.GetCategoryDocumentsService;
 import com.swaas.mwc.API.Service.UploadEndUsersDocumentService;
+import com.swaas.mwc.API.Service.UploadNewFolderService;
 import com.swaas.mwc.Adapters.DmsAdapter;
 import com.swaas.mwc.Adapters.DmsAdapterList;
 import com.swaas.mwc.Common.CameraUtils;
@@ -118,6 +124,7 @@ public class MyFoldersDMSActivity extends RootActivity {
     ItemNavigationSharedFragment mSharedFragment;
     ItemNavigationSettingsFragment mSettingsFragment;
     ImageView select;
+    public TextView emptyText;
     RelativeLayout toggleView;
     ImageView toggle;
     Button button;
@@ -228,7 +235,7 @@ public class MyFoldersDMSActivity extends RootActivity {
                         String object= PreferenceUtils.getObjectId(MyFoldersDMSActivity.this);
                         obj=object;
 
-                        Toast.makeText(MyFoldersDMSActivity.this, "end position", Toast.LENGTH_SHORT).show();
+                   //     Toast.makeText(MyFoldersDMSActivity.this, "end position", Toast.LENGTH_SHORT).show();
 
                         if(pageNumber < totalPages) {
                             pageNumber=pageNumber+1;
@@ -259,7 +266,7 @@ public class MyFoldersDMSActivity extends RootActivity {
 
             final GetCategoryDocumentsRequest mGetCategoryDocumentsRequest;
 
-            mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(Integer.parseInt(obj), "list", "category", "1", "0");
+            mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(obj, "list", "category", "1", "0");
 
             String request = new Gson().toJson(mGetCategoryDocumentsRequest);
 
@@ -368,6 +375,7 @@ public class MyFoldersDMSActivity extends RootActivity {
     private void intializeViews() {
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_dms);
+        emptyText =(TextView)findViewById(R.id.emptytext);
         mBottomNavigationView = (BottomNavigationView) findViewById(R.id.navigation);
         toggle = (ImageView) findViewById(R.id.toggle);
         sortingView = (LinearLayout) findViewById(R.id.sort);
@@ -475,6 +483,124 @@ public class MyFoldersDMSActivity extends RootActivity {
                 startActivityForResult(takeVideoIntent, CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE);
             }
         });
+        actionNewFolder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    View view = inflater.inflate(R.layout.newfolder, null);
+                    builder.setView(view);
+                    builder.setCancelable(false);
+
+                    Button cancel = (Button) view.findViewById(R.id.cancel_b);
+                    Button allow = (Button) view.findViewById(R.id.allow);
+                    final EditText namer = (EditText) view.findViewById(R.id.edit_username1);
+                    allow.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            String folder = namer.getText().toString().trim();
+
+
+                                if (NetworkUtils.isNetworkAvailable(context)) {
+
+                                    Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+
+                                    final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
+                                    transparentProgressDialog.show();
+
+                                    final UploadNewFolderRequest uploadNewFolderRequest = new UploadNewFolderRequest(PreferenceUtils.getCategoryId(context),folder);
+
+                                    String request = new Gson().toJson(uploadNewFolderRequest);
+
+                                    //Here the json data is add to a hash map with key data
+                                    Map<String, String> params = new HashMap<String, String>();
+                                    params.put("data", request);
+
+                                    final UploadNewFolderService uploadNewFolderService = retrofitAPI.create(UploadNewFolderService.class);
+
+                                    Call call = uploadNewFolderService.getNewFolder(params, PreferenceUtils.getAccessToken(context));
+
+                                    call.enqueue(new Callback<ListPinDevicesResponse<LoginResponse>>() {
+                                        @Override
+                                        public void onResponse(Response<ListPinDevicesResponse<LoginResponse>> response, Retrofit retrofit) {
+                                            ListPinDevicesResponse apiResponse = response.body();
+                                            if (apiResponse != null) {
+
+                                                transparentProgressDialog.dismiss();
+
+                                                if (apiResponse.status.getCode() instanceof Boolean) {
+                                                    if (apiResponse.status.getCode() == Boolean.FALSE) {
+                                                        transparentProgressDialog.dismiss();
+
+                                                        getCategoryDocuments(PreferenceUtils.getCategoryId(context),"1");
+                                                    }
+
+                                                } else if (apiResponse.status.getCode() instanceof Integer) {
+                                                    transparentProgressDialog.dismiss();
+                                                    String mMessage = apiResponse.status.getMessage().toString();
+
+                                                    final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                                                    LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                                    View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+                                                    builder.setView(view);
+                                                    builder.setCancelable(false);
+
+                                                    TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+                                                    txtMessage.setText(mMessage);
+
+                                                    Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+                                                    Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+                                                    cancelButton.setVisibility(View.GONE);
+
+                                                    sendPinButton.setText("OK");
+
+                                                    sendPinButton.setOnClickListener(new View.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(View v) {
+                                                            mAlertDialog.dismiss();
+                                                            context.startActivity(new Intent(context, LoginActivity.class));
+                                                        }
+                                                    });
+
+                                                    mAlertDialog = builder.create();
+                                                    mAlertDialog.show();
+                                                }
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onFailure(Throwable t) {
+                                            transparentProgressDialog.dismiss();
+                                            Log.d("PinDevice error", t.getMessage());
+                                        }
+                                    });
+                                }
+
+
+                            mAlertDialog.dismiss();
+
+                        }
+                    });
+
+                    cancel.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            mAlertDialog.dismiss();
+
+                        }
+                    });
+
+                    mAlertDialog = builder.create();
+                    mAlertDialog.show();
+
+
+
+            }
+        });
 
         sortingView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -516,7 +642,7 @@ public class MyFoldersDMSActivity extends RootActivity {
 
             final GetCategoryDocumentsRequest mGetCategoryDocumentsRequest;
 
-            mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(Integer.parseInt(obj), "list", "category", "1", "0");
+            mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(obj, "list", "category", "1", "0");
 
             String request = new Gson().toJson(mGetCategoryDocumentsRequest);
 
@@ -542,7 +668,10 @@ public class MyFoldersDMSActivity extends RootActivity {
 
                          //      listGetCategoryDocuments = response.body().getData();
                                 mGetCategoryDocumentsResponses = response.body().getData();
-
+                                if (mGetCategoryDocumentsRequest==null)
+                                {
+                                    emptyText.setVisibility(View.VISIBLE);
+                                }
 /*
                                 mGetCategoryDocumentsResponses.add((GetCategoryDocumentsResponse) listGetCategoryDocuments);
 */
@@ -628,7 +757,7 @@ public class MyFoldersDMSActivity extends RootActivity {
 
             final GetCategoryDocumentsRequest mGetCategoryDocumentsRequest;
 
-            mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(0, "list", "category", "1", "0");
+            mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest("0", "list", "category", "1", "0");
 
             String request = new Gson().toJson(mGetCategoryDocumentsRequest);
 
@@ -909,9 +1038,9 @@ public class MyFoldersDMSActivity extends RootActivity {
             final GetCategoryDocumentsRequest mGetCategoryDocumentsRequest;
 
             if (PreferenceUtils.getObjectId(MyFoldersDMSActivity.this).equalsIgnoreCase("")) {
-                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(0, "list", "category", "1", "0");
+                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest("0", "list", "category", "1", "0");
             } else {
-                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(Integer.parseInt(PreferenceUtils.getObjectId(MyFoldersDMSActivity.this)), "list", "category", "1", "0");
+                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest((PreferenceUtils.getObjectId(MyFoldersDMSActivity.this)), "list", "category", "1", "0");
             }
 
             String request = new Gson().toJson(mGetCategoryDocumentsRequest);
@@ -1022,9 +1151,9 @@ public class MyFoldersDMSActivity extends RootActivity {
             final GetCategoryDocumentsRequest mGetCategoryDocumentsRequest;
 
             if (PreferenceUtils.getObjectId(MyFoldersDMSActivity.this).equalsIgnoreCase("")) {
-                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(0, "list", "category", "1", "0");
+                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest("0", "list", "category", "1", "0");
             } else {
-                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(Integer.parseInt(PreferenceUtils.getObjectId(MyFoldersDMSActivity.this)), "list", "category", "1", "0");
+                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest((PreferenceUtils.getObjectId(MyFoldersDMSActivity.this)), "list", "category", "1", "0");
             }
 
             String request = new Gson().toJson(mGetCategoryDocumentsRequest);
@@ -1133,9 +1262,9 @@ public class MyFoldersDMSActivity extends RootActivity {
             final GetCategoryDocumentsRequest mGetCategoryDocumentsRequest;
 
             if (PreferenceUtils.getObjectId(MyFoldersDMSActivity.this).equalsIgnoreCase("")) {
-                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(0, "list", "category", "1", "0");
+                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest("0", "list", "category", "1", "0");
             } else {
-                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(Integer.parseInt(PreferenceUtils.getObjectId(MyFoldersDMSActivity.this)), "list", "category", "1", "0");
+                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest((PreferenceUtils.getObjectId(MyFoldersDMSActivity.this)), "list", "category", "1", "0");
             }
 
             String request = new Gson().toJson(mGetCategoryDocumentsRequest);
@@ -1244,9 +1373,9 @@ public class MyFoldersDMSActivity extends RootActivity {
             final GetCategoryDocumentsRequest mGetCategoryDocumentsRequest;
 
             if (PreferenceUtils.getObjectId(MyFoldersDMSActivity.this).equalsIgnoreCase("")) {
-                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(0, "list", "category", "1", "0");
+                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest("0", "list", "category", "1", "0");
             } else {
-                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(Integer.parseInt(PreferenceUtils.getObjectId(MyFoldersDMSActivity.this)), "list", "category", "1", "0");
+                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest((PreferenceUtils.getObjectId(MyFoldersDMSActivity.this)), "list", "category", "1", "0");
             }
 
             String request = new Gson().toJson(mGetCategoryDocumentsRequest);
@@ -2047,7 +2176,7 @@ public class MyFoldersDMSActivity extends RootActivity {
 
                             ArrayList<String> filePathList = new ArrayList<String>();
                             filePathList.add(filePath);
-                            list_upload.add(filePath);
+                          //  list_upload.add(filePath);
 
                         }
 
@@ -2059,22 +2188,22 @@ public class MyFoldersDMSActivity extends RootActivity {
 
                         ArrayList<String> filePathList = new ArrayList<String>();
                         filePathList.add(filePath);
-                        list_upload.add(filePath);
-                       // uploadGalleryImage(file, filePathList);
+                       // list_upload.add(filePath);
+                       uploadGalleryImage(file, filePathList);
                     }
                 }
             }
-            Intent intent = new Intent (MyFoldersDMSActivity.this,UploadListActivity.class);
-            startActivity(intent);
+           /* Intent intent = new Intent (MyFoldersDMSActivity.this,UploadListActivity.class);
+            startActivity(intent);*/
         }
         else if (requestCode == REQUEST_CAPTURE_IMAGE_CODE && resultCode == RESULT_OK) {
 
             if (resultCode == RESULT_OK) {
-                //uploadImage(fileUri.getPath());
-                if(list_upload!=null){
+                uploadImage(fileUri.getPath());
+              /*  if(list_upload!=null){
                     Intent intent = new Intent (MyFoldersDMSActivity.this,UploadListActivity.class);
                     startActivity(intent);
-                }
+                }*/
 
             } else if (resultCode == RESULT_CANCELED) {
                 Toast.makeText(getApplicationContext(), "User cancelled image capture", Toast.LENGTH_SHORT).show();
@@ -2085,11 +2214,11 @@ public class MyFoldersDMSActivity extends RootActivity {
         } else if (requestCode == CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
 
             // uriVideo = data.getData();
-            //uploadVideo(imageStoragePath);
-            if(list_upload!=null){
+            uploadVideo(imageStoragePath);
+          /*  if(list_upload!=null){
                 Intent intent = new Intent (MyFoldersDMSActivity.this,UploadListActivity.class);
                 startActivity(intent);
-            }
+            }*/
         }
     }
 
