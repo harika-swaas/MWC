@@ -95,6 +95,10 @@
         <activity android:name=".DMS.MyFolderEndUserAllowedSharedFoldersActivity"/>
 
         <activity android:name=".DMS.MyFolderActivity"/>
+        <activity android:name=".DMS.MyFolderCopyActivity"/>
+        <activity android:name=".DMS.MyFolderCategoryActivity"/>
+        <activity android:name=".DMS.UploadListActivity"></activity>
+
 
         <receiver android:name=".ReadSms">
             <intent-filter>

@@ -21,6 +21,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.swaas.mwc.API.Model.ApiResponse;
+import com.swaas.mwc.API.Model.BaseApiResponse;
+import com.swaas.mwc.API.Model.BaseApiResponseStatus;
+import com.swaas.mwc.API.Model.CopyDocumentRequest;
 import com.swaas.mwc.API.Model.GetCategoryDocumentsRequest;
 import com.swaas.mwc.API.Model.GetCategoryDocumentsResponse;
 import com.swaas.mwc.API.Model.GetEndUserCategoriesRequest;
@@ -28,6 +32,7 @@ import com.swaas.mwc.API.Model.GetEndUserCategoriesResponse;
 import com.swaas.mwc.API.Model.ListPinDevicesResponse;
 import com.swaas.mwc.API.Model.LoginResponse;
 import com.swaas.mwc.API.Model.MoveDocumentRequest;
+import com.swaas.mwc.API.Service.CopyDocumentService;
 import com.swaas.mwc.API.Service.GetCategoryDocumentsService;
 import com.swaas.mwc.API.Service.GetEndUserCategoriesService;
 import com.swaas.mwc.API.Service.MoveDocumentService;
@@ -55,10 +60,10 @@ import retrofit.Retrofit;
  * Created by barath on 8/4/2018.
  */
 
-public class MyFolderActivity extends MyFoldersDMSActivity {
+public class MyFolderCopyActivity extends MyFoldersDMSActivity {
     CollapsingToolbarLayout collapsingToolbarLayout;
     RecyclerView mRecyclerView;
-    MoveDmsAdapter mAdapterList;
+    CopyDmsAdapter mAdapterList;
     TextView shareButton,cancelButton;
     String obj="0";
     List<GetEndUserCategoriesResponse> mGetCategoryDocumentsResponses;
@@ -71,8 +76,8 @@ public class MyFolderActivity extends MyFoldersDMSActivity {
         setContentView(R.layout.shared_dms);
 
         intializeViews();
-       // getIntentData();
-       // getEndUserParentSharedFolders();
+        // getIntentData();
+        // getEndUserParentSharedFolders();
         addListenersToViews();
         if(getIntent()!= null)
         {
@@ -105,7 +110,7 @@ public class MyFolderActivity extends MyFoldersDMSActivity {
     private void intializeViews() {
 
         shareButton = (TextView) findViewById(R.id.share);
-        shareButton.setText("MOVE");
+        shareButton.setText("COPY");
         cancelButton = (TextView) findViewById(R.id.cancel);
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_shared_dms);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -133,7 +138,7 @@ public class MyFolderActivity extends MyFoldersDMSActivity {
     public void getCategoryDocumentsNext(String object)
     {
 
-        if (NetworkUtils.isNetworkAvailable(MyFolderActivity.this)) {
+        if (NetworkUtils.isNetworkAvailable(MyFolderCopyActivity.this)) {
 
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
 
@@ -190,8 +195,8 @@ public class MyFolderActivity extends MyFoldersDMSActivity {
 
                             Object obj = 401.0;
                             if (obj.equals(401.0)) {
-                                final AlertDialog.Builder builder = new AlertDialog.Builder(MyFolderActivity.this);
-                                LayoutInflater inflater = (LayoutInflater) MyFolderActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                final AlertDialog.Builder builder = new AlertDialog.Builder(MyFolderCopyActivity.this);
+                                LayoutInflater inflater = (LayoutInflater) MyFolderCopyActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                                 View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
                                 builder.setView(view);
                                 builder.setCancelable(false);
@@ -214,9 +219,9 @@ public class MyFolderActivity extends MyFoldersDMSActivity {
                                     @Override
                                     public void onClick(View v) {
                                         mAlertDialog.dismiss();
-                                        AccountSettings accountSettings = new AccountSettings(MyFolderActivity.this);
+                                        AccountSettings accountSettings = new AccountSettings(MyFolderCopyActivity.this);
                                         accountSettings.deleteAll();
-                                        startActivity(new Intent(MyFolderActivity.this, LoginActivity.class));
+                                        startActivity(new Intent(MyFolderCopyActivity.this, LoginActivity.class));
                                     }
                                 });
 
@@ -239,11 +244,11 @@ public class MyFolderActivity extends MyFoldersDMSActivity {
     private void setAdapterToView(List<GetEndUserCategoriesResponse> getEndUserCategoriesResponses) {
 
         mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(MyFolderActivity.this));
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(MyFolderCopyActivity.this));
         mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getApplicationContext()));
-        mAdapterList = new MoveDmsAdapter(getEndUserCategoriesResponses, mSelectedDocumentList, MyFolderActivity.this);
+        mAdapterList = new CopyDmsAdapter(getEndUserCategoriesResponses, mSelectedDocumentList, MyFolderCopyActivity.this);
         mRecyclerView.setAdapter(mAdapterList);
-        mAdapterList.setClickListener(new MoveDmsAdapter.ItemClickListener() {
+        mAdapterList.setClickListener(new CopyDmsAdapter.ItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
                 mAdapterList.toggleSelection(position);
@@ -266,11 +271,11 @@ public class MyFolderActivity extends MyFoldersDMSActivity {
         shareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (NetworkUtils.isNetworkAvailable(MyFolderActivity.this)){
+                if (NetworkUtils.isNetworkAvailable(MyFolderCopyActivity.this)){
 
                     Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
 
-                    final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(MyFolderActivity.this);
+                    final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(MyFolderCopyActivity.this);
                     transparentProgressDialog.show();
 
                 /*    String[] document_ids = new String[0];
@@ -285,45 +290,42 @@ public class MyFolderActivity extends MyFoldersDMSActivity {
                     }
 */                  String document_ids[]= PreferenceUtils.getArrayList(context, "Key").toArray(new String[0]);
 
-                    final MoveDocumentRequest moveDocumentRequest = new MoveDocumentRequest(document_ids,obj);
+                    final CopyDocumentRequest copyDocumentRequest = new CopyDocumentRequest(document_ids,obj);
 
-                    String request = new Gson().toJson(moveDocumentRequest);
+                    String request = new Gson().toJson(copyDocumentRequest);
 
                     //Here the json data is add to a hash map with key data
                     Map<String, String> params = new HashMap<String, String>();
                     params.put("data", request);
 
-                    final MoveDocumentService moveDocumentService = retrofitAPI.create(MoveDocumentService.class);
-                    Call call = moveDocumentService.getMoveDocuemnt(params,PreferenceUtils.getAccessToken(MyFolderActivity.this));
+                    final CopyDocumentService copyDocumentService = retrofitAPI.create(CopyDocumentService.class);
+                    Call call = copyDocumentService.getCopyDocuemnt(params,PreferenceUtils.getAccessToken(MyFolderCopyActivity.this));
 
-                    call.enqueue(new Callback<ListPinDevicesResponse<LoginResponse>>() {
+                    call.enqueue(new Callback<ApiResponse<LoginResponse>>() {
                         @Override
-                        public void onResponse(Response<ListPinDevicesResponse<LoginResponse>> response, Retrofit retrofit) {
-                            ListPinDevicesResponse apiResponse = response.body();
+                        public void onResponse(Response<ApiResponse<LoginResponse>> response, Retrofit retrofit) {
+                            ApiResponse apiResponse = response.body();
                             if (apiResponse != null) {
 
                                 transparentProgressDialog.dismiss();
 
-                                if (apiResponse.status.getCode() instanceof Boolean) {
+
                                     if (apiResponse.status.getCode() == Boolean.FALSE) {
                                         transparentProgressDialog.dismiss();
                                         String mMessage = apiResponse.status.getMessage().toString();
-                                        Toast.makeText(MyFolderActivity.this,mMessage,Toast.LENGTH_SHORT).show();
-                                        startActivity(new Intent(MyFolderActivity.this,MyFoldersDMSActivity.class));
+                                        Toast.makeText(MyFolderCopyActivity.this,mMessage,Toast.LENGTH_SHORT).show();
+                                        startActivity(new Intent(MyFolderCopyActivity.this,MyFoldersDMSActivity.class));
                                         finish();
-                                    } else {
-                                        String mMessage = apiResponse.status.getMessage().toString();
-                                        Toast.makeText(MyFolderActivity.this,mMessage,Toast.LENGTH_SHORT).show();
                                     }
 
-                                } else if (apiResponse.status.getCode() instanceof Double) {
+                                 else  {
                                     transparentProgressDialog.dismiss();
                                     String mMessage = apiResponse.status.getMessage().toString();
 
                                     Object obj = 401.0;
                                     if(obj.equals(401.0)) {
-                                        final AlertDialog.Builder builder = new AlertDialog.Builder(MyFolderActivity.this);
-                                        LayoutInflater inflater = (LayoutInflater)MyFolderActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                        final AlertDialog.Builder builder = new AlertDialog.Builder(MyFolderCopyActivity.this);
+                                        LayoutInflater inflater = (LayoutInflater)MyFolderCopyActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                                         View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
                                         builder.setView(view);
                                         builder.setCancelable(false);
@@ -346,9 +348,9 @@ public class MyFolderActivity extends MyFoldersDMSActivity {
                                             @Override
                                             public void onClick(View v) {
                                                 mAlertDialog.dismiss();
-                                                AccountSettings accountSettings = new AccountSettings(MyFolderActivity.this);
+                                                AccountSettings accountSettings = new AccountSettings(MyFolderCopyActivity.this);
                                                 accountSettings.deleteAll();
-                                                startActivity(new Intent(MyFolderActivity.this, LoginActivity.class));
+                                                startActivity(new Intent(MyFolderCopyActivity.this, LoginActivity.class));
                                             }
                                         });
 
@@ -363,6 +365,8 @@ public class MyFolderActivity extends MyFoldersDMSActivity {
                         public void onFailure(Throwable t) {
                             transparentProgressDialog.dismiss();
                             Log.d("PinDevice error", t.getMessage());
+                            Intent intent = new Intent(MyFolderCopyActivity.this,MyFoldersDMSActivity.class);
+                            startActivity(intent);
                         }
                     });
                 }
@@ -372,7 +376,7 @@ public class MyFolderActivity extends MyFoldersDMSActivity {
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MyFolderActivity.this,MyFoldersDMSActivity.class));
+                startActivity(new Intent(MyFolderCopyActivity.this,MyFoldersDMSActivity.class));
                 finish();
             }
         });

@@ -111,6 +111,7 @@ public class MyFoldersDMSActivity extends RootActivity {
     BottomNavigationView mBottomNavigationView;
     LinearLayout sortingView;
     int mSelectedItem = SHARED_FRAGMENT;
+    String download_data;
     Menu mBottomNavigationMenu;
     MenuItem mFolderMenuItem, mSharedMenuItem, mSettingsMenuItem;
     ItemNavigationFolderFragment mFolderFragment;
@@ -160,7 +161,7 @@ public class MyFoldersDMSActivity extends RootActivity {
     public static final String IMAGE_EXTENSION = "jpg";
     public static final String VIDEO_EXTENSION = "mp4";
     private static final int PAGE_START = 1;
-
+    ArrayList<String>list_upload = new ArrayList<>();
     private boolean isLoading = false;
     private boolean isLastPage = false;
     // limiting to 5 for this tutorial, since total pages in actual API is very large. Feel free to modify.
@@ -1845,6 +1846,9 @@ public class MyFoldersDMSActivity extends RootActivity {
                         if (apiResponse.status.getCode() == Boolean.FALSE) {
                             transparentProgressDialog.dismiss();
                             downloadDocumentResponse = response.body().getData();
+
+                            download_data = downloadDocumentResponse.get(0).getData();
+
                         } else {
 
                             String mMessage = apiResponse.status.getMessage().toString();
@@ -2043,8 +2047,8 @@ public class MyFoldersDMSActivity extends RootActivity {
 
                             ArrayList<String> filePathList = new ArrayList<String>();
                             filePathList.add(filePath);
+                            list_upload.add(filePath);
 
-                            uploadGalleryImage(file, filePathList);
                         }
 
                     } else {
@@ -2055,15 +2059,22 @@ public class MyFoldersDMSActivity extends RootActivity {
 
                         ArrayList<String> filePathList = new ArrayList<String>();
                         filePathList.add(filePath);
-
-                        uploadGalleryImage(file, filePathList);
+                        list_upload.add(filePath);
+                       // uploadGalleryImage(file, filePathList);
                     }
                 }
             }
-        } else if (requestCode == REQUEST_CAPTURE_IMAGE_CODE && resultCode == RESULT_OK) {
+            Intent intent = new Intent (MyFoldersDMSActivity.this,UploadListActivity.class);
+            startActivity(intent);
+        }
+        else if (requestCode == REQUEST_CAPTURE_IMAGE_CODE && resultCode == RESULT_OK) {
 
             if (resultCode == RESULT_OK) {
-                uploadImage(fileUri.getPath());
+                //uploadImage(fileUri.getPath());
+                if(list_upload!=null){
+                    Intent intent = new Intent (MyFoldersDMSActivity.this,UploadListActivity.class);
+                    startActivity(intent);
+                }
 
             } else if (resultCode == RESULT_CANCELED) {
                 Toast.makeText(getApplicationContext(), "User cancelled image capture", Toast.LENGTH_SHORT).show();
@@ -2074,7 +2085,11 @@ public class MyFoldersDMSActivity extends RootActivity {
         } else if (requestCode == CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
 
             // uriVideo = data.getData();
-            uploadVideo(imageStoragePath);
+            //uploadVideo(imageStoragePath);
+            if(list_upload!=null){
+                Intent intent = new Intent (MyFoldersDMSActivity.this,UploadListActivity.class);
+                startActivity(intent);
+            }
         }
     }
 

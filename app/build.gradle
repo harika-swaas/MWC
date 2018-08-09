@@ -12,6 +12,8 @@ apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 
 android {
+    signingConfigs {
+    }
     compileSdkVersion 25
     dexOptions {
         jumboMode true
@@ -48,8 +50,8 @@ repositories {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     /*compile('com.crashlytics.sdk.android:crashlytics:2.5.6@aar') {
-            transitive = true;
-        }*/
+                transitive = true;
+            }*/
     compile('com.crashlytics.sdk.android:crashlytics:2.9.4@aar') {
         transitive = true;
     }

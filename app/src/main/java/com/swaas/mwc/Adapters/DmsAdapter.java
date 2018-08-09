@@ -41,8 +41,11 @@ import com.swaas.mwc.API.Service.DocumentPreviewService;
 import com.swaas.mwc.API.Service.EndUserRenameService;
 import com.swaas.mwc.API.Service.GetCategoryDocumentsService;
 import com.swaas.mwc.DMS.MyFolderActivity;
+import com.swaas.mwc.DMS.MyFolderCategoryActivity;
+import com.swaas.mwc.DMS.MyFolderCopyActivity;
 import com.swaas.mwc.DMS.MyFolderSharedDocuments;
 import com.swaas.mwc.DMS.MyFoldersDMSActivity;
+import com.swaas.mwc.DMS.Tab_Activity;
 import com.swaas.mwc.Database.AccountSettings;
 import com.swaas.mwc.Dialogs.LoadingProgressDialog;
 import com.swaas.mwc.Login.DocumentPreview;
@@ -86,6 +89,8 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
     String obj = "0";
     String objectr;
     String categoryr;
+    String document;
+    ArrayList<String>document_id= new ArrayList<>();
 
 
     boolean isSwitchView = true;
@@ -359,9 +364,16 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                         openBottomSheetForCategory(mGetCategoryDocumentsResponses.get(position).getName());
                         objectr = mGetCategoryDocumentsResponses.get(position).getParent_id();
                         categoryr = mGetCategoryDocumentsResponses.get(position).getObject_id();
+                        document=mGetCategoryDocumentsResponses.get(position).getObject_id();
+                        document_id.add(document);
+                        PreferenceUtils.saveArrayList(context,document_id,"Key");
 
                     } else if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document")) {
                         openBottomSheetForDocument(mGetCategoryDocumentsResponses.get(position).getType(), mGetCategoryDocumentsResponses.get(position).getFiletype(), mGetCategoryDocumentsResponses.get(position).getName());
+                        document=mGetCategoryDocumentsResponses.get(position).getObject_id();
+                        document_id.add(document);
+                        PreferenceUtils.saveArrayList(context,document_id,"Key");
+
                     }
                 }
 
@@ -438,6 +450,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         RelativeLayout shareView = (RelativeLayout) view.findViewById(R.id.share_layout);
         TextView docText = (TextView) view.findViewById(R.id.doc_text);
         ImageView thumbnailIcon = (ImageView) view.findViewById(R.id.thumbnail_image);
+        RelativeLayout docinfo=(RelativeLayout) view.findViewById(R.id.doc_info_layout);
         ImageView thumbnailCornerIcon = (ImageView) view.findViewById(R.id.thumbnail_corner_image);
         TextView thumbnailText = (TextView) view.findViewById(R.id.thumbnail_text);
 
@@ -540,7 +553,13 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         mBottomSheetDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         mBottomSheetDialog.getWindow().setGravity(Gravity.BOTTOM);
         mBottomSheetDialog.show();
-
+        docinfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent (context,Tab_Activity.class);
+                context.startActivity(intent);
+            }
+        });
         shareView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -554,6 +573,14 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, MyFolderActivity.class);
+                context.startActivity(intent);
+            }
+        });
+
+        copyImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, MyFolderCopyActivity.class);
                 context.startActivity(intent);
             }
         });
@@ -595,6 +622,15 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         mBottomSheetDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         mBottomSheetDialog.getWindow().setGravity(Gravity.BOTTOM);
         mBottomSheetDialog.show();
+
+        moveImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, MyFolderCategoryActivity.class);
+                context.startActivity(intent);
+            }
+        });
+
 
         rename.setOnClickListener(new View.OnClickListener() {
             @Override

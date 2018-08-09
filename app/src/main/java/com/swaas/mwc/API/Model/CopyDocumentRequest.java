@@ -1,19 +1,24 @@
 package com.swaas.mwc.API.Model;
 
 /**
- * Created by barath on 8/6/2018.
+ * Created by barath on 8/8/2018.
  */
 
-public class MoveDocumentRequest {
+public class CopyDocumentRequest {
 
     String category_id;
 
-    String document_obj[];
+    String document_ids[];
 
 
-    public MoveDocumentRequest(String[] document_ids, String categoryId) {
+
+
+
+
+    public CopyDocumentRequest(String[] document_ids, String categoryId) {
         this.category_id=categoryId;
-        this.document_obj=document_ids;
+        this.document_ids=document_ids;
+
     }
 
     public String getCategory_id() {
@@ -25,10 +30,11 @@ public class MoveDocumentRequest {
     }
 
     public String[] getDocument_obj() {
-        return document_obj;
+        return document_ids;
     }
 
     public void setDocument_obj(String[] document_obj) {
-        this.document_obj = document_obj;
+        this.document_ids = document_obj;
     }
+
 }

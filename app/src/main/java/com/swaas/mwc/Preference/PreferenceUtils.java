@@ -4,8 +4,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.swaas.mwc.API.Model.FTLPINResponse;
 import com.swaas.mwc.API.Model.LoginResponse;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 
 /**
  * Created by harika on 22-06-2018.
@@ -28,6 +32,8 @@ public class PreferenceUtils {
     private static  final String NOTES_ID = "notes_id";
     private static  final String CATEGORY_ID = "category_id";
     private static  final String WORKSPACE_ID = "workspace_id";
+    private static final String DOC_ID="doc_id";
+
 
     public static void setAccessToken(Context context, String accesstoken) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
@@ -220,5 +226,21 @@ public class PreferenceUtils {
         SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
         String workspace_id = sharedPreferences.getString(WORKSPACE_ID, null);
         return workspace_id;
+    }
+    public static void saveArrayList(Context context, ArrayList<String> list, String key){
+        SharedPreferences sharedPreferences = context.getSharedPreferences(DOC_ID, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(list);
+        editor.putString(key, json);
+        editor.apply();     // This line is IMPORTANT !!!
+    }
+
+    public static ArrayList<String> getArrayList(Context context,String key){
+        SharedPreferences sharedPreferences = context.getSharedPreferences(DOC_ID, Context.MODE_PRIVATE);
+        Gson gson = new Gson();
+        String json = sharedPreferences.getString(key, null);
+        Type type = new TypeToken<ArrayList<String>>() {}.getType();
+        return gson.fromJson(json, type);
     }
 }
