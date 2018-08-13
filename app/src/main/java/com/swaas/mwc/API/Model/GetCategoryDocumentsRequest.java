@@ -37,6 +37,9 @@ public class GetCategoryDocumentsRequest {
          this.isBuUser = isBuUser;
     }
 
+
+
+
     public int getCategory_id() {
         return category_id;
     }

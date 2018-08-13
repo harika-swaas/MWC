@@ -29,12 +29,14 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
+import com.swaas.mwc.API.Model.APIResponseModel;
 import com.swaas.mwc.API.Model.BaseApiResponse;
 import com.swaas.mwc.API.Model.DocumentPreviewRequest;
 import com.swaas.mwc.API.Model.DocumentPreviewResponse;
 import com.swaas.mwc.API.Model.EndUserRenameRequest;
 import com.swaas.mwc.API.Model.GetCategoryDocumentsRequest;
 import com.swaas.mwc.API.Model.GetCategoryDocumentsResponse;
+import com.swaas.mwc.API.Model.GetSharedCategoryDocumentsRequest;
 import com.swaas.mwc.API.Model.ListPinDevicesResponse;
 import com.swaas.mwc.API.Model.LoginResponse;
 import com.swaas.mwc.API.Model.WhiteLabelResponse;
@@ -47,6 +49,7 @@ import com.swaas.mwc.DMS.MyFoldersDMSActivity;
 import com.swaas.mwc.Database.AccountSettings;
 import com.swaas.mwc.Dialogs.LoadingProgressDialog;
 import com.swaas.mwc.Fragments.ItemNavigationFolderFragment;
+import com.swaas.mwc.Fragments.ItemNavigationSharedFragment;
 import com.swaas.mwc.Login.DocumentPreview;
 import com.swaas.mwc.Login.LoginActivity;
 import com.swaas.mwc.Network.NetworkUtils;
@@ -67,16 +70,17 @@ import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
 
-public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
+public class SharedAdapter extends RecyclerView.Adapter<SharedAdapter.ViewHolder> {
     ArrayList<String> doc_id = new ArrayList<String>();
     private Context context;
     List<GetCategoryDocumentsResponse> paginationList = new ArrayList<>();
     private List<GetCategoryDocumentsResponse> mGetCategoryDocumentsResponses;
     List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses = new ArrayList<>();
-   DocumentPreviewResponse getDocumentPreviewResponses;
+    DocumentPreviewResponse getDocumentPreviewResponses;
     List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList<>();
     AlertDialog mAlertDialog;
     private ItemClickListener mClickListener;
+
 
     private HashSet<Integer> mSelected;
     List<GetCategoryDocumentsResponse> selectedList;
@@ -95,7 +99,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
 
     private boolean mIsLoadingFooterAdded = false;
 
-    public DmsAdapter(List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses, List<GetCategoryDocumentsResponse> selectedList, Activity context, Fragment fragment) {
+    public SharedAdapter(List<GetCategoryDocumentsResponse>  getCategoryDocumentsResponses, List<GetCategoryDocumentsResponse> selectedList, Activity context, Fragment fragment) {
         this.context = context;
         this.mGetCategoryDocumentsResponses = getCategoryDocumentsResponses;
         this.selectedList = selectedList;
@@ -234,11 +238,30 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
     public void onBindViewHolder(final ViewHolder holder, final int position) {
 
         if (mGetCategoryDocumentsResponses != null && mGetCategoryDocumentsResponses.size() > 0) {
-            PreferenceUtils.setDocumentVersionId(context, mGetCategoryDocumentsResponses.get(position).getDocument_version_id());
-            PreferenceUtils.setDocument_Id(context, mGetCategoryDocumentsResponses.get(position).getObject_id());
+
+
+         /*   APIResponseModel.Data data=dataArrayList.get(0);
+            List<APIResponseModel.Document> documentList=dataArrayList.get(0).getDocuments();
+
+            for (APIResponseModel.Document document :documentList){
+                PreferenceUtils.setDocumentVersionId(context, document.getDocument_version_id());
+
+            }*/
+
+         if(mGetCategoryDocumentsResponses.get(position).getDocument_version_id() != null)
+         {
+             PreferenceUtils.setDocumentVersionId(context, mGetCategoryDocumentsResponses.get(position).getDocument_version_id());
+         }
+
+            if(mGetCategoryDocumentsResponses.get(position).getObject_id() != null)
+            {
+                PreferenceUtils.setDocument_Id(context, mGetCategoryDocumentsResponses.get(position).getObject_id());
+            }
+
             setButtonBackgroundColor();
 
-            if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("category")) {
+            if (mGetCategoryDocumentsResponses.get(position).getType() != null &&
+                    mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("category")) {
                 holder.imageView.setVisibility(View.VISIBLE);
                 holder.thumbnailLayout.setVisibility(View.GONE);
                 if (mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
@@ -246,16 +269,17 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                     int itemFolderColor = Color.parseColor(folderColor);
 
                     if (folderColor != null) {
-                      //  changeDrawableColor(context, R.mipmap.ic_folder, itemFolderColor);
+                        //  changeDrawableColor(context, R.mipmap.ic_folder, itemFolderColor);
                         holder.imageView.setColorFilter(itemFolderColor);
                     } else {
                         holder.imageView.setImageResource(R.mipmap.ic_folder);
                     }
                 }
-            } else if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document")) {
+            } else if (mGetCategoryDocumentsResponses.get(position).getType() != null &&
+                    mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document")) {
                 holder.imageView.setVisibility(View.GONE);
                 holder.thumbnailLayout.setVisibility(View.VISIBLE);
-                if (mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("pdf")) {
+                if (mGetCategoryDocumentsResponses.get(position).getType() != null && mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("pdf")) {
                     //holder.imageView.setImageResource(R.mipmap.ic_pdf);
                     holder.thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_pdf_color));
                     holder.thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_pdf_corner_color));
@@ -336,14 +360,15 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
             holder.parentLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("category")) {
+                    if (mGetCategoryDocumentsResponses.get(position).getType() != null &&
+                            mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("category")) {
                         PreferenceUtils.setObjectId(context, mGetCategoryDocumentsResponses.get(position).getObject_id());
                         obj = mGetCategoryDocumentsResponses.get(position).getObject_id();
                         if(context instanceof MyFoldersDMSActivity){
-                            ((ItemNavigationFolderFragment)fragment).getCategoryDocuments(obj,String.valueOf(pageNumber));
+                            ((ItemNavigationSharedFragment)fragment).getSharedCategoryDocuments(obj);
                         }
 
-                     //   myFoldersDMSActivity.getCategoryDocuments(obj,String.valueOf(pageNumber));
+                        //   myFoldersDMSActivity.getCategoryDocuments(obj,String.valueOf(pageNumber));
                         doc_id.add(mGetCategoryDocumentsResponses.get(position).getObject_id());
                     }
                 }
@@ -359,12 +384,14 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
             holder.moreIcon.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("category")) {
+                    if (mGetCategoryDocumentsResponses.get(position).getType() != null &&
+                            mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("category")) {
                         openBottomSheetForCategory(mGetCategoryDocumentsResponses.get(position).getName());
                         objectr = mGetCategoryDocumentsResponses.get(position).getParent_id();
                         categoryr = mGetCategoryDocumentsResponses.get(position).getObject_id();
 
-                    } else if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document")) {
+                    } else if (mGetCategoryDocumentsResponses.get(position).getType() != null &&
+                            mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document")) {
                         openBottomSheetForDocument(mGetCategoryDocumentsResponses.get(position).getType(), mGetCategoryDocumentsResponses.get(position).getFiletype(), mGetCategoryDocumentsResponses.get(position).getName());
                     }
                 }
@@ -440,6 +467,9 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
 
         View view = ((MyFoldersDMSActivity) context).getLayoutInflater().inflate(R.layout.bottom_sheet_document_sort, null);
         RelativeLayout shareView = (RelativeLayout) view.findViewById(R.id.share_layout);
+        RelativeLayout rename_layout = (RelativeLayout) view.findViewById(R.id.rename_layout);
+        RelativeLayout move_layout =  (RelativeLayout) view.findViewById(R.id.move_layout);
+        TextView delete = (TextView) view.findViewById(R.id.delete);
         TextView docText = (TextView) view.findViewById(R.id.doc_text);
         ImageView thumbnailIcon = (ImageView) view.findViewById(R.id.thumbnail_image);
         ImageView thumbnailCornerIcon = (ImageView) view.findViewById(R.id.thumbnail_corner_image);
@@ -449,6 +479,8 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         ImageView moveImage = (ImageView) view.findViewById(R.id.move_image);
         ImageView renameImage = (ImageView) view.findViewById(R.id.rename_image);
         ImageView shareImage = (ImageView) view.findViewById(R.id.share_image);
+
+
         ImageView availableOfflineImage = (ImageView) view.findViewById(R.id.available_offline_image);
 
         if (mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
@@ -463,6 +495,10 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         }
 
         docText.setText(name);
+        shareView.setVisibility(View.GONE);
+        rename_layout.setVisibility(View.GONE);
+        move_layout.setVisibility(View.GONE);
+        delete.setVisibility(View.GONE);
 
         if (fileType.equalsIgnoreCase("pdf")) {
             //holder.imageView.setImageResource(R.mipmap.ic_pdf);
@@ -574,6 +610,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         ImageView moveImage = (ImageView) view.findViewById(R.id.move_image);
         ImageView renameImage = (ImageView) view.findViewById(R.id.rename_image);
         RelativeLayout rename= (RelativeLayout) view.findViewById(R.id.rename1);
+        rename.setVisibility(View.GONE);
 
         categoryText.setText(name);
         if (mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
@@ -672,8 +709,8 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                         if (apiResponse.status.getCode() instanceof Boolean) {
                             if (apiResponse.status.getCode() == Boolean.FALSE) {
                                 transparentProgressDialog.dismiss();
-                              //  refreshAdapterToView(getCategoryDocumentsResponses);
-                                getSubCategoryDocuments(objectr,"1");
+                                //  refreshAdapterToView(getCategoryDocumentsResponses);
+                                getSubCategoryDocuments(objectr);
 
                             }
 
@@ -728,7 +765,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         return mDrawable;
     }
 
-    public void getSubCategoryDocuments(final String object_id, final String page) {
+    public void getSubCategoryDocuments(final String object_id) {
 
         if (NetworkUtils.isNetworkAvailable(context)) {
 
@@ -737,7 +774,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
             final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
             transparentProgressDialog.show();
 
-            final GetCategoryDocumentsRequest mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(Integer.parseInt(object_id), "list", "category", "1", "0");
+            final GetSharedCategoryDocumentsRequest mGetCategoryDocumentsRequest = new GetSharedCategoryDocumentsRequest(object_id);
 
             String request = new Gson().toJson(mGetCategoryDocumentsRequest);
 
@@ -745,55 +782,63 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
             Map<String, String> params = new HashMap<String, String>();
             params.put("data", request);
             final GetCategoryDocumentsService mGetCategoryDocumentsService = retrofitAPI.create(GetCategoryDocumentsService.class);
-            Call call = mGetCategoryDocumentsService.getCategoryDocumentsV2(params, PreferenceUtils.getAccessToken(context),page);
+            Call call = mGetCategoryDocumentsService.getSharedCategoryDocumentsV2(params, PreferenceUtils.getAccessToken(context));
 
-            call.enqueue(new Callback<ListPinDevicesResponse<GetCategoryDocumentsResponse>>() {
+            call.enqueue(new Callback<APIResponseModel>() {
                 @Override
-                public void onResponse(Response<ListPinDevicesResponse<GetCategoryDocumentsResponse>> response, Retrofit retrofit) {
-                    ListPinDevicesResponse apiResponse = response.body();
-                    if (apiResponse != null) {
+                public void onResponse(Response<APIResponseModel> response, Retrofit retrofit) {
+
+                    if (response != null) {
 
                         transparentProgressDialog.dismiss();
-                        if (apiResponse.status.getCode() instanceof Boolean) {
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
-                                getCategoryDocumentsResponses = response.body().getData();
-                           //     getCategoryDocumentsResponses = response.body().getData();
-                           //     getCategoryDocumentsResponses.addAll(paginationList);
+                        if (response.body().getStatus().getCode() instanceof Boolean) {
 
-                             //   paginationList.add(getCategoryDocumentsResponses);
+                            if (response.body().getStatus().getCode() == Boolean.FALSE) {
 
+                                List<APIResponseModel.Category> categoryList = response.body().getData().getCategories();
+                                List<APIResponseModel.Document>documentList=response.body().getData().getDocuments();
 
+                                //     List<GetCategoryDocumentsResponse> getCategoryDocumentsResponseList=new ArrayList<>();
+                                List<GetCategoryDocumentsResponse> getCategoryDocumentsResponseListTemp=new ArrayList<>();
 
+                                if (categoryList != null && categoryList.size() > 0){
+                                    for (APIResponseModel.Category category:categoryList){
+                                        GetCategoryDocumentsResponse getCategoryDocumentsResponse=new GetCategoryDocumentsResponse();
+                                        getCategoryDocumentsResponse.setObject_id(category.getCategoryId());
+                                        getCategoryDocumentsResponse.setName(category.getCategoryName());
+                                        getCategoryDocumentsResponse.setType(category.getType());
+                                        mGetCategoryDocumentsResponses.add(getCategoryDocumentsResponse);
 
-/*
-
-                                totalPage = Integer.parseInt(response.headers().get("X-Pagination-Page-Count"));
-
-
-                                if(pageNumber+ 1<=totalPage)
-                                {
-                                  getSubCategoryDocuments(obj,String.valueOf(pageNumber+1));
-                                  pageNumber=pageNumber+1;
+                                    }
                                 }
-*/
+
+                                if (documentList != null && documentList.size()>0){
+                                    for (APIResponseModel.Document  document:documentList){
+                                        GetCategoryDocumentsResponse getCategoryDocumentsResponse=new GetCategoryDocumentsResponse();
+                                        getCategoryDocumentsResponse.setObject_id(document.getDocument_id());
+                                        getCategoryDocumentsResponse.setDocument_version_id(document.getDocument_version_id());
+                                        getCategoryDocumentsResponse.setName(document.getName());
+                                        getCategoryDocumentsResponse.setFiletype(document.getFiletype());
+                                        getCategoryDocumentsResponse.setFilesize(document.getFilesize());
+                                        getCategoryDocumentsResponse.setType(document.getType());
+                                        getCategoryDocumentsResponse.setShared_date(document.getShared_date());
+                                        getCategoryDocumentsResponseListTemp.add(getCategoryDocumentsResponse);
+                                    }
+                                }
+
+
+                                mGetCategoryDocumentsResponses.addAll(getCategoryDocumentsResponseListTemp);
+
 
                                 refreshAdapterToView(getCategoryDocumentsResponses);
-                            //    paginationList.clear();
-/*
-                                while(pageCount!=null&&Integer.parseInt(pageCount)>1){
-                                    getSubCategoryDocuments(obj,pageCount);
-                                    refreshAdapterToView(getCategoryDocumentsResponses);
 
-                                }
-*/
 
 
                             }
 
-                        } else if (apiResponse.status.getCode() instanceof Integer) {
+                        } else if (response.body().getStatus().getCode() instanceof Integer) {
                             transparentProgressDialog.dismiss();
-                            String mMessage = apiResponse.status.getMessage().toString();
+                            String mMessage = response.body().getStatus().getMessage().toString();
 
                             final AlertDialog.Builder builder = new AlertDialog.Builder(context);
                             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);

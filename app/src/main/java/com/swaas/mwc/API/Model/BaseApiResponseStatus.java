@@ -19,6 +19,7 @@ public class BaseApiResponseStatus {
     @Expose
     private String message;
 
+
     public Object getCode() {
         return code;
     }

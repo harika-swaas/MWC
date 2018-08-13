@@ -27,6 +27,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(AccountSettings.CreateAccountSettings());
         db.execSQL(AccountSettings.CreateWhiteLabel());
+        db.execSQL(OffLine_Files_Repository.Create_Offline_Files());
     }
 
     @Override

@@ -7,9 +7,9 @@ package com.swaas.mwc.Utils;
 public class Constants {
 
     // ***************************** Testing ********************************************
-       public static final String COMPANY_BASE_URL = "http://172.16.40.50";
+    //   public static final String COMPANY_BASE_URL = "http://172.16.40.50";
 
-    //public static final String COMPANY_BASE_URL = "https://uatapi.mywealthcloud.com";
+    public static final String COMPANY_BASE_URL = "https://uatapi.mywealthcloud.com";
 
 
     // ***************************** Production ********************************************
@@ -38,6 +38,7 @@ public class Constants {
     public static final String SORT_BY_DATE = "sort_by_date";
     public static final String SHAREDMSOBJ = "obj";
     public static final String OBJ = "obj";
+    public static final int REQUEST_PERMISSION_STORAGE = 999;
 
     //Login Status
     public static final int Login_Not_Completed = 0;

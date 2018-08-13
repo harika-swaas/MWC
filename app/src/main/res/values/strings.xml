@@ -131,4 +131,24 @@
     <string name="photo_library">Photo library</string>
     <string name="browse">Browse</string>
     <string name="video">Video</string>
+    <string name="user_name_txt">User Name</string>
+    <string name="user_offline_files_txt">Offline Files</string>
+    <string name="push_notification_txt">Push Notification</string>
+    <string name="finger_print_txt">Finger Print Verification</string>
+    <string name="help_txt">Help</string>
+    <string name="terms_privacy_txt">Terms &amp; Privacy Policy</string>
+    <string name="logout_txt">Logout</string>
+    <string name="username_txt">Username</string>
+    <string name="title_txt">Title</string>
+    <string name="first_name_txt">First Name</string>
+    <string name="surname_txt">Surname</string>
+    <string name="email_txt">Email Address</string>
+    <string name="workPhone_txt">Work Phone</string>
+    <string name="extension_txt">Extension</string>
+    <string name="mobilePhone_txt">Mobile Phone</string>
+    <string name="address_txt1">Address Line 1</string>
+    <string name="address_txt2">Address Line 2</string>
+    <string name="town_txt">Town</string>
+    <string name="postCode_txt">Postcode</string>
+    <string name="country_txt">Country</string>
 </resources>

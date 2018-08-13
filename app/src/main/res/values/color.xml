@@ -146,5 +146,6 @@
     <color name="pink_color">#FF1493</color>
     <color name="normal_text_color">#808080</color>
     <color name="edittext_hint_color">#BEBEBE</color>
+    <color name="very_light_gray">#F0F0F0</color>
 
 </resources>

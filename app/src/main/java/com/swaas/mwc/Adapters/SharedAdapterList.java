@@ -1,19 +1,11 @@
 package com.swaas.mwc.Adapters;
 
-/**
- * Created by barath on 7/12/2018.
- */
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
-import android.graphics.drawable.Drawable;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -29,12 +21,14 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
+import com.swaas.mwc.API.Model.APIResponseModel;
 import com.swaas.mwc.API.Model.BaseApiResponse;
 import com.swaas.mwc.API.Model.DocumentPreviewRequest;
 import com.swaas.mwc.API.Model.DocumentPreviewResponse;
 import com.swaas.mwc.API.Model.EndUserRenameRequest;
 import com.swaas.mwc.API.Model.GetCategoryDocumentsRequest;
 import com.swaas.mwc.API.Model.GetCategoryDocumentsResponse;
+import com.swaas.mwc.API.Model.GetSharedCategoryDocumentsRequest;
 import com.swaas.mwc.API.Model.ListPinDevicesResponse;
 import com.swaas.mwc.API.Model.LoginResponse;
 import com.swaas.mwc.API.Model.WhiteLabelResponse;
@@ -44,9 +38,10 @@ import com.swaas.mwc.API.Service.GetCategoryDocumentsService;
 import com.swaas.mwc.DMS.MyFolderActivity;
 import com.swaas.mwc.DMS.MyFolderSharedDocuments;
 import com.swaas.mwc.DMS.MyFoldersDMSActivity;
+import com.swaas.mwc.DMS.Tab_Activity;
 import com.swaas.mwc.Database.AccountSettings;
 import com.swaas.mwc.Dialogs.LoadingProgressDialog;
-import com.swaas.mwc.Fragments.ItemNavigationFolderFragment;
+import com.swaas.mwc.FTL.WebviewLoaderTermsActivity;
 import com.swaas.mwc.Login.DocumentPreview;
 import com.swaas.mwc.Login.LoginActivity;
 import com.swaas.mwc.Network.NetworkUtils;
@@ -57,6 +52,7 @@ import com.swaas.mwc.Utils.Constants;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -67,69 +63,35 @@ import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
 
-public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
+public class SharedAdapterList extends RecyclerView.Adapter<SharedAdapterList.ViewHolder> {
+
+    MyFoldersDMSActivity myFoldersDMSActivity;
     ArrayList<String> doc_id = new ArrayList<String>();
-    private Context context;
-    List<GetCategoryDocumentsResponse> paginationList = new ArrayList<>();
+    final Context context;
     private List<GetCategoryDocumentsResponse> mGetCategoryDocumentsResponses;
-    List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses = new ArrayList<>();
-   DocumentPreviewResponse getDocumentPreviewResponses;
-    List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList<>();
+
     AlertDialog mAlertDialog;
     private ItemClickListener mClickListener;
-
-    private HashSet<Integer> mSelected;
-    List<GetCategoryDocumentsResponse> selectedList;
-    int lastItemPosition ;
-    private static final int GRID_ITEM = 0;
-    private static final int LIST_ITEM = 1;
-    int pageNumber=1;
-    int totalPage=1;
-    String obj = "0";
+    List<GetCategoryDocumentsResponse> mSelectedList;
     String objectr;
     String categoryr;
-    Fragment fragment;
 
+    private HashSet<Integer> mSelected;
+    List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList<>();
 
-    boolean isSwitchView = true;
-
-    private boolean mIsLoadingFooterAdded = false;
-
-    public DmsAdapter(List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses, List<GetCategoryDocumentsResponse> selectedList, Activity context, Fragment fragment) {
+    DocumentPreviewResponse getDocumentPreviewResponses;
+   // String pageCount = "1";
+    public SharedAdapterList(List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses,List<GetCategoryDocumentsResponse> mSelectedList, Activity context) {
         this.context = context;
         this.mGetCategoryDocumentsResponses = getCategoryDocumentsResponses;
-        this.selectedList = selectedList;
+        this.mSelectedList=mSelectedList;
         mSelected = new HashSet<>();
-        this.fragment = fragment;
-
     }
 
-    private void setButtonBackgroundColor() {
 
-        getWhiteLabelProperities();
-    }
 
-    private void getWhiteLabelProperities() {
-
-        AccountSettings accountSettings = new AccountSettings(context);
-        accountSettings.SetWhiteLabelCB(new AccountSettings.GetWhiteLabelCB() {
-            @Override
-            public void getWhiteLabelSuccessCB(List<WhiteLabelResponse> whiteLabelResponses) {
-                if (whiteLabelResponses != null && whiteLabelResponses.size() > 0) {
-                    mWhiteLabelResponses = whiteLabelResponses;
-                }
-            }
-
-            @Override
-            public void getWhiteLabelFailureCB(String message) {
-
-            }
-        });
-
-        accountSettings.getWhiteLabelProperties();
-    }
-
-    public void toggleSelection(int pos) {
+    public void toggleSelection(int pos)
+    {
         if (mSelected.contains(pos))
             mSelected.remove(pos);
         else
@@ -137,8 +99,19 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         notifyItemChanged(pos);
     }
 
-    public void selectRange(int start, int end, boolean selected) {
-        for (int i = start; i <= end; i++) {
+    public void select(int pos, boolean selected)
+    {
+        if (selected)
+            mSelected.add(pos);
+        else
+            mSelected.remove(pos);
+        notifyItemChanged(pos);
+    }
+
+    public void selectRange(int start, int end, boolean selected)
+    {
+        for (int i = start; i <= end; i++)
+        {
             if (selected)
                 mSelected.add(i);
             else
@@ -147,56 +120,87 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         notifyItemRangeChanged(start, end - start + 1);
     }
 
-    public HashSet<Integer> getSelection() {
+    public void deselectAll()
+    {
+        // this is not beautiful...
+        mSelected.clear();
+        notifyDataSetChanged();
+    }
+
+    /*public void selectAll()
+    {
+        for (int i = 0; i < mGetCategoryDocumentsResponses; i++)
+            mSelected.add(i);
+        notifyDataSetChanged();
+    }*/
+
+    public int getCountSelected()
+    {
+        return mSelected.size();
+    }
+
+    public HashSet<Integer> getSelection()
+    {
         return mSelected;
     }
 
-    public void setClickListener(ItemClickListener itemClickListener) {
+    // ----------------------
+    // Click Listener
+    // ----------------------
+
+    public void setClickListener(ItemClickListener itemClickListener)
+    {
         mClickListener = itemClickListener;
     }
 
-    public interface ItemClickListener {
+    public interface ItemClickListener
+    {
         void onItemClick(View view, int position);
         boolean onItemLongClick(View view, int position);
     }
 
-
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
-        public LinearLayout parentLayout;
-        public RelativeLayout gridClick, thumbnailLayout;
-        public ImageView imageView, selectedItemIv, thumbnailIcon, thumbnailCornerIcon, moreIcon;
-        public TextView text, thumbnailText;
+        public ImageView imageView, selectedItemIv, thumbnailIcon, thumbnailCornerIcon, imageMore;
+        public TextView folder_name;
         public View layout;
+        public TextView folder_date, thumbnailText;
         ViewHolder vh;
+        RelativeLayout indicatorParentView, folderView, thumbnailView;
+        TextView indicatorTextValue;
 
-        public ViewHolder(View itemView) {
-            super(itemView);
-            layout = itemView;
-            parentLayout = (LinearLayout) itemView.findViewById(R.id.parent_layout1);
-            text = (TextView) itemView.findViewById(R.id.folder_name);
-            thumbnailText = (TextView) itemView.findViewById(R.id.thumbnail_text);
-            imageView = (ImageView) itemView.findViewById(R.id.folder);
+
+        public ViewHolder(View mView) {
+
+            super(mView);
+            layout = mView;
+
+            folder_name = (TextView) mView.findViewById(R.id.folder_name);
+            imageView = (ImageView) mView.findViewById(R.id.folder);
+            imageMore = (ImageView) mView.findViewById(R.id.more);
+            folder_date = (TextView) mView.findViewById(R.id.folder_date);
             selectedItemIv = (ImageView) itemView.findViewById(R.id.selected_item);
+            indicatorParentView = (RelativeLayout) mView.findViewById(R.id.nameIndicatorParentView);
+            folderView = (RelativeLayout) mView.findViewById(R.id.folder_layout);
+            thumbnailView = (RelativeLayout) mView.findViewById(R.id.thumbnail_layout);
+            indicatorTextValue = (TextView) mView.findViewById(R.id.indicatorTextValueView);
             thumbnailIcon = (ImageView) itemView.findViewById(R.id.thumbnail_image);
             thumbnailCornerIcon = (ImageView) itemView.findViewById(R.id.thumbnail_corner_image);
-            gridClick = (RelativeLayout) itemView.findViewById(R.id.grid_click);
-            thumbnailLayout = (RelativeLayout) itemView.findViewById(R.id.thumbnail_layout);
-            moreIcon = (ImageView) itemView.findViewById(R.id.more_icon);
-            this.parentLayout.setOnClickListener(this);
-            this.parentLayout.setOnLongClickListener(this);
+            thumbnailText = (TextView) itemView.findViewById(R.id.thumbnail_text);
+            this.itemView.setOnClickListener(this);
+            this.itemView.setOnLongClickListener(this);
         }
 
         @Override
-        public void onClick(View view) {
+        public void onClick(View view)
+        {
             if (mClickListener != null)
                 mClickListener.onItemClick(view, getAdapterPosition());
-
-
         }
 
         @Override
-        public boolean onLongClick(View view) {
+        public boolean onLongClick(View view)
+        {
             if (mClickListener != null)
                 return mClickListener.onItemLongClick(view, getAdapterPosition());
             return false;
@@ -205,56 +209,43 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        View v = inflater.inflate(R.layout.file_item_grid, parent, false);
+        View v = inflater.inflate(R.layout.file_items, parent, false);
         ViewHolder vh = new ViewHolder(v);
         return vh;
     }
 
     @Override
-    public int getItemViewType(int position) {
-        if (!isSwitchView) {
-            return LIST_ITEM;
-        } else {
-            return GRID_ITEM;
-        }
-    }
+    public void onBindViewHolder(ViewHolder holder, final int position) {
 
-    @Override
-    public int getItemCount() {
-        return mGetCategoryDocumentsResponses.size();
-    }
+        final GetCategoryDocumentsResponse resp = mGetCategoryDocumentsResponses.get(position);
 
-    public boolean toggleItemViewType() {
-        isSwitchView = !isSwitchView;
-        return isSwitchView;
-    }
+        if(mGetCategoryDocumentsResponses != null && mGetCategoryDocumentsResponses.size() > 0) {
 
-    @Override
-    public void onBindViewHolder(final ViewHolder holder, final int position) {
-
-        if (mGetCategoryDocumentsResponses != null && mGetCategoryDocumentsResponses.size() > 0) {
             PreferenceUtils.setDocumentVersionId(context, mGetCategoryDocumentsResponses.get(position).getDocument_version_id());
             PreferenceUtils.setDocument_Id(context, mGetCategoryDocumentsResponses.get(position).getObject_id());
+
             setButtonBackgroundColor();
 
-            if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("category")) {
-                holder.imageView.setVisibility(View.VISIBLE);
-                holder.thumbnailLayout.setVisibility(View.GONE);
+            if (mGetCategoryDocumentsResponses.get(position).getType() != null &&
+                    mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("category")) {
+                holder.folderView.setVisibility(View.VISIBLE);
+                holder.thumbnailView.setVisibility(View.GONE);
                 if (mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
                     String folderColor = mWhiteLabelResponses.get(0).getFolder_Color();
                     int itemFolderColor = Color.parseColor(folderColor);
 
                     if (folderColor != null) {
-                      //  changeDrawableColor(context, R.mipmap.ic_folder, itemFolderColor);
                         holder.imageView.setColorFilter(itemFolderColor);
                     } else {
                         holder.imageView.setImageResource(R.mipmap.ic_folder);
                     }
                 }
-            } else if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document")) {
-                holder.imageView.setVisibility(View.GONE);
-                holder.thumbnailLayout.setVisibility(View.VISIBLE);
+            } else if (mGetCategoryDocumentsResponses.get(position).getType() != null &&
+                    mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document")) {
+                holder.folderView.setVisibility(View.GONE);
+                holder.thumbnailView.setVisibility(View.VISIBLE);
                 if (mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("pdf")) {
                     //holder.imageView.setImageResource(R.mipmap.ic_pdf);
                     holder.thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_pdf_color));
@@ -274,33 +265,33 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                     holder.thumbnailText.setText(mGetCategoryDocumentsResponses.get(position).getFiletype());
                 } else if (mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("ppt") ||
                         mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("pptx") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("pps")
-                        || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("ai")) {
+                        || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("ai")){
                     holder.thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_ppt_color));
                     holder.thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_ppt_corner_color));
                     holder.thumbnailText.setText(mGetCategoryDocumentsResponses.get(position).getFiletype());
                 } else if (mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("xml") ||
                         mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("log") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("zip")
                         || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("rar") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("zipx")
-                        || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("mht")) {
+                        || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("mht")){
                     holder.thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_xml_color));
                     holder.thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_xml_corner_color));
                     holder.thumbnailText.setText(mGetCategoryDocumentsResponses.get(position).getFiletype());
                 } else if (mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("xml") ||
                         mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("log") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("rtf") ||
-                        mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("txt") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("epub")) {
+                        mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("txt") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("epub")){
                     holder.thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_xml_color));
                     holder.thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_xml_corner_color));
                     holder.thumbnailText.setText(mGetCategoryDocumentsResponses.get(position).getFiletype());
                 } else if (mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("msg") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("dot") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("odt")
-                        || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("ott")) {
+                        || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("ott")){
                     holder.thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_msg_color));
                     holder.thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_msg_corner_color));
                     holder.thumbnailText.setText(mGetCategoryDocumentsResponses.get(position).getFiletype());
-                } else if (mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("pages")) {
+                } else if (mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("pages")){
                     holder.thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_pages_color));
                     holder.thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_pages_corner_color));
                     holder.thumbnailText.setText(mGetCategoryDocumentsResponses.get(position).getFiletype());
-                } else if (mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("pub") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("ods")) {
+                } else if (mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("pub") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("ods")){
                     holder.thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_pub_color));
                     holder.thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_pub_corner_color));
                     holder.thumbnailText.setText(mGetCategoryDocumentsResponses.get(position).getFiletype());
@@ -308,18 +299,18 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                         || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("jpg") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("png") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("bmp")
                         || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("tif") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("tiff") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("eps")
                         || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("svg") || (mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("odp")
-                        || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("otp"))) {
+                        || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("otp"))){
                     holder.thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_gif_color));
                     holder.thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_gif_corner_color));
                     holder.thumbnailText.setText(mGetCategoryDocumentsResponses.get(position).getFiletype());
                 } else if (mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("avi")
                         || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("flv") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("mpeg") ||
-                        mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("mpg") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("swf") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("wmv")) {
+                        mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("mpg") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("swf") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("wmv")){
                     holder.thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_avi_color));
                     holder.thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_avi_corner_color));
                     holder.thumbnailText.setText(mGetCategoryDocumentsResponses.get(position).getFiletype());
-                } else if (mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("mp3")
-                        || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("wav") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("wma")) {
+                }  else if (mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("mp3")
+                        || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("wav") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("wma")){
                     holder.thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_mp3_color));
                     holder.thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_mp3_corner_color));
                     holder.thumbnailText.setText(mGetCategoryDocumentsResponses.get(position).getFiletype());
@@ -331,44 +322,65 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
             }
 
             final String name = mGetCategoryDocumentsResponses.get(position).getName();
-            holder.text.setText(name);
+            holder.folder_name.setText(name);
 
-            holder.parentLayout.setOnClickListener(new View.OnClickListener() {
+            final String createdDate = mGetCategoryDocumentsResponses.get(position).getCreated_date();
+            holder.folder_date.setText(createdDate);
+
+            if(position > 0){
+                char poschar = resp.getName().toUpperCase().charAt(0);
+                char prevchar = mGetCategoryDocumentsResponses.get(position-1).getName().toUpperCase().charAt(0);
+                if(poschar == prevchar){
+                    holder.indicatorParentView.setVisibility(View.GONE);
+                }else{
+                    holder.indicatorParentView.setVisibility(View.VISIBLE);
+                    holder.indicatorTextValue.setText(String.valueOf(mGetCategoryDocumentsResponses.get(position).getName().charAt(0)));
+                }
+            }else{
+                holder.indicatorParentView.setVisibility(View.VISIBLE);
+                holder.indicatorTextValue.setText(String.valueOf(mGetCategoryDocumentsResponses.get(position).getName().charAt(0)));
+            }
+
+            /*if (!TextUtils.isEmpty(mGetCategoryDocumentsResponses.get(position).getName())) {
+                holder.indicatorParentView.setVisibility(View.VISIBLE);
+                holder.indicatorTextValue.setText(String.valueOf(mGetCategoryDocumentsResponses.get(position).getName().charAt(0)));
+            }
+            else {
+                holder.indicatorParentView.setVisibility(View.GONE);
+            }*/
+
+            holder.imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("category")) {
-                        PreferenceUtils.setObjectId(context, mGetCategoryDocumentsResponses.get(position).getObject_id());
-                        obj = mGetCategoryDocumentsResponses.get(position).getObject_id();
-                        if(context instanceof MyFoldersDMSActivity){
-                            ((ItemNavigationFolderFragment)fragment).getCategoryDocuments(obj,String.valueOf(pageNumber));
-                        }
+                    if (mGetCategoryDocumentsResponses.get(position).getType() != null &&
+                            mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("category")) {
+                        getSubCategoryDocuments(mGetCategoryDocumentsResponses.get(position).getObject_id());
 
-                     //   myFoldersDMSActivity.getCategoryDocuments(obj,String.valueOf(pageNumber));
                         doc_id.add(mGetCategoryDocumentsResponses.get(position).getObject_id());
                     }
                 }
             });
 
-            holder.thumbnailLayout.setOnClickListener(new View.OnClickListener() {
+            holder.thumbnailView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     getDocumentPreviews(mGetCategoryDocumentsResponses.get(position).getDocument_version_id());
                 }
             });
 
-            holder.moreIcon.setOnClickListener(new View.OnClickListener() {
+            holder.imageMore.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("category")) {
+                    if (mGetCategoryDocumentsResponses.get(position).getType() != null &&
+                            mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("category")) {
                         openBottomSheetForCategory(mGetCategoryDocumentsResponses.get(position).getName());
                         objectr = mGetCategoryDocumentsResponses.get(position).getParent_id();
                         categoryr = mGetCategoryDocumentsResponses.get(position).getObject_id();
-
-                    } else if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document")) {
+                    } else if (mGetCategoryDocumentsResponses.get(position).getType() != null &&
+                            mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document")) {
                         openBottomSheetForDocument(mGetCategoryDocumentsResponses.get(position).getType(), mGetCategoryDocumentsResponses.get(position).getFiletype(), mGetCategoryDocumentsResponses.get(position).getName());
                     }
                 }
-
             });
 
             if (mSelected.contains(position)) {
@@ -413,9 +425,9 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                                 getDocumentPreviewResponses = response.body().getData();
                                 String document_preview_url = getDocumentPreviewResponses.getDocument_pdf_url();
 
-                               /* Intent mIntent = new Intent(context, PDFViewer.class);
+                                Intent mIntent = new Intent(context, WebviewLoaderTermsActivity.class);
                                 mIntent.putExtra(Constants.DOCUMENTPDFURL, document_preview_url);
-                                context.startActivity(mIntent);*/
+                                context.startActivity(mIntent);
                             }
 
                         } else if (apiResponse.status.getCode() instanceof Integer) {
@@ -434,18 +446,44 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         }
     }
 
+    private void setButtonBackgroundColor() {
+
+        getWhiteLabelProperties();
+    }
+
+    private void getWhiteLabelProperties() {
+
+        AccountSettings accountSettings = new AccountSettings(context);
+        accountSettings.SetWhiteLabelCB(new AccountSettings.GetWhiteLabelCB() {
+            @Override
+            public void getWhiteLabelSuccessCB(List<WhiteLabelResponse> whiteLabelResponses) {
+                if (whiteLabelResponses != null && whiteLabelResponses.size() > 0) {
+                    mWhiteLabelResponses = whiteLabelResponses;
+                }
+            }
+
+            @Override
+            public void getWhiteLabelFailureCB(String message) {
+
+            }
+        });
+        accountSettings.getWhiteLabelProperties();
+    }
+
     private void openBottomSheetForDocument(String type, String fileType, String name) {
 
-        getWhiteLabelProperities();
-
         View view = ((MyFoldersDMSActivity) context).getLayoutInflater().inflate(R.layout.bottom_sheet_document_sort, null);
-        RelativeLayout shareView = (RelativeLayout) view.findViewById(R.id.share_layout);
+        RelativeLayout shareView = (RelativeLayout)view.findViewById(R.id.share_layout);
+        RelativeLayout rename_layout = (RelativeLayout) view.findViewById(R.id.rename_layout);
+        RelativeLayout move_layout =  (RelativeLayout) view.findViewById(R.id.move_layout);
+        TextView delete = (TextView) view.findViewById(R.id.delete);
+        LinearLayout doclayout = (LinearLayout)view.findViewById(R.id.doc_info_layout);
         TextView docText = (TextView) view.findViewById(R.id.doc_text);
         ImageView thumbnailIcon = (ImageView) view.findViewById(R.id.thumbnail_image);
         ImageView thumbnailCornerIcon = (ImageView) view.findViewById(R.id.thumbnail_corner_image);
         TextView thumbnailText = (TextView) view.findViewById(R.id.thumbnail_text);
 
-        final ImageView copyImage = (ImageView) view.findViewById(R.id.copy_image);
+        ImageView copyImage = (ImageView) view.findViewById(R.id.copy_image);
         ImageView moveImage = (ImageView) view.findViewById(R.id.move_image);
         ImageView renameImage = (ImageView) view.findViewById(R.id.rename_image);
         ImageView shareImage = (ImageView) view.findViewById(R.id.share_image);
@@ -464,8 +502,29 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
 
         docText.setText(name);
 
+        shareView.setVisibility(View.GONE);
+        rename_layout.setVisibility(View.GONE);
+        move_layout.setVisibility(View.GONE);
+        delete.setVisibility(View.GONE);
+
+        moveImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, MyFolderActivity.class);
+                context.startActivity(intent);
+            }
+        });
+
+        doclayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent intent = new Intent (context,Tab_Activity.class);
+                context.startActivity(intent);
+            }
+        });
+
         if (fileType.equalsIgnoreCase("pdf")) {
-            //holder.imageView.setImageResource(R.mipmap.ic_pdf);
             thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_pdf_color));
             thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_pdf_corner_color));
             thumbnailText.setText(fileType);
@@ -549,23 +608,15 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
             @Override
             public void onClick(View v) {
                 Intent mIntent = new Intent(context,MyFolderSharedDocuments.class);
-                mIntent.putExtra(Constants.OBJ, (Serializable) selectedList);
+                mIntent.putExtra(Constants.OBJ, (Serializable) mSelectedList);
                 context.startActivity(mIntent);
-            }
-        });
-
-        moveImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(context, MyFolderActivity.class);
-                context.startActivity(intent);
             }
         });
     }
 
     private void openBottomSheetForCategory(String name) {
 
-        getWhiteLabelProperities();
+        getWhiteLabelProperties();
 
         View view = ((MyFoldersDMSActivity) context).getLayoutInflater().inflate(R.layout.bottom_sheet_category_sort, null);
 
@@ -573,7 +624,12 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         ImageView categoryImage = (ImageView) view.findViewById(R.id.category_image);
         ImageView moveImage = (ImageView) view.findViewById(R.id.move_image);
         ImageView renameImage = (ImageView) view.findViewById(R.id.rename_image);
-        RelativeLayout rename= (RelativeLayout) view.findViewById(R.id.rename1);
+        RelativeLayout rename = (RelativeLayout)view.findViewById(R.id.rename1);
+        RelativeLayout move = (RelativeLayout)view.findViewById(R.id.move1);
+        TextView delete = (TextView) view.findViewById(R.id.delete);
+        RelativeLayout share = (RelativeLayout)view.findViewById(R.id.share1);
+
+        rename.setVisibility(View.GONE);
 
         categoryText.setText(name);
         if (mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
@@ -599,6 +655,16 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         mBottomSheetDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         mBottomSheetDialog.getWindow().setGravity(Gravity.BOTTOM);
         mBottomSheetDialog.show();
+
+        move.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context,MyFolderActivity.class);
+                String object = "0";
+                intent.putExtra(object,"0");
+                context.startActivity(intent);
+            }
+        });
 
         rename.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -638,8 +704,8 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
 
             }
         });
-
     }
+
     public void rename(String object_id,String name,String parentid)
     {
         if (NetworkUtils.isNetworkAvailable(context)) {
@@ -672,9 +738,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                         if (apiResponse.status.getCode() instanceof Boolean) {
                             if (apiResponse.status.getCode() == Boolean.FALSE) {
                                 transparentProgressDialog.dismiss();
-                              //  refreshAdapterToView(getCategoryDocumentsResponses);
-                                getSubCategoryDocuments(objectr,"1");
-
+                                getSubCategoryDocuments(objectr);
                             }
 
                         } else if (apiResponse.status.getCode() instanceof Integer) {
@@ -722,13 +786,8 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
     }
 
 
-    public static Drawable changeDrawableColor(Context context, int icon, int itemFolderColor) {
-        Drawable mDrawable = ContextCompat.getDrawable(context, icon).mutate();
-        mDrawable.setColorFilter(new PorterDuffColorFilter(itemFolderColor, PorterDuff.Mode.SRC_IN));
-        return mDrawable;
-    }
 
-    public void getSubCategoryDocuments(final String object_id, final String page) {
+    public void getSubCategoryDocuments(String object_id) {
 
         if (NetworkUtils.isNetworkAvailable(context)) {
 
@@ -737,63 +796,70 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
             final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
             transparentProgressDialog.show();
 
-            final GetCategoryDocumentsRequest mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(Integer.parseInt(object_id), "list", "category", "1", "0");
+            final GetSharedCategoryDocumentsRequest mGetSharedCategoryDocumentsRequest = new GetSharedCategoryDocumentsRequest(object_id);
 
-            String request = new Gson().toJson(mGetCategoryDocumentsRequest);
+            String request = new Gson().toJson(mGetSharedCategoryDocumentsRequest);
 
             //Here the json data is add to a hash map with key data
             Map<String, String> params = new HashMap<String, String>();
             params.put("data", request);
-            final GetCategoryDocumentsService mGetCategoryDocumentsService = retrofitAPI.create(GetCategoryDocumentsService.class);
-            Call call = mGetCategoryDocumentsService.getCategoryDocumentsV2(params, PreferenceUtils.getAccessToken(context),page);
 
-            call.enqueue(new Callback<ListPinDevicesResponse<GetCategoryDocumentsResponse>>() {
+            final GetCategoryDocumentsService mGetCategoryDocumentsService = retrofitAPI.create(GetCategoryDocumentsService.class);
+            Call call = mGetCategoryDocumentsService.getSharedCategoryDocumentsV2(params, PreferenceUtils.getAccessToken(context));
+
+            call.enqueue(new Callback<APIResponseModel>() {
                 @Override
-                public void onResponse(Response<ListPinDevicesResponse<GetCategoryDocumentsResponse>> response, Retrofit retrofit) {
-                    ListPinDevicesResponse apiResponse = response.body();
-                    if (apiResponse != null) {
+                public void onResponse(Response<APIResponseModel> response, Retrofit retrofit) {
+
+                    if (response != null) {
 
                         transparentProgressDialog.dismiss();
-                        if (apiResponse.status.getCode() instanceof Boolean) {
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
+
+                        if (response.body().getStatus().getCode() instanceof Boolean) {
+                            if (response.body().getStatus().getCode() == Boolean.FALSE) {
                                 transparentProgressDialog.dismiss();
-                                getCategoryDocumentsResponses = response.body().getData();
-                           //     getCategoryDocumentsResponses = response.body().getData();
-                           //     getCategoryDocumentsResponses.addAll(paginationList);
 
-                             //   paginationList.add(getCategoryDocumentsResponses);
+                                List<APIResponseModel.Category> categoryList = response.body().getData().getCategories();
+                                List<APIResponseModel.Document> documentList = response.body().getData().getDocuments();
 
+                                //     List<GetCategoryDocumentsResponse> getCategoryDocumentsResponseList=new ArrayList<>();
+                                List<GetCategoryDocumentsResponse> getCategoryDocumentsResponseListTemp = new ArrayList<>();
 
+                                if (categoryList != null && categoryList.size() > 0) {
+                                    for (APIResponseModel.Category category : categoryList) {
+                                        GetCategoryDocumentsResponse getCategoryDocumentsResponse = new GetCategoryDocumentsResponse();
+                                        getCategoryDocumentsResponse.setObject_id(category.getCategoryId());
+                                        getCategoryDocumentsResponse.setName(category.getCategoryName());
+                                        getCategoryDocumentsResponse.setType(category.getType());
+                                        mGetCategoryDocumentsResponses.add(getCategoryDocumentsResponse);
 
-
-/*
-
-                                totalPage = Integer.parseInt(response.headers().get("X-Pagination-Page-Count"));
-
-
-                                if(pageNumber+ 1<=totalPage)
-                                {
-                                  getSubCategoryDocuments(obj,String.valueOf(pageNumber+1));
-                                  pageNumber=pageNumber+1;
+                                    }
                                 }
-*/
 
-                                refreshAdapterToView(getCategoryDocumentsResponses);
-                            //    paginationList.clear();
-/*
-                                while(pageCount!=null&&Integer.parseInt(pageCount)>1){
-                                    getSubCategoryDocuments(obj,pageCount);
-                                    refreshAdapterToView(getCategoryDocumentsResponses);
-
+                                if (documentList != null && documentList.size() > 0) {
+                                    for (APIResponseModel.Document document : documentList) {
+                                        GetCategoryDocumentsResponse getCategoryDocumentsResponse = new GetCategoryDocumentsResponse();
+                                        getCategoryDocumentsResponse.setObject_id(document.getDocument_id());
+                                        getCategoryDocumentsResponse.setDocument_version_id(document.getDocument_version_id());
+                                        getCategoryDocumentsResponse.setName(document.getName());
+                                        getCategoryDocumentsResponse.setFiletype(document.getFiletype());
+                                        getCategoryDocumentsResponse.setFilesize(document.getFilesize());
+                                        getCategoryDocumentsResponse.setType(document.getType());
+                                        getCategoryDocumentsResponse.setShared_date(document.getShared_date());
+                                        getCategoryDocumentsResponseListTemp.add(getCategoryDocumentsResponse);
+                                    }
                                 }
-*/
 
+
+                                mGetCategoryDocumentsResponses.addAll(getCategoryDocumentsResponseListTemp);
+
+                                refreshAdapterToView(mGetCategoryDocumentsResponses);
 
                             }
 
-                        } else if (apiResponse.status.getCode() instanceof Integer) {
+                        } else if (response.body().getStatus().getCode() instanceof Integer) {
                             transparentProgressDialog.dismiss();
-                            String mMessage = apiResponse.status.getMessage().toString();
+                            String mMessage = response.body().getStatus().getMessage().toString();
 
                             final AlertDialog.Builder builder = new AlertDialog.Builder(context);
                             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -834,20 +900,24 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
             });
         }
     }
-    public ArrayList<String> getArrayList(){
-        return doc_id;
-    }
-    public ArrayList<String> setArrayList(int k){
-        doc_id.remove(k);
-        return doc_id;
+
+    @Override
+    public int getItemCount() {
+        return mGetCategoryDocumentsResponses.size();
     }
 
     public void refreshAdapterToView(List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses) {
 
         this.mGetCategoryDocumentsResponses.clear();
         this.mGetCategoryDocumentsResponses.addAll(getCategoryDocumentsResponses);
-        //getSubCategoryDocuments(objectr,"1");
 
         notifyDataSetChanged();
+    }
+    public ArrayList<String> getArrayList(){
+        return doc_id;
+    }
+    public ArrayList<String> setArrayList(int k){
+        doc_id.remove(k);
+        return doc_id;
     }
 }

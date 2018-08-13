@@ -27,6 +27,8 @@ public class GetCategoryDocumentsResponse implements Serializable{
     private String unix_date;
 
     private String type;
+    private String shared_date;
+
 
     public String getParent_id() {
         return parent_id;
@@ -108,5 +110,13 @@ public class GetCategoryDocumentsResponse implements Serializable{
 
     public void setIs_Loading(int is_Loading) {
         Is_Loading = is_Loading;
+    }
+
+    public String getShared_date() {
+        return shared_date;
+    }
+
+    public void setShared_date(String shared_date) {
+        this.shared_date = shared_date;
     }
 }

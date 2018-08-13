@@ -17,4 +17,7 @@ public interface GetUserPreferencesService {
     @Headers({"content-type: application/x-www-form-urlencoded"})
     @POST("/get-user-preferences")
     Call<BaseApiResponse<GetUserPreferencesResponse>> getUserPreferences(@Header("access-token") String accessToken);
+
+
+
 }

@@ -175,6 +175,7 @@
             </RelativeLayout>
 
             <RelativeLayout
+                android:id="@+id/rename_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
@@ -244,6 +245,7 @@
             </RelativeLayout>
 
             <RelativeLayout
+                android:id="@+id/move_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 

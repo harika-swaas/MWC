@@ -22,4 +22,6 @@ public class ApiResponse<T> {
     public void setData(T data) {
         this.data = data;
     }
+
+
 }
