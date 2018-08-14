@@ -56,7 +56,7 @@ public class DateHelper {
 
 
     public static String getCurrentDate() {
-        String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        String currentDate = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
         return currentDate;
     }
 

@@ -68,7 +68,41 @@ public class OffLine_Files_Repository
         return CREATE_OFFLINE_FILES;
     }
 
+    public boolean checkAlreadyDocumentAvailableOrNot(String document_version_id)
+    {
+        try {
 
+            String query = "Select documentVersionId from tbl_Offline_Files Where documentVersionId = '"+document_version_id+"'";
+            DBConnectionOpen();
+            Cursor cursor = database.rawQuery(query, null);
+
+            if (cursor.getCount() > 0)
+            {
+                cursor.close();
+                return false;
+            }
+            else {
+                cursor.close();
+                return true;
+            }
+
+        } finally {
+            DBConnectionClose();
+        }
+    }
+
+    public void deleteAlreadydownloadedFile(String document_version_id)
+    {
+        String stringQuery = "DELETE FROM tbl_Offline_Files WHERE documentVersionId = '"+document_version_id+"'";
+        try {
+            DBConnectionOpen();
+            database.execSQL(stringQuery);
+        } catch (Exception e) {
+            LOG_TRACER.e(e);
+        } finally {
+            DBConnectionClose();
+        }
+    }
 
 
     public interface GetOfflineFilesListenerCB {

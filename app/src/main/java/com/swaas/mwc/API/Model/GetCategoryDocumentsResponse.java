@@ -28,7 +28,42 @@ public class GetCategoryDocumentsResponse implements Serializable{
 
     private String type;
     private String shared_date;
+    private String downloadUrl;
+    int Is_Downloaded;
+    long download_Id;
+    String version_number;
 
+    public String getVersion_number() {
+        return version_number;
+    }
+
+    public void setVersion_number(String version_number) {
+        this.version_number = version_number;
+    }
+
+    public long getDownload_Id() {
+        return download_Id;
+    }
+
+    public void setDownload_Id(long download_Id) {
+        this.download_Id = download_Id;
+    }
+
+    public int getIs_Downloaded() {
+        return Is_Downloaded;
+    }
+
+    public void setIs_Downloaded(int is_Downloaded) {
+        Is_Downloaded = is_Downloaded;
+    }
+
+    public String getDownloadUrl() {
+        return downloadUrl;
+    }
+
+    public void setDownloadUrl(String downloadUrl) {
+        this.downloadUrl = downloadUrl;
+    }
 
     public String getParent_id() {
         return parent_id;

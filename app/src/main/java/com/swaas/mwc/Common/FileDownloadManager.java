@@ -22,7 +22,7 @@ import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
 
-import com.swaas.mwc.API.Model.OfflineFiles;
+import com.swaas.mwc.API.Model.GetCategoryDocumentsResponse;
 import com.swaas.mwc.Database.OffLine_Files_Repository;
 import com.swaas.mwc.RootActivity;
 import com.swaas.mwc.Utils.Constants;
@@ -52,7 +52,7 @@ public class FileDownloadManager extends RootActivity {
     String fileName, storagePath;
     static FileDownloadManager mFileDownloadManager;
     long downloadId;
-    OfflineFiles digitalAssets;
+    GetCategoryDocumentsResponse digitalAssets;
     FileDownloadListener mFileDownloadListener;
 
     public FileDownloadManager(Activity context) {
@@ -155,7 +155,7 @@ public class FileDownloadManager extends RootActivity {
         if (getFileTile() != null) {
             request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, getFileTile());
         } else {
-            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "DocPortal" + MimeTypeMap.getFileExtensionFromUrl(getDownloadUrl()));
+            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "DocPortal" + MimeTypeMap.getFileExtensionFromUrl(getFileName()));
         }
 
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
@@ -186,10 +186,11 @@ public class FileDownloadManager extends RootActivity {
         request.setMimeType(GetFileExtension());
         request.setDescription(getFileDescription());
         if (getFileTile() != null) {
-            final File file = new File(context.getCacheDir().getAbsolutePath() + File.separator + digitalAssets.getDocumentVersionId());
+            final File file = new File(context.getCacheDir().getAbsolutePath() + File.separator + digitalAssets.getDocument_version_id());
             file.mkdirs();
             String[] array = getDownloadUrl().split("/");
-            final String fileName = array[array.length - 1];
+          //  final String fileName = array[array.length - 1];
+            final String fileName = digitalAssets.getName();
             request.setDestinationInExternalPublicDir(file.getAbsolutePath(), fileName);
             BroadcastReceiver onComplete = new BroadcastReceiver() {
                 @Override
@@ -198,21 +199,21 @@ public class FileDownloadManager extends RootActivity {
 
                         if (getDownloadUrl().endsWith("zip")) {
                             unpackZip(Environment.getExternalStorageDirectory()
-                                    .getAbsolutePath() + context.getCacheDir().getAbsolutePath() + File.separator + digitalAssets.getDocumentVersionId() + File.separator, fileName);
+                                    .getAbsolutePath() + context.getCacheDir().getAbsolutePath() + File.separator + digitalAssets.getDocument_version_id() + File.separator, fileName);
                         }
                         digitalAssets.setIs_Downloaded(1);
                         if (!getDownloadUrl().endsWith("zip")) {
-                            digitalAssets.setDA_Offline_URL(Environment.getExternalStorageDirectory()
-                                    .getAbsolutePath() + context.getCacheDir().getAbsolutePath() + File.separator + digitalAssets.getDocumentVersionId() + File.separator + fileName);
+                            digitalAssets.setDownloadUrl(Environment.getExternalStorageDirectory()
+                                    .getAbsolutePath() + context.getCacheDir().getAbsolutePath() + File.separator + digitalAssets.getDocument_version_id() + File.separator + fileName);
                         } else {
-                            digitalAssets.setDA_Offline_URL(Environment.getExternalStorageDirectory()
-                                    .getAbsolutePath() + context.getCacheDir().getAbsolutePath() + File.separator + digitalAssets.getDocumentVersionId() + File.separator);
+                            digitalAssets.setDownloadUrl(Environment.getExternalStorageDirectory()
+                                    .getAbsolutePath() + context.getCacheDir().getAbsolutePath() + File.separator + digitalAssets.getDocument_version_id() + File.separator + fileName);
                         }
                         OffLine_Files_Repository digitalAssetRepository = new OffLine_Files_Repository(context);
                       //  digitalAssetRepository.insertOrUpdateDAHeader(digitalAssets);
                      //   digitalAssetRepository.insertDownloadedAsset(digitalAssets.getDocumentVersionId(), digitalAssets.getDA_Offline_URL());
                         if (mFileDownloadListener != null) {
-                            mFileDownloadListener.fileDownloadSuccess(digitalAssets.getDA_Offline_URL());
+                            mFileDownloadListener.fileDownloadSuccess(digitalAssets.getDownloadUrl());
                         }
                     }
                 }
@@ -220,7 +221,7 @@ public class FileDownloadManager extends RootActivity {
             context.getApplicationContext().registerReceiver(onComplete, new
                     IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
         } else {
-            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "DocPortal" + MimeTypeMap.getFileExtensionFromUrl(getDownloadUrl()));
+            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "DocPortal" + MimeTypeMap.getFileExtensionFromUrl(getFileName()));
         }
 
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
@@ -289,18 +290,18 @@ public class FileDownloadManager extends RootActivity {
         digitalAssets.setDownload_Id(downloadmanager.enqueue(request));
     }*/
 
-    public void cancelDownload(OfflineFiles digitalAsset) {
+    public void cancelDownload(GetCategoryDocumentsResponse digitalAsset) {
         if (digitalAsset != null) {
             downloadmanager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
             downloadmanager.remove(digitalAsset.getDownload_Id());
         }
     }
 
-    public OfflineFiles getDigitalAssets() {
+    public GetCategoryDocumentsResponse getDigitalAssets() {
         return digitalAssets;
     }
 
-    public void setDigitalAssets(OfflineFiles digitalAssets) {
+    public void setDigitalAssets(GetCategoryDocumentsResponse digitalAssets) {
         this.digitalAssets = digitalAssets;
     }
 

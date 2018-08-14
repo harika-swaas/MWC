@@ -9,12 +9,15 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
+import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -38,28 +41,34 @@ import com.github.clans.fab.FloatingActionMenu;
 import com.google.gson.Gson;
 import com.michaelflisar.dragselectrecyclerview.DragSelectTouchListener;
 import com.michaelflisar.dragselectrecyclerview.DragSelectionProcessor;
+import com.swaas.mwc.API.Model.ApiResponse;
 import com.swaas.mwc.API.Model.DownloadDocumentRequest;
 import com.swaas.mwc.API.Model.DownloadDocumentResponse;
 import com.swaas.mwc.API.Model.GetCategoryDocumentsRequest;
 import com.swaas.mwc.API.Model.GetCategoryDocumentsResponse;
 import com.swaas.mwc.API.Model.ListPinDevicesResponse;
+import com.swaas.mwc.API.Model.OfflineFiles;
 import com.swaas.mwc.API.Model.WhiteLabelResponse;
 import com.swaas.mwc.API.Service.DownloadDocumentService;
 import com.swaas.mwc.API.Service.GetCategoryDocumentsService;
 import com.swaas.mwc.Adapters.DmsAdapter;
 import com.swaas.mwc.Adapters.DmsAdapterList;
+import com.swaas.mwc.Common.FileDownloadManager;
 import com.swaas.mwc.Common.SimpleDividerItemDecoration;
 import com.swaas.mwc.DMS.MyFolderActivity;
 import com.swaas.mwc.DMS.MyFolderSharedDocuments;
 import com.swaas.mwc.DMS.MyFoldersDMSActivity;
 import com.swaas.mwc.Database.AccountSettings;
+import com.swaas.mwc.Database.OffLine_Files_Repository;
 import com.swaas.mwc.Dialogs.LoadingProgressDialog;
 import com.swaas.mwc.Login.LoginActivity;
+import com.swaas.mwc.Login.Touchid;
 import com.swaas.mwc.Network.NetworkUtils;
 import com.swaas.mwc.Preference.PreferenceUtils;
 import com.swaas.mwc.R;
 import com.swaas.mwc.Retrofit.RetrofitAPIBuilder;
 import com.swaas.mwc.Utils.Constants;
+import com.swaas.mwc.Utils.DateHelper;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -114,7 +123,8 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
     boolean sortBySize = false;
     boolean sortByDate = false;
 
-
+    List<GetCategoryDocumentsResponse> downloadingUrlDataList = new ArrayList<>();
+    int index=0;
 
     public static ItemNavigationFolderFragment newInstance() {
         ItemNavigationFolderFragment fragment = new ItemNavigationFolderFragment();
@@ -193,7 +203,7 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
                     MyFoldersDMSActivity.toggle.setImageResource(R.mipmap.ic_list);
                     setListAdapterToView(mGetCategoryDocumentsResponses);
                     isFromList = true;
-                    mAdapter.notifyDataSetChanged();
+                    mAdapterList.notifyDataSetChanged();
                     check = true;
 
                 } else {
@@ -917,6 +927,8 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
                 GetCategoryDocumentsResponse documentsResponseObj = mGetCategoryDocumentsResponses.get(position);
                 mSelectedDocumentList.add(documentsResponseObj);
 
+             //   Toast.makeText(mActivity, String.valueOf(mSelectedDocumentList.size()),Toast.LENGTH_SHORT).show();
+
                 updateToolbarMenuItems(mSelectedDocumentList);
 
                 return true;
@@ -1592,12 +1604,35 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
                     isTouched = false;
                     if (isChecked) {
 
-                        downloaddoc();
+                        mBottomSheetDialog.dismiss();
+                        List<GetCategoryDocumentsResponse> downloadedList = new ArrayList<>();
+                        if(mSelectedDocumentList != null && mSelectedDocumentList.size() > 0)
+                        {
+
+                            for(GetCategoryDocumentsResponse getCategoryDocumentsResponse : mSelectedDocumentList)
+                            {
+                                if(getCategoryDocumentsResponse.getType().equalsIgnoreCase("document"))
+                                {
+                                    downloadedList.add(getCategoryDocumentsResponse);
+                                }
+                            }
+                        }
+
+                        if(downloadedList != null && downloadedList.size() > 0)
+                        {
+                          //  Toast.makeText(mActivity,String.valueOf(downloadedList.size()), Toast.LENGTH_LONG).show();
+                            convertingDownloadUrl(downloadedList);
+                        }
+
+
+
                     } else {
                     }
                 }
             }
         });
+
+
 
 
         List<GetCategoryDocumentsResponse> categoryDocumentsResponseFolderList = new ArrayList<>();
@@ -1684,6 +1719,171 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
     }
 
 
+
+    private void convertingDownloadUrl(List<GetCategoryDocumentsResponse> downloadedList)
+    {
+        downloadingUrlDataList = downloadedList;
+        if(downloadingUrlDataList.size()> index) {
+
+            getDownloadurlFromService(downloadingUrlDataList.get(index).getObject_id());
+
+        }
+
+
+    }
+
+    private void getDownloadurlFromService(String document_version_id)
+    {
+        if (NetworkUtils.isNetworkAvailable(mActivity)) {
+            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+            final DownloadDocumentService downloadDocumentService = retrofitAPI.create(DownloadDocumentService.class);
+
+            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
+            transparentProgressDialog.show();
+
+            //DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(PreferenceUtils.getDocumentVersionId(this));
+            List<String> strlist = new ArrayList<>();
+            strlist.add(document_version_id);
+            DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist);
+            final String request = new Gson().toJson(downloadDocumentRequest);
+
+            //Here the json data is add to a hash map with key data
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("data", request);
+
+            Call call = downloadDocumentService.download(params, PreferenceUtils.getAccessToken(mActivity));
+
+            call.enqueue(new Callback<ApiResponse<DownloadDocumentResponse>>() {
+                @Override
+                public void onResponse(Response<ApiResponse<DownloadDocumentResponse>> response, Retrofit retrofit) {
+                    ApiResponse apiResponse = response.body();
+                    if (apiResponse != null) {
+
+                        if (apiResponse.status.getCode() == Boolean.FALSE) {
+                            transparentProgressDialog.dismiss();
+                            DownloadDocumentResponse downloadDocumentResponse = response.body().getData();
+
+                            String downloaded_url = downloadDocumentResponse.getData();
+
+                            String access_Token = PreferenceUtils.getAccessToken(mActivity);
+
+                            byte[] encodeValue = Base64.encode(access_Token.getBytes(), Base64.DEFAULT);
+                            String base64AccessToken = new String(encodeValue);
+
+                            if (android.os.Build.VERSION.SDK_INT > 9) {
+                                StrictMode.ThreadPolicy policy =  new StrictMode.ThreadPolicy.Builder().permitAll().build();
+                                StrictMode.setThreadPolicy(policy);
+                            }
+
+
+                            downloadingUrlDataList.get(index).setDownloadUrl(downloaded_url+"&token="+base64AccessToken);
+
+
+                            index++;
+                            if(downloadingUrlDataList.size()> index) {
+                                getDownloadurlFromService(downloadingUrlDataList.get(index).getObject_id());
+
+                            }
+                            else
+                            {
+
+                                if (isFromList == true) {
+                                    mAdapterList.notifyDataSetChanged();
+                                }
+                                else
+                                {
+                                    mAdapter.notifyDataSetChanged();
+                                }
+
+                                getDownloadManagerForDownloading(downloadingUrlDataList);
+                            }
+
+
+
+                        }
+                        else {
+                            transparentProgressDialog.dismiss();
+                            String mMessage = apiResponse.status.getMessage().toString();
+                           /*// mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener()
+                                {
+                                @Override
+                                public void onClick(View view) {
+                                    startActivity(new Intent(mActivity, LoginActivity.class));
+                                    mActivity.finish();
+                                }
+                            }, false);
+                        */
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    transparentProgressDialog.dismiss();
+                }
+            });
+        }
+
+    }
+
+    private void getDownloadManagerForDownloading(List<GetCategoryDocumentsResponse> downloadingUrlDataList)
+    {
+      //  Toast.makeText(mActivity, String.valueOf(downloadingUrlDataList.size()), Toast.LENGTH_LONG).show();
+
+        index = 0;
+        for (final GetCategoryDocumentsResponse digitalAsset : downloadingUrlDataList) {
+            if (!TextUtils.isEmpty(digitalAsset.getDownloadUrl())) {
+                FileDownloadManager fileDownloadManager = new FileDownloadManager(mActivity);
+                fileDownloadManager.setFileTitle(digitalAsset.getName());
+                fileDownloadManager.setDownloadUrl(digitalAsset.getDownloadUrl());
+                fileDownloadManager.setDigitalAssets(digitalAsset);
+                fileDownloadManager.setmFileDownloadListener(new FileDownloadManager.FileDownloadListener() {
+                    @Override
+                    public void fileDownloadSuccess(String path) {
+
+                        OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(mActivity);
+                        if (!offLine_files_repository.checkAlreadyDocumentAvailableOrNot(digitalAsset.getDocument_version_id())) {
+                            offLine_files_repository.deleteAlreadydownloadedFile(digitalAsset.getDocument_version_id());
+                            insertIntoOffLineFilesTable(digitalAsset, path);
+                        }
+                        else
+                        {
+                            insertIntoOffLineFilesTable(digitalAsset, path);
+                        }
+
+                    //    Toast.makeText(mActivity,path, Toast.LENGTH_LONG).show();
+
+
+                    }
+
+                    @Override
+                    public void fileDownloadFailure() {
+
+                    }
+                });
+                fileDownloadManager.downloadTheFile();
+            }
+        }
+
+    }
+
+    private void insertIntoOffLineFilesTable(GetCategoryDocumentsResponse digitalAsset, String path)
+    {
+        OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(mActivity);
+        OfflineFiles offlineFilesModel = new OfflineFiles();
+        offlineFilesModel.setDocumentId(digitalAsset.getObject_id());
+        offlineFilesModel.setDocumentName(digitalAsset.getName());
+        offlineFilesModel.setDocumentVersionId(digitalAsset.getDocument_version_id());
+        offlineFilesModel.setDownloadDate(DateHelper.getCurrentDate());
+        offlineFilesModel.setFilename(digitalAsset.getName());
+        offlineFilesModel.setFilePath(path);
+        offlineFilesModel.setFiletype(digitalAsset.getFiletype());
+        offlineFilesModel.setFileSize(digitalAsset.getFilesize());
+        offlineFilesModel.setFileSize(digitalAsset.getVersion_number());
+        offlineFilesModel.setSource("Private");
+
+        offLine_files_repository.InsertOfflineFilesData(offlineFilesModel);
+    }
 
 
     private void downloaddoc() {

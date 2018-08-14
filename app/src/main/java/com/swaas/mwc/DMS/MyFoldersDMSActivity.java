@@ -1462,7 +1462,6 @@ public class MyFoldersDMSActivity extends RootActivity {
                 if (isTouched) {
                     isTouched = false;
                     if (isChecked) {
-
                         downloaddoc();
                     } else {
                     }

@@ -1,5 +1,6 @@
 package com.swaas.mwc.API.Service;
 
+import com.swaas.mwc.API.Model.ApiResponse;
 import com.swaas.mwc.API.Model.DownloadDocumentResponse;
 import com.swaas.mwc.API.Model.ListPinDevicesResponse;
 
@@ -18,5 +19,5 @@ import retrofit.http.POST;
 public interface DownloadDocumentService{
         @POST("/download-end-users-documents")
         @FormUrlEncoded
-        Call<ListPinDevicesResponse<DownloadDocumentResponse>> download(@FieldMap Map<String, String> params, @Header("access-token") String accessToken);
+        Call<ApiResponse<DownloadDocumentResponse>> download(@FieldMap Map<String, String> params, @Header("access-token") String accessToken);
 }
