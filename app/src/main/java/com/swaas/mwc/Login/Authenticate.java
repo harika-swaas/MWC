@@ -32,6 +32,8 @@ public class Authenticate extends Activity {
             startActivity(intent);
             finish();
         } else {
+
+
             Intent intent = new Intent(this, Notifiy.class);
             startActivity(intent);
             finish();
@@ -45,12 +47,13 @@ public class Authenticate extends Activity {
 
         if (credentialsIntent != null) {
             startActivityForResult(credentialsIntent, CREDENTIALS_RESULT);
-        } else {
+        }
+        /*else {
             //no password needed
             Intent intent = new Intent(Authenticate.this, Notifiy.class);
             startActivity(intent);
             finish();
-        }
+        }*/
     }
 
     public void onActivityResult(int requestCode, int resultCode, Bundle data) {

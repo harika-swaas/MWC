@@ -97,6 +97,7 @@ public class ItemNavigationSharedFragment extends Fragment
 
     public static ItemNavigationSharedFragment newInstance() {
         ItemNavigationSharedFragment fragment = new ItemNavigationSharedFragment();
+
         return fragment;
     }
 
@@ -104,7 +105,7 @@ public class ItemNavigationSharedFragment extends Fragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mActivity = (MyFoldersDMSActivity) getActivity();
-
+        mGetCategoryDocumentsResponses.clear();
     }
 
     @Override

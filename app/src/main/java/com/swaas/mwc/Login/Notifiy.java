@@ -2,6 +2,8 @@ package com.swaas.mwc.Login;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -9,19 +11,36 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
+import android.support.v4.app.NotificationManagerCompat;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.swaas.mwc.API.Model.AccountSettingsResponse;
+import com.swaas.mwc.API.Model.PushNotificationRequestModel;
+import com.swaas.mwc.API.Model.SharedDocumentResponseModel;
 import com.swaas.mwc.API.Model.WhiteLabelResponse;
+import com.swaas.mwc.API.Service.ShareEndUserDocumentsService;
 import com.swaas.mwc.Database.AccountSettings;
+import com.swaas.mwc.Network.NetworkUtils;
+import com.swaas.mwc.Preference.PreferenceUtils;
 import com.swaas.mwc.R;
+import com.swaas.mwc.Retrofit.RetrofitAPIBuilder;
 import com.swaas.mwc.Utils.Constants;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import retrofit.Call;
+import retrofit.Callback;
+import retrofit.Response;
+import retrofit.Retrofit;
 
 /**
  * Created by barath on 6/24/2018.
@@ -35,7 +54,8 @@ public class Notifiy extends Activity {
     List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList<>();
     boolean mIsFromFTL;
     AlertDialog mCustomAlertDialog;
-
+    String push_notificaton_settings;
+    Context context = this;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,28 +87,23 @@ public class Notifiy extends Activity {
                     @Override
                     public void onClick(View v) {
                         mCustomAlertDialog.dismiss();
+
                         updatePushNotificationAndLoggedInStatus();
-                        if (mIsFromFTL) {
-                            Intent intent = new Intent(Notifiy.this, LoginHelpUserGuideActivity.class);
-                            startActivity(intent);
-                            finish();
-                        } else {
-                            if(mAccountSettingsResponses != null && mAccountSettingsResponses.size() > 0){
-                                if(mAccountSettingsResponses.get(0).getIs_Terms_Accepted().equals("0")){
-                                    Intent intent = new Intent(Notifiy.this, LoginAgreeTermsAcceptanceActivity.class);
-                                    startActivity(intent);
-                                    finish();
-                                } else if(mAccountSettingsResponses.get(0).getIs_Terms_Accepted().equals("1")){
-                                    Intent intent = new Intent(Notifiy.this, LoginHelpUserGuideActivity.class);
-                                    startActivity(intent);
-                                    finish();
-                                }
-                            } else {
-                                Intent intent = new Intent(Notifiy.this, LoginHelpUserGuideActivity.class);
-                                startActivity(intent);
-                                finish();
-                            }
+
+                        String channalId = "my_channel_01";
+                        String register_type;
+                        if(isNotificationChannelEnabled(context, channalId) == true)
+                        {
+                            register_type = "1";
                         }
+                        else {
+                            register_type = "0";
+                        }
+
+                        getPushNotificationDocumentService(register_type);
+
+
+
                     }
                 });
 
@@ -97,7 +112,21 @@ public class Notifiy extends Activity {
                     public void onClick(View v) {
                         mCustomAlertDialog.dismiss();
                         updateLoggedInStatus();
-                        if (mIsFromFTL) {
+
+                        String channalId = "my_channel_01";
+                        String register_type;
+                        if(isNotificationChannelEnabled(context, channalId) == true)
+                        {
+                            register_type = "1";
+                        }
+                        else {
+                            register_type = "0";
+                        }
+
+                        getPushNotificationDocumentService(register_type);
+
+
+                        /*if (mIsFromFTL) {
                             Intent intent = new Intent(Notifiy.this, LoginHelpUserGuideActivity.class);
                             startActivity(intent);
                             finish();
@@ -113,7 +142,7 @@ public class Notifiy extends Activity {
                                     finish();
                                 }
                             }
-                        }
+                        }*/
                     }
                 });
 
@@ -145,6 +174,114 @@ public class Notifiy extends Activity {
                 }
             }
         });
+    }
+
+    private void getPushNotificationDocumentService(final String register_type)
+    {
+        if (NetworkUtils.isNetworkAvailable(context)) {
+
+            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+
+            final PushNotificationRequestModel externalShareResponseModel = new PushNotificationRequestModel("", "Android", register_type);
+
+            String request = new Gson().toJson(externalShareResponseModel);
+
+            //Here the json data is add to a hash map with key data
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("data", request);
+
+            final ShareEndUserDocumentsService mGetCategoryDocumentsService = retrofitAPI.create(ShareEndUserDocumentsService.class);
+
+            Call call = mGetCategoryDocumentsService.sendPushNotificatoinStatus(params, PreferenceUtils.getAccessToken(context));
+
+            call.enqueue(new Callback<SharedDocumentResponseModel>() {
+                @Override
+                public void onResponse(Response<SharedDocumentResponseModel> response, Retrofit retrofit) {
+
+                    if (response != null) {
+
+                        if (response.body().getStatus().getCode() instanceof Boolean) {
+                            if (response.body().getStatus().getCode() == Boolean.FALSE) {
+
+
+                                AccountSettings accountSettings = new AccountSettings(context);
+                                accountSettings.UpdatePushNotificatoinSettings(register_type);
+
+                                if (mIsFromFTL) {
+                                    Intent intent = new Intent(Notifiy.this, LoginHelpUserGuideActivity.class);
+                                    startActivity(intent);
+                                    finish();
+                                } else {
+                                    if(mAccountSettingsResponses != null && mAccountSettingsResponses.size() > 0){
+                                        if(mAccountSettingsResponses.get(0).getIs_Terms_Accepted().equals("0")){
+                                            Intent intent = new Intent(Notifiy.this, LoginAgreeTermsAcceptanceActivity.class);
+                                            startActivity(intent);
+                                            finish();
+                                        } else if(mAccountSettingsResponses.get(0).getIs_Terms_Accepted().equals("1")){
+                                            Intent intent = new Intent(Notifiy.this, LoginHelpUserGuideActivity.class);
+                                            startActivity(intent);
+                                            finish();
+                                        }
+                                    } else {
+                                        Intent intent = new Intent(Notifiy.this, LoginHelpUserGuideActivity.class);
+                                        startActivity(intent);
+                                        finish();
+                                    }
+                                }
+
+
+                            }
+
+                        }
+                      /*  else if (response.body().getStatus().getCode() instanceof Double) {
+
+                            String mMessage = response.body().getStatus().getMessage().toString();
+
+                            Object obj = 401.0;
+                            if (obj.equals(401.0)) {
+                                final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+                                LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+                                builder.setView(view);
+                                builder.setCancelable(false);
+
+                                TextView title = (TextView) view.findViewById(R.id.title);
+                                title.setText("Alert");
+
+                                TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+                                txtMessage.setText(mMessage);
+
+                                Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+                                Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+                                cancelButton.setVisibility(View.GONE);
+
+                                sendPinButton.setText("OK");
+
+                                sendPinButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+
+                                        AccountSettings accountSettings = new AccountSettings(mActivity);
+                                        accountSettings.deleteAll();
+                                        mActivity.startActivity(new Intent(mActivity, LoginActivity.class));
+                                    }
+                                });
+
+
+                            }
+                        }*/
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    Log.d("PinDevice error", t.getMessage());
+                }
+            });
+        }
+
     }
 
     private void getAccountSettings() {
@@ -281,5 +418,19 @@ public class Notifiy extends Activity {
 
         AccountSettings accountSettings = new AccountSettings(this);
         accountSettings.updatePushNotificationEnableAndLoggedInStatus(String.valueOf(Constants.Push_Notification_Completed), "1");
+    }
+
+
+    public boolean isNotificationChannelEnabled(Context context,String channelId){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if(!TextUtils.isEmpty(channelId)) {
+                NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                NotificationChannel channel = manager.getNotificationChannel(channelId);
+                return channel.getImportance() != NotificationManager.IMPORTANCE_NONE;
+            }
+            return false;
+        } else {
+            return NotificationManagerCompat.from(context).areNotificationsEnabled();
+        }
     }
 }

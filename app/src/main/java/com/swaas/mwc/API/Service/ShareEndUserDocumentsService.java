@@ -26,6 +26,13 @@ public interface ShareEndUserDocumentsService {
     @FormUrlEncoded
     Call<SharedDocumentResponseModel> getSharedDocumentDetails(@FieldMap Map<String,String> params, @Header("access-token") String accessToken);
 
+    @POST("/register-mobile-device")
+    @FormUrlEncoded
+    Call<SharedDocumentResponseModel> sendPushNotificatoinStatus(@FieldMap Map<String,String> params, @Header("access-token") String accessToken);
 
+
+    @POST("/audit-log")
+    @FormUrlEncoded
+    Call<SharedDocumentResponseModel> sendFingerPrintStatus(@FieldMap Map<String,String> params, @Header("access-token") String accessToken);
 
 }

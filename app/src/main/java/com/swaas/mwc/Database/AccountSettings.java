@@ -318,6 +318,42 @@ public class AccountSettings {
         return accountSettingsResponseList;
     }
 
+    public void UpdatePushNotificatoinSettings(String register_type)
+    {
+        String query = "UPDATE tbl_Account_Settings SET Is_Push_Notification_Enabled = '" + register_type + "'";
+
+        try {
+            DBConnectionOpen();
+            database.execSQL(query);
+        } finally {
+            DBConnectionClose();
+        }
+    }
+
+    public void UpdateFingerPrintSettings(String opt_value)
+    {
+        String updated_opt_value = "";
+        if(opt_value.equalsIgnoreCase("opt-in"))
+        {
+            updated_opt_value = "1";
+        }
+        else  if(opt_value.equalsIgnoreCase("opt-out"))
+        {
+            updated_opt_value = "0";
+        }
+
+
+        String query = "UPDATE tbl_Account_Settings SET Is_Local_Auth_Enabled = '" + updated_opt_value + "'";
+
+        try {
+            DBConnectionOpen();
+            database.execSQL(query);
+        } finally {
+            DBConnectionClose();
+        }
+
+    }
+
     public interface GetLoggedInCB {
         void getLoggedInSuccessCB(List<AccountSettingsResponse> accountSettingsResponses);
         void getLoggedInFailureCB(String message);
