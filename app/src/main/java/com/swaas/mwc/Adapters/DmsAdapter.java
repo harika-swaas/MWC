@@ -13,6 +13,7 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -50,6 +51,7 @@ import com.swaas.mwc.DMS.MyFoldersDMSActivity;
 import com.swaas.mwc.DMS.Tab_Activity;
 import com.swaas.mwc.Database.AccountSettings;
 import com.swaas.mwc.Dialogs.LoadingProgressDialog;
+import com.swaas.mwc.Fragments.ItemNavigationFolderFragment;
 import com.swaas.mwc.Login.DocumentPreview;
 import com.swaas.mwc.Login.LoginActivity;
 import com.swaas.mwc.Network.NetworkUtils;
@@ -95,16 +97,18 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
     String parentr;
     String document;
     ArrayList<String>document_id= new ArrayList<>();
+    Fragment fragment;
 
 
     boolean isSwitchView = true;
 
     private boolean mIsLoadingFooterAdded = false;
 
-    public DmsAdapter(List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses, List<GetCategoryDocumentsResponse> selectedList,Activity context) {
+    public DmsAdapter(List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses, List<GetCategoryDocumentsResponse> selectedList, Activity context, Fragment fragment) {
         this.context = context;
         this.mGetCategoryDocumentsResponses = getCategoryDocumentsResponses;
         this.selectedList = selectedList;
+        this.fragment = fragment;
         mSelected = new HashSet<>();
 
     }
@@ -344,9 +348,11 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                 public void onClick(View v) {
                     if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("category")) {
                         PreferenceUtils.setObjectId(context, mGetCategoryDocumentsResponses.get(position).getObject_id());
+                        PreferenceUtils.setCategoryId(context,mGetCategoryDocumentsResponses.get(position).getObject_id());
+
                         obj = mGetCategoryDocumentsResponses.get(position).getObject_id();
                         if(context instanceof MyFoldersDMSActivity){
-                            ((MyFoldersDMSActivity)context).getCategoryDocuments(obj,String.valueOf(pageNumber));
+                            ((ItemNavigationFolderFragment)fragment).getCategoryDocuments(obj,String.valueOf(pageNumber));
                         }
 
                      //   myFoldersDMSActivity.getCategoryDocuments(obj,String.valueOf(pageNumber));
@@ -472,6 +478,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         ImageView renameImage = (ImageView) view.findViewById(R.id.rename_image);
         ImageView shareImage = (ImageView) view.findViewById(R.id.share_image);
         ImageView availableOfflineImage = (ImageView) view.findViewById(R.id.available_offline_image);
+        TextView delete = (TextView) view.findViewById(R.id.delete);
 
         if (mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
             String itemSelectedColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
@@ -636,6 +643,45 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
 
             }
         });
+        delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View view = inflater.inflate(R.layout.delete_alert, null);
+                builder.setView(view);
+                builder.setCancelable(false);
+
+                Button cancel = (Button) view.findViewById(R.id.canceldel);
+                Button delete = (Button) view.findViewById(R.id.delete);
+                Button move = (Button) view.findViewById(R.id.movefolder);
+
+                delete.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mAlertDialog.dismiss();
+                        mBottomSheetDialog.dismiss();
+                    }
+                });
+                move.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                    }
+                });
+
+                cancel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mAlertDialog.dismiss();
+                        mBottomSheetDialog.dismiss();
+                    }
+                });
+
+                mAlertDialog = builder.create();
+                mAlertDialog.show();
+            }
+        });
     }
 
 
@@ -650,6 +696,8 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         ImageView moveImage = (ImageView) view.findViewById(R.id.move_image);
         ImageView renameImage = (ImageView) view.findViewById(R.id.rename_image);
         RelativeLayout rename= (RelativeLayout) view.findViewById(R.id.rename1);
+        TextView delete = (TextView) view.findViewById(R.id.delete);
+
 
         categoryText.setText(name);
         if (mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
@@ -675,6 +723,47 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         mBottomSheetDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         mBottomSheetDialog.getWindow().setGravity(Gravity.BOTTOM);
         mBottomSheetDialog.show();
+
+
+        delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View view = inflater.inflate(R.layout.delete_alert, null);
+                builder.setView(view);
+                builder.setCancelable(false);
+
+                Button cancel = (Button) view.findViewById(R.id.canceldel);
+                Button delete = (Button) view.findViewById(R.id.delete);
+                Button move = (Button) view.findViewById(R.id.movefolder);
+
+                delete.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mAlertDialog.dismiss();
+                        mBottomSheetDialog.dismiss();
+                    }
+                });
+                move.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                    }
+                });
+
+                cancel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mAlertDialog.dismiss();
+                        mBottomSheetDialog.dismiss();
+                    }
+                });
+
+                mAlertDialog = builder.create();
+                mAlertDialog.show();
+            }
+        });
 
         moveImage.setOnClickListener(new View.OnClickListener() {
             @Override

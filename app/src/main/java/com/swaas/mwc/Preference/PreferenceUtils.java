@@ -33,6 +33,7 @@ public class PreferenceUtils {
     private static  final String CATEGORY_ID = "category_id";
     private static  final String WORKSPACE_ID = "workspace_id";
     private static final String DOC_ID="doc_id";
+    private static final String UPLOAD_LIST="upload_list";
 
 
     public static void setAccessToken(Context context, String accesstoken) {
@@ -238,6 +239,24 @@ public class PreferenceUtils {
 
     public static ArrayList<String> getArrayList(Context context,String key){
         SharedPreferences sharedPreferences = context.getSharedPreferences(DOC_ID, Context.MODE_PRIVATE);
+        Gson gson = new Gson();
+        String json = sharedPreferences.getString(key, null);
+        Type type = new TypeToken<ArrayList<String>>() {}.getType();
+        return gson.fromJson(json, type);
+    }
+
+
+    public static void setupload(Context context, ArrayList<String> list, String key){
+        SharedPreferences sharedPreferences = context.getSharedPreferences(UPLOAD_LIST, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(list);
+        editor.putString(key, json);
+        editor.apply();     // This line is IMPORTANT !!!
+    }
+
+    public static ArrayList<String> getupload(Context context,String key){
+        SharedPreferences sharedPreferences = context.getSharedPreferences(UPLOAD_LIST, Context.MODE_PRIVATE);
         Gson gson = new Gson();
         String json = sharedPreferences.getString(key, null);
         Type type = new TypeToken<ArrayList<String>>() {}.getType();

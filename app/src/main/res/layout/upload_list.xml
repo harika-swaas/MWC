@@ -10,57 +10,83 @@
         <android.support.design.widget.AppBarLayout
             android:id="@+id/appbar"
             android:layout_width="match_parent"
-            android:layout_height="30dp"
+            android:layout_height="40dp"
             android:fitsSystemWindows="true"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/l1">
-            <ImageView
-                android:id="@+id/back_image_view"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_centerVertical="true"
-                android:src="@mipmap/ic_back" />
-           </LinearLayout>
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/l2"
-                android:layout_marginStart="250dp"
-                android:layout_toRightOf="@id/l1"
-                android:layout_marginLeft="250dp">
 
-                <ImageView
-                    android:id="@+id/add"
+                <RelativeLayout
+                    android:id="@+id/l1"
+                    android:layout_width="wrap_content"
+                    android:layout_marginTop="5dp"
+
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/back_image_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginTop="4dp"
+                        android:src="@mipmap/ic_back" />
+                </RelativeLayout>
+
+                <RelativeLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:src="@mipmap/ic_add" />
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:id="@+id/l3"
-                android:layout_toRightOf="@id/l2"
-                android:layout_marginLeft="20dp">
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true">
 
-                <ImageView
-                    android:id="@+id/uploadlist"
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:gravity="center"
+                        android:text="Upload"
+                        android:textSize="17dp"
+                        android:textColor="@color/black" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/l2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentRight="true"
-                    android:src="@mipmap/ic_upload" />
-            </LinearLayout>
+                    android:layout_marginStart="270dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_toRightOf="@id/l1">
+
+                    <ImageView
+                        android:id="@+id/uploadlist"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentStart="true"
+                        android:layout_alignParentTop="true"
+                        android:src="@mipmap/ic_upload" />
+
+
+
+                </RelativeLayout>
+
+                <LinearLayout
+                    android:id="@+id/l3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_toRightOf="@id/l2">
+
+                    <ImageView
+                        android:id="@+id/add"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true"
+                        android:src="@mipmap/ic_add" />
+                </LinearLayout>
             </RelativeLayout>
         </android.support.design.widget.AppBarLayout>
 
@@ -79,11 +105,11 @@
                 android:layout_below="@+id/appBarLayout"
                 android:clickable="true">
 
-                <ListView
+                <android.support.v7.widget.RecyclerView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:id="@+id/list_upload">
-                </ListView>
+                </android.support.v7.widget.RecyclerView>
             </FrameLayout>
         </android.support.v4.widget.NestedScrollView>
     </RelativeLayout>

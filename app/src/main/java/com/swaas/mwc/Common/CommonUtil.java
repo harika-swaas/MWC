@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 
 import com.swaas.mwc.Utils.Logger;
+import com.swaas.mwc.DMS.MyFoldersDMSActivity;
 
 /**
  * Created by harika on 12-06-2018.

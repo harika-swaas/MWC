@@ -38,7 +38,7 @@ import retrofit.Response;
 import retrofit.Retrofit;
 
 public class Properties_Fragment extends Fragment{
-    Tab_Activity  mActivity;
+    Tab_Activity mActivity;
     MessageDialog messageDialog;
     TextView filename,name,version,type,size,uploaded_date,author,created_date,search_tags;
     public static Properties_Fragment newInstance() {

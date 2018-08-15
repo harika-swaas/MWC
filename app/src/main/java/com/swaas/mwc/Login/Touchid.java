@@ -175,13 +175,13 @@ public class Touchid extends Authenticate {
     private void updateLoggedInStatus() {
 
         AccountSettings accountSettings = new AccountSettings(this);
-        accountSettings.updateLocalAuthEnableStatus(String.valueOf(Constants.Local_Auth_Completed));
+        accountSettings.updateLocalAuthEnableStatus(String.valueOf("1"));
     }
 
     private void updateLocalAuthAndLoggedInStatus() {
 
         AccountSettings accountSettings = new AccountSettings(this);
-        accountSettings.updateLocalAuthEnableAndLoggedInStatus(String.valueOf(Constants.Local_Auth_Completed), String.valueOf(Constants.Local_Auth_Completed));
+        accountSettings.updateLocalAuthEnableAndLoggedInStatus(String.valueOf(Constants.Local_Auth_Completed),"1");
     }
     public void onBackPressed() { }
 }

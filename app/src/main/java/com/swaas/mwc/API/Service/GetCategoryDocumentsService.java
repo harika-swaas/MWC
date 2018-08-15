@@ -1,5 +1,6 @@
 package com.swaas.mwc.API.Service;
 
+import com.swaas.mwc.API.Model.APIResponseModel;
 import com.swaas.mwc.API.Model.GetCategoryDocumentsResponse;
 import com.swaas.mwc.API.Model.ListPinDevicesResponse;
 
@@ -53,4 +54,10 @@ public interface GetCategoryDocumentsService {
     @POST("v2/get-category-documents?page=1&per-page=20&sort=-unix_date")
     @FormUrlEncoded
     Call<ListPinDevicesResponse<GetCategoryDocumentsResponse>> getCategoryDocumentsV2SortByDateDesc(@FieldMap Map<String,String> params, @Header("access-token") String accessToken, @Query("page") String page);
+
+    @POST("get-shared-category-documents?")
+    @FormUrlEncoded
+    Call<APIResponseModel> getSharedCategoryDocumentsV2(@FieldMap Map<String,String> params, @Header("access-token") String accessToken);
+
+
 }

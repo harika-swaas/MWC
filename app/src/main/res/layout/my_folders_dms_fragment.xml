@@ -25,10 +25,10 @@
                 android:layout_height="110dp"
                 android:background="@color/white"
                 app:contentScrim="?attr/colorPrimary"
-                app:expandedTitleMarginTop="30dp"
                 app:expandedTitleMarginBottom="30dp"
                 app:expandedTitleMarginEnd="64dp"
                 app:expandedTitleMarginStart="60dp"
+                app:expandedTitleMarginTop="30dp"
                 app:expandedTitleTextAppearance="@style/TextAppearance.AppCompat.Medium"
                 app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
@@ -161,6 +161,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:background="@color/bottomnavigation"
         app:itemTextColor="@color/black_semi_transparent"
         app:menu="@menu/navigation" />

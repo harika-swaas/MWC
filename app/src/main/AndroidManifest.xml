@@ -114,11 +114,25 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
+        <provider
+            android:name=".GenericFileProvider"
+            android:authorities="${applicationId}.my.package.name.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths"/>
+        </provider>
 
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="d96603e1352aa9824c02ecac1485febe32590ab7" />
 
+
+        <activity android:name=".OffLine_Files_List" />
+        <activity android:name=".UserProfileActivity"></activity>
+
     </application>
+
 
 </manifest>

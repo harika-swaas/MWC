@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 
+import com.swaas.mwc.Common.FileDownloadManager;
 import com.swaas.mwc.Utils.Logger;
 
 /**
@@ -26,6 +27,8 @@ import com.swaas.mwc.Utils.Logger;
 public class RootActivity extends AppCompatActivity {
 
     protected static final String TAG = RootActivity.class.getSimpleName();
+    public static FileDownloadManager mFileDownloadManager;
+
 
     protected View mCoordinatorLayout;
 
@@ -372,5 +375,9 @@ public class RootActivity extends AppCompatActivity {
         if (messageDialog != null) {
             messageDialog.dismiss();
         }
+    }
+
+    public void setmFileDownloadManager(FileDownloadManager fileDownloadManager) {
+        mFileDownloadManager = fileDownloadManager;
     }
 }
