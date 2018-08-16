@@ -130,7 +130,7 @@ public class FileDownloadManager extends RootActivity {
 
     void successToDownload() {
         downloadmanager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
-        Toast.makeText(context, "Downloading...", Toast.LENGTH_LONG).show();
+    //    Toast.makeText(context, "Downloading...", Toast.LENGTH_LONG).show();
         Uri uri = Uri.parse(getDownloadUrl());
         request = new DownloadManager.Request(uri);
         request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE);
@@ -164,7 +164,7 @@ public class FileDownloadManager extends RootActivity {
 
     void successToAssetDownload() {
         downloadmanager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
-        Toast.makeText(context, "Downloading...", Toast.LENGTH_LONG).show();
+   //     Toast.makeText(context, "Downloading...", Toast.LENGTH_LONG).show();
         Uri uri = Uri.parse(getDownloadUrl());
         request = new DownloadManager.Request(uri);
         request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE);

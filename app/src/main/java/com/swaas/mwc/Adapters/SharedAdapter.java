@@ -468,7 +468,9 @@ public class SharedAdapter extends RecyclerView.Adapter<SharedAdapter.ViewHolder
         View view = ((MyFoldersDMSActivity) context).getLayoutInflater().inflate(R.layout.bottom_sheet_document_sort, null);
         RelativeLayout shareView = (RelativeLayout) view.findViewById(R.id.share_layout);
         RelativeLayout rename_layout = (RelativeLayout) view.findViewById(R.id.rename_layout);
-        RelativeLayout move_layout =  (RelativeLayout) view.findViewById(R.id.move_layout);
+        RelativeLayout move_layout =  (RelativeLayout) view.findViewById(R.id.move1);
+        RelativeLayout copy_layout =  (RelativeLayout) view.findViewById(R.id.copy1);
+
         TextView delete = (TextView) view.findViewById(R.id.delete);
         TextView docText = (TextView) view.findViewById(R.id.doc_text);
         ImageView thumbnailIcon = (ImageView) view.findViewById(R.id.thumbnail_image);

@@ -6,6 +6,9 @@
     android:background="#000000">
 
 
+
+
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -15,12 +18,12 @@
         android:id="@+id/progress_text"
         android:text="Please wait Loading"/>
 
-    <com.example.jayaraman.poc.pdf.PDFView
+    <com.swaas.mwc.pdf.PDFView
         android:id="@+id/asset_pdf_player"
         android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-    </com.example.jayaraman.poc.pdf.PDFView>
+    </com.swaas.mwc.pdf.PDFView>
 
     <LinearLayout
         android:layout_width="wrap_content"

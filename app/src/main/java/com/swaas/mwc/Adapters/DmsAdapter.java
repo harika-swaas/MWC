@@ -41,6 +41,8 @@ import com.swaas.mwc.API.Model.DocumentPreviewRequest;
 import com.swaas.mwc.API.Model.DocumentPreviewResponse;
 import com.swaas.mwc.API.Model.DownloadDocumentRequest;
 import com.swaas.mwc.API.Model.DownloadDocumentResponse;
+
+import com.swaas.mwc.API.Model.EditDocumentPropertiesRequest;
 import com.swaas.mwc.API.Model.EndUserRenameRequest;
 import com.swaas.mwc.API.Model.GetCategoryDocumentsRequest;
 import com.swaas.mwc.API.Model.GetCategoryDocumentsResponse;
@@ -49,22 +51,28 @@ import com.swaas.mwc.API.Model.LoginResponse;
 import com.swaas.mwc.API.Model.WhiteLabelResponse;
 import com.swaas.mwc.API.Service.DocumentPreviewService;
 import com.swaas.mwc.API.Service.DownloadDocumentService;
+
+import com.swaas.mwc.API.Service.EditDocumentPropertiesService;
 import com.swaas.mwc.API.Service.EndUserRenameService;
 import com.swaas.mwc.API.Service.GetCategoryDocumentsService;
 import com.swaas.mwc.DMS.MyFolderActivity;
+
+import com.swaas.mwc.DMS.MyFolderCategoryActivity;
+import com.swaas.mwc.DMS.MyFolderCopyActivity;
 import com.swaas.mwc.DMS.MyFolderSharedDocuments;
 import com.swaas.mwc.DMS.MyFoldersDMSActivity;
+import com.swaas.mwc.DMS.Tab_Activity;
 import com.swaas.mwc.Database.AccountSettings;
 import com.swaas.mwc.Dialogs.LoadingProgressDialog;
 import com.swaas.mwc.Fragments.ItemNavigationFolderFragment;
 import com.swaas.mwc.Login.DocumentPreview;
 import com.swaas.mwc.Login.LoginActivity;
-import com.swaas.mwc.Login.Touchid;
 import com.swaas.mwc.Network.NetworkUtils;
 import com.swaas.mwc.Preference.PreferenceUtils;
 import com.swaas.mwc.R;
 import com.swaas.mwc.Retrofit.RetrofitAPIBuilder;
 import com.swaas.mwc.Utils.Constants;
+import com.swaas.mwc.pdf.PdfViewActivity;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -88,6 +96,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
     List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList<>();
     AlertDialog mAlertDialog;
     private ItemClickListener mClickListener;
+    MyFoldersDMSActivity myFoldersDMSActivity;
 
     private HashSet<Integer> mSelected;
     List<GetCategoryDocumentsResponse> selectedList;
@@ -99,6 +108,9 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
     String obj = "0";
     String objectr;
     String categoryr;
+    String parentr;
+    String document;
+    ArrayList<String>document_id= new ArrayList<>();
     Fragment fragment;
     static Boolean isTouched = false;
 
@@ -247,6 +259,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
     public void onBindViewHolder(final ViewHolder holder, final int position) {
 
         if (mGetCategoryDocumentsResponses != null && mGetCategoryDocumentsResponses.size() > 0) {
+            PreferenceUtils.setCategoryId(context, mGetCategoryDocumentsResponses.get(position).getParent_id());
             PreferenceUtils.setDocumentVersionId(context, mGetCategoryDocumentsResponses.get(position).getDocument_version_id());
             PreferenceUtils.setDocument_Id(context, mGetCategoryDocumentsResponses.get(position).getObject_id());
             setButtonBackgroundColor();
@@ -356,8 +369,13 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                             ((ItemNavigationFolderFragment)fragment).getCategoryDocuments(obj,String.valueOf(pageNumber));
                         }
 
-                     //   myFoldersDMSActivity.getCategoryDocuments(obj,String.valueOf(pageNumber));
+                        //   myFoldersDMSActivity.getCategoryDocuments(obj,String.valueOf(pageNumber));
                         doc_id.add(mGetCategoryDocumentsResponses.get(position).getObject_id());
+                    }
+                    else if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document")) {
+
+                        getDocumentPreviews(mGetCategoryDocumentsResponses.get(position).getDocument_version_id(), mGetCategoryDocumentsResponses.get(position).getName());
+
                     }
                 }
             });
@@ -365,12 +383,9 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
             holder.thumbnailLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    getDocumentPreviews(mGetCategoryDocumentsResponses.get(position).getDocument_version_id());
+                    getDocumentPreviews(mGetCategoryDocumentsResponses.get(position).getDocument_version_id(), mGetCategoryDocumentsResponses.get(position).getName());
                 }
             });
-
-
-
 
             holder.moreIcon.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -379,9 +394,19 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                         openBottomSheetForCategory(mGetCategoryDocumentsResponses.get(position).getName());
                         objectr = mGetCategoryDocumentsResponses.get(position).getParent_id();
                         categoryr = mGetCategoryDocumentsResponses.get(position).getObject_id();
+                        document=mGetCategoryDocumentsResponses.get(position).getObject_id();
+                        document_id.add(document);
+                        PreferenceUtils.saveArrayList(context,document_id,"Key");
 
                     } else if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document")) {
                         openBottomSheetForDocument(mGetCategoryDocumentsResponses.get(position).getType(), mGetCategoryDocumentsResponses.get(position).getFiletype(), mGetCategoryDocumentsResponses.get(position).getName());
+                        document=mGetCategoryDocumentsResponses.get(position).getObject_id();
+                        parentr = mGetCategoryDocumentsResponses.get(position).getObject_id();
+                        categoryr = mGetCategoryDocumentsResponses.get(position).getDocument_version_id();
+                        document_id.add(document);
+                        PreferenceUtils.saveArrayList(context,document_id,"Key");
+                        PreferenceUtils.setDocumentVersionId(context, categoryr);
+                        PreferenceUtils.setDocument_Id(context, document);
 
                     }
                 }
@@ -394,9 +419,13 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                 holder.selectedItemIv.setVisibility(View.GONE);
             }
         }
+        else
+        {
+            myFoldersDMSActivity.emptyText.setVisibility(View.VISIBLE);
+        }
     }
 
-    private void getDocumentPreviews(String document_version_id) {
+    private void getDocumentPreviews(String document_version_id, final String document_name) {
 
         if (NetworkUtils.isNetworkAvailable(context)) {
 
@@ -430,9 +459,11 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                                 getDocumentPreviewResponses = response.body().getData();
                                 String document_preview_url = getDocumentPreviewResponses.getDocument_pdf_url();
 
-                               /* Intent mIntent = new Intent(context, PDFViewer.class);
-                                mIntent.putExtra(Constants.DOCUMENTPDFURL, document_preview_url);
-                                context.startActivity(mIntent);*/
+                                Intent intent = new Intent(context, PdfViewActivity.class);
+                                intent.putExtra("mode",1);
+                                intent.putExtra("url", document_preview_url);
+                                intent.putExtra("fileName", document_name);
+                                context.startActivity(intent);
                             }
 
                         } else if (apiResponse.status.getCode() instanceof Integer) {
@@ -459,9 +490,11 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         RelativeLayout shareView = (RelativeLayout) view.findViewById(R.id.share_layout);
         TextView docText = (TextView) view.findViewById(R.id.doc_text);
         ImageView thumbnailIcon = (ImageView) view.findViewById(R.id.thumbnail_image);
+        RelativeLayout docinfo=(RelativeLayout) view.findViewById(R.id.doc_info_layout);
+        RelativeLayout copy=(RelativeLayout) view.findViewById(R.id.copy1);
+        RelativeLayout move=(RelativeLayout) view.findViewById(R.id.move1);
         ImageView thumbnailCornerIcon = (ImageView) view.findViewById(R.id.thumbnail_corner_image);
         TextView thumbnailText = (TextView) view.findViewById(R.id.thumbnail_text);
-       // SwitchCompat download = (SwitchCompat) view.findViewById(R.id.switchButton_download);
 
         final ImageView copyImage = (ImageView) view.findViewById(R.id.copy_image);
         ImageView moveImage = (ImageView) view.findViewById(R.id.move_image);
@@ -562,7 +595,13 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         mBottomSheetDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         mBottomSheetDialog.getWindow().setGravity(Gravity.BOTTOM);
         mBottomSheetDialog.show();
-
+        docinfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent (context,Tab_Activity.class);
+                context.startActivity(intent);
+            }
+        });
         shareView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -572,7 +611,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
             }
         });
 
-        moveImage.setOnClickListener(new View.OnClickListener() {
+        move.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, MyFolderActivity.class);
@@ -580,14 +619,198 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
             }
         });
 
+        copy.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, MyFolderCopyActivity.class);
+                context.startActivity(intent);
+            }
+        });
+
+
+      /*  download.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isTouched) {
+                    isTouched = false;
+                    if (isChecked) {
+                        List<GetCategoryDocumentsResponse> downloadedList = new ArrayList<>();
+                        if(selectedList != null && selectedList.size() > 0)
+                        {
+
+                            for(GetCategoryDocumentsResponse getCategoryDocumentsResponse : selectedList)
+                            {
+                                if(getCategoryDocumentsResponse.getType().equalsIgnoreCase("document"))
+                                {
+                                    downloadedList.add(getCategoryDocumentsResponse);
+                                }
+                            }
+                        }
+
+                        if(downloadedList != null && downloadedList.size() > 0)
+                        {
+                            Toast.makeText(context,String.valueOf(downloadedList.size()), Toast.LENGTH_LONG).show();
+                            convertingDownloadUrl(downloadedList);
+                        }
+
+                        //   Toast.makeText(context,String.valueOf(selectedList.size()), Toast.LENGTH_LONG).show();
+
+                    }
+                }
+            }
+        });
+
+        private void convertingDownloadUrl(List<GetCategoryDocumentsResponse> downloadedList)
+        {
+            downloadingUrlDataList = downloadedList;
+            if(downloadingUrlDataList.size()> index) {
+
+                getDownloadurlFromService(downloadingUrlDataList.get(index).getDocument_version_id());
+
+            }
+
+
+        }
+
+        private void getDownloadurlFromService(String document_version_id)
+        {
+            if (NetworkUtils.isNetworkAvailable(context)) {
+                Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+                final DownloadDocumentService downloadDocumentService = retrofitAPI.create(DownloadDocumentService.class);
+
+                final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
+                transparentProgressDialog.show();
+
+                //DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(PreferenceUtils.getDocumentVersionId(this));
+                List<String> strlist = new ArrayList<>();
+                strlist.add(document_version_id);
+                DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist);
+                final String request = new Gson().toJson(downloadDocumentRequest);
+
+                //Here the json data is add to a hash map with key data
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("data", request);
+
+                Call call = downloadDocumentService.download(params, PreferenceUtils.getAccessToken(context));
+
+                call.enqueue(new Callback<ApiResponse<DownloadDocumentResponse>>() {
+                    @Override
+                    public void onResponse(Response<ApiResponse<DownloadDocumentResponse>> response, Retrofit retrofit) {
+                        ApiResponse apiResponse = response.body();
+                        if (apiResponse != null) {
+
+                            if (apiResponse.status.getCode() == Boolean.FALSE) {
+                                transparentProgressDialog.dismiss();
+                                DownloadDocumentResponse downloadDocumentResponse = response.body().getData();
+
+                                String downloaded_url = downloadDocumentResponse.getData();
+
+                                String access_Token = PreferenceUtils.getAccessToken(context);
+
+                         *//*   byte[] dataDecoded = Base64.decode(access_Token, Base64.DEFAULT);
+                            String base64AccessToken = dataDecoded.toString();*//*
+
+                                byte[] encodeValue = Base64.encode(access_Token.getBytes(), Base64.DEFAULT);
+                                String base64AccessToken = new String(encodeValue);
+
+                                if (android.os.Build.VERSION.SDK_INT > 9) {
+                                    StrictMode.ThreadPolicy policy =  new StrictMode.ThreadPolicy.Builder().permitAll().build();
+                                    StrictMode.setThreadPolicy(policy);
+                                }
+
+
+                                downloadingUrlDataList.get(index).setDownloadUrl(downloaded_url+"&token="+base64AccessToken);
+
+                                //  downloadDocumentsRequest(downloaded_url+"&token="+base64AccessToken);
+
+
+                                index++;
+                                if(downloadingUrlDataList.size()> index) {
+                                    getDownloadurlFromService(downloadingUrlDataList.get(index).getDocument_version_id());
+
+                                }
+                                else
+                                {
+                                    getDownloadManagerForDownloading(downloadingUrlDataList);
+                                }
 
 
 
+                                //  Toast.makeText(context, downloaded_url, Toast.LENGTH_LONG).show();
+
+                            }
+                            else {
+                                transparentProgressDialog.dismiss();
+                                String mMessage = apiResponse.status.getMessage().toString();
+                           *//*//*//* mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener()
+                                {
+                                @Override
+                                public void onClick(View view) {
+                                    startActivity(new Intent(mActivity, LoginActivity.class));
+                                    mActivity.finish();
+                                }
+                            }, false);
+
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Throwable t) {
+                        transparentProgressDialog.dismiss();
+                    }
+                });
+            }
+
+        }
+
+        private void getDownloadManagerForDownloading(List<GetCategoryDocumentsResponse> downloadingUrlDataList)
+        {
+            Toast.makeText(context, String.valueOf(downloadingUrlDataList.size()), Toast.LENGTH_LONG).show();
+
+        }*/
 
 
+
+        renameImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View view = inflater.inflate(R.layout.rename_alert, null);
+                builder.setView(view);
+                builder.setCancelable(false);
+
+                Button cancel = (Button) view.findViewById(R.id.cancel_b);
+                Button allow = (Button) view.findViewById(R.id.allow);
+                final EditText namer = (EditText) view.findViewById(R.id.edit_username1);
+                allow.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String folder = namer.getText().toString().trim();
+
+                        renamedocument(categoryr,folder,"","");
+                        mAlertDialog.dismiss();
+                        mBottomSheetDialog.dismiss();
+                    }
+                });
+
+                cancel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mAlertDialog.dismiss();
+                        mBottomSheetDialog.dismiss();
+                    }
+                });
+
+                mAlertDialog = builder.create();
+                mAlertDialog.show();
+
+
+            }
+        });
     }
-
-
 
 
     private void openBottomSheetForCategory(String name) {
@@ -626,6 +849,15 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         mBottomSheetDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         mBottomSheetDialog.getWindow().setGravity(Gravity.BOTTOM);
         mBottomSheetDialog.show();
+
+        moveImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, MyFolderCategoryActivity.class);
+                context.startActivity(intent);
+            }
+        });
+
 
         rename.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -667,6 +899,86 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         });
 
     }
+    public void renamedocument(String object_id, String name, String doc_created, String auth)
+    {
+        if (NetworkUtils.isNetworkAvailable(context)) {
+
+            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+
+            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
+            transparentProgressDialog.show();
+
+            final EditDocumentPropertiesRequest editDocumentPropertiesRequest = new EditDocumentPropertiesRequest(object_id,name,doc_created,auth);
+
+            String request = new Gson().toJson(editDocumentPropertiesRequest);
+
+            //Here the json data is add to a hash map with key data
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("data", request);
+
+            final EditDocumentPropertiesService editDocumentPropertiesService = retrofitAPI.create(EditDocumentPropertiesService.class);
+
+            Call call = editDocumentPropertiesService.getRenameDocument(params, PreferenceUtils.getAccessToken(context));
+
+            call.enqueue(new Callback<ListPinDevicesResponse<LoginResponse>>() {
+                @Override
+                public void onResponse(Response<ListPinDevicesResponse<LoginResponse>> response, Retrofit retrofit) {
+                    ListPinDevicesResponse apiResponse = response.body();
+                    if (apiResponse != null) {
+
+                        transparentProgressDialog.dismiss();
+
+                        if (apiResponse.status.getCode() instanceof Boolean) {
+                            if (apiResponse.status.getCode() == Boolean.FALSE) {
+                                transparentProgressDialog.dismiss();
+                                getSubCategoryDocuments(parentr,"1");
+                                // refreshAdapterToView(getCategoryDocumentsResponses);
+                            }
+
+                        } else if (apiResponse.status.getCode() instanceof Integer) {
+                            transparentProgressDialog.dismiss();
+                            String mMessage = apiResponse.status.getMessage().toString();
+
+                            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+                            builder.setView(view);
+                            builder.setCancelable(false);
+
+                            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+                            txtMessage.setText(mMessage);
+
+                            Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+                            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+                            cancelButton.setVisibility(View.GONE);
+
+                            sendPinButton.setText("OK");
+
+                            sendPinButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    mAlertDialog.dismiss();
+                                    context.startActivity(new Intent(context, LoginActivity.class));
+                                }
+                            });
+
+                            mAlertDialog = builder.create();
+                            mAlertDialog.show();
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    transparentProgressDialog.dismiss();
+                    Log.d("PinDevice error", t.getMessage());
+                }
+            });
+        }
+    }
+
     public void rename(String object_id,String name,String parentid)
     {
         if (NetworkUtils.isNetworkAvailable(context)) {
@@ -764,7 +1076,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
             final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
             transparentProgressDialog.show();
 
-            final GetCategoryDocumentsRequest mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(Integer.parseInt(object_id), "list", "category", "1", "0");
+            final GetCategoryDocumentsRequest mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(object_id, "list", "category", "1", "0");
 
             String request = new Gson().toJson(mGetCategoryDocumentsRequest);
 
@@ -785,10 +1097,10 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                             if (apiResponse.status.getCode() == Boolean.FALSE) {
                                 transparentProgressDialog.dismiss();
                                 getCategoryDocumentsResponses = response.body().getData();
-                           //     getCategoryDocumentsResponses = response.body().getData();
-                           //     getCategoryDocumentsResponses.addAll(paginationList);
+                                //     getCategoryDocumentsResponses = response.body().getData();
+                                //     getCategoryDocumentsResponses.addAll(paginationList);
 
-                             //   paginationList.add(getCategoryDocumentsResponses);
+                                //   paginationList.add(getCategoryDocumentsResponses);
 
 
 
@@ -806,7 +1118,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
 */
 
                                 refreshAdapterToView(getCategoryDocumentsResponses);
-                            //    paginationList.clear();
+                                //    paginationList.clear();
 /*
                                 while(pageCount!=null&&Integer.parseInt(pageCount)>1){
                                     getSubCategoryDocuments(obj,pageCount);
@@ -865,7 +1177,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         return doc_id;
     }
     public ArrayList<String> setArrayList(int k){
-        doc_id.remove(k);
+    //    doc_id.remove(k);
         return doc_id;
     }
 
@@ -873,7 +1185,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
 
         this.mGetCategoryDocumentsResponses.clear();
         this.mGetCategoryDocumentsResponses.addAll(getCategoryDocumentsResponses);
-        //getSubCategoryDocuments(objectr,"1");
+        //getSubCategoryDocuments(parentr,"1");
 
         notifyDataSetChanged();
     }

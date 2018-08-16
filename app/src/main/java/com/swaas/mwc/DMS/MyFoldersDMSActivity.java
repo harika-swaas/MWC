@@ -1,5 +1,6 @@
 package com.swaas.mwc.DMS;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -7,18 +8,21 @@ import android.content.ClipData;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.GridLayoutManager;
@@ -36,6 +40,7 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -48,20 +53,26 @@ import com.github.clans.fab.FloatingActionMenu;
 import com.google.gson.Gson;
 import com.michaelflisar.dragselectrecyclerview.DragSelectTouchListener;
 import com.michaelflisar.dragselectrecyclerview.DragSelectionProcessor;
+import com.swaas.mwc.Common.CameraUtils;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.RequestBody;
 import com.swaas.mwc.API.Model.BaseApiResponse;
 import com.swaas.mwc.API.Model.DownloadDocumentRequest;
 import com.swaas.mwc.API.Model.DownloadDocumentResponse;
+import com.swaas.mwc.API.Model.EndUserRenameRequest;
 import com.swaas.mwc.API.Model.GetCategoryDocumentsRequest;
 import com.swaas.mwc.API.Model.GetCategoryDocumentsResponse;
 import com.swaas.mwc.API.Model.ListPinDevicesResponse;
+import com.swaas.mwc.API.Model.LoginResponse;
 import com.swaas.mwc.API.Model.UploadEndUserDocumentsRequest;
 import com.swaas.mwc.API.Model.UploadEndUsersDocumentResponse;
+import com.swaas.mwc.API.Model.UploadNewFolderRequest;
 import com.swaas.mwc.API.Model.WhiteLabelResponse;
 import com.swaas.mwc.API.Service.DownloadDocumentService;
+import com.swaas.mwc.API.Service.EndUserRenameService;
 import com.swaas.mwc.API.Service.GetCategoryDocumentsService;
 import com.swaas.mwc.API.Service.UploadEndUsersDocumentService;
+import com.swaas.mwc.API.Service.UploadNewFolderService;
 import com.swaas.mwc.Adapters.DmsAdapter;
 import com.swaas.mwc.Adapters.DmsAdapterList;
 import com.swaas.mwc.Common.CameraUtils;
@@ -92,10 +103,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import io.fabric.sdk.android.services.persistence.FileStore;
 import retrofit.Call;
 import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
+
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 
 /**
  * Created by harika on 11-07-2018.
@@ -110,13 +124,17 @@ public class MyFoldersDMSActivity extends RootActivity {
     public static final int SETTINGS_FRAGMENT = 3;
     BottomNavigationView mBottomNavigationView;
     public static LinearLayout sortingView;
+    AlertDialog mCustomAlertDialog;
+
     int mSelectedItem = SHARED_FRAGMENT;
+    String download_data;
     Menu mBottomNavigationMenu;
     MenuItem mFolderMenuItem, mSharedMenuItem, mSettingsMenuItem;
     ItemNavigationFolderFragment mFolderFragment;
     ItemNavigationSharedFragment mSharedFragment;
     ItemNavigationSettingsFragment mSettingsFragment;
     ImageView select;
+    public TextView emptyText;
     public static RelativeLayout toggleView;
     public static ImageView toggle;
     Button button;
@@ -138,6 +156,7 @@ public class MyFoldersDMSActivity extends RootActivity {
     List<GetCategoryDocumentsResponse> mSelectedDocumentList = new ArrayList<>();
  //   RecyclerView mRecyclerView;
     DmsAdapter mAdapter;
+    Uri uri = null;
     DmsAdapterList mAdapterList;
     RelativeLayout indicatorParentView;
     private DragSelectionProcessor.Mode mMode = DragSelectionProcessor.Mode.Simple;
@@ -145,12 +164,14 @@ public class MyFoldersDMSActivity extends RootActivity {
     private DragSelectionProcessor mDragSelectionProcessor;
     MenuItem menuItemSearch, menuItemDelete, menuItemShare, menuItemMove, menuItemMore;
     public static FloatingActionMenu floatingActionMenu;
-    FloatingActionButton actionUpload, actionCamera, actionNewFolder, actionVideo;
+   public static FloatingActionButton actionUpload, actionCamera, actionNewFolder, actionVideo;
     Uri fileUri;
     Uri uriVideo;
-    private static final int REQUEST_GALLERY_CODE = 200;
-    private static final int REQUEST_CAPTURE_IMAGE_CODE = 300;
-    private static final int CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE = 400;
+    public static final int REQUEST_GALLERY_CODE = 200;
+    public static final int REQUEST_CAPTURE_IMAGE_CODE = 300;
+    public static final int CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE = 400;
+    public static final  int REQUEST_STORAGE_PERMISSION = 500;
+    public static final int REQUEST_CAMERA_PERMISSION=100;
     private static String imageStoragePath;
     // Gallery directory name to store the images or videos
     public static final String GALLERY_DIRECTORY_NAME = "Hello Camera";
@@ -160,7 +181,7 @@ public class MyFoldersDMSActivity extends RootActivity {
     public static final String IMAGE_EXTENSION = "jpg";
     public static final String VIDEO_EXTENSION = "mp4";
     private static final int PAGE_START = 1;
-
+    ArrayList<String>list_upload = new ArrayList<>();
     private boolean isLoading = false;
     private boolean isLastPage = false;
     // limiting to 5 for this tutorial, since total pages in actual API is very large. Feel free to modify.
@@ -175,6 +196,7 @@ public class MyFoldersDMSActivity extends RootActivity {
     int totalPages=1;
     String obj="0";
     Context context=this;
+
     List<GetCategoryDocumentsResponse> paginationList = new ArrayList<>();
     public static LinearLayout title_layout;
     @Override
@@ -186,10 +208,11 @@ public class MyFoldersDMSActivity extends RootActivity {
      //   mRecyclerView.setNestedScrollingEnabled(false);
         loadBottomNavigation();
         // switchFragment(FOLDER_FRAGMENT);
-     //   getCategoryDocuments("0",String.valueOf(pageNumber));
+        // getCategoryDocuments("0",String.valueOf(pageNumber));
         getWhiteLabelProperities();
-
-        addListenersToViews();
+      /*  StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());*/
+      //  addListenersToViews();
 
         if (savedInstanceState == null) {
             mBottomNavigationView.setSelectedItemId(R.id.navigation_folder); // change to whichever id should be default
@@ -197,13 +220,184 @@ public class MyFoldersDMSActivity extends RootActivity {
 
 
 
+       /* mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+
+                if (dy > 0) {
+
+                    // Recycle view scrolling down...
+
+                }
+            }
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if(mRecyclerView.SCROLL_STATE_IDLE==newState){
+                    if(recyclerView.canScrollVertically(RecyclerView.SCROLL_STATE_DRAGGING) == false){
+                       // Toast.makeText(MyFoldersDMSActivity.this, "Reached the end of recycler view", Toast.LENGTH_SHORT).show()
+                        String object= PreferenceUtils.getObjectId(MyFoldersDMSActivity.this);
+                        getCategoryDocuments(object,pageCount);
+
+                    }
+                    //fragProductLl.setVisibility(View.GONE);
+                }
+
+            }
+
+        });*/
+
+     /*   scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+            @Override
+            public void onScrollChanged() {
+                if (scrollView != null) {
+                    if (scrollView.getChildAt(0).getBottom() == (scrollView.getHeight() + scrollView.getScrollY())) {
+                        //scroll view is at bottom
+                        String object= PreferenceUtils.getObjectId(MyFoldersDMSActivity.this);
+                        obj=object;
+
+                        //     Toast.makeText(MyFoldersDMSActivity.this, "end position", Toast.LENGTH_SHORT).show();
+
+                        if(pageNumber < totalPages) {
+                            pageNumber=pageNumber+1;
+                            getCategoryDocumentsNext(obj, String.valueOf(pageNumber));
+
+                        }
+                    }
+                    else {
+                        //scroll view is not at bottom
+                    }
+                }
+            }
+        });*/
+
+
+
     }
 
+    public void getCategoryDocumentsNext(String obj, String page)
+    {
 
+        if (NetworkUtils.isNetworkAvailable(MyFoldersDMSActivity.this)) {
+
+            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+
+            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(this);
+            transparentProgressDialog.show();
+
+            final GetCategoryDocumentsRequest mGetCategoryDocumentsRequest;
+
+            mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(obj, "list", "category", "1", "0");
+
+            String request = new Gson().toJson(mGetCategoryDocumentsRequest);
+
+            //Here the json data is add to a hash map with key data
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("data", request);
+
+            final GetCategoryDocumentsService mGetCategoryDocumentsService = retrofitAPI.create(GetCategoryDocumentsService.class);
+
+            Call call = mGetCategoryDocumentsService.getCategoryDocumentsV2(params, PreferenceUtils.getAccessToken(this),page);
+
+            call.enqueue(new Callback<ListPinDevicesResponse<GetCategoryDocumentsResponse>>() {
+                @Override
+                public void onResponse(Response<ListPinDevicesResponse<GetCategoryDocumentsResponse>> response, Retrofit retrofit) {
+                    ListPinDevicesResponse apiResponse = response.body();
+                    if (apiResponse != null) {
+
+                        transparentProgressDialog.dismiss();
+
+                        if (apiResponse.status.getCode() instanceof Boolean) {
+                            if (apiResponse.status.getCode() == Boolean.FALSE) {
+                                transparentProgressDialog.dismiss();
+
+                                listGetCategoryDocuments = response.body().getData();
+                                //mGetCategoryDocumentsResponses = response.body().getData();
+
+                                mGetCategoryDocumentsResponses.addAll(listGetCategoryDocuments);
+                                totalPages   = Integer.parseInt(response.headers().get("X-Pagination-Page-Count"));
+                                pageNumber = Integer.parseInt(response.headers().get("X-Pagination-Current-Page"));
+
+/*
+                                 if(Integer.parseInt(pageCount) > 1)
+                                {
+                                    paginationList = response.body().getData();
+                                    mGetCategoryDocumentsResponses.addAll(paginationList);
+
+                                }
+*/
+                                if( isFromList == true)
+                                {
+                                    // setListAdapterToView(mGetCategoryDocumentsResponses);
+                                }
+                                else
+                                {
+                                    // setGridAdapterToView(mGetCategoryDocumentsResponses);
+                                }
+
+                                //     paginationList.clear();
+
+
+
+                            }
+
+                        } else if (apiResponse.status.getCode() instanceof Double) {
+                            transparentProgressDialog.dismiss();
+                            String mMessage = apiResponse.status.getMessage().toString();
+
+                            Object obj = 401.0;
+                            if (obj.equals(401.0)) {
+                                final AlertDialog.Builder builder = new AlertDialog.Builder(MyFoldersDMSActivity.this);
+                                LayoutInflater inflater = (LayoutInflater) MyFoldersDMSActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+                                builder.setView(view);
+                                builder.setCancelable(false);
+
+                                TextView title = (TextView) view.findViewById(R.id.title);
+                                title.setText("Alert");
+
+                                TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+                                txtMessage.setText(mMessage);
+
+                                Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+                                Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+                                cancelButton.setVisibility(View.GONE);
+
+                                sendPinButton.setText("OK");
+
+                                sendPinButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        mAlertDialog.dismiss();
+                                        AccountSettings accountSettings = new AccountSettings(MyFoldersDMSActivity.this);
+                                        accountSettings.deleteAll();
+                                        startActivity(new Intent(MyFoldersDMSActivity.this, LoginActivity.class));
+                                    }
+                                });
+
+                                mAlertDialog = builder.create();
+                                mAlertDialog.show();
+                            }
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    transparentProgressDialog.dismiss();
+                    Log.d("PinDevice error", t.getMessage());
+                }
+            });
+        }
+    }
 
     private void intializeViews() {
 
-    //    mRecyclerView = (RecyclerView) findViewById(R.id.recycler_dms);
+       // mRecyclerView = (RecyclerView) findViewById(R.id.recycler_dms);
+      //  emptyText =(TextView)findViewById(R.id.emptytext);
         mBottomNavigationView = (BottomNavigationView) findViewById(R.id.navigation);
         toggle = (ImageView) findViewById(R.id.toggle);
         sortingView = (LinearLayout) findViewById(R.id.sort);
@@ -215,18 +409,16 @@ public class MyFoldersDMSActivity extends RootActivity {
         sort = (TextView) findViewById(R.id.name_sort);
         toggleView = (RelativeLayout) findViewById(R.id.toggle_view);
         indicatorParentView=(RelativeLayout) findViewById(R.id.nameIndicatorParentView);
-    //    scrollView = (NestedScrollView) findViewById(R.id.nest_scrollview);
+        title_layout = (LinearLayout) findViewById(R.id.linearlayout1);
+      //  scrollView = (NestedScrollView) findViewById(R.id.nest_scrollview);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setHomeAsUpIndicator(getResources().getDrawable(R.mipmap.ic_back));
 
         collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
         collapsingToolbarLayout.setTitle(getResources().getString(R.string.my_folder));
-
-        title_layout = (LinearLayout) findViewById(R.id.l1);
 
         toolbarTextAppernce();
     }
@@ -236,11 +428,6 @@ public class MyFoldersDMSActivity extends RootActivity {
         collapsingToolbarLayout.setExpandedTitleTextAppearance(R.style.expandedappbar);
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        //EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, MyFoldersDMSActivity.this);
-    }
 
     public Uri getOutputMediaFileUri(int type) {
         return Uri.fromFile(getOutputMediaFile(type));
@@ -270,52 +457,210 @@ public class MyFoldersDMSActivity extends RootActivity {
         return mediaFile;
     }
 
-    private void addListenersToViews() {
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        list_upload = PreferenceUtils.getArrayList(MyFoldersDMSActivity.this,"key");
+        if ((list_upload!=null)&&(list_upload.size()>0)){
+            final AlertDialog.Builder builder = new AlertDialog.Builder(MyFoldersDMSActivity.this);
+            LayoutInflater inflater = (LayoutInflater) MyFoldersDMSActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View view = inflater.inflate(R.layout.custom_dialog, null);
+            builder.setView(view);
+            builder.setCancelable(false);
 
-        actionUpload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent openGalleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                openGalleryIntent.setType("*/*");
-                openGalleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-                startActivityForResult(openGalleryIntent, REQUEST_GALLERY_CODE);
-            }
-        });
+            final Button BtnAllow = (Button) view.findViewById(R.id.allow_button);
+            BtnAllow.setText("RETRY");
+            final Button BtnCancel = (Button) view.findViewById(R.id.cancel_button);
+            mCustomAlertDialog = builder.create();
+            mCustomAlertDialog.show();
 
-        actionCamera.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                fileUri = getOutputMediaFileUri(1);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
-                startActivityForResult(takePictureIntent, REQUEST_CAPTURE_IMAGE_CODE);
-            }
-        });
-
-        actionVideo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                /*Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-                fileUri = Uri.fromFile(mediaFile);
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
-                startActivityForResult(intent, CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE);*/
-
-                Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-                File file = CameraUtils.getOutputMediaFile(MEDIA_TYPE_VIDEO);
-                if (file != null) {
-                    imageStoragePath = file.getAbsolutePath();
+            BtnAllow.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mCustomAlertDialog.dismiss();
+                    Intent intent = new Intent (MyFoldersDMSActivity.this,UploadListActivity.class);
+                    startActivity(intent);
                 }
+            });
 
-                Uri fileUri = CameraUtils.getOutputMediaFileUri(getApplicationContext(), file);
+            BtnCancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mCustomAlertDialog.dismiss();
+                }
+            });
 
-                // set video quality
-                takeVideoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
-                takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri); // set the image file
-                startActivityForResult(takeVideoIntent, CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE);
-            }
-        });
 
-       /* sortingView.setOnClickListener(new View.OnClickListener() {
+        }
+    }
+
+
+//    private void addListenersToViews() {
+//
+//        actionUpload.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                // requestStoragePermission();
+//                Intent openGalleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+//                openGalleryIntent.setType("*/*");
+//                openGalleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+//                openGalleryIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+//                startActivityForResult(openGalleryIntent, REQUEST_GALLERY_CODE);
+//            }
+//        });
+//
+//        actionCamera.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//                //   requestCameraPermission();
+//                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//                fileUri = getOutputMediaFileUri(1);
+//                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+//                startActivityForResult(takePictureIntent, REQUEST_CAPTURE_IMAGE_CODE);
+//            }
+//        });
+//
+//        actionVideo.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//
+//                Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+//                File file = CameraUtils.getOutputMediaFile(MEDIA_TYPE_VIDEO);
+//                if (file != null) {
+//                    imageStoragePath = file.getAbsolutePath();
+//                }
+//
+//                Uri fileUri = CameraUtils.getOutputMediaFileUri(getApplicationContext(), file);
+//
+//                // set video quality
+//                takeVideoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
+//                takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+//                startActivityForResult(takeVideoIntent, CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE);
+//            }
+//        });
+//        actionNewFolder.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//
+//                final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+//                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//                View view = inflater.inflate(R.layout.newfolder, null);
+//                builder.setView(view);
+//                builder.setCancelable(false);
+//
+//                Button cancel = (Button) view.findViewById(R.id.cancel_b);
+//                Button allow = (Button) view.findViewById(R.id.allow);
+//                final EditText namer = (EditText) view.findViewById(R.id.edit_username1);
+//                allow.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        String folder = namer.getText().toString().trim();
+//
+//
+//                        if (NetworkUtils.isNetworkAvailable(context)) {
+//
+//                            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+//
+//                            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
+//                            transparentProgressDialog.show();
+//
+//                            final UploadNewFolderRequest uploadNewFolderRequest = new UploadNewFolderRequest(PreferenceUtils.getCategoryId(context), folder);
+//
+//                            String request = new Gson().toJson(uploadNewFolderRequest);
+//
+//                            //Here the json data is add to a hash map with key data
+//                            Map<String, String> params = new HashMap<String, String>();
+//                            params.put("data", request);
+//
+//                            final UploadNewFolderService uploadNewFolderService = retrofitAPI.create(UploadNewFolderService.class);
+//
+//                            Call call = uploadNewFolderService.getNewFolder(params, PreferenceUtils.getAccessToken(context));
+//
+//                            call.enqueue(new Callback<ListPinDevicesResponse<LoginResponse>>() {
+//                                @Override
+//                                public void onResponse(Response<ListPinDevicesResponse<LoginResponse>> response, Retrofit retrofit) {
+//                                    ListPinDevicesResponse apiResponse = response.body();
+//                                    if (apiResponse != null) {
+//
+//                                        transparentProgressDialog.dismiss();
+//
+//                                        if (apiResponse.status.getCode() instanceof Boolean) {
+//                                            if (apiResponse.status.getCode() == Boolean.FALSE) {
+//                                                transparentProgressDialog.dismiss();
+//
+//                                                // getCategoryDocuments(PreferenceUtils.getCategoryId(context),"1");
+//
+//                                            }
+//
+//                                        } else if (apiResponse.status.getCode() instanceof Integer) {
+//                                            transparentProgressDialog.dismiss();
+//                                            String mMessage = apiResponse.status.getMessage().toString();
+//
+//                                            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+//                                            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//                                            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+//                                            builder.setView(view);
+//                                            builder.setCancelable(false);
+//
+//                                            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+//
+//                                            txtMessage.setText(mMessage);
+//
+//                                            Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+//                                            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+//
+//                                            cancelButton.setVisibility(View.GONE);
+//
+//                                            sendPinButton.setText("OK");
+//
+//                                            sendPinButton.setOnClickListener(new View.OnClickListener() {
+//                                                @Override
+//                                                public void onClick(View v) {
+//                                                    mAlertDialog.dismiss();
+//                                                    context.startActivity(new Intent(context, LoginActivity.class));
+//                                                }
+//                                            });
+//
+//                                            mAlertDialog = builder.create();
+//                                            mAlertDialog.show();
+//                                        }
+//                                    }
+//                                }
+//
+//                                @Override
+//                                public void onFailure(Throwable t) {
+//                                    transparentProgressDialog.dismiss();
+//                                    Log.d("PinDevice error", t.getMessage());
+//                                }
+//                            });
+//                        }
+//
+//
+//                        mAlertDialog.dismiss();
+//
+//                    }
+//                });
+//
+//                cancel.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        mAlertDialog.dismiss();
+//
+//                    }
+//                });
+//
+//                mAlertDialog = builder.create();
+//                mAlertDialog.show();
+//
+//
+//            }
+//        });
+//    }
+
+     /*   sortingView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 openBottomSheet();
@@ -328,23 +673,137 @@ public class MyFoldersDMSActivity extends RootActivity {
 
                 if (check == false) {
                     toggle.setImageResource(R.mipmap.ic_list);
-                 //   setListAdapterToView(mGetCategoryDocumentsResponses);
+                    setListAdapterToView(mGetCategoryDocumentsResponses);
                     isFromList = true;
                     mAdapter.notifyDataSetChanged();
                     check = true;
 
                 } else {
                     toggle.setImageResource(R.mipmap.ic_grid);
-                  //  setGridAdapterToView(mGetCategoryDocumentsResponses);
+                    setGridAdapterToView(mGetCategoryDocumentsResponses);
                     mAdapter.notifyDataSetChanged();
                     isFromList = false;
                     check = false;
                 }
             }
-        });*/
+        });
     }
+*/
+    public void getCategoryDocuments(String obj, String page) {
+
+        if (NetworkUtils.isNetworkAvailable(context)) {
+
+            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+
+            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(this);
+            transparentProgressDialog.show();
+
+            final GetCategoryDocumentsRequest mGetCategoryDocumentsRequest;
+
+            mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(obj, "list", "category", "1", "0");
+
+            String request = new Gson().toJson(mGetCategoryDocumentsRequest);
+
+            //Here the json data is add to a hash map with key data
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("data", request);
+
+            final GetCategoryDocumentsService mGetCategoryDocumentsService = retrofitAPI.create(GetCategoryDocumentsService.class);
+
+            Call call = mGetCategoryDocumentsService.getCategoryDocumentsV2(params, PreferenceUtils.getAccessToken(this),page);
+
+            call.enqueue(new Callback<ListPinDevicesResponse<GetCategoryDocumentsResponse>>() {
+                @Override
+                public void onResponse(Response<ListPinDevicesResponse<GetCategoryDocumentsResponse>> response, Retrofit retrofit) {
+                    ListPinDevicesResponse apiResponse = response.body();
+                    if (apiResponse != null) {
+
+                        transparentProgressDialog.dismiss();
+
+                        if (apiResponse.status.getCode() instanceof Boolean) {
+                            if (apiResponse.status.getCode() == Boolean.FALSE) {
+                                transparentProgressDialog.dismiss();
+
+                         //      listGetCategoryDocuments = response.body().getData();
+                                mGetCategoryDocumentsResponses = response.body().getData();
+                                if (mGetCategoryDocumentsRequest==null)
+                                {
+                                    emptyText.setVisibility(View.VISIBLE);
+                                }
+/*
+                                mGetCategoryDocumentsResponses.add((GetCategoryDocumentsResponse) listGetCategoryDocuments);
+*/
+
+                                totalPages  = Integer.parseInt(response.headers().get("X-Pagination-Page-Count"));
+                                pageNumber = Integer.parseInt(response.headers().get("X-Pagination-Current-Page"));
+
+/*
+                                if(Integer.parseInt(pageCount) > 1)
+                                {
+                                    paginationList = response.body().getData();
+                                    mGetCategoryDocumentsResponses.addAll(paginationList);
+
+                                }
+*/
+
+                            //    setGridAdapterToView(mGetCategoryDocumentsResponses);
+                                //     paginationList.clear();
 
 
+
+                            }
+
+                        } else if (apiResponse.status.getCode() instanceof Double) {
+                            transparentProgressDialog.dismiss();
+                            String mMessage = apiResponse.status.getMessage().toString();
+
+                            Object obj = 401.0;
+                            if (obj.equals(401.0)) {
+                                final AlertDialog.Builder builder = new AlertDialog.Builder(MyFoldersDMSActivity.this);
+                                LayoutInflater inflater = (LayoutInflater) MyFoldersDMSActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+                                builder.setView(view);
+                                builder.setCancelable(false);
+
+                                TextView title = (TextView) view.findViewById(R.id.title);
+                                title.setText("Alert");
+
+                                TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+                                txtMessage.setText(mMessage);
+
+                                Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+                                Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+                                cancelButton.setVisibility(View.GONE);
+
+                                sendPinButton.setText("OK");
+
+                                sendPinButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        mAlertDialog.dismiss();
+                                        AccountSettings accountSettings = new AccountSettings(MyFoldersDMSActivity.this);
+                                        accountSettings.deleteAll();
+                                        startActivity(new Intent(MyFoldersDMSActivity.this, LoginActivity.class));
+                                    }
+                                });
+
+                                mAlertDialog = builder.create();
+                                mAlertDialog.show();
+                            }
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    transparentProgressDialog.dismiss();
+                    Log.d("PinDevice error", t.getMessage());
+                }
+            });
+        }
+    }
 
     /*private void loadNextPage() {
         if (NetworkUtils.isNetworkAvailable(this)) {
@@ -356,7 +815,7 @@ public class MyFoldersDMSActivity extends RootActivity {
 
             final GetCategoryDocumentsRequest mGetCategoryDocumentsRequest;
 
-            mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(0, "list", "category", "1", "0");
+            mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest("0", "list", "category", "1", "0");
 
             String request = new Gson().toJson(mGetCategoryDocumentsRequest);
 
@@ -552,12 +1011,12 @@ public class MyFoldersDMSActivity extends RootActivity {
                 sortNewestImage.setVisibility(View.VISIBLE);
                 sortSizeImage.setVisibility(View.INVISIBLE);
                 sortDateImage.setVisibility(View.INVISIBLE);
-               // indicatorParentView.setVisibility(View.INVISIBLE);
+                // indicatorParentView.setVisibility(View.INVISIBLE);
                 sortNameDoneImage.setVisibility(View.INVISIBLE);
                 sortNewestDoneImage.setVisibility(View.VISIBLE);
                 sortSizeDoneImage.setVisibility(View.INVISIBLE);
                 sortDateDoneImage.setVisibility(View.INVISIBLE);
-             //   pageNumber=0;
+                //   pageNumber=0;
                 totalPages=1;
                 mGetCategoryDocumentsResponses.clear();
                 listGetCategoryDocuments.clear();
@@ -637,9 +1096,9 @@ public class MyFoldersDMSActivity extends RootActivity {
             final GetCategoryDocumentsRequest mGetCategoryDocumentsRequest;
 
             if (PreferenceUtils.getObjectId(MyFoldersDMSActivity.this).equalsIgnoreCase("")) {
-                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(0, "list", "category", "1", "0");
+                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest("0", "list", "category", "1", "0");
             } else {
-                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(Integer.parseInt(PreferenceUtils.getObjectId(MyFoldersDMSActivity.this)), "list", "category", "1", "0");
+                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest((PreferenceUtils.getObjectId(MyFoldersDMSActivity.this)), "list", "category", "1", "0");
             }
 
             String request = new Gson().toJson(mGetCategoryDocumentsRequest);
@@ -674,9 +1133,9 @@ public class MyFoldersDMSActivity extends RootActivity {
 
                                 mGetCategoryDocumentsResponses = response.body().getData();
                                 if (isFromList == true) {
-                               //     setListAdapterToView(mGetCategoryDocumentsResponses);
+                                    //  setListAdapterToView(mGetCategoryDocumentsResponses);
                                 } else {
-                                //    setGridAdapterToView(mGetCategoryDocumentsResponses);
+                                    // setGridAdapterToView(mGetCategoryDocumentsResponses);
                                 }
 
                                 totalPages = Integer.parseInt(response.headers().get("X-Pagination-Page-Count"));
@@ -750,9 +1209,9 @@ public class MyFoldersDMSActivity extends RootActivity {
             final GetCategoryDocumentsRequest mGetCategoryDocumentsRequest;
 
             if (PreferenceUtils.getObjectId(MyFoldersDMSActivity.this).equalsIgnoreCase("")) {
-                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(0, "list", "category", "1", "0");
+                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest("0", "list", "category", "1", "0");
             } else {
-                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(Integer.parseInt(PreferenceUtils.getObjectId(MyFoldersDMSActivity.this)), "list", "category", "1", "0");
+                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest((PreferenceUtils.getObjectId(MyFoldersDMSActivity.this)), "list", "category", "1", "0");
             }
 
             String request = new Gson().toJson(mGetCategoryDocumentsRequest);
@@ -786,13 +1245,13 @@ public class MyFoldersDMSActivity extends RootActivity {
                                 transparentProgressDialog.dismiss();
                                 mGetCategoryDocumentsResponses = response.body().getData();
                                 if (isFromList == true) {
-                                //    setListAdapterToView(mGetCategoryDocumentsResponses);
+                                    // setListAdapterToView(mGetCategoryDocumentsResponses);
                                 } else {
-                                //    setGridAdapterToView(mGetCategoryDocumentsResponses);
+                                    //setGridAdapterToView(mGetCategoryDocumentsResponses);
                                 }
 
                                 totalPages = Integer.parseInt(response.headers().get("X-Pagination-Page-Count"));
-                               pageNumber = Integer.parseInt(response.headers().get("X-Pagination-Current-Page"));
+                                pageNumber = Integer.parseInt(response.headers().get("X-Pagination-Current-Page"));
                             }
 
                             sort.setText("Size");
@@ -861,9 +1320,9 @@ public class MyFoldersDMSActivity extends RootActivity {
             final GetCategoryDocumentsRequest mGetCategoryDocumentsRequest;
 
             if (PreferenceUtils.getObjectId(MyFoldersDMSActivity.this).equalsIgnoreCase("")) {
-                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(0, "list", "category", "1", "0");
+                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest("0", "list", "category", "1", "0");
             } else {
-                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(Integer.parseInt(PreferenceUtils.getObjectId(MyFoldersDMSActivity.this)), "list", "category", "1", "0");
+                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest((PreferenceUtils.getObjectId(MyFoldersDMSActivity.this)), "list", "category", "1", "0");
             }
 
             String request = new Gson().toJson(mGetCategoryDocumentsRequest);
@@ -897,9 +1356,9 @@ public class MyFoldersDMSActivity extends RootActivity {
                                 transparentProgressDialog.dismiss();
                                 mGetCategoryDocumentsResponses = response.body().getData();
                                 if (isFromList == true) {
-                                 //   setListAdapterToView(mGetCategoryDocumentsResponses);
+                                    //  setListAdapterToView(mGetCategoryDocumentsResponses);
                                 } else {
-                                 //   setGridAdapterToView(mGetCategoryDocumentsResponses);
+                                    //setGridAdapterToView(mGetCategoryDocumentsResponses);
                                 }
                                 totalPages = Integer.parseInt(response.headers().get("X-Pagination-Page-Count"));
                                 pageNumber = Integer.parseInt(response.headers().get("X-Pagination-Current-Page"));
@@ -972,9 +1431,9 @@ public class MyFoldersDMSActivity extends RootActivity {
             final GetCategoryDocumentsRequest mGetCategoryDocumentsRequest;
 
             if (PreferenceUtils.getObjectId(MyFoldersDMSActivity.this).equalsIgnoreCase("")) {
-                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(0, "list", "category", "1", "0");
+                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest("0", "list", "category", "1", "0");
             } else {
-                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(Integer.parseInt(PreferenceUtils.getObjectId(MyFoldersDMSActivity.this)), "list", "category", "1", "0");
+                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest((PreferenceUtils.getObjectId(MyFoldersDMSActivity.this)), "list", "category", "1", "0");
             }
 
             String request = new Gson().toJson(mGetCategoryDocumentsRequest);
@@ -1008,13 +1467,13 @@ public class MyFoldersDMSActivity extends RootActivity {
                                 transparentProgressDialog.dismiss();
                                 mGetCategoryDocumentsResponses = response.body().getData();
                                 if (isFromList == true) {
-                                //    setListAdapterToView(mGetCategoryDocumentsResponses);
+                                    //  setListAdapterToView(mGetCategoryDocumentsResponses);
                                 } else {
-                                //    setGridAdapterToView(mGetCategoryDocumentsResponses);
+                                    //  setGridAdapterToView(mGetCategoryDocumentsResponses);
                                 }
                                 totalPages = Integer.parseInt(response.headers().get("X-Pagination-Page-Count"));
                                 pageNumber = Integer.parseInt(response.headers().get("X-Pagination-Current-Page"));
-                               // pageNumber= pageNumber+1;
+                                // pageNumber= pageNumber+1;
                             }
                             sort.setText("Name");
 
@@ -1115,7 +1574,7 @@ public class MyFoldersDMSActivity extends RootActivity {
                     Drawable d = getResources().getDrawable(R.mipmap.ic_myfolder);
                     d.setColorFilter(selectedColor, PorterDuff.Mode.SRC_ATOP);
 
-                //    mBottomNavigationView.setItemIconTintList(d);
+                    //    mBottomNavigationView.setItemIconTintList(d);
                 }
 
 
@@ -1153,14 +1612,17 @@ public class MyFoldersDMSActivity extends RootActivity {
         }
     }
 
-    /*private void setGridAdapterToView(List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses) {
+/*
+    private void setGridAdapterToView(List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses) {
 
-        *//*Collections.sort(mGetCategoryDocumentsResponses, new Comparator<GetCategoryDocumentsResponse>() {
+        */
+/*Collections.sort(mGetCategoryDocumentsResponses, new Comparator<GetCategoryDocumentsResponse>() {
             @Override
             public int compare(GetCategoryDocumentsResponse lhs, GetCategoryDocumentsResponse rhs) {
                 return lhs.getName().compareTo(rhs.getName());
             }
         });*//*
+
 
         // Setup the RecyclerView
         mRecyclerView.setLayoutManager(new GridLayoutManager(this, 3));
@@ -1182,7 +1644,7 @@ public class MyFoldersDMSActivity extends RootActivity {
                 // the selection processor does take care to update the positions selection mode correctly
                 // and will correctly transform the touch events so that they can be directly applied to your adapter!!!
                 menuItemDelete.setVisible(true);
-                menuItemShare.setVisible(true);
+        /*        menuItemShare.setVisible(true);
                 menuItemMore.setVisible(true);
                 menuItemSearch.setVisible(false);
 
@@ -1217,8 +1679,8 @@ public class MyFoldersDMSActivity extends RootActivity {
         mDragSelectTouchListener = new DragSelectTouchListener()
                 .withSelectListener(mDragSelectionProcessor);
         updateSelectionListener();
-        mRecyclerView.addOnItemTouchListener(mDragSelectTouchListener);
-    }*/
+        mRecyclerView.addOnItemTouchListener(mDragSelectTouchListener);*/
+
 
     private void updateSelectionListener() {
         mDragSelectionProcessor.withMode(mMode);
@@ -1253,8 +1715,8 @@ public class MyFoldersDMSActivity extends RootActivity {
                     String itemSelectedColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
                     int selectedColor = Color.parseColor(itemSelectedColor);
 
-                   // menuItemMove.setIcon(selectedColor);
-                   // menuItemMore.setIcon(selectedColor);
+                    // menuItemMove.setIcon(selectedColor);
+                    // menuItemMore.setIcon(selectedColor);
 
                     menuIconColor(menuItemMove,selectedColor);
                     menuIconColor(menuItemMore,selectedColor);
@@ -1356,49 +1818,92 @@ public class MyFoldersDMSActivity extends RootActivity {
         }
     }
 
-   /* @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    /*  @Override
+      public boolean onCreateOptionsMenu(Menu menu) {
 
-        getMenuInflater().inflate(R.menu.menu_multi_select, menu);
-        menuItemSearch = menu.findItem(R.id.action_search);
-        menuItemDelete = menu.findItem(R.id.action_delete);
-        menuItemShare = menu.findItem(R.id.action_share);
-        menuItemMore = menu.findItem(R.id.action_more);
-        menuItemMove = menu.findItem(R.id.action_move);
+          getMenuInflater().inflate(R.menu.menu_multi_select, menu);
+          menuItemSearch = menu.findItem(R.id.action_search);
+          menuItemDelete = menu.findItem(R.id.action_delete);
+          menuItemShare = menu.findItem(R.id.action_share);
+          menuItemMore = menu.findItem(R.id.action_more);
+          menuItemMove = menu.findItem(R.id.action_move);
 
-        String itemSelectedColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
-        int selectedColor = Color.parseColor(itemSelectedColor);
+          String itemSelectedColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
+          int selectedColor = Color.parseColor(itemSelectedColor);
 
-        menuIconColor(menuItemSearch,selectedColor);
+          menuIconColor(menuItemSearch,selectedColor);
 
-        return true;
-    }
+          return true;
+      }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-        int i = mAdapter.getArrayList().size();
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                i = i - 2;
-                if (i > -1) {
-                    String id = mAdapter.getArrayList().get(i);
-                    mAdapter.getSubCategoryDocuments(id,String.valueOf(pageNumber));
-                    mAdapter.setArrayList(mAdapter.getArrayList().size() - 1);
+      @Override
+      public boolean onOptionsItemSelected(MenuItem item)
+      {
+          int i = mAdapter.getArrayList().size();
+          switch (item.getItemId()) {
+              case android.R.id.home:
+                  i = i - 2;
+                  if (i > -1) {
+                      String id = mAdapter.getArrayList().get(i);
+                      mAdapter.getSubCategoryDocuments(id,String.valueOf(pageNumber));
+                      mAdapter.setArrayList(mAdapter.getArrayList().size() - 1);
 
-                } else {
-                    startActivity(new Intent(MyFoldersDMSActivity.this, MyFoldersDMSActivity.class));
-                    return true;
+                  } else {
+                      startActivity(new Intent(MyFoldersDMSActivity.this, MyFoldersDMSActivity.class));
+                      return true;
 
-                }
-                break;
-            case R.id.action_more:
-                openBottomSheetForMultiSelect();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }*/
+                  }
+                  break;
+              case R.id.action_more:
+                  openBottomSheetForMultiSelect();
+                  return true;
 
+              case R.id.action_delete:
+
+                          final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                          LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                          View view = inflater.inflate(R.layout.delete_alert, null);
+                          builder.setView(view);
+                          builder.setCancelable(false);
+
+                          Button cancel = (Button) view.findViewById(R.id.canceldel);
+                          Button delete = (Button) view.findViewById(R.id.delete);
+                          Button move = (Button) view.findViewById(R.id.movefolder);
+
+                          delete.setOnClickListener(new View.OnClickListener() {
+                              @Override
+                              public void onClick(View v) {
+                                  mAlertDialog.dismiss();
+
+                              }
+                          });
+                          move.setOnClickListener(new View.OnClickListener() {
+                              @Override
+                              public void onClick(View v) {
+
+                              }
+                          });
+
+                          cancel.setOnClickListener(new View.OnClickListener() {
+                              @Override
+                              public void onClick(View v) {
+                                  mAlertDialog.dismiss();
+
+                              }
+                          });
+
+                          mAlertDialog = builder.create();
+                          mAlertDialog.show();
+
+                  break;
+              case R.id.action_move:
+                  Intent intent = new Intent(context, MyFolderActivity.class);
+                  context.startActivity(intent);
+                      break;
+          }
+          return super.onOptionsItemSelected(item);
+      }
+  */
     public void openBottomSheetForMultiSelect() {
 
         getWhiteLabelProperities();
@@ -1462,6 +1967,7 @@ public class MyFoldersDMSActivity extends RootActivity {
                 if (isTouched) {
                     isTouched = false;
                     if (isChecked) {
+
                         downloaddoc();
                     } else {
                     }
@@ -1598,6 +2104,9 @@ public class MyFoldersDMSActivity extends RootActivity {
                         if (apiResponse.status.getCode() == Boolean.FALSE) {
                             transparentProgressDialog.dismiss();
                             downloadDocumentResponse = response.body().getData();
+
+                            download_data = downloadDocumentResponse.get(0).getData();
+
                         } else {
 
                             String mMessage = apiResponse.status.getMessage().toString();
@@ -1622,7 +2131,7 @@ public class MyFoldersDMSActivity extends RootActivity {
         }
     }
 
-   /* public void setListAdapterToView(final List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses) {
+  /*  public void setListAdapterToView(final List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses) {
 
         mRecyclerView.setHasFixedSize(true);
         linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
@@ -1720,7 +2229,7 @@ public class MyFoldersDMSActivity extends RootActivity {
         if (requestCode == REQUEST_GALLERY_CODE && resultCode == Activity.RESULT_OK) {
             fileUri = data.getData();
 
-            Uri uri = null;
+
 
             /*Uri selectedImageUri = null;
             String Path = null;
@@ -1779,6 +2288,7 @@ public class MyFoldersDMSActivity extends RootActivity {
             } catch (Exception e) {
                 e.printStackTrace();
             }*/
+            list_upload = new ArrayList<>();
 
             if (null != data) { // checking empty selection
                 if (null != data.getClipData()) { // checking multiple selection or not
@@ -1792,31 +2302,68 @@ public class MyFoldersDMSActivity extends RootActivity {
 
                             String filePath = getRealPathFromURIPath(uri, MyFoldersDMSActivity.this);
 
-                            File file = new File(filePath);
+                            //  File file = new File(filePath);
 
-                            ArrayList<String> filePathList = new ArrayList<String>();
-                            filePathList.add(filePath);
 
-                            uploadGalleryImage(file, filePathList);
+
+                            list_upload.add(String.valueOf(filePath));
+                            PreferenceUtils.setupload(context,list_upload,"key");
+                            PreferenceUtils.setupload(context,list_upload,"key");
+
+
                         }
 
                     } else {
                         uri = data.getData();
 
                         String filePath = getRealPathFromURIPath(uri, MyFoldersDMSActivity.this);
-                        File file = new File(filePath);
+                        //File file = new File(filePath);
 
-                        ArrayList<String> filePathList = new ArrayList<String>();
-                        filePathList.add(filePath);
+                      /*  ArrayList<String> filePathList = new ArrayList<String>();
+                        filePathList.add(filePath);*/
+                        list_upload = PreferenceUtils.getupload(MyFoldersDMSActivity.this,"key");
+                        list_upload.add(String.valueOf(filePath));
+                        PreferenceUtils.setupload(MyFoldersDMSActivity.this,list_upload,"key");
 
-                        uploadGalleryImage(file, filePathList);
+                        //   uploadGalleryImage(file, filePathList);
                     }
                 }
+                if((list_upload == null )||(list_upload.size()==0))
+                {
+                    String filepath = getRealPathFromURIPath(fileUri, MyFoldersDMSActivity.this);
+                    list_upload.add(filepath);
+                    PreferenceUtils.setupload(MyFoldersDMSActivity.this,list_upload,"key");
+                }
             }
-        } else if (requestCode == REQUEST_CAPTURE_IMAGE_CODE && resultCode == RESULT_OK) {
+            Intent intent = new Intent (MyFoldersDMSActivity.this,UploadListActivity.class);
+            //  PreferenceUtils.setupload(MyFoldersDMSActivity.this,list_upload,"key");
+            // list_upload.clear();
 
+            startActivity(intent);
+
+        }
+        else if (requestCode == REQUEST_CAPTURE_IMAGE_CODE && resultCode == RESULT_OK) {
+            list_upload = new ArrayList<>();
             if (resultCode == RESULT_OK) {
-                uploadImage(fileUri.getPath());
+                // uploadImage(fileUri.getPath());
+
+
+
+                String filePath = fileUri.getPath();
+/*
+                File file = new File(filePath);
+*/
+
+                ArrayList<String> filePathList = new ArrayList<String>();
+                filePathList.add(filePath);
+                //  list_upload = PreferenceUtils.getupload(MyFoldersDMSActivity.this,"key");
+                list_upload.add(String.valueOf(filePath));
+                PreferenceUtils.setupload(MyFoldersDMSActivity.this,list_upload,"key");
+                // list_upload.clear();
+
+                Intent intent = new Intent (MyFoldersDMSActivity.this,UploadListActivity.class);
+                startActivity(intent);
+
 
             } else if (resultCode == RESULT_CANCELED) {
                 Toast.makeText(getApplicationContext(), "User cancelled image capture", Toast.LENGTH_SHORT).show();
@@ -1827,7 +2374,24 @@ public class MyFoldersDMSActivity extends RootActivity {
         } else if (requestCode == CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
 
             // uriVideo = data.getData();
-            uploadVideo(imageStoragePath);
+            // uploadVideo(imageStoragePath);
+
+
+
+            String filePath =imageStoragePath;
+/*
+                File file = new File(filePath);
+*/
+
+            ArrayList<String> filePathList = new ArrayList<String>();
+            filePathList.add(filePath);
+            list_upload = PreferenceUtils.getupload(MyFoldersDMSActivity.this,"key");
+            list_upload.add(String.valueOf(filePath));
+            PreferenceUtils.setupload(MyFoldersDMSActivity.this,list_upload,"key");
+            list_upload.clear();
+            Intent intent = new Intent (MyFoldersDMSActivity.this,UploadListActivity.class);
+            startActivity(intent);
+
         }
     }
 
@@ -2032,7 +2596,7 @@ public class MyFoldersDMSActivity extends RootActivity {
         return data;
     }
 
-    @Override
+    /*@Override
     protected void onResume() {
         super.onResume();
         if (sortByName == true) {
@@ -2044,5 +2608,131 @@ public class MyFoldersDMSActivity extends RootActivity {
         } else if (sortByDate == true) {
             sort.setText("Date");
         }
+
+        list_upload = PreferenceUtils.getupload(MyFoldersDMSActivity.this,"key");
+        if ((list_upload!=null)&&(list_upload.size()>0)){
+            final AlertDialog.Builder builder = new AlertDialog.Builder(MyFoldersDMSActivity.this);
+            LayoutInflater inflater = (LayoutInflater) MyFoldersDMSActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View view = inflater.inflate(R.layout.custom_dialog, null);
+            builder.setView(view);
+            builder.setCancelable(false);
+
+            final Button BtnAllow = (Button) view.findViewById(R.id.allow_button);
+            BtnAllow.setText("RETRY");
+            final Button BtnCancel = (Button) view.findViewById(R.id.cancel_button);
+            TextView textView =(TextView) view.findViewById(R.id.txt_message);
+            textView.setVisibility(View.GONE);
+            TextView text = (TextView) view.findViewById(R.id.message);
+            text.setText("Some Documents failed to upload");
+            mCustomAlertDialog = builder.create();
+            mCustomAlertDialog.show();
+
+            BtnAllow.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mCustomAlertDialog.dismiss();
+                    Intent intent = new Intent (MyFoldersDMSActivity.this,UploadListActivity.class);
+                    startActivity(intent);
+                }
+            });
+
+            BtnCancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mCustomAlertDialog.dismiss();
+                }
+            });
+
+
+        }
+        else{
+
+        }
+    }*/
+
+  /*  private void requestStoragePermission(){
+
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.READ_EXTERNAL_STORAGE)){
+            //If the user has denied the permission previously your code will come to this block
+            //Here you can explain why you need this permission
+            //Explain here why you need this permission
+        }
+
+        //And finally ask for the permission
+        ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},REQUEST_STORAGE_PERMISSION);
     }
+
+    private void requestCameraPermission(){
+
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.CAMERA)){
+            //If the user has denied the permission previously your code will come to this block
+            //Here you can explain why you need this permission
+            //Explain here why you need this permission
+        }
+
+        //And finally ask for the permission
+        ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.CAMERA},REQUEST_CAMERA_PERMISSION);
+    }
+
+
+   *//* private void requestStoragePermission(){
+
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.READ_EXTERNAL_STORAGE)){
+            //If the user has denied the permission previously your code will come to this block
+            //Here you can explain why you need this permission
+            //Explain here why you need this permission
+        }
+
+        //And finally ask for the permission
+        ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},REQUEST_STORAGE_PERMISSION);
+    }*//*
+
+
+    //This method will be called when the user will tap on allow or deny
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+        //Checking the request code of our request
+        if(requestCode == REQUEST_STORAGE_PERMISSION){
+
+            //If permission is granted
+            if(grantResults.length >0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+
+                //Displaying a toast
+                Toast.makeText(this,"Permission granted now you can read the storage",Toast.LENGTH_LONG).show();
+            }else{
+                //Displaying another toast if permission is not granted
+                Toast.makeText(this,"Oops you just denied the permission",Toast.LENGTH_LONG).show();
+            }
+        }
+
+        if(requestCode == REQUEST_CAMERA_PERMISSION){
+
+            //If permission is granted
+            if(grantResults.length >0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+
+                //Displaying a toast
+                Toast.makeText(this,"Permission granted now you can read the storage",Toast.LENGTH_LONG).show();
+            }else{
+                //Displaying another toast if permission is not granted
+                Toast.makeText(this,"Oops you just denied the permission",Toast.LENGTH_LONG).show();
+            }
+        }
+
+       *//* if(requestCode == REQUEST_STORAGE_PERMISSION){
+
+            //If permission is granted
+            if(grantResults.length >0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+
+                //Displaying a toast
+                Toast.makeText(this,"Permission granted now you can read the storage",Toast.LENGTH_LONG).show();
+            }else{
+                //Displaying another toast if permission is not granted
+                Toast.makeText(this,"Oops you just denied the permission",Toast.LENGTH_LONG).show();
+            }
+        }*//*
+    }
+*/
+
+
 }

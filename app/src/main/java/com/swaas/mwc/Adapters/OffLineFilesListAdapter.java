@@ -1,63 +1,43 @@
 package com.swaas.mwc.Adapters;
 
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.google.android.gms.vision.text.Line;
 import com.google.gson.Gson;
 import com.swaas.mwc.API.Model.BaseApiResponse;
 import com.swaas.mwc.API.Model.DocumentPreviewRequest;
 import com.swaas.mwc.API.Model.DocumentPreviewResponse;
-import com.swaas.mwc.API.Model.EndUserRenameRequest;
 import com.swaas.mwc.API.Model.ExternalShareResponseModel;
-import com.swaas.mwc.API.Model.GetCategoryDocumentsRequest;
-import com.swaas.mwc.API.Model.GetCategoryDocumentsResponse;
-import com.swaas.mwc.API.Model.ListPinDevicesResponse;
-import com.swaas.mwc.API.Model.LoginResponse;
 import com.swaas.mwc.API.Model.OfflineFiles;
 import com.swaas.mwc.API.Model.SharedDocumentResponseModel;
 import com.swaas.mwc.API.Model.WhiteLabelResponse;
 import com.swaas.mwc.API.Service.DocumentPreviewService;
-import com.swaas.mwc.API.Service.EndUserRenameService;
-import com.swaas.mwc.API.Service.GetCategoryDocumentsService;
 import com.swaas.mwc.API.Service.ShareEndUserDocumentsService;
-import com.swaas.mwc.DMS.MyFolderActivity;
-import com.swaas.mwc.DMS.MyFolderSharedDocuments;
-import com.swaas.mwc.DMS.MyFoldersDMSActivity;
-import com.swaas.mwc.DMS.Tab_Activity;
 import com.swaas.mwc.Database.AccountSettings;
 import com.swaas.mwc.Dialogs.LoadingProgressDialog;
-import com.swaas.mwc.FTL.WebviewLoaderTermsActivity;
 import com.swaas.mwc.Login.DocumentPreview;
 import com.swaas.mwc.Login.LoginActivity;
 import com.swaas.mwc.Network.NetworkUtils;
 import com.swaas.mwc.Preference.PreferenceUtils;
 import com.swaas.mwc.R;
 import com.swaas.mwc.Retrofit.RetrofitAPIBuilder;
-import com.swaas.mwc.Utils.Constants;
+import com.swaas.mwc.pdf.PdfViewActivity;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -65,8 +45,6 @@ import retrofit.Call;
 import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
-
-import static android.support.v4.content.ContextCompat.startActivity;
 
 public class OffLineFilesListAdapter extends RecyclerView.Adapter<OffLineFilesListAdapter.ViewHolder> {
 
@@ -288,6 +266,10 @@ public class OffLineFilesListAdapter extends RecyclerView.Adapter<OffLineFilesLi
 
                     if(offLineFileListData.get(position).getFiletype() != null && offLineFileListData.get(position).getFiletype().equalsIgnoreCase("pdf"))
                     {
+                        Intent intent = new Intent(context, PdfViewActivity.class);
+                        intent.putExtra("mode",0);
+                        intent.putExtra("url", offLineFileListData.get(position).getFilePath());
+                        context.startActivity(intent);
 
                     }
                     else if(offLineFileListData.get(position).getFiletype() != null && !offLineFileListData.get(position).getFiletype().equalsIgnoreCase("pdf"))

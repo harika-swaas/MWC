@@ -279,7 +279,7 @@ public class ItemNavigationSharedFragment extends Fragment
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        MyFoldersDMSActivity.title_layout= (LinearLayout) getActivity().findViewById(R.id.l1);
+        MyFoldersDMSActivity.title_layout= (LinearLayout) getActivity().findViewById(R.id.linearlayout1);
         MyFoldersDMSActivity.title_layout.setVisibility(View.VISIBLE);
 
         MyFoldersDMSActivity.floatingActionMenu = (FloatingActionMenu) getActivity().findViewById(R.id.floating_action_menu);

@@ -214,6 +214,7 @@
                 android:alpha="0.64"/>
 
             <RelativeLayout
+                android:id="@+id/copy1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
@@ -245,7 +246,7 @@
             </RelativeLayout>
 
             <RelativeLayout
-                android:id="@+id/move_layout"
+                android:id="@id/move1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 

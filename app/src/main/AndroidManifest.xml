@@ -83,6 +83,10 @@
         <activity
             android:name=".DMS.MyFoldersDMSActivity"
             android:screenOrientation="portrait" />
+
+        <activity android:name=".DMS.MyFolderCopyActivity"/>
+        <activity android:name=".DMS.MyFolderCategoryActivity"/>
+        <activity android:name=".DMS.UploadListActivity"></activity>
         <activity
             android:name=".DMS.MyFolderSharedDocuments"
             android:screenOrientation="portrait" />
@@ -95,6 +99,7 @@
             android:screenOrientation="portrait" />
         <activity android:name=".DMS.MyFolderEndUserAllowedSharedFoldersActivity" />
         <activity android:name=".DMS.MyFolderActivity" />
+        <activity android:name=".pdf.PdfViewActivity" />
 
         <receiver android:name=".ReadSms">
             <intent-filter>
@@ -111,6 +116,17 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
+
+        <provider
+            android:name=".GenericFileProvider"
+            android:authorities="${applicationId}.my.package.name.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths"/>
+        </provider>
+
 
         <meta-data
             android:name="io.fabric.ApiKey"

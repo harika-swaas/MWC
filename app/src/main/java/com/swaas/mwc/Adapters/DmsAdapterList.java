@@ -24,6 +24,7 @@ import com.google.gson.Gson;
 import com.swaas.mwc.API.Model.BaseApiResponse;
 import com.swaas.mwc.API.Model.DocumentPreviewRequest;
 import com.swaas.mwc.API.Model.DocumentPreviewResponse;
+import com.swaas.mwc.API.Model.EditDocumentPropertiesRequest;
 import com.swaas.mwc.API.Model.EndUserRenameRequest;
 import com.swaas.mwc.API.Model.GetCategoryDocumentsRequest;
 import com.swaas.mwc.API.Model.GetCategoryDocumentsResponse;
@@ -31,9 +32,11 @@ import com.swaas.mwc.API.Model.ListPinDevicesResponse;
 import com.swaas.mwc.API.Model.LoginResponse;
 import com.swaas.mwc.API.Model.WhiteLabelResponse;
 import com.swaas.mwc.API.Service.DocumentPreviewService;
+import com.swaas.mwc.API.Service.EditDocumentPropertiesService;
 import com.swaas.mwc.API.Service.EndUserRenameService;
 import com.swaas.mwc.API.Service.GetCategoryDocumentsService;
 import com.swaas.mwc.DMS.MyFolderActivity;
+import com.swaas.mwc.DMS.MyFolderCopyActivity;
 import com.swaas.mwc.DMS.MyFolderSharedDocuments;
 import com.swaas.mwc.DMS.MyFoldersDMSActivity;
 import com.swaas.mwc.DMS.Tab_Activity;
@@ -47,6 +50,7 @@ import com.swaas.mwc.Preference.PreferenceUtils;
 import com.swaas.mwc.R;
 import com.swaas.mwc.Retrofit.RetrofitAPIBuilder;
 import com.swaas.mwc.Utils.Constants;
+import com.swaas.mwc.pdf.PdfViewActivity;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -72,6 +76,9 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
     List<GetCategoryDocumentsResponse> mSelectedList;
     String objectr;
     String categoryr;
+    String parentr;
+    String document;
+    ArrayList<String>document_id= new ArrayList<>();
 
     private HashSet<Integer> mSelected;
     List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList<>();
@@ -347,10 +354,18 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
             holder.imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("category")) {
+                    if (mGetCategoryDocumentsResponses.get(position).getType() != null && mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("category")) {
                         getSubCategoryDocuments(mGetCategoryDocumentsResponses.get(position).getObject_id(),pageCount);
 
                         doc_id.add(mGetCategoryDocumentsResponses.get(position).getObject_id());
+                    }
+                    else if (mGetCategoryDocumentsResponses.get(position).getType() != null && mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document"))
+                    {
+                        if(mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document"))
+                        {
+                            getDocumentPreviews(mGetCategoryDocumentsResponses.get(position).getDocument_version_id(), mGetCategoryDocumentsResponses.get(position).getName());
+                        }
+
                     }
                 }
             });
@@ -358,7 +373,7 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
             holder.thumbnailView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    getDocumentPreviews(mGetCategoryDocumentsResponses.get(position).getDocument_version_id());
+                    getDocumentPreviews(mGetCategoryDocumentsResponses.get(position).getDocument_version_id(), mGetCategoryDocumentsResponses.get(position).getName());
                 }
             });
 
@@ -371,6 +386,13 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                         categoryr = mGetCategoryDocumentsResponses.get(position).getObject_id();
                     } else if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document")) {
                         openBottomSheetForDocument(mGetCategoryDocumentsResponses.get(position).getType(), mGetCategoryDocumentsResponses.get(position).getFiletype(), mGetCategoryDocumentsResponses.get(position).getName());
+                        document=mGetCategoryDocumentsResponses.get(position).getObject_id();
+                        parentr=mGetCategoryDocumentsResponses.get(position).getParent_id();
+                        categoryr = mGetCategoryDocumentsResponses.get(position).getDocument_version_id();
+                        document_id.add(document);
+                        PreferenceUtils.saveArrayList(context,document_id,"Key");
+                        PreferenceUtils.setDocumentVersionId(context, categoryr);
+                        PreferenceUtils.setDocument_Id(context, document);
                     }
                 }
             });
@@ -383,7 +405,7 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
         }
     }
 
-    private void getDocumentPreviews(String document_version_id) {
+    private void getDocumentPreviews(String document_version_id, final String fileName) {
 
         if (NetworkUtils.isNetworkAvailable(context)) {
 
@@ -417,9 +439,11 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                                 getDocumentPreviewResponses = response.body().getData();
                                 String document_preview_url = getDocumentPreviewResponses.getDocument_pdf_url();
 
-                                Intent mIntent = new Intent(context, WebviewLoaderTermsActivity.class);
-                                mIntent.putExtra(Constants.DOCUMENTPDFURL, document_preview_url);
-                                context.startActivity(mIntent);
+                                Intent intent = new Intent(context, PdfViewActivity.class);
+                                intent.putExtra("mode",1);
+                                intent.putExtra("url", document_preview_url);
+                                intent.putExtra("fileName", fileName);
+                                context.startActivity(intent);
                             }
 
                         } else if (apiResponse.status.getCode() instanceof Integer) {
@@ -466,12 +490,13 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
 
         View view = ((MyFoldersDMSActivity) context).getLayoutInflater().inflate(R.layout.bottom_sheet_document_sort, null);
         RelativeLayout shareView = (RelativeLayout)view.findViewById(R.id.share_layout);
-        LinearLayout doclayout = (LinearLayout)view.findViewById(R.id.doc_info_layout);
+        RelativeLayout doclayout = (RelativeLayout)view.findViewById(R.id.doc_info_layout);
         TextView docText = (TextView) view.findViewById(R.id.doc_text);
         ImageView thumbnailIcon = (ImageView) view.findViewById(R.id.thumbnail_image);
         ImageView thumbnailCornerIcon = (ImageView) view.findViewById(R.id.thumbnail_corner_image);
         TextView thumbnailText = (TextView) view.findViewById(R.id.thumbnail_text);
-
+        RelativeLayout copy=(RelativeLayout) view.findViewById(R.id.copy1);
+        RelativeLayout move=(RelativeLayout) view.findViewById(R.id.move1);
         ImageView copyImage = (ImageView) view.findViewById(R.id.copy_image);
         ImageView moveImage = (ImageView) view.findViewById(R.id.move_image);
         ImageView renameImage = (ImageView) view.findViewById(R.id.rename_image);
@@ -491,7 +516,7 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
 
         docText.setText(name);
 
-        moveImage.setOnClickListener(new View.OnClickListener() {
+        move.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, MyFolderActivity.class);
@@ -507,7 +532,51 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                 context.startActivity(intent);
             }
         });
+        copy.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, MyFolderCopyActivity.class);
+                context.startActivity(intent);
+            }
+        });
+        renameImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
+                final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View view = inflater.inflate(R.layout.rename_alert, null);
+                builder.setView(view);
+                builder.setCancelable(false);
+
+                Button cancel = (Button) view.findViewById(R.id.cancel_b);
+                Button allow = (Button) view.findViewById(R.id.allow);
+                final EditText namer = (EditText) view.findViewById(R.id.edit_username1);
+                allow.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String folder = namer.getText().toString().trim();
+
+                        renamedocument(categoryr,folder,"","");
+                        mAlertDialog.dismiss();
+
+                    }
+                });
+
+                cancel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mAlertDialog.dismiss();
+
+                    }
+                });
+
+                mAlertDialog = builder.create();
+                mAlertDialog.show();
+
+
+            }
+        });
         if (fileType.equalsIgnoreCase("pdf")) {
             thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_pdf_color));
             thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_pdf_corner_color));
@@ -653,36 +722,36 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
             @Override
             public void onClick(View v) {
 
-                    final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                    LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                    View view = inflater.inflate(R.layout.rename_alert, null);
-                    builder.setView(view);
-                    builder.setCancelable(false);
+                final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View view = inflater.inflate(R.layout.rename_alert, null);
+                builder.setView(view);
+                builder.setCancelable(false);
 
-                    Button cancel = (Button) view.findViewById(R.id.cancel_b);
-                    Button allow = (Button) view.findViewById(R.id.allow);
-                    final EditText namer = (EditText) view.findViewById(R.id.edit_username1);
-                    allow.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            String folder = namer.getText().toString().trim();
+                Button cancel = (Button) view.findViewById(R.id.cancel_b);
+                Button allow = (Button) view.findViewById(R.id.allow);
+                final EditText namer = (EditText) view.findViewById(R.id.edit_username1);
+                allow.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String folder = namer.getText().toString().trim();
 
-                            rename(categoryr,folder,objectr);
-                            mAlertDialog.dismiss();
-                            mBottomSheetDialog.dismiss();
-                        }
-                    });
+                        rename(categoryr,folder,objectr);
+                        mAlertDialog.dismiss();
+                        mBottomSheetDialog.dismiss();
+                    }
+                });
 
-                    cancel.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            mAlertDialog.dismiss();
-                            mBottomSheetDialog.dismiss();
-                        }
-                    });
+                cancel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mAlertDialog.dismiss();
+                        mBottomSheetDialog.dismiss();
+                    }
+                });
 
-                    mAlertDialog = builder.create();
-                    mAlertDialog.show();
+                mAlertDialog = builder.create();
+                mAlertDialog.show();
 
 
             }
@@ -769,6 +838,86 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
     }
 
 
+    public void renamedocument(String object_id,String name,String doc_created,String auth)
+    {
+        if (NetworkUtils.isNetworkAvailable(context)) {
+
+            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+
+            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
+            transparentProgressDialog.show();
+
+            final EditDocumentPropertiesRequest editDocumentPropertiesRequest = new EditDocumentPropertiesRequest(object_id,name,doc_created,auth);
+
+            String request = new Gson().toJson(editDocumentPropertiesRequest);
+
+            //Here the json data is add to a hash map with key data
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("data", request);
+
+            final EditDocumentPropertiesService editDocumentPropertiesService = retrofitAPI.create(EditDocumentPropertiesService.class);
+
+            Call call = editDocumentPropertiesService.getRenameDocument(params, PreferenceUtils.getAccessToken(context));
+
+            call.enqueue(new Callback<ListPinDevicesResponse<LoginResponse>>() {
+                @Override
+                public void onResponse(Response<ListPinDevicesResponse<LoginResponse>> response, Retrofit retrofit) {
+                    ListPinDevicesResponse apiResponse = response.body();
+                    if (apiResponse != null) {
+
+                        transparentProgressDialog.dismiss();
+
+                        if (apiResponse.status.getCode() instanceof Boolean) {
+                            if (apiResponse.status.getCode() == Boolean.FALSE) {
+                                transparentProgressDialog.dismiss();
+                                getSubCategoryDocuments(parentr,"1");
+                            }
+
+                        } else if (apiResponse.status.getCode() instanceof Integer) {
+                            transparentProgressDialog.dismiss();
+                            String mMessage = apiResponse.status.getMessage().toString();
+
+                            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+                            builder.setView(view);
+                            builder.setCancelable(false);
+
+                            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+                            txtMessage.setText(mMessage);
+
+                            Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+                            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+                            cancelButton.setVisibility(View.GONE);
+
+                            sendPinButton.setText("OK");
+
+                            sendPinButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    mAlertDialog.dismiss();
+                                    context.startActivity(new Intent(context, LoginActivity.class));
+                                }
+                            });
+
+                            mAlertDialog = builder.create();
+                            mAlertDialog.show();
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    transparentProgressDialog.dismiss();
+                    Log.d("PinDevice error", t.getMessage());
+                }
+            });
+        }
+    }
+
+
 
     public void getSubCategoryDocuments(String object_id,String page) {
 
@@ -779,7 +928,7 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
             final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
             transparentProgressDialog.show();
 
-            final GetCategoryDocumentsRequest mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(Integer.parseInt(object_id),"list","category","1","0");
+            final GetCategoryDocumentsRequest mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(object_id,"list","category","1","0");
 
             String request = new Gson().toJson(mGetCategoryDocumentsRequest);
 
@@ -870,8 +1019,8 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
 
     public void refreshAdapterToView(List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses) {
 
-    this.mGetCategoryDocumentsResponses.clear();
-    this.mGetCategoryDocumentsResponses.addAll(getCategoryDocumentsResponses);
+        this.mGetCategoryDocumentsResponses.clear();
+        this.mGetCategoryDocumentsResponses.addAll(getCategoryDocumentsResponses);
 
         notifyDataSetChanged();
     }

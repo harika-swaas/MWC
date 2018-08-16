@@ -11,7 +11,7 @@ public class MoveDocumentRequest {
     String document_obj[];
 
 
-    public MoveDocumentRequest(String[] document_ids, String categoryId, String [] category_objs) {
+    public MoveDocumentRequest(String[] document_ids, String categoryId) {
         this.category_id=categoryId;
         this.document_obj=document_ids;
     }

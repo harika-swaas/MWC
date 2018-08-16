@@ -1,5 +1,6 @@
 package com.swaas.mwc.Fragments;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.KeyguardManager;
 import android.app.NotificationChannel;
@@ -81,7 +82,7 @@ public class ItemNavigationSettingsFragment extends Fragment{
     View mView;
     LinearLayout username_layout, offline_layout, help_layout, terms_privacy_layout, logout_layout, logo_layout, finger_print_layout;
     TextView user_name_txt;
-    static Boolean isTouched = false;
+ //   static Boolean isTouched = false;
     static Boolean fingerPrintTouch = false;
     String mCompanyName, userName;
     String msplashscreen;
@@ -226,7 +227,10 @@ public class ItemNavigationSettingsFragment extends Fragment{
 
 
         String channalId = "my_channel_01";
-        if(push_notificatoin != isNotificationChannelEnabled(mActivity, channalId))
+        boolean device_status = isNotificationChannelEnabled(mActivity, channalId);
+
+
+        if(push_notificatoin != device_status)
         {
 
             if(isNotificationChannelEnabled(mActivity, channalId) == true)
@@ -415,7 +419,7 @@ public class ItemNavigationSettingsFragment extends Fragment{
     }
 
 
-    public boolean isNotificationChannelEnabled(Context context,String channelId){
+    public boolean isNotificationChannelEnabled(Activity context, String channelId){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if(!TextUtils.isEmpty(channelId)) {
                 NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -424,7 +428,11 @@ public class ItemNavigationSettingsFragment extends Fragment{
             }
             return false;
         } else {
-            return NotificationManagerCompat.from(context).areNotificationsEnabled();
+
+            NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
+            boolean areNotificationsEnabled = notificationManagerCompat.areNotificationsEnabled();
+           // return NotificationManagerCompat.from(context).areNotificationsEnabled();
+            return areNotificationsEnabled;
         }
     }
 
@@ -450,24 +458,30 @@ public class ItemNavigationSettingsFragment extends Fragment{
         });
 
 
-        push_notification_Switch.setOnTouchListener(new View.OnTouchListener() {
+        /*push_notification_Switch.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 isTouched = true;
                 return false;
             }
-        });
+        });*/
 
         push_notification_Switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
         {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
             {
-                if (isTouched) {
-                    isTouched = false;
+                if(buttonView.isPressed() == true) {
 
-                    if (isChecked) {
-                        push_notification_Switch.setChecked(isChecked);
+                    if(push_notification_Switch.isChecked() ==  true)
+                    {
+                        push_notification_Switch.setChecked(false);
+                    }
+                    else {
+                        push_notification_Switch.setChecked(true);
+                    }
+
+
                         Intent intent = new Intent();
                         if (android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.N_MR1) {
                             intent.setAction("android.settings.APP_NOTIFICATION_SETTINGS");
@@ -488,9 +502,7 @@ public class ItemNavigationSettingsFragment extends Fragment{
                         accountSettings.UpdatePushNotificatoinSettings(register_type);*/
 
 
-                    }
                 }
-
             }
         });
 
@@ -633,7 +645,7 @@ public class ItemNavigationSettingsFragment extends Fragment{
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        MyFoldersDMSActivity.title_layout= (LinearLayout) getActivity().findViewById(R.id.l1);
+        MyFoldersDMSActivity.title_layout= (LinearLayout) getActivity().findViewById(R.id.linearlayout1);
         MyFoldersDMSActivity.title_layout.setVisibility(View.GONE);
 
         MyFoldersDMSActivity.floatingActionMenu = (FloatingActionMenu) getActivity().findViewById(R.id.floating_action_menu);

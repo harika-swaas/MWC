@@ -109,7 +109,7 @@ public class LoginActivity extends RootActivity {
     private void checkAppStatusAfterPushNotification(final List<AccountSettingsResponse> mAccountSettingsResponses) {
 
         if(mAccountSettingsResponses.get(0).getIs_Terms_Accepted().equals("0")){
-            if(mAccountSettingsResponses.get(0).getIs_Local_Auth_Enabled().equalsIgnoreCase("2")) {
+            if(mAccountSettingsResponses.get(0).getIs_Local_Auth_Enabled().equalsIgnoreCase("1")) {
                 checkCredentials();
             }
             Intent intent = new Intent(LoginActivity.this, SplashScreen.class);
@@ -132,7 +132,7 @@ public class LoginActivity extends RootActivity {
             }, timeout);
         }
         else if(mAccountSettingsResponses.get(0).getIs_Help_Accepted().equals("1")){
-            if(mAccountSettingsResponses.get(0).getIs_Local_Auth_Enabled().equalsIgnoreCase("2")) {
+            if(mAccountSettingsResponses.get(0).getIs_Local_Auth_Enabled().equalsIgnoreCase("1")) {
                 checkCredentials();
             }
             Intent intent = new Intent(LoginActivity.this, SplashScreen.class);
@@ -171,7 +171,7 @@ public class LoginActivity extends RootActivity {
 
                     startActivity(new Intent(LoginActivity.this, MyFoldersDMSActivity.class));
                     LoginActivity.this.finish();
-                    if(mAccountSettingsResponses.get(0).getIs_Local_Auth_Enabled().equalsIgnoreCase("2")) {
+                    if(mAccountSettingsResponses.get(0).getIs_Local_Auth_Enabled().equalsIgnoreCase("1")) {
                         checkCredentials();
                     }
                 }

@@ -39,6 +39,7 @@ import com.swaas.mwc.Network.NetworkUtils;
 import com.swaas.mwc.Preference.PreferenceUtils;
 import com.swaas.mwc.R;
 import com.swaas.mwc.Retrofit.RetrofitAPIBuilder;
+import com.swaas.mwc.RootActivity;
 import com.swaas.mwc.Utils.Constants;
 
 import java.util.ArrayList;
@@ -55,7 +56,7 @@ import retrofit.Retrofit;
  * Created by barath on 8/4/2018.
  */
 
-public class MyFolderActivity extends MyFoldersDMSActivity {
+public class MyFolderActivity extends RootActivity {
     CollapsingToolbarLayout collapsingToolbarLayout;
     RecyclerView mRecyclerView;
     MoveDmsAdapter mAdapterList;
@@ -65,14 +66,15 @@ public class MyFolderActivity extends MyFoldersDMSActivity {
     List<GetEndUserCategoriesResponse> listGetCategoryDocuments = new ArrayList<>();
     List<GetEndUserCategoriesResponse> mSelectedDocumentList = new ArrayList<>();
 
+    Context context = this;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.shared_dms);
 
         intializeViews();
-       // getIntentData();
-       // getEndUserParentSharedFolders();
+        // getIntentData();
+        // getEndUserParentSharedFolders();
         addListenersToViews();
         if(getIntent()!= null)
         {
@@ -273,7 +275,7 @@ public class MyFolderActivity extends MyFoldersDMSActivity {
                     final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(MyFolderActivity.this);
                     transparentProgressDialog.show();
 
-                    String[] document_ids = new String[0];
+                /*    String[] document_ids = new String[0];
                     String[] category_ids = new String[0];
                     if(mSelectedDocumentList != null){
                         for(GetEndUserCategoriesResponse categoryDocumentsResponse : mSelectedDocumentList){
@@ -283,8 +285,9 @@ public class MyFolderActivity extends MyFoldersDMSActivity {
                             category_ids = getCategoryDocumentsResponseList.toArray(new String[getCategoryDocumentsResponseList.size()]);
                         }
                     }
+*/                  String document_ids[]= PreferenceUtils.getArrayList(context, "Key").toArray(new String[0]);
 
-                    final MoveDocumentRequest moveDocumentRequest = new MoveDocumentRequest(document_ids,obj,category_ids);
+                    final MoveDocumentRequest moveDocumentRequest = new MoveDocumentRequest(document_ids,obj);
 
                     String request = new Gson().toJson(moveDocumentRequest);
 

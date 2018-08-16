@@ -11,7 +11,7 @@ public class GetCategoryDocumentsRequest {
 
     @SerializedName("category_id")
     @Expose
-    private int category_id;
+    private String category_id;
 
     @SerializedName("type")
     @Expose
@@ -29,7 +29,7 @@ public class GetCategoryDocumentsRequest {
     @Expose
     private String isBuUser;
 
-    public GetCategoryDocumentsRequest(int category_id, String type, String categoryType, String get_folders, String isBuUser){
+    public GetCategoryDocumentsRequest(String category_id, String type, String categoryType, String get_folders, String isBuUser){
         this.category_id = category_id;
         this.type = type;
         this.categoryType = categoryType;
@@ -40,11 +40,11 @@ public class GetCategoryDocumentsRequest {
 
 
 
-    public int getCategory_id() {
+    public String getCategory_id() {
         return category_id;
     }
 
-    public void setCategory_id(int category_id) {
+    public void setCategory_id(String category_id) {
         this.category_id = category_id;
     }
 

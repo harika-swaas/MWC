@@ -67,7 +67,7 @@ public class MyFolderEndUserAllowedSharedFoldersActivity extends AppCompatActivi
         setContentView(R.layout.shared_dms);
 
         intializeViews();
-        getIntentData();
+        // getIntentData();
         getEndUserParentSharedFolders();
         addListenersToViews();
     }
@@ -108,7 +108,7 @@ public class MyFolderEndUserAllowedSharedFoldersActivity extends AppCompatActivi
             final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(MyFolderEndUserAllowedSharedFoldersActivity.this);
             transparentProgressDialog.show();
 
-            final GetEndUserAllowedSharedFoldersRequest mGetEndUserAllowedSharedFoldersRequest = new GetEndUserAllowedSharedFoldersRequest(Integer.parseInt(endUserSharedParentFoldersResponse.getWorkspace_id()), Integer.parseInt(endUserSharedParentFoldersResponse.getCategory_id()));
+            final GetEndUserAllowedSharedFoldersRequest mGetEndUserAllowedSharedFoldersRequest = new GetEndUserAllowedSharedFoldersRequest(Integer.parseInt(PreferenceUtils.getWorkspaceId(MyFolderEndUserAllowedSharedFoldersActivity.this)), Integer.parseInt(PreferenceUtils.getCategoryId(MyFolderEndUserAllowedSharedFoldersActivity.this)));
 
             String request = new Gson().toJson(mGetEndUserAllowedSharedFoldersRequest);
 
@@ -211,7 +211,7 @@ public class MyFolderEndUserAllowedSharedFoldersActivity extends AppCompatActivi
         });
     }
 
-    private void shareDMSDocuments() {
+    public void shareDMSDocuments() {
 
         if (NetworkUtils.isNetworkAvailable(MyFolderEndUserAllowedSharedFoldersActivity.this)){
 
@@ -220,7 +220,7 @@ public class MyFolderEndUserAllowedSharedFoldersActivity extends AppCompatActivi
             final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(MyFolderEndUserAllowedSharedFoldersActivity.this);
             transparentProgressDialog.show();
 
-            String[] document_ids = new String[0];
+           /* String[] document_ids = new String[0];
 
             if(mSelectedDocumentList != null){
                 for(GetCategoryDocumentsResponse categoryDocumentsResponse : mSelectedDocumentList){
@@ -228,9 +228,9 @@ public class MyFolderEndUserAllowedSharedFoldersActivity extends AppCompatActivi
                     getCategoryDocumentsResponseList.add(categoryDocumentsResponse.getDocument_version_id());
                     document_ids = getCategoryDocumentsResponseList.toArray(new String[getCategoryDocumentsResponseList.size()]);
                 }
-            }
+            }*/
 
-            final ShareEndUserDocumentsRequest mShareEndUserDocumentsRequest = new ShareEndUserDocumentsRequest(document_ids,PreferenceUtils.getWorkspaceId(MyFolderEndUserAllowedSharedFoldersActivity.this), PreferenceUtils.getCategoryId(MyFolderEndUserAllowedSharedFoldersActivity.this));
+            final ShareEndUserDocumentsRequest mShareEndUserDocumentsRequest = new ShareEndUserDocumentsRequest(new String[]{PreferenceUtils.getDocument_Id(MyFolderEndUserAllowedSharedFoldersActivity.this)},PreferenceUtils.getWorkspaceId(MyFolderEndUserAllowedSharedFoldersActivity.this), PreferenceUtils.getCategoryId(MyFolderEndUserAllowedSharedFoldersActivity.this));
 
             String request = new Gson().toJson(mShareEndUserDocumentsRequest);
 
