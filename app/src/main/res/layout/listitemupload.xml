@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/parent_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="4dp">
+
+    <RelativeLayout
+        android:id="@+id/lay3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/list_click"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/nameIndicatorParentView"
+            android:orientation="horizontal"
+            android:padding="6dp">
+
+            <RelativeLayout
+                android:id="@+id/list_item_click"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <RelativeLayout
+                    android:id="@+id/folder_layout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:visibility="visible">
+
+                    <RelativeLayout
+                        android:id="@+id/thumbnail_layout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="10dp"
+                        android:visibility="visible"
+                        android:layout_marginLeft="10dp">
+
+                        <ImageView
+                            android:id="@+id/thumbnail_image"
+                            android:layout_width="45dp"
+                            android:layout_height="45dp"
+                            android:src="@mipmap/ic_thumbnail" />
+
+                        <ImageView
+                            android:id="@+id/thumbnail_corner_image"
+                            android:layout_width="45dp"
+                            android:layout_height="45dp"
+                            android:layout_alignTop="@+id/thumbnail_image"
+                            android:src="@mipmap/ic_thumbnail_corner" />
+
+                        <TextView
+                            android:id="@+id/thumbnail_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:text="pdf"
+                            android:textAllCaps="true"
+                            android:textColor="@color/white"
+                            android:textSize="9sp" />
+
+                    </RelativeLayout>
+
+                </RelativeLayout>
+
+                <ImageView
+                    android:id="@+id/selected_item"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_alignParentLeft="@+id/list_item_click"
+                    android:layout_alignTop="@+id/list_item_click"
+                    android:background="@drawable/circle_color"
+                    android:padding="4dp"
+                    android:src="@mipmap/ic_sort_selected"
+                    android:visibility="gone" />
+
+                <RelativeLayout
+                    android:id="@+id/folder_rl_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="12dp"
+                    android:layout_toEndOf="@+id/folder_layout">
+
+                    <LinearLayout
+                        android:layout_width="200dp"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
+                        android:layout_marginLeft="10dp"
+                        android:layout_toRightOf="@id/thumbnail_layout"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/folder_name1"
+                            android:layout_width="200dp"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:alpha="0.87"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            android:singleLine="true"
+                            android:text="File"
+                            android:textColor="@color/black"
+                            android:textSize="16sp" />
+
+                    </LinearLayout>
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_toRightOf="@+id/folder_rl_2">
+
+                    <ImageView
+                        android:id="@+id/done"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentRight="true"
+                        android:background="@mipmap/baseline_cloud_done_black_48" />
+
+                    <ProgressBar
+                        android:id="@+id/progressBar12"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_alignStart="@+id/done"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="14dp"
+                        android:indeterminateDrawable="@drawable/myprogress_style"
+                        android:visibility="invisible" />
+                    <ImageView
+                        android:id="@+id/delete"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentRight="true"
+                        android:background="@mipmap/ic_delete"
+                        android:visibility="visible"/>
+
+                </RelativeLayout>
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</LinearLayout>
