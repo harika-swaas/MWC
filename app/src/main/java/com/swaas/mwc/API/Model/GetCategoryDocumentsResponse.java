@@ -34,6 +34,36 @@ public class GetCategoryDocumentsResponse implements Serializable{
     String version_number;
     String version_count;
 
+    public boolean isMultiselect;
+
+    private String is_shared;
+    private String category_id;
+
+
+    public String getCategory_id() {
+        return category_id;
+    }
+
+    public void setCategory_id(String category_id) {
+        this.category_id = category_id;
+    }
+
+    public String getIs_shared() {
+        return is_shared;
+    }
+
+    public void setIs_shared(String is_shared) {
+        this.is_shared = is_shared;
+    }
+
+    public boolean isMultiselect() {
+        return isMultiselect;
+    }
+
+    public void setMultiselect(boolean multiselect) {
+        isMultiselect = multiselect;
+    }
+
     public String getVersion_count() {
         return version_count;
     }
@@ -163,4 +193,7 @@ public class GetCategoryDocumentsResponse implements Serializable{
     public void setShared_date(String shared_date) {
         this.shared_date = shared_date;
     }
+
+
+
 }

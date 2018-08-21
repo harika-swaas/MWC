@@ -275,9 +275,17 @@ public class ItemNavigationSettingsFragment extends Fragment{
                         if (response.body().getStatus().getCode() instanceof Boolean) {
                             if (response.body().getStatus().getCode() == Boolean.FALSE) {
 
+                                String optValue;
+                                if(opt_value.equalsIgnoreCase("opt-in"))
+                                {
+                                    optValue = "opt-out";
+                                }
+                                else {
+                                    optValue = "opt-in";
+                                }
 
                                 AccountSettings accountSettings = new AccountSettings(mActivity);
-                                accountSettings.UpdateFingerPrintSettings(opt_value);
+                                accountSettings.UpdateFingerPrintSettings(optValue);
 
 
                             }
@@ -509,27 +517,24 @@ public class ItemNavigationSettingsFragment extends Fragment{
 
 
 
-        finger_print_Switch.setOnTouchListener(new View.OnTouchListener() {
+       /* finger_print_Switch.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 fingerPrintTouch = true;
                 return false;
             }
         });
-
+*/
         finger_print_Switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
         {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
             {
-                if (fingerPrintTouch) {
-                    fingerPrintTouch = false;
+                if(buttonView.isPressed() == true) {
 
-                    if(finger_print_Switch.isChecked() ==  true)
-                    {
+                    if (finger_print_Switch.isChecked() == true) {
                         finger_print_Switch.setChecked(false);
-                    }
-                    else {
+                    } else {
                         finger_print_Switch.setChecked(true);
                     }
 

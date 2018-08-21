@@ -83,10 +83,8 @@ public class Tab_Activity extends RootActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-
-                startActivity(new Intent(Tab_Activity.this, MyFoldersDMSActivity.class));
-                return true;
-
+                finish();
+                break;
         }
         return super.onOptionsItemSelected(item);
 

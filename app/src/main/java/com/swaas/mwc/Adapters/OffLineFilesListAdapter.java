@@ -21,6 +21,7 @@ import com.swaas.mwc.API.Model.BaseApiResponse;
 import com.swaas.mwc.API.Model.DocumentPreviewRequest;
 import com.swaas.mwc.API.Model.DocumentPreviewResponse;
 import com.swaas.mwc.API.Model.ExternalShareResponseModel;
+import com.swaas.mwc.API.Model.GetCategoryDocumentsResponse;
 import com.swaas.mwc.API.Model.OfflineFiles;
 import com.swaas.mwc.API.Model.SharedDocumentResponseModel;
 import com.swaas.mwc.API.Model.WhiteLabelResponse;
@@ -266,9 +267,18 @@ public class OffLineFilesListAdapter extends RecyclerView.Adapter<OffLineFilesLi
 
                     if(offLineFileListData.get(position).getFiletype() != null && offLineFileListData.get(position).getFiletype().equalsIgnoreCase("pdf"))
                     {
+                        GetCategoryDocumentsResponse categoryDocumentsResponse = new GetCategoryDocumentsResponse();
+                        categoryDocumentsResponse.setName(offLineFileListData.get(position).getFilename());
+                        categoryDocumentsResponse.setDocument_version_id(offLineFileListData.get(position).getDocumentVersionId());
+                        categoryDocumentsResponse.setFiletype(offLineFileListData.get(position).getFiletype());
+                        categoryDocumentsResponse.setFilesize(offLineFileListData.get(position).getFileSize());
+                        categoryDocumentsResponse.setObject_id(offLineFileListData.get(position).getDocumentId());
+
                         Intent intent = new Intent(context, PdfViewActivity.class);
                         intent.putExtra("mode",0);
                         intent.putExtra("url", offLineFileListData.get(position).getFilePath());
+                        intent.putExtra("documentDetails",categoryDocumentsResponse);
+                        intent.putExtra("IsFromOffline", true);
                         context.startActivity(intent);
 
                     }
@@ -286,7 +296,7 @@ public class OffLineFilesListAdapter extends RecyclerView.Adapter<OffLineFilesLi
         }
     }
 
-    private void showWarningAlertForSharingContent(final String filename, final String documentVersionId)
+    public void showWarningAlertForSharingContent(final String filename, final String documentVersionId)
     {
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -331,7 +341,7 @@ public class OffLineFilesListAdapter extends RecyclerView.Adapter<OffLineFilesLi
         mAlertDialog.show();
     }
 
-    private void getExternalSharingContentAPI(final String filename, final String versionId)
+    public void getExternalSharingContentAPI(final String filename, final String versionId)
     {
         if (NetworkUtils.isNetworkAvailable(context)) {
 

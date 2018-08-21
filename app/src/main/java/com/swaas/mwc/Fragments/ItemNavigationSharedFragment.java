@@ -27,8 +27,7 @@ import android.widget.Toast;
 
 import com.github.clans.fab.FloatingActionMenu;
 import com.google.gson.Gson;
-import com.michaelflisar.dragselectrecyclerview.DragSelectTouchListener;
-import com.michaelflisar.dragselectrecyclerview.DragSelectionProcessor;
+
 import com.swaas.mwc.API.Model.APIResponseModel;
 import com.swaas.mwc.API.Model.BaseApiResponse;
 import com.swaas.mwc.API.Model.GetCategoryDocumentsResponse;
@@ -89,9 +88,9 @@ public class ItemNavigationSharedFragment extends Fragment
     SharedAdapterList mAdapterList;
     AlertDialog mAlertDialog;
     boolean isFromList = false;
-    private DragSelectionProcessor.Mode mMode = DragSelectionProcessor.Mode.Simple;
+  /*  private DragSelectionProcessor.Mode mMode = DragSelectionProcessor.Mode.Simple;
     private DragSelectTouchListener mDragSelectTouchListener;
-    private DragSelectionProcessor mDragSelectionProcessor;
+    private DragSelectionProcessor mDragSelectionProcessor;*/
     MenuItem menuItemAdd, menuItemSearch, menuItemDelete, menuItemShare, menuItemMove, menuItemMore;
     static Boolean isTouched = false;
     public  FloatingActionMenu floatingActionMenu;
@@ -536,7 +535,7 @@ public class ItemNavigationSharedFragment extends Fragment
                 menuItemMore.setVisible(true);
                 menuItemSearch.setVisible(false);
 
-                mDragSelectTouchListener.startDragSelection(position);
+           //     mDragSelectTouchListener.startDragSelection(position);
 
                 GetCategoryDocumentsResponse documentsResponseObj = mGetCategoryDocumentsResponses.get(position);
                 mSelectedDocumentList.add(documentsResponseObj);
@@ -548,7 +547,7 @@ public class ItemNavigationSharedFragment extends Fragment
         });
 
 
-        mDragSelectionProcessor = new DragSelectionProcessor(new DragSelectionProcessor.ISelectionHandler() {
+       /* mDragSelectionProcessor = new DragSelectionProcessor(new DragSelectionProcessor.ISelectionHandler() {
             @Override
             public HashSet<Integer> getSelection() {
                 return mAdapter.getSelection();
@@ -568,7 +567,7 @@ public class ItemNavigationSharedFragment extends Fragment
         mDragSelectTouchListener = new DragSelectTouchListener()
                 .withSelectListener(mDragSelectionProcessor);
         updateSelectionListener();
-        mRecyclerView.addOnItemTouchListener(mDragSelectTouchListener);
+        mRecyclerView.addOnItemTouchListener(mDragSelectTouchListener);*/
 
 
 
@@ -590,59 +589,7 @@ public class ItemNavigationSharedFragment extends Fragment
         mAdapter = new SharedAdapter(getCategoryDocumentsResponses, mSelectedDocumentList, getActivity(), ItemNavigationSharedFragment.this);
         mRecyclerView.setAdapter(mAdapter);
 
-        mAdapter.setClickListener(new SharedAdapter.ItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-                mAdapter.toggleSelection(position);
-                mSelectedDocumentList.remove(mGetCategoryDocumentsResponses.get(position));
 
-                updateToolbarMenuItems(mSelectedDocumentList);
-            }
-
-            @Override
-            public boolean onItemLongClick(View view, int position) {
-                // if one item is long pressed, we start the drag selection like following:
-                // we just call this function and pass in the position of the first selected item
-                // the selection processor does take care to update the positions selection mode correctly
-                // and will correctly transform the touch events so that they can be directly applied to your adapter!!!
-                menuItemDelete.setVisible(true);
-                menuItemShare.setVisible(true);
-                menuItemMore.setVisible(true);
-                menuItemSearch.setVisible(false);
-
-                mDragSelectTouchListener.startDragSelection(position);
-
-                GetCategoryDocumentsResponse documentsResponseObj = mGetCategoryDocumentsResponses.get(position);
-                mSelectedDocumentList.add(documentsResponseObj);
-
-                updateToolbarMenuItems(mSelectedDocumentList);
-
-                return true;
-            }
-        });
-
-
-        mDragSelectionProcessor = new DragSelectionProcessor(new DragSelectionProcessor.ISelectionHandler() {
-            @Override
-            public HashSet<Integer> getSelection() {
-                return mAdapter.getSelection();
-            }
-
-            @Override
-            public boolean isSelected(int index) {
-                return mAdapter.getSelection().contains(index);
-            }
-
-            @Override
-            public void updateSelection(int start, int end, boolean isSelected, boolean calledFromOnStart) {
-                mAdapter.selectRange(start, end, isSelected);
-            }
-        })
-                .withMode(mMode);
-        mDragSelectTouchListener = new DragSelectTouchListener()
-                .withSelectListener(mDragSelectionProcessor);
-        updateSelectionListener();
-        mRecyclerView.addOnItemTouchListener(mDragSelectTouchListener);
     }
 
 
@@ -657,71 +604,8 @@ public class ItemNavigationSharedFragment extends Fragment
 
 
 
-        mAdapterList.setClickListener(new SharedAdapterList.ItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-                mAdapterList.toggleSelection(position);
-
-                menuItemDelete.setVisible(false);
-                menuItemShare.setVisible(false);
-                menuItemMore.setVisible(false);
-                menuItemSearch.setVisible(true);
-
-                mSelectedDocumentList.remove(mGetCategoryDocumentsResponses.get(position));
-
-                updateToolbarMenuItems(mSelectedDocumentList);
-            }
-
-            @Override
-            public boolean onItemLongClick(View view, int position) {
-                // if one item is long pressed, we start the drag selection like following:
-                // we just call this function and pass in the position of the first selected item
-                // the selection processor does take care to update the positions selection mode correctly
-                // and will correctly transform the touch events so that they can be directly applied to your adapter!!!
-                menuItemDelete.setVisible(true);
-                menuItemShare.setVisible(true);
-                menuItemMore.setVisible(true);
-                menuItemSearch.setVisible(false);
-
-                mDragSelectTouchListener.startDragSelection(position);
-
-                GetCategoryDocumentsResponse documentsResponseObj = mGetCategoryDocumentsResponses.get(position);
-                mSelectedDocumentList.add(documentsResponseObj);
-
-                updateToolbarMenuItems(mSelectedDocumentList);
-
-                return true;
-            }
-        });
-
-        mDragSelectionProcessor = new DragSelectionProcessor(new DragSelectionProcessor.ISelectionHandler() {
-            @Override
-            public HashSet<Integer> getSelection() {
-                return mAdapterList.getSelection();
-            }
-
-            @Override
-            public boolean isSelected(int index) {
-                return mAdapterList.getSelection().contains(index);
-            }
-
-            @Override
-            public void updateSelection(int start, int end, boolean isSelected, boolean calledFromOnStart) {
-                mAdapterList.selectRange(start, end, isSelected);
-            }
-        })
-                .withMode(mMode);
-        mDragSelectTouchListener = new DragSelectTouchListener()
-                .withSelectListener(mDragSelectionProcessor);
-        updateSelectionListener();
-        mRecyclerView.addOnItemTouchListener(mDragSelectTouchListener);
     }
 
-    private void updateSelectionListener()
-    {
-        mDragSelectionProcessor.withMode(mMode);
-        //  mToolbar.setSubtitle("Mode: " + mMode.name());
-    }
     private void updateToolbarMenuItems(List<GetCategoryDocumentsResponse> mSelectedDocumentList) {
 
         getWhiteLabelProperities();

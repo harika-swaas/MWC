@@ -211,7 +211,7 @@ public class UserProfileActivity extends AppCompatActivity {
 
         if(userProfileModel.getEmail() != null && !userProfileModel.getEmail().isEmpty())
         {
-            title_data_txt.setText(userProfileModel.getEmail());
+            email_data_txt.setText(userProfileModel.getEmail());
         }
 
         if(userProfileModel.getWorkphone() != null && !userProfileModel.getWorkphone().isEmpty())

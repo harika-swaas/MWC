@@ -1,5 +1,6 @@
 package com.swaas.mwc.Login;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.NotificationChannel;
@@ -18,6 +19,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.swaas.mwc.API.Model.AccountSettingsResponse;
@@ -31,7 +33,9 @@ import com.swaas.mwc.Network.NetworkUtils;
 import com.swaas.mwc.Preference.PreferenceUtils;
 import com.swaas.mwc.R;
 import com.swaas.mwc.Retrofit.RetrofitAPIBuilder;
+import com.swaas.mwc.RootActivity;
 import com.swaas.mwc.Utils.Constants;
+import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,7 +51,7 @@ import retrofit.Retrofit;
  * Created by barath on 6/24/2018.
  */
 
-public class Notifiy extends Activity {
+public class Notifiy extends RootActivity {
 
     Button button5;
     TextView skip;
@@ -58,6 +62,7 @@ public class Notifiy extends Activity {
     String push_notificaton_settings;
     Notifiy mActivity;
     Context context = this;
+    String register_type;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,6 +74,7 @@ public class Notifiy extends Activity {
         setButtonBackgroundColor();
         getAccountSettings();
 
+        RxPermissions rxPermissions = new RxPermissions(this);
 
         button5.setOnClickListener(new View.OnClickListener() {
 
@@ -92,17 +98,35 @@ public class Notifiy extends Activity {
 
                         updatePushNotificationAndLoggedInStatus();
 
-                        String channalId = "my_channel_01";
-                        String register_type;
-                        if(isNotificationChannelEnabled(context, channalId) == true)
-                        {
-                            register_type = "1";
-                        }
-                        else {
-                            register_type = "0";
-                        }
 
-                        getPushNotificationDocumentService(register_type);
+
+                        rxPermissions
+                                .request(Manifest.permission.ACCESS_NOTIFICATION_POLICY
+
+
+                                ) // ask single or multiple permission once
+                                .subscribe(granted -> {
+                                    if (granted) { // Always true pre-M
+                                        // I can control the camera now
+                                        String channalId = "my_channel_01";
+
+                                        if(isNotificationChannelEnabled(context, channalId) == true)
+                                        {
+                                            register_type = "1";
+                                        }
+                                        else {
+                                            register_type = "0";
+                                        }
+
+                                        getPushNotificationDocumentService(register_type);
+
+
+                                    } else {
+                                       Toast.makeText(context, "Please enable notification in settings page", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+
+
 
 
 

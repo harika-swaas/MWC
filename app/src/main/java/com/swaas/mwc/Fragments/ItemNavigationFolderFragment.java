@@ -30,7 +30,9 @@ import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -52,8 +54,7 @@ import android.widget.Toast;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
 import com.google.gson.Gson;
-import com.michaelflisar.dragselectrecyclerview.DragSelectTouchListener;
-import com.michaelflisar.dragselectrecyclerview.DragSelectionProcessor;
+
 import com.swaas.mwc.API.Model.ApiResponse;
 import com.swaas.mwc.API.Model.DownloadDocumentRequest;
 import com.swaas.mwc.API.Model.DownloadDocumentResponse;
@@ -69,6 +70,7 @@ import com.swaas.mwc.API.Service.GetCategoryDocumentsService;
 import com.swaas.mwc.API.Service.UploadNewFolderService;
 import com.swaas.mwc.Adapters.DmsAdapter;
 import com.swaas.mwc.Adapters.DmsAdapterList;
+import com.swaas.mwc.Adapters.RecyclerItemClickListener;
 import com.swaas.mwc.Common.CameraUtils;
 import com.swaas.mwc.Common.FileDownloadManager;
 import com.swaas.mwc.Common.ServerConfig;
@@ -103,9 +105,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import easyfilepickerdialog.kingfisher.com.library.model.DialogConfig;
-import easyfilepickerdialog.kingfisher.com.library.model.SupportFile;
-import easyfilepickerdialog.kingfisher.com.library.view.FilePickerDialogFragment;
 import retrofit.Call;
 import retrofit.Callback;
 import retrofit.Response;
@@ -113,30 +112,28 @@ import retrofit.Retrofit;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
-import static com.crashlytics.android.answers.Answers.TAG;
 
 /**
  * Created by harika on 11-07-2018.
  */
 
-public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter.ItemClickListener {
+public class ItemNavigationFolderFragment extends Fragment {
     List<DownloadDocumentResponse> downloadDocumentResponse;
     DmsAdapter mAdapter;
     DmsAdapterList mAdapterList;
     RecyclerView mRecyclerView;
     MyFoldersDMSActivity mActivity;
-    Context context ;
     AlertDialog mCustomAlertDialog;
     View mView;
     AlertDialog mAlertDialog;
-    List<GetCategoryDocumentsResponse> mGetCategoryDocumentsResponses;
+    List<GetCategoryDocumentsResponse> mGetCategoryDocumentsResponses = new ArrayList<>();
     List<GetCategoryDocumentsResponse> mSelectedDocumentList = new ArrayList<>();
     List<GetCategoryDocumentsResponse> listGetCategoryDocuments = new ArrayList<>();
     boolean mToogleGrid;
     boolean isSortByName, isSortByNewest, isSortBySize, isSortByDate;
-    private DragSelectionProcessor.Mode mMode = DragSelectionProcessor.Mode.Simple;
+   /* private DragSelectionProcessor.Mode mMode = DragSelectionProcessor.Mode.Simple;
     private DragSelectTouchListener mDragSelectTouchListener;
-    private DragSelectionProcessor mDragSelectionProcessor;
+    private DragSelectionProcessor mDragSelectionProcessor;*/
     MenuItem menuItemAdd, menuItemSearch, menuItemDelete, menuItemShare, menuItemMove, menuItemMore;
     String pageCount = "1";
     NestedScrollView scrollView;
@@ -267,27 +264,34 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
 
 
 
-        MyFoldersDMSActivity.toggleView.setOnClickListener(v -> {
+        MyFoldersDMSActivity.toggleView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
-            if (check == false) {
-                MyFoldersDMSActivity.toggle.setImageResource(R.mipmap.ic_list);
-                setListAdapterToView(mGetCategoryDocumentsResponses);
-                isFromList = true;
-                mAdapterList.notifyDataSetChanged();
-                check = true;
+                if (check == false) {
+                    MyFoldersDMSActivity.toggle.setImageResource(R.mipmap.ic_list);
+                    setListAdapterToView(mGetCategoryDocumentsResponses);
+                    isFromList = true;
+                    mAdapterList.notifyDataSetChanged();
+                    check = true;
 
-            } else {
-                MyFoldersDMSActivity.toggle.setImageResource(R.mipmap.ic_grid);
-                setGridAdapterToView(mGetCategoryDocumentsResponses);
-                mAdapter.notifyDataSetChanged();
-                isFromList = false;
-                check = false;
+                } else {
+                    MyFoldersDMSActivity.toggle.setImageResource(R.mipmap.ic_grid);
+                    setGridAdapterToView(mGetCategoryDocumentsResponses);
+                    mAdapter.notifyDataSetChanged();
+                    isFromList = false;
+                    check = false;
+                }
             }
         });
 
 
-        MyFoldersDMSActivity.sortingView.setOnClickListener(v -> openBottomSheet());
-
+        MyFoldersDMSActivity.sortingView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openBottomSheet();
+            }
+        });
 
         actionUpload.setOnClickListener(v -> {
     /*        FilePickerDialogFragment filePickerDialogFragment =null;
@@ -1181,22 +1185,8 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
         scrollView = (NestedScrollView) mView.findViewById(R.id.nest_scrollview);
 
 
-
     }
 
-   /* private void getBundleArguments() {
-
-        Bundle myFolderBundleArgs = getArguments();
-        if(myFolderBundleArgs != null) {
-            mToogleGrid = myFolderBundleArgs.getBoolean(Constants.TOOGLEGRID);
-            isSortByName = myFolderBundleArgs.getBoolean(Constants.SORT_BY_NAME);
-            isSortByNewest = myFolderBundleArgs.getBoolean(Constants.SORT_BY_NEWEST);
-            isSortBySize = myFolderBundleArgs.getBoolean(Constants.SORT_BY_SIZE);
-            isSortByDate = myFolderBundleArgs.getBoolean(Constants.SORT_BY_DATE);
-        } else {
-            mToogleGrid = false;
-        }
-    }*/
 
 
     private void setGridAdapterToView(List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses) {
@@ -1209,143 +1199,16 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
         });*/
 
         // Setup the RecyclerView
+        MyFoldersDMSActivity.toggle.setImageResource(R.mipmap.ic_grid);
         mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 3));
-        mAdapter = new DmsAdapter(getCategoryDocumentsResponses, mSelectedDocumentList, getActivity(), ItemNavigationFolderFragment.this);
+        mAdapter = new DmsAdapter(getCategoryDocumentsResponses, getActivity(), ItemNavigationFolderFragment.this);
         mRecyclerView.setAdapter(mAdapter);
-        mAdapter.setClickListener(new DmsAdapter.ItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-                mAdapter.toggleSelection(position);
-                mSelectedDocumentList.remove(mGetCategoryDocumentsResponses.get(position));
 
-                updateToolbarMenuItems(mSelectedDocumentList);
-            }
-
-            @Override
-            public boolean onItemLongClick(View view, int position) {
-                // if one item is long pressed, we start the drag selection like following:
-                // we just call this function and pass in the position of the first selected item
-                // the selection processor does take care to update the positions selection mode correctly
-                // and will correctly transform the touch events so that they can be directly applied to your adapter!!!
-                menuItemDelete.setVisible(true);
-                menuItemShare.setVisible(true);
-                menuItemMore.setVisible(true);
-                menuItemSearch.setVisible(false);
-
-                mDragSelectTouchListener.startDragSelection(position);
-
-                GetCategoryDocumentsResponse documentsResponseObj = mGetCategoryDocumentsResponses.get(position);
-                mSelectedDocumentList.add(documentsResponseObj);
-
-             //   Toast.makeText(mActivity, String.valueOf(mSelectedDocumentList.size()),Toast.LENGTH_SHORT).show();
-
-                updateToolbarMenuItems(mSelectedDocumentList);
-
-                return true;
-            }
-        });
-
-        mDragSelectionProcessor = new DragSelectionProcessor(new DragSelectionProcessor.ISelectionHandler() {
-            @Override
-            public HashSet<Integer> getSelection() {
-                return mAdapter.getSelection();
-            }
-
-            @Override
-            public boolean isSelected(int index) {
-                return mAdapter.getSelection().contains(index);
-            }
-
-            @Override
-            public void updateSelection(int start, int end, boolean isSelected, boolean calledFromOnStart) {
-                mAdapter.selectRange(start, end, isSelected);
-            }
-        })
-                .withMode(mMode);
-        mDragSelectTouchListener = new DragSelectTouchListener()
-                .withSelectListener(mDragSelectionProcessor);
-        updateSelectionListener();
-        mRecyclerView.addOnItemTouchListener(mDragSelectTouchListener);
     }
 
 
-  /*  private void setGridAdapterToView(List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses) {
 
-        *//*Collections.sort(mGetCategoryDocumentsResponses, new Comparator<GetCategoryDocumentsResponse>() {
-            @Override
-            public int compare(GetCategoryDocumentsResponse lhs, GetCategoryDocumentsResponse rhs) {
-                return lhs.getName().compareTo(rhs.getName());
-            }
-        });*//*
-        mRecyclerView.setLayoutManager(new GridLayoutManager(mActivity,3));
-       // mAdapter = new DmsAdapter(getCategoryDocumentsResponses,mActivity);
-        mAdapter = new DmsAdapter(getCategoryDocumentsResponses, mSelectedDocumentList, mActivity, ItemNavigationFolderFragment.this);
-        mRecyclerView.setAdapter(mAdapter);
-        mAdapter.setClickListener(new DmsAdapter.ItemClickListener()
-        {
-            @Override
-            public void onItemClick(View view, int position)
-            {
-                mAdapter.toggleSelection(position);
-                mSelectedDocumentList.remove(mGetCategoryDocumentsResponses.get(position));
-
-                updateToolbarMenuItems(mSelectedDocumentList);
-            }
-
-            @Override
-            public boolean onItemLongClick(View view, int position)
-            {
-                // if one item is long pressed, we start the drag selection like following:
-                // we just call this function and pass in the position of the first selected item
-                // the selection processor does take care to update the positions selection mode correctly
-                // and will correctly transform the touch events so that they can be directly applied to your adapter!!!
-                menuItemDelete.setVisible(true);
-                menuItemShare.setVisible(true);
-                menuItemMore.setVisible(true);
-                menuItemSearch.setVisible(false);
-                menuItemAdd.setVisible(false);
-
-                mDragSelectTouchListener.startDragSelection(position);
-
-                GetCategoryDocumentsResponse documentsResponseObj = mGetCategoryDocumentsResponses.get(position);
-                mSelectedDocumentList.add(documentsResponseObj);
-
-                updateToolbarMenuItems(mSelectedDocumentList);
-
-                return true;
-            }
-        });
-
-        mDragSelectionProcessor = new DragSelectionProcessor(new DragSelectionProcessor.ISelectionHandler() {
-            @Override
-            public HashSet<Integer> getSelection() {
-                return mAdapter.getSelection();
-            }
-
-            @Override
-            public boolean isSelected(int index) {
-                return mAdapter.getSelection().contains(index);
-            }
-
-            @Override
-            public void updateSelection(int start, int end, boolean isSelected, boolean calledFromOnStart) {
-                mAdapter.selectRange(start, end, isSelected);
-            }
-        })
-                .withMode(mMode);
-        mDragSelectTouchListener = new DragSelectTouchListener()
-                .withSelectListener(mDragSelectionProcessor);
-        updateSelectionListener();
-        mRecyclerView.addOnItemTouchListener(mDragSelectTouchListener);
-    }*/
-
-    private void updateSelectionListener()
-    {
-        mDragSelectionProcessor.withMode(mMode);
-      //  mToolbar.setSubtitle("Mode: " + mMode.name());
-    }
-
-    public  void getCategoryDocuments(final String obj, String page) {
+    public void getCategoryDocuments(final String obj, String page) {
 
         if (NetworkUtils.isNetworkAvailable(mActivity)) {
 
@@ -1473,76 +1336,19 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
         linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         mRecyclerView.setLayoutManager(linearLayoutManager);
         mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
-        mAdapterList = new DmsAdapterList(getCategoryDocumentsResponses, mSelectedDocumentList, getActivity());
+        mAdapterList = new DmsAdapterList(getCategoryDocumentsResponses, getActivity(), ItemNavigationFolderFragment.this);
         mRecyclerView.setAdapter(mAdapterList);
 
 
-
-        mAdapterList.setClickListener(new DmsAdapterList.ItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-                mAdapterList.toggleSelection(position);
-
-                menuItemDelete.setVisible(false);
-                menuItemShare.setVisible(false);
-                menuItemMore.setVisible(false);
-                menuItemSearch.setVisible(true);
-
-                mSelectedDocumentList.remove(mGetCategoryDocumentsResponses.get(position));
-
-                updateToolbarMenuItems(mSelectedDocumentList);
-            }
-
-            @Override
-            public boolean onItemLongClick(View view, int position) {
-                // if one item is long pressed, we start the drag selection like following:
-                // we just call this function and pass in the position of the first selected item
-                // the selection processor does take care to update the positions selection mode correctly
-                // and will correctly transform the touch events so that they can be directly applied to your adapter!!!
-                menuItemDelete.setVisible(true);
-                menuItemShare.setVisible(true);
-                menuItemMore.setVisible(true);
-                menuItemSearch.setVisible(false);
-
-                mDragSelectTouchListener.startDragSelection(position);
-
-                GetCategoryDocumentsResponse documentsResponseObj = mGetCategoryDocumentsResponses.get(position);
-                mSelectedDocumentList.add(documentsResponseObj);
-
-                updateToolbarMenuItems(mSelectedDocumentList);
-
-                return true;
-            }
-        });
-
-        mDragSelectionProcessor = new DragSelectionProcessor(new DragSelectionProcessor.ISelectionHandler() {
-            @Override
-            public HashSet<Integer> getSelection() {
-                return mAdapterList.getSelection();
-            }
-
-            @Override
-            public boolean isSelected(int index) {
-                return mAdapterList.getSelection().contains(index);
-            }
-
-            @Override
-            public void updateSelection(int start, int end, boolean isSelected, boolean calledFromOnStart) {
-                mAdapterList.selectRange(start, end, isSelected);
-            }
-        })
-                .withMode(mMode);
-        mDragSelectTouchListener = new DragSelectTouchListener()
-                .withSelectListener(mDragSelectionProcessor);
-        updateSelectionListener();
-        mRecyclerView.addOnItemTouchListener(mDragSelectTouchListener);
     }
 
 
 
 
 
-        private void updateToolbarMenuItems(List<GetCategoryDocumentsResponse> mSelectedDocumentList) {
+        public void updateToolbarMenuItems(List<GetCategoryDocumentsResponse> selectedDocumentList) {
+
+            mSelectedDocumentList = selectedDocumentList;
 
         getWhiteLabelProperities();
 
@@ -2038,14 +1844,14 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
         });
     }
 
-    @Override
+   /* @Override
     public void onItemClick(View view, int position) {
 
-    }
+    }*/
 
 
 
-    private void convertingDownloadUrl(List<GetCategoryDocumentsResponse> downloadedList)
+    public void convertingDownloadUrl(List<GetCategoryDocumentsResponse> downloadedList)
     {
         downloadingUrlDataList = downloadedList;
         if(downloadingUrlDataList.size()> index) {
@@ -2057,7 +1863,7 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
 
     }
 
-    private void getDownloadurlFromService(String document_version_id)
+    public void getDownloadurlFromService(String document_version_id)
     {
         if (NetworkUtils.isNetworkAvailable(mActivity)) {
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
@@ -2114,13 +1920,16 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
 
                                 if (isFromList == true) {
                                     mAdapterList.notifyDataSetChanged();
+                                    mAdapterList.clearAll();
                                 }
                                 else
                                 {
                                     mAdapter.notifyDataSetChanged();
+                                    mAdapter.clearAll();
                                 }
 
                                 getDownloadManagerForDownloading(downloadingUrlDataList);
+
                             }
 
 
@@ -2211,64 +2020,6 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
     }
 
 
-    private void downloaddoc() {
-
-        if (NetworkUtils.isNetworkAvailable(getActivity())) {
-            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
-            final DownloadDocumentService downloadDocumentService = retrofitAPI.create(DownloadDocumentService.class);
-
-            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(getActivity());
-            transparentProgressDialog.show();
-
-            //DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(PreferenceUtils.getDocumentVersionId(this));
-            List<String> strlist = new ArrayList<>();
-            strlist.add("11917");
-            DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist);
-            final String request = new Gson().toJson(downloadDocumentRequest);
-
-            //Here the json data is add to a hash map with key data
-            Map<String, String> params = new HashMap<String, String>();
-            params.put("data", request);
-
-            Call call = downloadDocumentService.download(params, PreferenceUtils.getAccessToken(getActivity()));
-
-            call.enqueue(new Callback<ListPinDevicesResponse<DownloadDocumentResponse>>() {
-                @Override
-                public void onResponse(Response<ListPinDevicesResponse<DownloadDocumentResponse>> response, Retrofit retrofit) {
-                    ListPinDevicesResponse apiResponse = response.body();
-                    if (apiResponse != null) {
-
-                        if (apiResponse.status.getCode() == Boolean.FALSE) {
-                            transparentProgressDialog.dismiss();
-                            downloadDocumentResponse = response.body().getData();
-                        } else {
-
-                            String mMessage = apiResponse.status.getMessage().toString();
-                           /*// mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener()
-                                {
-                                @Override
-                                public void onClick(View view) {
-                                    startActivity(new Intent(mActivity, LoginActivity.class));
-                                    mActivity.finish();
-                                }
-                            }, false);
-                        */
-                        }
-                    }
-                }
-
-                @Override
-                public void onFailure(Throwable t) {
-                    transparentProgressDialog.dismiss();
-                }
-            });
-        }
-    }
-
-    @Override
-    public boolean onItemLongClick(View view, int position) {
-        return false;
-    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -2533,6 +2284,57 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
 
 
         }
+
+
+
+        if(getView() == null){
+            return;
+        }
+
+        getView().setFocusableInTouchMode(true);
+        getView().requestFocus();
+        getView().setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+
+                if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK){
+                    // handle back button's click listener
+
+                    if (isFromList == true) {
+                        mAdapterList.clearAll();
+                    } else {
+                        mAdapter.clearAll();
+                    }
+
+                    int i = PreferenceUtils.getBackButtonList(mActivity,"key").size();
+                    i = i - 2;
+                    if (i >-1) {
+                        String id = PreferenceUtils.getBackButtonList(mActivity,"key").get(i);
+                        getCategoryDocuments(id,String.valueOf(pageNumber));
+                        ArrayList<String> temp ;
+                        temp = PreferenceUtils.getBackButtonList(mActivity,"key");
+                        temp.remove(i);
+                        PreferenceUtils.setBackButtonList(mActivity,temp,"key");
+
+                    } else {
+                        ArrayList<String> temp ;
+                        temp = PreferenceUtils.getBackButtonList(mActivity,"key");
+                        temp.clear();
+                        PreferenceUtils.setBackButtonList(mActivity,temp,"key");
+                        startActivity(new Intent(getActivity(), MyFoldersDMSActivity.class));
+                        return true;
+
+                    }
+
+
+                    return true;
+                }
+                return false;
+            }
+        });
+
+
+
 
     }
 }

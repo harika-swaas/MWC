@@ -54,8 +54,7 @@ import android.widget.Toast;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
 import com.google.gson.Gson;
-import com.michaelflisar.dragselectrecyclerview.DragSelectTouchListener;
-import com.michaelflisar.dragselectrecyclerview.DragSelectionProcessor;
+
 import com.swaas.mwc.Common.CameraUtils;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.RequestBody;
@@ -165,9 +164,9 @@ public class MyFoldersDMSActivity extends RootActivity {
     Uri uri = null;
     DmsAdapterList mAdapterList;
     RelativeLayout indicatorParentView;
-    private DragSelectionProcessor.Mode mMode = DragSelectionProcessor.Mode.Simple;
+   /* private DragSelectionProcessor.Mode mMode = DragSelectionProcessor.Mode.Simple;
     private DragSelectTouchListener mDragSelectTouchListener;
-    private DragSelectionProcessor mDragSelectionProcessor;
+    private DragSelectionProcessor mDragSelectionProcessor;*/
     MenuItem menuItemSearch, menuItemDelete, menuItemShare, menuItemMove, menuItemMore;
    /* public static FloatingActionMenu floatingActionMenu;
    public static FloatingActionButton actionUpload, actionCamera, actionNewFolder, actionVideo;*/
@@ -1710,10 +1709,10 @@ public class MyFoldersDMSActivity extends RootActivity {
         mRecyclerView.addOnItemTouchListener(mDragSelectTouchListener);*/
 
 
-    private void updateSelectionListener() {
+   /* private void updateSelectionListener() {
         mDragSelectionProcessor.withMode(mMode);
         //  mToolbar.setSubtitle("Mode: " + mMode.name());
-    }
+    }*/
 
     private void updateToolbarMenuItems(List<GetCategoryDocumentsResponse> mSelectedDocumentList) {
 
@@ -1837,31 +1836,16 @@ public class MyFoldersDMSActivity extends RootActivity {
 
     @Override
     public void onBackPressed() {
-            int i = PreferenceUtils.getBackButtonList(MyFoldersDMSActivity.this, "key").size();
-            i = i - 2;
-            if (i > -1) {
-                String id = PreferenceUtils.getBackButtonList(MyFoldersDMSActivity.this, "key").get(i);
-
-             //   ItemNavigationFolderFragment itemNavigationFolderFragment = (ItemNavigationFolderFragment) getSupportFragmentManager().findFragmentById(R.id.navigation_folder);
-               /* FragmentManager manager = (FragmentManager) getSupportFragmentManager();
-                ItemNavigationFolderFragment fragment = (ItemNavigationFolderFragment)manager.findFragmentById(R.id.navigation_folder);
-                fragment.getCategoryDocuments(id, String.valueOf(pageNumber));*/
-                //itemNavigationFolderFragment.getCategoryDocuments(id, String.valueOf(pageNumber));
-                ArrayList<String> temp;
-                temp = PreferenceUtils.getBackButtonList(MyFoldersDMSActivity.this, "key");
-                temp.remove(i);
-                PreferenceUtils.setBackButtonList(MyFoldersDMSActivity.this, temp, "key");
-
-            } else {
-                ArrayList<String> temp;
-                temp = PreferenceUtils.getBackButtonList(MyFoldersDMSActivity.this, "key");
-                temp.clear();
-                PreferenceUtils.setBackButtonList(MyFoldersDMSActivity.this, temp, "key");
-                moveTaskToBack(true);
-
-            }
-
+        if (backButtonCount >= 1) {
+            backButtonCount = 0;
+            moveTaskToBack(true);
+        } else {
+            Toast.makeText(this, "Press the back button once again to close the application.", Toast.LENGTH_SHORT).show();
+            backButtonCount++;
+            Toast.makeText(context, String.valueOf(mSelectedDocumentList.size()), Toast.LENGTH_LONG).show();
         }
+    }
+
     /*  @Override
       public boolean onCreateOptionsMenu(Menu menu) {
 

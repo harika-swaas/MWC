@@ -53,6 +53,8 @@ import com.swaas.mwc.API.Model.GetCategoryDocumentsRequest;
 import com.swaas.mwc.API.Model.GetCategoryDocumentsResponse;
 import com.swaas.mwc.API.Model.ListPinDevicesResponse;
 import com.swaas.mwc.API.Model.LoginResponse;
+import com.swaas.mwc.API.Model.SharedDocumentResponseModel;
+import com.swaas.mwc.API.Model.StopSharingRequestModel;
 import com.swaas.mwc.API.Model.WhiteLabelResponse;
 import com.swaas.mwc.API.Service.DeleteDocumentService;
 import com.swaas.mwc.API.Service.DeleteEndUserFolderService;
@@ -62,6 +64,7 @@ import com.swaas.mwc.API.Service.DownloadDocumentService;
 import com.swaas.mwc.API.Service.EditDocumentPropertiesService;
 import com.swaas.mwc.API.Service.EndUserRenameService;
 import com.swaas.mwc.API.Service.GetCategoryDocumentsService;
+import com.swaas.mwc.API.Service.GetEndUserParentSHaredFoldersService;
 import com.swaas.mwc.DMS.MyFolderActivity;
 
 import com.swaas.mwc.DMS.MyFolderCategoryActivity;
@@ -71,6 +74,7 @@ import com.swaas.mwc.DMS.MyFoldersDMSActivity;
 import com.swaas.mwc.DMS.MyfolderDeleteActivity;
 import com.swaas.mwc.DMS.Tab_Activity;
 import com.swaas.mwc.Database.AccountSettings;
+import com.swaas.mwc.Database.OffLine_Files_Repository;
 import com.swaas.mwc.Dialogs.LoadingProgressDialog;
 import com.swaas.mwc.Fragments.ItemNavigationFolderFragment;
 import com.swaas.mwc.Login.DocumentPreview;
@@ -99,16 +103,16 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
     private Context context;
     List<GetCategoryDocumentsResponse> paginationList = new ArrayList<>();
     ArrayList<String> categoryids = new ArrayList<String>();
-    private List<GetCategoryDocumentsResponse> mGetCategoryDocumentsResponses;
+    public List<GetCategoryDocumentsResponse> mGetCategoryDocumentsResponses;
     List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses = new ArrayList<>();
    DocumentPreviewResponse getDocumentPreviewResponses;
     List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList<>();
     AlertDialog mAlertDialog;
-    private ItemClickListener mClickListener;
+   // private ItemClickListener mClickListener;
     MyFoldersDMSActivity myFoldersDMSActivity;
     int mode = 0;
     private HashSet<Integer> mSelected;
-    List<GetCategoryDocumentsResponse> selectedList;
+    public List<GetCategoryDocumentsResponse> selectedList = new ArrayList<>();
     int lastItemPosition ;
     private static final int GRID_ITEM = 0;
     private static final int LIST_ITEM = 1;
@@ -128,14 +132,14 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
     boolean isSwitchView = true;
     int index=0;
 
+    boolean isMultiSelect = false;
+
     private boolean mIsLoadingFooterAdded = false;
     List<GetCategoryDocumentsResponse> downloadingUrlDataList = new ArrayList<>();
 
-    public DmsAdapter(List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses, List<GetCategoryDocumentsResponse> selectedList, Activity context, Fragment fragment) {
+    public DmsAdapter(List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses, Activity context, Fragment fragment) {
         this.context = context;
         this.mGetCategoryDocumentsResponses = getCategoryDocumentsResponses;
-        this.selectedList = selectedList;
-        mSelected = new HashSet<>();
         this.fragment = fragment;
 
     }
@@ -165,7 +169,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         accountSettings.getWhiteLabelProperties();
     }
 
-    public void toggleSelection(int pos) {
+    /*public void toggleSelection(int pos) {
         if (mSelected.contains(pos))
             mSelected.remove(pos);
         else
@@ -185,19 +189,19 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
 
     public HashSet<Integer> getSelection() {
         return mSelected;
-    }
+    }*/
 
-    public void setClickListener(ItemClickListener itemClickListener) {
+   /* public void setClickListener(ItemClickListener itemClickListener) {
         mClickListener = itemClickListener;
     }
 
     public interface ItemClickListener {
         void onItemClick(View view, int position);
         boolean onItemLongClick(View view, int position);
-    }
+    }*/
 
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
+    public class ViewHolder extends RecyclerView.ViewHolder  {
 
         public LinearLayout parentLayout;
         public RelativeLayout gridClick, thumbnailLayout;
@@ -209,7 +213,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         public ViewHolder(View itemView) {
             super(itemView);
             layout = itemView;
-            parentLayout = (LinearLayout) itemView.findViewById(R.id.parent_layout1);
+            parentLayout = (LinearLayout) itemView.findViewById(R.id.linearLayout_parent);
             text = (TextView) itemView.findViewById(R.id.folder_name);
             thumbnailText = (TextView) itemView.findViewById(R.id.thumbnail_text);
             imageView = (ImageView) itemView.findViewById(R.id.folder);
@@ -219,10 +223,10 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
             gridClick = (RelativeLayout) itemView.findViewById(R.id.grid_click);
             thumbnailLayout = (RelativeLayout) itemView.findViewById(R.id.thumbnail_layout);
             moreIcon = (ImageView) itemView.findViewById(R.id.more_icon);
-            this.parentLayout.setOnClickListener(this);
-            this.parentLayout.setOnLongClickListener(this);
+          /*  this.parentLayout.setOnClickListener(this);
+            this.parentLayout.setOnLongClickListener(this);*/
         }
-
+/*
         @Override
         public void onClick(View view) {
             if (mClickListener != null)
@@ -236,7 +240,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
             if (mClickListener != null)
                 return mClickListener.onItemLongClick(view, getAdapterPosition());
             return false;
-        }
+        }*/
     }
 
     @Override
@@ -268,6 +272,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
+
 
         if (mGetCategoryDocumentsResponses != null && mGetCategoryDocumentsResponses.size() > 0) {
             PreferenceUtils.setCategoryId(context, mGetCategoryDocumentsResponses.get(position).getParent_id());
@@ -373,32 +378,60 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
             holder.parentLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("category")) {
-                        PreferenceUtils.setObjectId(context, mGetCategoryDocumentsResponses.get(position).getObject_id());
-                        obj = mGetCategoryDocumentsResponses.get(position).getObject_id();
-                        if(context instanceof MyFoldersDMSActivity){
-                            ((ItemNavigationFolderFragment)fragment).getCategoryDocuments(obj,String.valueOf(pageNumber));
+
+                    if (isMultiSelect)
+                    {
+                        multi_select(position);
+
+                    }
+                    else {
+
+                        if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("category")) {
+                            PreferenceUtils.setObjectId(context, mGetCategoryDocumentsResponses.get(position).getObject_id());
+                            obj = mGetCategoryDocumentsResponses.get(position).getObject_id();
+                            if (context instanceof MyFoldersDMSActivity) {
+                                ((ItemNavigationFolderFragment) fragment).getCategoryDocuments(obj, String.valueOf(pageNumber));
+                            }
+                            doc_id = PreferenceUtils.getBackButtonList(context,"key");
+                            doc_id.add(mGetCategoryDocumentsResponses.get(position).getObject_id());
+                            PreferenceUtils.setBackButtonList(context,doc_id,"key");
+                        } else if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document")) {
+                            getDocumentPreviews(mGetCategoryDocumentsResponses.get(position));
+
                         }
-
-                        //   myFoldersDMSActivity.getCategoryDocuments(obj,String.valueOf(pageNumber));
-                        doc_id = PreferenceUtils.getBackButtonList(context,"key");
-                        doc_id.add(mGetCategoryDocumentsResponses.get(position).getObject_id());
-                        PreferenceUtils.setBackButtonList(context,doc_id,"key");
                     }
-                    else if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document")) {
 
-                        getDocumentPreviews(mGetCategoryDocumentsResponses.get(position).getDocument_version_id(), mGetCategoryDocumentsResponses.get(position).getName());
-
-                    }
                 }
             });
 
-            holder.thumbnailLayout.setOnClickListener(new View.OnClickListener() {
+            holder.parentLayout.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+
+
+                    if (!isMultiSelect) {
+                        selectedList = new ArrayList<>();
+                        isMultiSelect = true;
+
+                    }
+
+                    multi_select(position);
+
+
+
+                    return false;
+                }
+            });
+
+
+
+
+          /*  holder.thumbnailLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    getDocumentPreviews(mGetCategoryDocumentsResponses.get(position).getDocument_version_id(), mGetCategoryDocumentsResponses.get(position).getName());
+                    getDocumentPreviews(mGetCategoryDocumentsResponses.get(position));
                 }
-            });
+            });*/
 
             holder.moreIcon.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -415,7 +448,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                         PreferenceUtils.saveArrayList(context,document_id,"Key");
 
                     } else if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document")) {
-                        openBottomSheetForDocument(mGetCategoryDocumentsResponses.get(position).getType(), mGetCategoryDocumentsResponses.get(position).getFiletype(), mGetCategoryDocumentsResponses.get(position).getName());
+                        openBottomSheetForDocument(mGetCategoryDocumentsResponses.get(position), mGetCategoryDocumentsResponses.get(position).getType(), mGetCategoryDocumentsResponses.get(position).getFiletype(), mGetCategoryDocumentsResponses.get(position).getName());
                         document=mGetCategoryDocumentsResponses.get(position).getObject_id();
                         parentr = mGetCategoryDocumentsResponses.get(position).getObject_id();
                         categoryr = mGetCategoryDocumentsResponses.get(position).getDocument_version_id();
@@ -431,11 +464,30 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
 
             });
 
-            if (mSelected.contains(position)) {
+            if(selectedList.contains(mGetCategoryDocumentsResponses.get(position)))
+            {
+                holder.selectedItemIv.setVisibility(View.VISIBLE);
+            }
+            else
+            {
+                holder.selectedItemIv.setVisibility(View.GONE);
+            }
+
+            if(selectedList != null && selectedList.size() > 0)
+            {
+                holder.moreIcon.setVisibility(View.GONE);
+            }
+            else
+            {
+                holder.moreIcon.setVisibility(View.VISIBLE);
+            }
+
+
+         /*   if (selectedList.contains(mGetCategoryDocumentsResponses.get(position))) {
                 holder.selectedItemIv.setVisibility(View.VISIBLE);
             } else {
                 holder.selectedItemIv.setVisibility(View.GONE);
-            }
+            }*/
         }
         else
         {
@@ -443,7 +495,52 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         }
     }
 
-    private void getDocumentPreviews(String document_version_id, final String document_name) {
+    public void multi_select(int position)
+    {
+
+        if (selectedList.contains(mGetCategoryDocumentsResponses.get(position)))
+        {
+
+            selectedList.remove(mGetCategoryDocumentsResponses.get(position));
+            if(selectedList != null && selectedList.size() == 0)
+            {
+                selectedList.clear();
+                isMultiSelect = false;
+                notifyDataSetChanged();
+
+            }
+        }
+        else
+        {
+
+            selectedList.add(mGetCategoryDocumentsResponses.get(position));
+        }
+
+
+        notifyDataSetChanged();
+
+        if (context instanceof MyFoldersDMSActivity) {
+            ((ItemNavigationFolderFragment) fragment).updateToolbarMenuItems(selectedList);
+        }
+
+
+      //  Toast.makeText(context, String.valueOf(selectedList.size()), Toast.LENGTH_LONG).show();
+
+    }
+
+    public void clearAll()
+    {
+        selectedList.clear();
+        isMultiSelect = false;
+        notifyDataSetChanged();
+
+    }
+
+
+
+
+
+    private void getDocumentPreviews(final GetCategoryDocumentsResponse categoryDocumentsResponse) {
 
         if (NetworkUtils.isNetworkAvailable(context)) {
 
@@ -452,7 +549,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
             final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
             transparentProgressDialog.show();
 
-            final DocumentPreviewRequest mDocumentPreviewRequest = new DocumentPreviewRequest(document_version_id);
+            final DocumentPreviewRequest mDocumentPreviewRequest = new DocumentPreviewRequest(categoryDocumentsResponse.getDocument_version_id());
 
             String request = new Gson().toJson(mDocumentPreviewRequest);
 
@@ -477,10 +574,11 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                                 getDocumentPreviewResponses = response.body().getData();
                                 String document_preview_url = getDocumentPreviewResponses.getDocument_pdf_url();
 
+
                                 Intent intent = new Intent(context, PdfViewActivity.class);
                                 intent.putExtra("mode",1);
                                 intent.putExtra("url", document_preview_url);
-                                intent.putExtra("fileName", document_name);
+                                intent.putExtra("documentDetails", categoryDocumentsResponse);
                                 context.startActivity(intent);
                             }
 
@@ -500,7 +598,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         }
     }
 
-    private void openBottomSheetForDocument(String type, String fileType, String name) {
+    private void openBottomSheetForDocument(final GetCategoryDocumentsResponse mGetCategoryDocumentsResponses, String type, String fileType, String name) {
 
         getWhiteLabelProperities();
 
@@ -520,6 +618,10 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         ImageView renameImage = (ImageView) view.findViewById(R.id.rename_image);
         ImageView shareImage = (ImageView) view.findViewById(R.id.share_image);
         ImageView availableOfflineImage = (ImageView) view.findViewById(R.id.available_offline_image);
+        final SwitchCompat switchButton_download = (SwitchCompat) view.findViewById(R.id.switchButton_download);
+        final SwitchCompat switchButton_share = (SwitchCompat) view.findViewById(R.id.switchButton_share);
+
+
 
         if (mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
             String itemSelectedColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
@@ -621,14 +723,14 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                 context.startActivity(intent);
             }
         });
-        shareView.setOnClickListener(new View.OnClickListener() {
+      /*  shareView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent mIntent = new Intent(context,MyFolderSharedDocuments.class);
                 mIntent.putExtra(Constants.OBJ, (Serializable) selectedList);
                 context.startActivity(mIntent);
             }
-        });
+        });*/
 
         move.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -645,6 +747,89 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                 context.startActivity(intent);
             }
         });
+
+        if(mGetCategoryDocumentsResponses.getIs_shared().equals("1"))
+        {
+            switchButton_share.setChecked(true);
+        }
+        else
+        {
+            switchButton_share.setChecked(false);
+        }
+
+
+        OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(context);
+        if (!offLine_files_repository.checkAlreadyDocumentAvailableOrNot(mGetCategoryDocumentsResponses.getDocument_version_id())) {
+
+            switchButton_download.setChecked(true);
+        }
+        else {
+            switchButton_download.setChecked(false);
+        }
+
+
+
+        switchButton_download.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(buttonView.isPressed() == true) {
+                    if (isChecked) {
+
+                        switchButton_download.setChecked(true);
+                        if (context instanceof MyFoldersDMSActivity) {
+                            ((ItemNavigationFolderFragment) fragment).getDownloadurlFromService(mGetCategoryDocumentsResponses.getDocument_version_id());
+                        }
+                        mBottomSheetDialog.dismiss();
+
+                    }
+                    else
+                    {
+                        OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(context);
+                        offLine_files_repository.deleteAlreadydownloadedFile(mGetCategoryDocumentsResponses.getDocument_version_id());
+                        switchButton_download.setChecked(false);
+                        mBottomSheetDialog.dismiss();
+                    }
+
+
+                }
+            }
+        });
+
+        switchButton_share.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
+        {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+            {
+                if(buttonView.isPressed() == true) {
+
+                    if (!isChecked) {
+                        switchButton_share.setChecked(true);
+                        showWarningMessageAlertForSharingContent(mGetCategoryDocumentsResponses);
+                        mBottomSheetDialog.dismiss();
+
+                    } else {
+                        switchButton_share.setChecked(false);
+                        List<GetCategoryDocumentsResponse> selectedList = new ArrayList<>();
+                        selectedList.add(mGetCategoryDocumentsResponses);
+
+                        PreferenceUtils.setCategoryId(context, mGetCategoryDocumentsResponses.getCategory_id());
+                        PreferenceUtils.setDocument_Id(context, mGetCategoryDocumentsResponses.getObject_id());
+
+                        Intent mIntent = new Intent(context,MyFolderSharedDocuments.class);
+                        mIntent.putExtra(Constants.OBJ, (Serializable) selectedList);
+                        context.startActivity(mIntent);
+                        mBottomSheetDialog.dismiss();
+                    }
+
+
+                }
+
+            }
+        });
+
+
+
+
 
         delete.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("ResourceAsColor")
@@ -967,148 +1152,6 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         });
 
 
-      /*  download.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isTouched) {
-                    isTouched = false;
-                    if (isChecked) {
-                        List<GetCategoryDocumentsResponse> downloadedList = new ArrayList<>();
-                        if(selectedList != null && selectedList.size() > 0)
-                        {
-
-                            for(GetCategoryDocumentsResponse getCategoryDocumentsResponse : selectedList)
-                            {
-                                if(getCategoryDocumentsResponse.getType().equalsIgnoreCase("document"))
-                                {
-                                    downloadedList.add(getCategoryDocumentsResponse);
-                                }
-                            }
-                        }
-
-                        if(downloadedList != null && downloadedList.size() > 0)
-                        {
-                            Toast.makeText(context,String.valueOf(downloadedList.size()), Toast.LENGTH_LONG).show();
-                            convertingDownloadUrl(downloadedList);
-                        }
-
-                        //   Toast.makeText(context,String.valueOf(selectedList.size()), Toast.LENGTH_LONG).show();
-
-                    }
-                }
-            }
-        });
-
-        private void convertingDownloadUrl(List<GetCategoryDocumentsResponse> downloadedList)
-        {
-            downloadingUrlDataList = downloadedList;
-            if(downloadingUrlDataList.size()> index) {
-
-                getDownloadurlFromService(downloadingUrlDataList.get(index).getDocument_version_id());
-
-            }
-
-
-        }
-
-        private void getDownloadurlFromService(String document_version_id)
-        {
-            if (NetworkUtils.isNetworkAvailable(context)) {
-                Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
-                final DownloadDocumentService downloadDocumentService = retrofitAPI.create(DownloadDocumentService.class);
-
-                final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
-                transparentProgressDialog.show();
-
-                //DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(PreferenceUtils.getDocumentVersionId(this));
-                List<String> strlist = new ArrayList<>();
-                strlist.add(document_version_id);
-                DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist);
-                final String request = new Gson().toJson(downloadDocumentRequest);
-
-                //Here the json data is add to a hash map with key data
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("data", request);
-
-                Call call = downloadDocumentService.download(params, PreferenceUtils.getAccessToken(context));
-
-                call.enqueue(new Callback<ApiResponse<DownloadDocumentResponse>>() {
-                    @Override
-                    public void onResponse(Response<ApiResponse<DownloadDocumentResponse>> response, Retrofit retrofit) {
-                        ApiResponse apiResponse = response.body();
-                        if (apiResponse != null) {
-
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
-                                DownloadDocumentResponse downloadDocumentResponse = response.body().getData();
-
-                                String downloaded_url = downloadDocumentResponse.getData();
-
-                                String access_Token = PreferenceUtils.getAccessToken(context);
-
-                         *//*   byte[] dataDecoded = Base64.decode(access_Token, Base64.DEFAULT);
-                            String base64AccessToken = dataDecoded.toString();*//*
-
-                                byte[] encodeValue = Base64.encode(access_Token.getBytes(), Base64.DEFAULT);
-                                String base64AccessToken = new String(encodeValue);
-
-                                if (android.os.Build.VERSION.SDK_INT > 9) {
-                                    StrictMode.ThreadPolicy policy =  new StrictMode.ThreadPolicy.Builder().permitAll().build();
-                                    StrictMode.setThreadPolicy(policy);
-                                }
-
-
-                                downloadingUrlDataList.get(index).setDownloadUrl(downloaded_url+"&token="+base64AccessToken);
-
-                                //  downloadDocumentsRequest(downloaded_url+"&token="+base64AccessToken);
-
-
-                                index++;
-                                if(downloadingUrlDataList.size()> index) {
-                                    getDownloadurlFromService(downloadingUrlDataList.get(index).getDocument_version_id());
-
-                                }
-                                else
-                                {
-                                    getDownloadManagerForDownloading(downloadingUrlDataList);
-                                }
-
-
-
-                                //  Toast.makeText(context, downloaded_url, Toast.LENGTH_LONG).show();
-
-                            }
-                            else {
-                                transparentProgressDialog.dismiss();
-                                String mMessage = apiResponse.status.getMessage().toString();
-                           *//*//*//* mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener()
-                                {
-                                @Override
-                                public void onClick(View view) {
-                                    startActivity(new Intent(mActivity, LoginActivity.class));
-                                    mActivity.finish();
-                                }
-                            }, false);
-
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Throwable t) {
-                        transparentProgressDialog.dismiss();
-                    }
-                });
-            }
-
-        }
-
-        private void getDownloadManagerForDownloading(List<GetCategoryDocumentsResponse> downloadingUrlDataList)
-        {
-            Toast.makeText(context, String.valueOf(downloadingUrlDataList.size()), Toast.LENGTH_LONG).show();
-
-        }*/
-
 
 
         renameImage.setOnClickListener(new View.OnClickListener() {
@@ -1149,6 +1192,142 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
 
             }
         });
+    }
+
+    private void showWarningMessageAlertForSharingContent(final GetCategoryDocumentsResponse mGetCategoryDocumentsResponses)
+    {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Warning");
+
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+        txtMessage.setText("This action will stop sharing the selected document(s). Company with whom this has been shared will no longer be able to view this document");
+
+        Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+        cancelButton.setText("CANCEL");
+
+        sendPinButton.setText("OK");
+
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+            }
+        });
+
+        sendPinButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+
+                ArrayList<String> documentIdslist = new ArrayList<>();
+                documentIdslist.add(mGetCategoryDocumentsResponses.getObject_id());
+                getInternalStoppingSharingContentAPI(documentIdslist, mGetCategoryDocumentsResponses.getCategory_id());
+
+
+            }
+        });
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
+    }
+
+    private void getInternalStoppingSharingContentAPI(ArrayList<String> documentIdslist, String category_id)
+    {
+        if (NetworkUtils.isNetworkAvailable(context)) {
+
+            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+
+            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
+            transparentProgressDialog.show();
+
+
+            final StopSharingRequestModel deleteEndUserFolderRequest = new StopSharingRequestModel(documentIdslist,category_id);
+
+            String request = new Gson().toJson(deleteEndUserFolderRequest);
+
+
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("data", request);
+
+            final GetEndUserParentSHaredFoldersService mGetEndUserParentSHaredstopService = retrofitAPI.create(GetEndUserParentSHaredFoldersService.class);
+
+            Call call = mGetEndUserParentSHaredstopService.getEndUserStopSharedDocuments(params, PreferenceUtils.getAccessToken(context));
+
+            call.enqueue(new Callback<SharedDocumentResponseModel>() {
+                @Override
+                public void onResponse(Response<SharedDocumentResponseModel> response, Retrofit retrofit) {
+
+                    if (response != null) {
+
+                        transparentProgressDialog.dismiss();
+
+                        if (response.body().getStatus().getCode() instanceof Boolean) {
+                            if (response.body().getStatus().getCode() == Boolean.FALSE) {
+                                transparentProgressDialog.dismiss();
+
+
+
+                            }
+
+                        } else if (response.body().getStatus().getCode() instanceof Double) {
+                            transparentProgressDialog.dismiss();
+                            String mMessage = response.body().getStatus().getMessage().toString();
+
+                            Object obj = 401.0;
+                            if(obj.equals(401.0)) {
+                                final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+                                builder.setView(view);
+                                builder.setCancelable(false);
+
+                                TextView title = (TextView) view.findViewById(R.id.title);
+                                title.setText("Alert");
+
+                                TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+                                txtMessage.setText(mMessage);
+
+                                Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+                                Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+                                cancelButton.setVisibility(View.GONE);
+
+                                sendPinButton.setText("OK");
+
+                                sendPinButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        mAlertDialog.dismiss();
+                                        AccountSettings accountSettings = new AccountSettings(context);
+                                        accountSettings.deleteAll();
+                                        context.startActivity(new Intent(context, LoginActivity.class));
+                                    }
+                                });
+
+                                mAlertDialog = builder.create();
+                                mAlertDialog.show();
+                            }
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    transparentProgressDialog.dismiss();
+                    Log.d("PinDevice error", t.getMessage());
+                }
+            });
+        }
     }
 
 
