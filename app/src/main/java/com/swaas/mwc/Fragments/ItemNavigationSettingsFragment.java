@@ -431,9 +431,12 @@ public class ItemNavigationSettingsFragment extends Fragment{
     public boolean isNotificationChannelEnabled(Activity context, String channelId){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if(!TextUtils.isEmpty(channelId)) {
+
                 NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-                NotificationChannel channel = manager.getNotificationChannel(channelId);
-                return channel.getImportance() != NotificationManager.IMPORTANCE_NONE;
+                if(manager==null) {
+                    NotificationChannel channel = manager.getNotificationChannel(channelId);
+                    return channel.getImportance() != NotificationManager.IMPORTANCE_NONE;
+                }
             }
             return false;
         } else {

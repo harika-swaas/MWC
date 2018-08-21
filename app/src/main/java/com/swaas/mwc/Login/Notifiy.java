@@ -455,9 +455,11 @@ public class Notifiy extends RootActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if(!TextUtils.isEmpty(channelId)) {
                 NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-                NotificationChannel channel = manager.getNotificationChannel(channelId);
+                if(manager==null)
+                {
+                    NotificationChannel channel = manager.getNotificationChannel(channelId);
                 return channel.getImportance() != NotificationManager.IMPORTANCE_NONE;
-            }
+            }}
             return false;
         } else {
             return NotificationManagerCompat.from(context).areNotificationsEnabled();

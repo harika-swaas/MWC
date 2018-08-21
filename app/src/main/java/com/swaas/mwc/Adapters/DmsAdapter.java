@@ -99,7 +99,7 @@ import retrofit.Response;
 import retrofit.Retrofit;
 
 public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
-    ArrayList<String> doc_id = new ArrayList<String>();
+    private ArrayList<String> doc_id = new ArrayList<String>();
     private Context context;
     List<GetCategoryDocumentsResponse> paginationList = new ArrayList<>();
     ArrayList<String> categoryids = new ArrayList<String>();
@@ -392,9 +392,14 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                             if (context instanceof MyFoldersDMSActivity) {
                                 ((ItemNavigationFolderFragment) fragment).getCategoryDocuments(obj, String.valueOf(pageNumber));
                             }
+                            if(PreferenceUtils.getBackButtonList(context,"key")!=null)
+                            {
                             doc_id = PreferenceUtils.getBackButtonList(context,"key");
-                            doc_id.add(mGetCategoryDocumentsResponses.get(position).getObject_id());
-                            PreferenceUtils.setBackButtonList(context,doc_id,"key");
+                            }
+                            else
+                            {
+                                doc_id.add(obj);
+                            PreferenceUtils.setBackButtonList(context,doc_id,"key");}
                         } else if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document")) {
                             getDocumentPreviews(mGetCategoryDocumentsResponses.get(position));
 

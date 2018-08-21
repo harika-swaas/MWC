@@ -1842,7 +1842,6 @@ public class MyFoldersDMSActivity extends RootActivity {
         } else {
             Toast.makeText(this, "Press the back button once again to close the application.", Toast.LENGTH_SHORT).show();
             backButtonCount++;
-            Toast.makeText(context, String.valueOf(mSelectedDocumentList.size()), Toast.LENGTH_LONG).show();
         }
     }
 

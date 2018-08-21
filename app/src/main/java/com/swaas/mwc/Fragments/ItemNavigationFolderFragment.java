@@ -70,7 +70,7 @@ import com.swaas.mwc.API.Service.GetCategoryDocumentsService;
 import com.swaas.mwc.API.Service.UploadNewFolderService;
 import com.swaas.mwc.Adapters.DmsAdapter;
 import com.swaas.mwc.Adapters.DmsAdapterList;
-import com.swaas.mwc.Adapters.RecyclerItemClickListener;
+
 import com.swaas.mwc.Common.CameraUtils;
 import com.swaas.mwc.Common.FileDownloadManager;
 import com.swaas.mwc.Common.ServerConfig;
