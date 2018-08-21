@@ -152,7 +152,8 @@
         android:background="@color/bottomnavigation"
         app:itemTextColor="@color/black_semi_transparent"
         app:itemIconTint="@drawable/message_item_bg"
-        app:menu="@menu/navigation" />
+        app:menu="@menu/navigation"
+        android:layout_below="@id/container"/>
 
     <com.github.clans.fab.FloatingActionMenu
         android:id="@+id/floating_action_menu"

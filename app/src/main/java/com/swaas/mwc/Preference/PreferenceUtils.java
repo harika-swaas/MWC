@@ -34,6 +34,10 @@ public class PreferenceUtils {
     private static  final String WORKSPACE_ID = "workspace_id";
     private static final String DOC_ID="doc_id";
     private static final String UPLOAD_LIST="upload_list";
+    private static final String BACK_BUTTON_LIST="back_button_list";
+    private static final String DELETE="delete";
+    private static final String ASSIST = "assist";
+
 
     public static void setAccessToken(Context context, String accesstoken) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
@@ -104,6 +108,19 @@ public class PreferenceUtils {
         SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(MOBILE_ITEM_DISABLE_COLOR, mobileItemDisableColor);
+        editor.commit();
+    }
+
+    public static String getAssist(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(ASSIST, Context.MODE_PRIVATE);
+        String assist = sharedPreferences.getString(ASSIST, null);
+        return assist;
+    }
+
+    public static void setAssist(Context context, String assist) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(ASSIST, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(ASSIST, assist);
         editor.commit();
     }
 
@@ -256,6 +273,40 @@ public class PreferenceUtils {
 
     public static ArrayList<String> getupload(Context context,String key){
         SharedPreferences sharedPreferences = context.getSharedPreferences(UPLOAD_LIST, Context.MODE_PRIVATE);
+        Gson gson = new Gson();
+        String json = sharedPreferences.getString(key, null);
+        Type type = new TypeToken<ArrayList<String>>() {}.getType();
+        return gson.fromJson(json, type);
+    }
+
+    public static void setBackButtonList(Context context, ArrayList<String> list, String key){
+        SharedPreferences sharedPreferences = context.getSharedPreferences(BACK_BUTTON_LIST, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(list);
+        editor.putString(key, json);
+        editor.apply();     // This line is IMPORTANT !!!
+    }
+
+    public static ArrayList<String> getBackButtonList(Context context,String key){
+        SharedPreferences sharedPreferences = context.getSharedPreferences(BACK_BUTTON_LIST, Context.MODE_PRIVATE);
+        Gson gson = new Gson();
+        String json = sharedPreferences.getString(key, null);
+        Type type = new TypeToken<ArrayList<String>>() {}.getType();
+        return gson.fromJson(json, type);
+    }
+
+    public static void setDelete(Context context, ArrayList<String> list, String key){
+        SharedPreferences sharedPreferences = context.getSharedPreferences(DELETE, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(list);
+        editor.putString(key, json);
+        editor.apply();     // This line is IMPORTANT !!!
+    }
+
+    public static ArrayList<String> getDelete(Context context,String key){
+        SharedPreferences sharedPreferences = context.getSharedPreferences(DELETE, Context.MODE_PRIVATE);
         Gson gson = new Gson();
         String json = sharedPreferences.getString(key, null);
         Type type = new TypeToken<ArrayList<String>>() {}.getType();

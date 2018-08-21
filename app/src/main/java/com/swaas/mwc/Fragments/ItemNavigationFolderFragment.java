@@ -13,16 +13,20 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.NestedScrollView;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
@@ -87,6 +91,7 @@ import com.swaas.mwc.Utils.DateHelper;
 
 import java.io.File;
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -98,6 +103,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import easyfilepickerdialog.kingfisher.com.library.model.DialogConfig;
+import easyfilepickerdialog.kingfisher.com.library.model.SupportFile;
+import easyfilepickerdialog.kingfisher.com.library.view.FilePickerDialogFragment;
 import retrofit.Call;
 import retrofit.Callback;
 import retrofit.Response;
@@ -105,6 +113,7 @@ import retrofit.Retrofit;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
+import static com.crashlytics.android.answers.Answers.TAG;
 
 /**
  * Created by harika on 11-07-2018.
@@ -116,6 +125,7 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
     DmsAdapterList mAdapterList;
     RecyclerView mRecyclerView;
     MyFoldersDMSActivity mActivity;
+    Context context ;
     AlertDialog mCustomAlertDialog;
     View mView;
     AlertDialog mAlertDialog;
@@ -148,14 +158,14 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
     public static final String GALLERY_DIRECTORY_NAME = "Hello Camera";
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final int MEDIA_TYPE_VIDEO = 2;
-
+    Toolbar toolbar;
     public static final int REQUEST_GALLERY_CODE = 200;
     public static final int REQUEST_CAPTURE_IMAGE_CODE = 300;
     public static final int CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE = 400;
     Uri fileUri;
-    private static String imageStoragePath;
-    public static FloatingActionMenu floatingActionMenu;
-    public static FloatingActionButton actionUpload, actionCamera, actionNewFolder, actionVideo;
+    private  String imageStoragePath;
+    public  FloatingActionMenu floatingActionMenu;
+    public  FloatingActionButton actionUpload, actionCamera, actionNewFolder, actionVideo;
     ArrayList<String>list_upload = new ArrayList<>();
     boolean floatingActionButton_visible = false;
 
@@ -171,6 +181,7 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mActivity = (MyFoldersDMSActivity) getActivity();
+
 
     }
 
@@ -229,17 +240,17 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
 
 
 
-        MyFoldersDMSActivity.actionUpload = (FloatingActionButton)getActivity(). findViewById(R.id.menu_upload_item);
-        MyFoldersDMSActivity.actionCamera = (FloatingActionButton)getActivity(). findViewById(R.id.menu_camera_item);
-        MyFoldersDMSActivity.actionNewFolder = (FloatingActionButton)getActivity(). findViewById(R.id.menu_new_folder_item);
-        MyFoldersDMSActivity.actionVideo = (FloatingActionButton)getActivity(). findViewById(R.id.menu_camera_video_item);
+        actionUpload = (FloatingActionButton)getActivity(). findViewById(R.id.menu_upload_item);
+       actionCamera = (FloatingActionButton)getActivity(). findViewById(R.id.menu_camera_item);
+       actionNewFolder = (FloatingActionButton)getActivity(). findViewById(R.id.menu_new_folder_item);
+        actionVideo = (FloatingActionButton)getActivity(). findViewById(R.id.menu_camera_video_item);
         // your TextView must be declared as (public static TextView text_view) in the Activity
 
         MyFoldersDMSActivity.title_layout= (LinearLayout) getActivity().findViewById(R.id.linearlayout1);
         MyFoldersDMSActivity.title_layout.setVisibility(View.VISIBLE);
 
-        MyFoldersDMSActivity.floatingActionMenu = (FloatingActionMenu) getActivity().findViewById(R.id.floating_action_menu);
-        MyFoldersDMSActivity.floatingActionMenu.setVisibility(View.VISIBLE);
+       floatingActionMenu = (FloatingActionMenu) getActivity().findViewById(R.id.floating_action_menu);
+       floatingActionMenu.setVisibility(View.VISIBLE);
 
         /*if(floatingActionButton_visible == true)
         {
@@ -256,200 +267,232 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
 
 
 
-        MyFoldersDMSActivity.toggleView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        MyFoldersDMSActivity.toggleView.setOnClickListener(v -> {
 
-                if (check == false) {
-                    MyFoldersDMSActivity.toggle.setImageResource(R.mipmap.ic_list);
-                    setListAdapterToView(mGetCategoryDocumentsResponses);
-                    isFromList = true;
-                    mAdapterList.notifyDataSetChanged();
-                    check = true;
+            if (check == false) {
+                MyFoldersDMSActivity.toggle.setImageResource(R.mipmap.ic_list);
+                setListAdapterToView(mGetCategoryDocumentsResponses);
+                isFromList = true;
+                mAdapterList.notifyDataSetChanged();
+                check = true;
 
-                } else {
-                    MyFoldersDMSActivity.toggle.setImageResource(R.mipmap.ic_grid);
-                    setGridAdapterToView(mGetCategoryDocumentsResponses);
-                    mAdapter.notifyDataSetChanged();
-                    isFromList = false;
-                    check = false;
+            } else {
+                MyFoldersDMSActivity.toggle.setImageResource(R.mipmap.ic_grid);
+                setGridAdapterToView(mGetCategoryDocumentsResponses);
+                mAdapter.notifyDataSetChanged();
+                isFromList = false;
+                check = false;
+            }
+        });
+
+
+        MyFoldersDMSActivity.sortingView.setOnClickListener(v -> openBottomSheet());
+
+
+        actionUpload.setOnClickListener(v -> {
+    /*        FilePickerDialogFragment filePickerDialogFragment =null;
+            DialogConfig dialogConfig = new DialogConfig.Builder()
+                    .enableMultipleSelect(true) // default is false
+                    .enableFolderSelect(true) // default is false
+                    .initialDirectory(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "Android") // default is sdcard
+                    .supportFiles(new SupportFile(".jpg", R.drawable.ic_audiotrack_light), new SupportFile(".png", 0), new SupportFile(".pdf", R.drawable.ic_pdfviewpager)) // default is showing all file types.
+                    .build();
+
+            new FilePickerDialogFragment.Builder()
+                    .configs(dialogConfig)
+                    .onFilesSelected(new FilePickerDialogFragment.OnFilesSelectedListener() {
+                        @Override
+                        public void onFileSelected(List<File> list) {
+                            Log.e(TAG, "total Selected file: " + list.size());
+                            for (File file : list) {
+                                Log.e(TAG, "Selected file: " + file.getAbsolutePath());
+                            }
+                        }
+                    })
+                   *//* .onFolderLoadListener(new FilePickerDialogFragment.OnFolderLoadListener() {
+                        @Override
+                        public void onLoadFailed(String path) {
+                            //Could not access folder because of user permissions, sdcard is not readable...
+                        }*//*
+                   // })
+                    .build()
+                    .show(getSupportFragmentManager(),null);*/
+            // requestStoragePermission();
+            if(Build.VERSION.SDK_INT>=24){
+                try{
+                    Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
+                    m.invoke(null);
+                }catch(Exception e){
+                    e.printStackTrace();
                 }
             }
+            Intent openGalleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+            openGalleryIntent.setType("*/*");
+           openGalleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+           openGalleryIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+            startActivityForResult(openGalleryIntent, REQUEST_GALLERY_CODE);
         });
 
+        actionCamera.setOnClickListener(v -> {
 
-        MyFoldersDMSActivity.sortingView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openBottomSheet();
-            }
-        });
-
-
-        MyFoldersDMSActivity.actionUpload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // requestStoragePermission();
-                Intent openGalleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                openGalleryIntent.setType("*/*");
-                openGalleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-                openGalleryIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
-                mActivity.startActivityForResult(openGalleryIntent, REQUEST_GALLERY_CODE);
-            }
-        });
-
-        MyFoldersDMSActivity.actionCamera.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                //   requestCameraPermission();
-                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                fileUri = getOutputMediaFileUri(1);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
-                mActivity.startActivityForResult(takePictureIntent, REQUEST_CAPTURE_IMAGE_CODE);
-            }
-        });
-
-        MyFoldersDMSActivity.actionVideo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //  requestCameraPermission();
-                /*Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-                fileUri = Uri.fromFile(mediaFile);
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
-                startActivityForResult(intent, CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE);*/
-
-                Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-                File file = CameraUtils.getOutputMediaFile(MEDIA_TYPE_VIDEO);
-                if (file != null) {
-                    imageStoragePath = file.getAbsolutePath();
+            //   requestCameraPermission();
+            if(Build.VERSION.SDK_INT>=24){
+                try{
+                    Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
+                    m.invoke(null);
+                }catch(Exception e){
+                    e.printStackTrace();
                 }
-
-                Uri fileUri = CameraUtils.getOutputMediaFileUri(mActivity, file);
-
-                // set video quality
-                takeVideoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
-                takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
-                mActivity.startActivityForResult(takeVideoIntent, CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE);
             }
+            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            takePictureIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            fileUri = getOutputMediaFileUri(1);
+            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+            startActivityForResult(takePictureIntent, REQUEST_CAPTURE_IMAGE_CODE);
         });
-        MyFoldersDMSActivity.actionNewFolder.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+
+        actionVideo.setOnClickListener(v -> {
+            //  requestCameraPermission();
+            /*Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+            fileUri = Uri.fromFile(mediaFile);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+            startActivityForResult(intent, CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE);*/
+            if(Build.VERSION.SDK_INT>=24){
+                try{
+                    Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
+                    m.invoke(null);
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+            }
+
+            Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+            File file = CameraUtils.getOutputMediaFile(MEDIA_TYPE_VIDEO);
+            if (file != null) {
+                imageStoragePath = file.getAbsolutePath();
+            }
+
+            Uri fileUri = CameraUtils.getOutputMediaFileUri(mActivity, file);
+
+            // set video quality
+            takeVideoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
+            takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+            startActivityForResult(takeVideoIntent, CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE);
+        });
+        actionNewFolder.setOnClickListener(v -> {
 
 
-                final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-                LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                View view = inflater.inflate(R.layout.newfolder, null);
-                builder.setView(view);
-                builder.setCancelable(false);
+            final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+            LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View view1 = inflater.inflate(R.layout.newfolder, null);
+            builder.setView(view1);
+            builder.setCancelable(false);
 
-                Button cancel = (Button) view.findViewById(R.id.cancel_b);
-                Button allow = (Button) view.findViewById(R.id.allow);
-                final EditText namer = (EditText) view.findViewById(R.id.edit_username1);
-                allow.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        String folder = namer.getText().toString().trim();
+            Button cancel = (Button) view1.findViewById(R.id.cancel_b);
+            Button allow = (Button) view1.findViewById(R.id.allow);
+            final EditText namer = (EditText) view1.findViewById(R.id.edit_username1);
+            allow.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String folder = namer.getText().toString().trim();
 
 
-                        if (NetworkUtils.isNetworkAvailable(mActivity)) {
+                    if (NetworkUtils.isNetworkAvailable(mActivity)) {
 
-                            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+                        Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
 
-                            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
-                            transparentProgressDialog.show();
+                        final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
+                        transparentProgressDialog.show();
 
-                            final UploadNewFolderRequest uploadNewFolderRequest = new UploadNewFolderRequest(PreferenceUtils.getCategoryId(mActivity), folder);
+                        final UploadNewFolderRequest uploadNewFolderRequest = new UploadNewFolderRequest(PreferenceUtils.getCategoryId(mActivity), folder);
 
-                            String request = new Gson().toJson(uploadNewFolderRequest);
+                        String request = new Gson().toJson(uploadNewFolderRequest);
 
-                            //Here the json data is add to a hash map with key data
-                            Map<String, String> params = new HashMap<String, String>();
-                            params.put("data", request);
+                        //Here the json data is add to a hash map with key data
+                        Map<String, String> params = new HashMap<String, String>();
+                        params.put("data", request);
 
-                            final UploadNewFolderService uploadNewFolderService = retrofitAPI.create(UploadNewFolderService.class);
+                        final UploadNewFolderService uploadNewFolderService = retrofitAPI.create(UploadNewFolderService.class);
 
-                            Call call = uploadNewFolderService.getNewFolder(params, PreferenceUtils.getAccessToken(mActivity));
+                        Call call = uploadNewFolderService.getNewFolder(params, PreferenceUtils.getAccessToken(mActivity));
 
-                            call.enqueue(new Callback<ListPinDevicesResponse<LoginResponse>>() {
-                                @Override
-                                public void onResponse(Response<ListPinDevicesResponse<LoginResponse>> response, Retrofit retrofit) {
-                                    ListPinDevicesResponse apiResponse = response.body();
-                                    if (apiResponse != null) {
+                        call.enqueue(new Callback<ListPinDevicesResponse<LoginResponse>>() {
+                            @Override
+                            public void onResponse(Response<ListPinDevicesResponse<LoginResponse>> response, Retrofit retrofit) {
+                                ListPinDevicesResponse apiResponse = response.body();
+                                if (apiResponse != null) {
 
-                                        transparentProgressDialog.dismiss();
+                                    transparentProgressDialog.dismiss();
 
-                                        if (apiResponse.status.getCode() instanceof Boolean) {
-                                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                                transparentProgressDialog.dismiss();
-
-                                                // getCategoryDocuments(PreferenceUtils.getCategoryId(context),"1");
-
-                                            }
-
-                                        } else if (apiResponse.status.getCode() instanceof Integer) {
+                                    if (apiResponse.status.getCode() instanceof Boolean) {
+                                        if (apiResponse.status.getCode() == Boolean.FALSE) {
                                             transparentProgressDialog.dismiss();
-                                            String mMessage = apiResponse.status.getMessage().toString();
 
-                                            final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-                                            LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                                            builder.setView(view);
-                                            builder.setCancelable(false);
+                                            // getCategoryDocuments(PreferenceUtils.getCategoryId(context),"1");
 
-                                            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                                            txtMessage.setText(mMessage);
-
-                                            Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                                            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                                            cancelButton.setVisibility(View.GONE);
-
-                                            sendPinButton.setText("OK");
-
-                                            sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View v) {
-                                                    mAlertDialog.dismiss();
-                                                    mActivity.startActivity(new Intent(mActivity, LoginActivity.class));
-                                                }
-                                            });
-
-                                            mAlertDialog = builder.create();
-                                            mAlertDialog.show();
                                         }
+
+                                    } else if (apiResponse.status.getCode() instanceof Integer) {
+                                        transparentProgressDialog.dismiss();
+                                        String mMessage = apiResponse.status.getMessage().toString();
+
+                                        final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+                                        LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                        View view1 = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+                                        builder.setView(view1);
+                                        builder.setCancelable(false);
+
+                                        TextView txtMessage = (TextView) view1.findViewById(R.id.txt_message);
+
+                                        txtMessage.setText(mMessage);
+
+                                        Button sendPinButton = (Button) view1.findViewById(R.id.send_pin_button);
+                                        Button cancelButton = (Button) view1.findViewById(R.id.cancel_button);
+
+                                        cancelButton.setVisibility(View.GONE);
+
+                                        sendPinButton.setText("OK");
+
+                                        sendPinButton.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                mAlertDialog.dismiss();
+                                                mActivity.startActivity(new Intent(mActivity, LoginActivity.class));
+                                            }
+                                        });
+
+                                        mAlertDialog = builder.create();
+                                        mAlertDialog.show();
                                     }
                                 }
+                            }
 
-                                @Override
-                                public void onFailure(Throwable t) {
-                                    transparentProgressDialog.dismiss();
-                                    Log.d("PinDevice error", t.getMessage());
-                                }
-                            });
-                        }
-
-
-                        mAlertDialog.dismiss();
-
+                            @Override
+                            public void onFailure(Throwable t) {
+                                transparentProgressDialog.dismiss();
+                                Log.d("PinDevice error", t.getMessage());
+                            }
+                        });
                     }
-                });
-
-                cancel.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mAlertDialog.dismiss();
-
-                    }
-                });
-
-                mAlertDialog = builder.create();
-                mAlertDialog.show();
 
 
-            }
+                    mAlertDialog.dismiss();
+
+                }
+            });
+
+            cancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mAlertDialog.dismiss();
+
+                }
+            });
+
+            mAlertDialog = builder.create();
+            mAlertDialog.show();
+
+
         });
 
 
@@ -457,6 +500,12 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
 
         // now access the TextView as you want
     }
+
+    private FragmentManager getSupportFragmentManager() {
+        return getFragmentManager();
+    }
+
+
 
 
     public Uri getOutputMediaFileUri(int type) {
@@ -1132,6 +1181,7 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
         scrollView = (NestedScrollView) mView.findViewById(R.id.nest_scrollview);
 
 
+
     }
 
    /* private void getBundleArguments() {
@@ -1295,7 +1345,7 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
       //  mToolbar.setSubtitle("Mode: " + mMode.name());
     }
 
-    public void getCategoryDocuments(final String obj, String page) {
+    public  void getCategoryDocuments(final String obj, String page) {
 
         if (NetworkUtils.isNetworkAvailable(mActivity)) {
 
@@ -1329,6 +1379,21 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
                         if (apiResponse.status.getCode() instanceof Boolean) {
                             if (apiResponse.status.getCode() == Boolean.FALSE) {
                                 transparentProgressDialog.dismiss();
+                                if (obj.equals("0")){
+                                    ActionBar actionBar = mActivity.getSupportActionBar();
+                                    actionBar.setDisplayHomeAsUpEnabled(false);
+                                    actionCamera.setVisibility(View.GONE);
+                                    actionUpload.setVisibility(View.GONE);
+                                    actionVideo.setVisibility(View.GONE);
+                                }
+                                else
+                                {
+                                    ActionBar actionBar = mActivity.getSupportActionBar();
+                                    actionBar.setDisplayHomeAsUpEnabled(true);
+                                    actionCamera.setVisibility(View.VISIBLE);
+                                    actionUpload.setVisibility(View.VISIBLE);
+                                    actionVideo.setVisibility(View.VISIBLE);
+                                }
 
                                 //      listGetCategoryDocuments = response.body().getData();
                                 mGetCategoryDocumentsResponses = response.body().getData();
@@ -1343,6 +1408,7 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
                                 pageNumber = Integer.parseInt(response.headers().get("X-Pagination-Current-Page"));
 
                                 setGridAdapterToView(mGetCategoryDocumentsResponses);
+
 
                             }
 
@@ -1621,16 +1687,23 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
-        int i = mAdapter.getArrayList().size();
+        int i = PreferenceUtils.getBackButtonList(mActivity,"key").size();
         switch (item.getItemId()) {
             case android.R.id.home:
-                i = i - 2;
-                if (i > -1) {
-                    String id = mAdapter.getArrayList().get(i);
-                    mAdapter.getSubCategoryDocuments(id,String.valueOf(pageNumber));
-                    mAdapter.setArrayList(mAdapter.getArrayList().size() - 1);
+               i = i - 2;
+                if (i >-1) {
+                    String id = PreferenceUtils.getBackButtonList(mActivity,"key").get(i);
+                    getCategoryDocuments(id,String.valueOf(pageNumber));
+                    ArrayList<String> temp ;
+                    temp = PreferenceUtils.getBackButtonList(mActivity,"key");
+                    temp.remove(i);
+                    PreferenceUtils.setBackButtonList(mActivity,temp,"key");
 
                 } else {
+                    ArrayList<String> temp ;
+                    temp = PreferenceUtils.getBackButtonList(mActivity,"key");
+                    temp.clear();
+                    PreferenceUtils.setBackButtonList(mActivity,temp,"key");
                     startActivity(new Intent(getActivity(), MyFoldersDMSActivity.class));
                     return true;
 
@@ -1790,6 +1863,8 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
         }
 
     }
+
+
 
     public void openBottomSheetForMultiSelect(){
         getWhiteLabelProperities();
@@ -2279,8 +2354,8 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
 
 
                             list_upload.add(String.valueOf(filePath));
-                            PreferenceUtils.setupload(mActivity,list_upload,"key");
-                            PreferenceUtils.setupload(mActivity,list_upload,"key");
+                            PreferenceUtils.setupload(getContext(),list_upload,"key");
+                            PreferenceUtils.setupload(getContext(),list_upload,"key");
 
 
                         }
@@ -2293,9 +2368,9 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
 
                       /*  ArrayList<String> filePathList = new ArrayList<String>();
                         filePathList.add(filePath);*/
-                        list_upload = PreferenceUtils.getupload(mActivity,"key");
+                        list_upload = PreferenceUtils.getupload(getContext(),"key");
                         list_upload.add(String.valueOf(filePath));
-                        PreferenceUtils.setupload(mActivity,list_upload,"key");
+                        PreferenceUtils.setupload(getContext(),list_upload,"key");
 
                         //   uploadGalleryImage(file, filePathList);
                     }
@@ -2304,10 +2379,10 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
                 {
                     String filepath = getRealPathFromURIPath(fileUri, mActivity);
                     list_upload.add(filepath);
-                    PreferenceUtils.setupload(mActivity,list_upload,"key");
+                    PreferenceUtils.setupload(getContext(),list_upload,"key");
                 }
             }
-            Intent intent = new Intent (mActivity,UploadListActivity.class);
+            Intent intent = new Intent (getContext(),UploadListActivity.class);
             //  PreferenceUtils.setupload(MyFoldersDMSActivity.this,list_upload,"key");
             // list_upload.clear();
 
@@ -2330,18 +2405,18 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
                 filePathList.add(filePath);
                 //  list_upload = PreferenceUtils.getupload(MyFoldersDMSActivity.this,"key");
                 list_upload.add(String.valueOf(filePath));
-                PreferenceUtils.setupload(mActivity,list_upload,"key");
+                PreferenceUtils.setupload(getContext(),list_upload,"key");
                 // list_upload.clear();
 
-                Intent intent = new Intent (mActivity,UploadListActivity.class);
+                Intent intent = new Intent (getContext(),UploadListActivity.class);
                 startActivity(intent);
 
 
             } else if (resultCode == RESULT_CANCELED) {
-                Toast.makeText(mActivity, "User cancelled image capture", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "User cancelled image capture", Toast.LENGTH_SHORT).show();
 
             } else {
-                Toast.makeText(mActivity, "Error capturing image", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Error capturing image", Toast.LENGTH_SHORT).show();
             }
         } else if (requestCode == CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
 
@@ -2359,9 +2434,9 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
             filePathList.add(filePath);
             list_upload = PreferenceUtils.getupload(mActivity,"key");
             list_upload.add(String.valueOf(filePath));
-            PreferenceUtils.setupload(mActivity,list_upload,"key");
+            PreferenceUtils.setupload(getContext(),list_upload,"key");
             list_upload.clear();
-            Intent intent = new Intent (mActivity,UploadListActivity.class);
+            Intent intent = new Intent (getContext(),UploadListActivity.class);
             startActivity(intent);
 
         }
@@ -2423,7 +2498,7 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
         }
 
         list_upload = PreferenceUtils.getupload(mActivity,"key");
-        if ((list_upload!=null)&&(list_upload.size()>0)){
+        if ((list_upload!=null)&&(list_upload.size()>1)){
             final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
             LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View view = inflater.inflate(R.layout.custom_dialog, null);
@@ -2458,8 +2533,6 @@ public class ItemNavigationFolderFragment extends Fragment implements DmsAdapter
 
 
         }
-        else{
 
-        }
     }
 }

@@ -268,7 +268,7 @@ public class LoginAgreeTermsAcceptanceFragment extends Fragment {
 
             SetTermsAcceptanceRequest mSetTermsAcceptanceRequest = new SetTermsAcceptanceRequest(1);
             String request = new Gson().toJson(mSetTermsAcceptanceRequest);
-            //Here the json data is add to a hash map with key data
+            //Here the json data is add to a hash map with gkey data
             Map<String, String> params = new HashMap<String, String>();
             params.put("data", request);
 

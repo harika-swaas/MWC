@@ -25,6 +25,7 @@ import com.swaas.mwc.API.Model.PushNotificationRequestModel;
 import com.swaas.mwc.API.Model.SharedDocumentResponseModel;
 import com.swaas.mwc.API.Model.WhiteLabelResponse;
 import com.swaas.mwc.API.Service.ShareEndUserDocumentsService;
+import com.swaas.mwc.DMS.MyFoldersDMSActivity;
 import com.swaas.mwc.Database.AccountSettings;
 import com.swaas.mwc.Network.NetworkUtils;
 import com.swaas.mwc.Preference.PreferenceUtils;
@@ -55,6 +56,7 @@ public class Notifiy extends Activity {
     boolean mIsFromFTL;
     AlertDialog mCustomAlertDialog;
     String push_notificaton_settings;
+    Notifiy mActivity;
     Context context = this;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -200,7 +202,6 @@ public class Notifiy extends Activity {
 
                     if (response != null) {
 
-                        if (response.body().getStatus().getCode() instanceof Boolean) {
                             if (response.body().getStatus().getCode() == Boolean.FALSE) {
 
 
@@ -217,13 +218,18 @@ public class Notifiy extends Activity {
                                             Intent intent = new Intent(Notifiy.this, LoginAgreeTermsAcceptanceActivity.class);
                                             startActivity(intent);
                                             finish();
-                                        } else if(mAccountSettingsResponses.get(0).getIs_Terms_Accepted().equals("1")){
+                                        } else if(mAccountSettingsResponses.get(0).getIs_Help_Accepted().equals("0")){
+                                            Intent intent = new Intent(Notifiy.this, MyFoldersDMSActivity.class);
+                                            startActivity(intent);
+                                            finish();
+                                        }
+                                        else{
                                             Intent intent = new Intent(Notifiy.this, LoginHelpUserGuideActivity.class);
                                             startActivity(intent);
                                             finish();
                                         }
                                     } else {
-                                        Intent intent = new Intent(Notifiy.this, LoginHelpUserGuideActivity.class);
+                                        Intent intent = new Intent(Notifiy.this, MyFoldersDMSActivity.class);
                                         startActivity(intent);
                                         finish();
                                     }
@@ -232,8 +238,8 @@ public class Notifiy extends Activity {
 
                             }
 
-                        }
-                      /*  else if (response.body().getStatus().getCode() instanceof Double) {
+
+                        else if (response.body().getStatus().getCode() instanceof Double) {
 
                             String mMessage = response.body().getStatus().getMessage().toString();
 
@@ -271,7 +277,7 @@ public class Notifiy extends Activity {
 
 
                             }
-                        }*/
+                        }
                     }
                 }
 

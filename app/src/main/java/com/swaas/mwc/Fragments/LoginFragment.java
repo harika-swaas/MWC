@@ -27,8 +27,13 @@ import com.squareup.okhttp.OkHttpClient;
 import com.swaas.mwc.API.Model.AccountSettingsResponse;
 import com.swaas.mwc.API.Model.ApiResponse;
 import com.swaas.mwc.API.Model.BaseApiResponse;
+import com.swaas.mwc.API.Model.GetUISettingsResponse;
+import com.swaas.mwc.API.Model.GetUserPreferencesResponse;
 import com.swaas.mwc.API.Model.LoginRequest;
 import com.swaas.mwc.API.Model.LoginResponse;
+import com.swaas.mwc.API.Model.WhiteLabelResponse;
+import com.swaas.mwc.API.Service.GetUISettingsService;
+import com.swaas.mwc.API.Service.GetUserPreferencesService;
 import com.swaas.mwc.API.Service.LoginService;
 import com.swaas.mwc.Database.AccountSettings;
 import com.swaas.mwc.Dialogs.LoadingProgressDialog;
@@ -75,6 +80,7 @@ public class LoginFragment extends Fragment {
     Button mSignInButton;
     TextView mNotLoggedInBefore;
     EditText mUserName, mPassword;
+    private LoginResponse mLoggedInObj;
     List<AccountSettingsResponse> mAccountSettingsResponses = new ArrayList<>();
 
     @Override
@@ -183,7 +189,8 @@ public class LoginFragment extends Fragment {
 
                                             updateLoggedInStatus();
                                             updateHelpAcceptedAndLoggedInStatus();
-                                            
+                                            getUiSettings();
+                                            getUserPreferences();
                                             if (mLoginResponse.nextStep != null) {
 
                                                 if (mLoginResponse.nextStep.isPin_authentication_required() == true) {
@@ -197,6 +204,8 @@ public class LoginFragment extends Fragment {
 
                                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                                                     checkSecurity();
+                                                    updateLoggedInStatus();
+                                                    updateHelpAcceptedAndLoggedInStatus();
                                                 }
                                             }
 
@@ -343,12 +352,152 @@ public class LoginFragment extends Fragment {
             Intent intent = new Intent(mActivity, Touchid.class);
             startActivity(intent);
             mActivity.finish();
-        } else {
-            Intent intent = new Intent(mActivity, Notifiy.class);
+        }
+        else
+        {
+            Intent intent = new Intent(mActivity,Notifiy.class);
             startActivity(intent);
-            mActivity.finish();
         }
     }
+
+    private void getUiSettings() {
+
+        if (NetworkUtils.isNetworkAvailable(mActivity)) {
+
+            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+            final GetUISettingsService getUISettingsService = retrofitAPI.create(GetUISettingsService.class);
+
+            Call call = getUISettingsService.getUISettings(PreferenceUtils.getAccessToken(mActivity));
+
+            call.enqueue(new Callback<BaseApiResponse<GetUISettingsResponse>>() {
+                @Override
+                public void onResponse(Response<BaseApiResponse<GetUISettingsResponse>> response, Retrofit retrofit) {
+                    BaseApiResponse apiResponse = response.body();
+                    if (apiResponse != null) {
+
+                        if (apiResponse.status.getCode() instanceof Boolean) {
+
+                            if (apiResponse.status.getCode() == Boolean.FALSE) {
+                                GetUISettingsResponse mGetUISettingsResponse = response.body().getData();
+
+                                if (mGetUISettingsResponse != null) {
+
+                                    if (mGetUISettingsResponse.ui_properties != null) {
+
+                                        String mobileItemEnableColor = mGetUISettingsResponse.ui_properties.getMobile_item_enable_color();
+                                        String mobileItemDisableColor = mGetUISettingsResponse.ui_properties.getMobile_item_disable_color();
+                                        String splashScreenColor = mGetUISettingsResponse.ui_properties.getMobile_splash_screen_background_color();
+                                        String folderColor = mGetUISettingsResponse.ui_properties.getMobile_folder_color();
+
+                                        AccountSettings accountSettings = new AccountSettings(mActivity);
+                                        WhiteLabelResponse whiteLabelResponse = new WhiteLabelResponse();
+                                        whiteLabelResponse.setItem_Selected_Color(mobileItemEnableColor);
+                                        whiteLabelResponse.setItem_Unselected_Color(mobileItemDisableColor);
+                                        whiteLabelResponse.setSplash_Screen_Color(splashScreenColor);
+                                        whiteLabelResponse.setFolder_Color(folderColor);
+
+                                        accountSettings.InsertWhiteLabelDetails(whiteLabelResponse);
+                                    }
+                                }
+                            } else {
+
+                            }
+                        } else if (apiResponse.status.getCode() instanceof Double) {
+                            String mMessage = apiResponse.status.getMessage().toString();
+                            Object obj = 401.0;
+                            if(obj.equals(401.0)) {
+                                mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        startActivity(new Intent(mActivity, LoginActivity.class));
+                                    }
+                                }, false);
+                            }
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    // Toast.makeText(mActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
+    }
+
+    private void getUserPreferences() {
+
+        if (NetworkUtils.isNetworkAvailable(mActivity)) {
+
+            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+            final GetUserPreferencesService getUserPreferencesService = retrofitAPI.create(GetUserPreferencesService.class);
+
+            Call call = getUserPreferencesService.getUserPreferences(PreferenceUtils.getAccessToken(mActivity));
+
+            call.enqueue(new Callback<BaseApiResponse<GetUserPreferencesResponse>>() {
+                @Override
+                public void onResponse(Response<BaseApiResponse<GetUserPreferencesResponse>> response, Retrofit retrofit) {
+                    BaseApiResponse apiResponse = response.body();
+                    if (apiResponse != null) {
+
+                        if (apiResponse.status.getCode() instanceof Boolean) {
+
+                            if (apiResponse.status.getCode() == Boolean.FALSE) {
+                                GetUserPreferencesResponse mGetUserPreferencesResponse = response.body().getData();
+                                if (mGetUserPreferencesResponse != null) {
+                                    String assistance_popup = mGetUserPreferencesResponse.getAssistance_popup();
+                                    PreferenceUtils.setAssist(mActivity,assistance_popup);
+
+                                    Gson gson = new Gson();
+                                    mLoggedInObj = gson.fromJson(PreferenceUtils.getDocPortalLoggedInObj(mActivity), LoginResponse.class);
+
+                                    AccountSettingsResponse accountSettingsResponse = new AccountSettingsResponse();
+                                    accountSettingsResponse.setUser_Id(mLoggedInObj.getUserId());
+                                    accountSettingsResponse.setUser_Name(mLoggedInObj.getUserName());
+                                    accountSettingsResponse.setAccess_Token(mLoggedInObj.getAccessToken());
+                                    accountSettingsResponse.setCompany_Name(mLoggedInObj.getCompany_name());
+                                    accountSettingsResponse.setIs_Terms_Accepted(mLoggedInObj.getTerms_accept());
+                                    accountSettingsResponse.setIs_Help_Accepted(assistance_popup);
+                                    accountSettingsResponse.setLogin_Complete_Status(String.valueOf(Constants.Login_Completed));
+                                    accountSettingsResponse.setIs_Local_Auth_Enabled("0");
+                                    accountSettingsResponse.setIs_Push_Notification_Enabled("0");
+
+                                    AccountSettings accountSettings = new AccountSettings(mActivity);
+                                    accountSettings.InsertAccountSettings(accountSettingsResponse);
+                                }
+
+                            } else {
+
+                            }
+
+                        } else if (apiResponse.status.getCode() instanceof Double) {
+                            String mMessage = apiResponse.status.getMessage().toString();
+                            Object obj = 401.0;
+                            if(obj.equals(401.0)) {
+                                mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        startActivity(new Intent(mActivity, LoginActivity.class));
+                                    }
+                                }, false);
+                            }
+                        }
+
+                      /*  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            checkSecurity();
+                        }*/
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    Log.d("PINVerErr", t.getMessage());
+                }
+            });
+        }
+    }
+
 
     private void updateLoggedInStatus() {
 

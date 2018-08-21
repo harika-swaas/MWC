@@ -9,7 +9,7 @@ public class Constants {
     // ***************************** Testing ********************************************
        public static final String COMPANY_BASE_URL = "http://172.16.40.50";
 
-  //  public static final String COMPANY_BASE_URL = "https://uatapi.mywealthcloud.com";
+  // public static final String COMPANY_BASE_URL = "https://uatapi.mywealthcloud.com";
 
 
     // ***************************** Production ********************************************

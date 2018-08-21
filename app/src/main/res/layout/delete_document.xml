@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:id="@+id/rl_alert_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#717171">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:text="Delete"
+                android:id="@+id/title"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:textColor="@color/white"
+                android:textSize="17sp" />
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/alertmessage"
+        android:layout_below="@+id/rl_alert_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:visibility="visible"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp">
+
+
+        <TextView
+            android:id="@+id/alertmessage1"
+            android:layout_width="398dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:background="?android:attr/selectableItemBackground"
+            android:gravity="center_vertical"
+            android:textAlignment="center"
+            android:text="This action will delete the selected document(s)
+If this document is shared then it will be deleted from all End User Accounts as well"
+            android:textColor="#717171"
+            android:textSize="14sp" />
+
+
+
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/message_text"
+        android:layout_below="@+id/rl_alert_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:visibility="visible"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp">
+
+
+        <Button
+            android:id="@+id/delete"
+            android:layout_width="398dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:background="?android:attr/selectableItemBackground"
+            android:gravity="center_vertical"
+            android:textAlignment="center"
+            android:text="Delete this version only"
+            android:textColor="#717171"
+            android:textSize="16sp" />
+
+
+
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/message_text1"
+        android:layout_below="@+id/rl_alert_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="140dp"
+        android:visibility="visible"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp">
+
+
+
+        <Button
+            android:id="@+id/movefolder"
+            android:layout_width="398dp"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground"
+            android:gravity="center_vertical"
+            android:text="Delete historic version only"
+            android:textAlignment="center"
+            android:textColor="#717171"
+            android:textSize="16sp" />
+
+
+
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/delall"
+        android:layout_below="@+id/rl_alert_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="180dp"
+        android:visibility="visible"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp">
+
+
+
+        <Button
+            android:id="@+id/deleteall"
+            android:layout_width="398dp"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground"
+            android:gravity="center_vertical"
+            android:textAlignment="center"
+            android:text="Delete this version and all historic versions "
+            android:textColor="#717171"
+            android:textSize="16sp" />
+
+
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/canceldelete"
+        android:layout_below="@+id/rl_alert_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="220dp"
+        android:visibility="visible"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp">
+
+
+
+        <Button
+            android:id="@+id/canceldel"
+            android:layout_width="398dp"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground"
+            android:gravity="center_vertical"
+            android:textAlignment="center"
+            android:text="cancel "
+            android:textColor="#717171"
+            android:textSize="16sp" />
+    </RelativeLayout>
+
+
+</RelativeLayout>

@@ -94,6 +94,7 @@ public class ItemNavigationSharedFragment extends Fragment
     private DragSelectionProcessor mDragSelectionProcessor;
     MenuItem menuItemAdd, menuItemSearch, menuItemDelete, menuItemShare, menuItemMove, menuItemMore;
     static Boolean isTouched = false;
+    public  FloatingActionMenu floatingActionMenu;
 
     public static ItemNavigationSharedFragment newInstance() {
         ItemNavigationSharedFragment fragment = new ItemNavigationSharedFragment();
@@ -253,6 +254,8 @@ public class ItemNavigationSharedFragment extends Fragment
     private void intiaizeViews()
     {
         mRecyclerView = (RecyclerView) mView.findViewById(R.id.recycler_dms);
+        floatingActionMenu = (FloatingActionMenu) getActivity().findViewById(R.id.floating_action_menu);
+        floatingActionMenu.setVisibility(View.INVISIBLE);
     }
 
     private void getWhiteLabelProperities() {
@@ -282,8 +285,8 @@ public class ItemNavigationSharedFragment extends Fragment
         MyFoldersDMSActivity.title_layout= (LinearLayout) getActivity().findViewById(R.id.linearlayout1);
         MyFoldersDMSActivity.title_layout.setVisibility(View.VISIBLE);
 
-        MyFoldersDMSActivity.floatingActionMenu = (FloatingActionMenu) getActivity().findViewById(R.id.floating_action_menu);
-        MyFoldersDMSActivity.floatingActionMenu.setVisibility(View.GONE);
+      /*  MyFoldersDMSActivity.floatingActionMenu = (FloatingActionMenu) getActivity().findViewById(R.id.floating_action_menu);
+        MyFoldersDMSActivity.floatingActionMenu.setVisibility(View.GONE);*/
 
         MyFoldersDMSActivity.toggleView= (RelativeLayout) getActivity().findViewById(R.id.toggle_view);
         MyFoldersDMSActivity.toggle = (ImageView) getActivity().findViewById(R.id.toggle);

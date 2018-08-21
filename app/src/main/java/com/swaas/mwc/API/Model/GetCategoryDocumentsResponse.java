@@ -32,6 +32,15 @@ public class GetCategoryDocumentsResponse implements Serializable{
     int Is_Downloaded;
     long download_Id;
     String version_number;
+    String version_count;
+
+    public String getVersion_count() {
+        return version_count;
+    }
+
+    public void setVersion_count(String version_count) {
+        this.version_count = version_count;
+    }
 
     public String getVersion_number() {
         return version_number;

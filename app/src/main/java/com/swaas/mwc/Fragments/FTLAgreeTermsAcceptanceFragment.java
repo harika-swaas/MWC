@@ -2,12 +2,16 @@ package com.swaas.mwc.Fragments;
 
 
 import android.app.AlertDialog;
+import android.app.KeyguardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.text.SpannableString;
@@ -41,6 +45,7 @@ import com.swaas.mwc.Dialogs.LoadingProgressDialog;
 import com.swaas.mwc.FTL.FTLAgreeTermsAcceptanceActivity;
 import com.swaas.mwc.FTL.WebviewLoaderTermsActivity;
 import com.swaas.mwc.Login.LoginActivity;
+import com.swaas.mwc.Login.Notifiy;
 import com.swaas.mwc.Login.Touchid;
 import com.swaas.mwc.Network.NetworkUtils;
 import com.swaas.mwc.Preference.PreferenceUtils;
@@ -319,10 +324,21 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
                         if (apiResponse.status.getCode() instanceof Boolean) {
                             if (apiResponse.status.getCode() == Boolean.FALSE) {
                                 insertAccountSettings();
-                                Intent mIntent = new Intent(mActivity, Touchid.class);
-                                mIntent.putExtra(Constants.IS_FROM_FTL, true);
-                                startActivity(mIntent);
-                                mActivity.finish();
+
+                                    KeyguardManager keyguardManager = (KeyguardManager) mActivity.getSystemService(Context.KEYGUARD_SERVICE);
+                                    if (keyguardManager.isKeyguardSecure() == true) {
+                                        Intent intent = new Intent(mActivity, Touchid.class);
+                                        intent.putExtra(Constants.IS_FROM_FTL, true);
+                                        startActivity(intent);
+                                        mActivity.finish();
+                                    } else {
+                                        Intent intent = new Intent(mActivity, Notifiy.class);
+                                        intent.putExtra(Constants.IS_FROM_FTL, true);
+
+                                        startActivity(intent);
+                                        mActivity.finish();
+                                    }
+
                             } else {
                                 String mMessage = apiResponse.status.getMessage().toString();
                                 mActivity.showMessagebox(mActivity, mMessage, null, false);
@@ -377,6 +393,7 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
                                 GetUserPreferencesResponse mGetUserPreferencesResponse = response.body().getData();
                                 if (mGetUserPreferencesResponse != null) {
                                     assistance_popup = mGetUserPreferencesResponse.getAssistance_popup();
+                                    PreferenceUtils.setAssist(mActivity,assistance_popup);
                                 }
 
                             } else {

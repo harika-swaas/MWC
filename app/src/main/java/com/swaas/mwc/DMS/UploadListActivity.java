@@ -13,6 +13,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -58,6 +59,7 @@ import com.swaas.mwc.Retrofit.RetrofitAPIBuilder;
 import com.swaas.mwc.Utils.BottomSheet;
 
 import java.io.File;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -189,8 +191,7 @@ public class UploadListActivity extends Activity{
 */
                                 PreferenceUtils.setupload(UploadListActivity.this, UploadList, "key");
                                 upload(fileindex);
-                                customAdapter.ActivateDone(true,fileindex);
-                                customAdapter.notifyDataSetChanged();
+
                                 String mMessage = apiResponse.getStatus().getMessage().toString();
                                 //Toast.makeText(UploadListActivity.this, mMessage, Toast.LENGTH_SHORT).show();
                             } else {
@@ -215,6 +216,8 @@ public class UploadListActivity extends Activity{
             UploadList = PreferenceUtils.getupload(UploadListActivity.this,"key");
             int size1 = UploadList.size();
             if (size1 == 0) {
+                customAdapter.ActivateDone(true,fileindex);
+                customAdapter.notifyDataSetChanged();
                 //Toast.makeText(UploadListActivity.this, "All files were uploaded Successfully", Toast.LENGTH_SHORT).show();
                 final AlertDialog.Builder builder = new AlertDialog.Builder(UploadListActivity.this);
                 LayoutInflater inflater = (LayoutInflater) UploadListActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -281,6 +284,7 @@ public class UploadListActivity extends Activity{
                     @Override
                     public void onClick(View v) {
                         mCustomAlertDialog.dismiss();
+
                     }
                 });
 
@@ -307,6 +311,15 @@ public class UploadListActivity extends Activity{
         camera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                if(Build.VERSION.SDK_INT>=24){
+                    try{
+                        Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
+                        m.invoke(null);
+                    }catch(Exception e){
+                        e.printStackTrace();
+                    }
+                }
                 // requestCameraPermission();
                 Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 fileUri = getOutputMediaFileUri(1);
@@ -314,6 +327,7 @@ public class UploadListActivity extends Activity{
                 UploadList =  PreferenceUtils.getupload(UploadListActivity.this, "key");
                 startActivityForResult(takePictureIntent, REQUEST_CAPTURE_IMAGE_CODE);
                 upload_list.setAdapter(customAdapter);
+                mBottomSheetDialog.dismiss();
 
             }
         });
@@ -321,6 +335,15 @@ public class UploadListActivity extends Activity{
         video.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                if(Build.VERSION.SDK_INT>=24){
+                    try{
+                        Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
+                        m.invoke(null);
+                    }catch(Exception e){
+                        e.printStackTrace();
+                    }
+                }
                 //  requestCameraPermission();
                 /*Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
                 fileUri = Uri.fromFile(mediaFile);
@@ -340,6 +363,7 @@ public class UploadListActivity extends Activity{
                 takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
                 startActivityForResult(takeVideoIntent, CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE);
                 upload_list.setAdapter(customAdapter);
+                mBottomSheetDialog.dismiss();
 
             }
         });
@@ -347,11 +371,20 @@ public class UploadListActivity extends Activity{
             @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
             @Override
             public void onClick(View v) {
+                if(Build.VERSION.SDK_INT>=24){
+                    try{
+                        Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
+                        m.invoke(null);
+                    }catch(Exception e){
+                        e.printStackTrace();
+                    }
+                }
                 //requestStoragePermission();
                 Intent openGalleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
                 openGalleryIntent.setType("*/*");
                 openGalleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
                 startActivityForResult(openGalleryIntent, REQUEST_GALLERY_CODE);
+                mBottomSheetDialog.dismiss();
 
             }
         });
@@ -380,6 +413,14 @@ public class UploadListActivity extends Activity{
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(Build.VERSION.SDK_INT>=24){
+            try{
+                Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
+                m.invoke(null);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        }
 
         if (requestCode == REQUEST_GALLERY_CODE && resultCode == Activity.RESULT_OK) {
             fileUri = data.getData();

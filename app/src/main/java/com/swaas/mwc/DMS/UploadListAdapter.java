@@ -64,7 +64,7 @@ public class UploadListAdapter extends RecyclerView.Adapter<UploadListAdapter.Vi
     public void onBindViewHolder(ViewHolder holder, final int position) {
 
         if(uploadList!=null && uploadList.size()>0) {
-
+            /*uploadList = PreferenceUtils.getupload(context,"key");*/
             String filename = uploadList.get(position).substring(uploadList.get(position).lastIndexOf("/") + 1);
             String extension = uploadList.get(position).substring(uploadList.get(position).lastIndexOf(".")+1);
             holder.name.setText(filename);

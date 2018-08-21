@@ -87,7 +87,8 @@
                         android:layout_alignTop="@+id/thumbnail_image"
                         android:layout_marginLeft="10dp"
                         android:layout_marginRight="10dp"
-                        android:src="@mipmap/ic_thumbnail_corner" />
+                        android:src="@mipmap/ic_thumbnail_corner"
+                        android:visibility="invisible"/>
 
                     <TextView
                         android:id="@+id/thumbnail_text"

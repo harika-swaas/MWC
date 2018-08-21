@@ -91,6 +91,7 @@ public class ItemNavigationSettingsFragment extends Fragment{
     SwitchCompat push_notification_Switch, finger_print_Switch;
     String push_notificaton_settings, finger_print_settings;
     boolean push_notificatoin;
+    public  FloatingActionMenu floatingActionMenu;
 
     KeyguardManager keyguardManager;
     private static final int CREDENTIALS_RESULT = 4342;
@@ -636,6 +637,8 @@ public class ItemNavigationSettingsFragment extends Fragment{
         push_notification_Switch = (SwitchCompat)mView.findViewById(R.id.push_notification_Switch);
         finger_print_Switch =  (SwitchCompat)mView.findViewById(R.id.finger_print_Switch);
         finger_print_layout = (LinearLayout)mView.findViewById(R.id.finger_print_layout);
+        floatingActionMenu = (FloatingActionMenu) getActivity().findViewById(R.id.floating_action_menu);
+        floatingActionMenu.setVisibility(View.INVISIBLE);
 
 
     }
@@ -648,8 +651,8 @@ public class ItemNavigationSettingsFragment extends Fragment{
         MyFoldersDMSActivity.title_layout= (LinearLayout) getActivity().findViewById(R.id.linearlayout1);
         MyFoldersDMSActivity.title_layout.setVisibility(View.GONE);
 
-        MyFoldersDMSActivity.floatingActionMenu = (FloatingActionMenu) getActivity().findViewById(R.id.floating_action_menu);
+       /* MyFoldersDMSActivity.floatingActionMenu = (FloatingActionMenu) getActivity().findViewById(R.id.floating_action_menu);
         MyFoldersDMSActivity.floatingActionMenu.setVisibility(View.GONE);
-
+*/
     }
 }

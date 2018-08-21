@@ -16,6 +16,8 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.CAPTURE_VIDEO_OUTPUT" />
+
 
     <application
         android:name=".MWCApplication"
@@ -100,7 +102,7 @@
         <activity android:name=".DMS.MyFolderEndUserAllowedSharedFoldersActivity" />
         <activity android:name=".DMS.MyFolderActivity" />
         <activity android:name=".pdf.PdfViewActivity" />
-
+        <activity android:name=".DMS.MyfolderDeleteActivity" />
         <receiver android:name=".ReadSms">
             <intent-filter>
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />

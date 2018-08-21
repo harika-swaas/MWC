@@ -1,11 +1,14 @@
 package com.swaas.mwc.DMS;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.view.MenuItem;
+import android.widget.Toolbar;
 
 import com.swaas.mwc.Fragments.History_Fragment;
 import com.swaas.mwc.Fragments.Notes_Fragment;
@@ -24,6 +27,7 @@ public class Tab_Activity extends RootActivity {
 
     private TabLayout tabLayout;
     private ViewPager viewPager;
+    Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +39,7 @@ public class Tab_Activity extends RootActivity {
 
         tabLayout = (TabLayout) findViewById(R.id.simpleTabLayout);
         tabLayout.setupWithViewPager(viewPager);
-
+        toolbar = (Toolbar) findViewByIdInContent(R.id.toolbar);
     }
 
     private void addTabs(ViewPager viewPager) {
@@ -75,4 +79,16 @@ public class Tab_Activity extends RootActivity {
         }
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+
+                startActivity(new Intent(Tab_Activity.this, MyFoldersDMSActivity.class));
+                return true;
+
+        }
+        return super.onOptionsItemSelected(item);
+
+    }
 }

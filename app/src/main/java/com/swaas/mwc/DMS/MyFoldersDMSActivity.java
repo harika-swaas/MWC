@@ -18,11 +18,14 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.GridLayoutManager;
@@ -90,10 +93,12 @@ import com.swaas.mwc.R;
 import com.swaas.mwc.Retrofit.RetrofitAPIBuilder;
 import com.swaas.mwc.RootActivity;
 import com.swaas.mwc.Utils.Constants;
+import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -151,6 +156,7 @@ public class MyFoldersDMSActivity extends RootActivity {
     boolean sortBySizeAsc = true;
     boolean sortByDateAsc = true;
     boolean isSortByDefault = true;
+
     List<GetCategoryDocumentsResponse> mGetCategoryDocumentsResponses;
     List<GetCategoryDocumentsResponse> listGetCategoryDocuments = new ArrayList<>();
     List<GetCategoryDocumentsResponse> mSelectedDocumentList = new ArrayList<>();
@@ -163,8 +169,8 @@ public class MyFoldersDMSActivity extends RootActivity {
     private DragSelectTouchListener mDragSelectTouchListener;
     private DragSelectionProcessor mDragSelectionProcessor;
     MenuItem menuItemSearch, menuItemDelete, menuItemShare, menuItemMove, menuItemMore;
-    public static FloatingActionMenu floatingActionMenu;
-   public static FloatingActionButton actionUpload, actionCamera, actionNewFolder, actionVideo;
+   /* public static FloatingActionMenu floatingActionMenu;
+   public static FloatingActionButton actionUpload, actionCamera, actionNewFolder, actionVideo;*/
     Uri fileUri;
     Uri uriVideo;
     public static final int REQUEST_GALLERY_CODE = 200;
@@ -196,6 +202,7 @@ public class MyFoldersDMSActivity extends RootActivity {
     int totalPages=1;
     String obj="0";
     Context context=this;
+    ItemNavigationFolderFragment fragment;
 
     List<GetCategoryDocumentsResponse> paginationList = new ArrayList<>();
     public static LinearLayout title_layout;
@@ -218,6 +225,21 @@ public class MyFoldersDMSActivity extends RootActivity {
             mBottomNavigationView.setSelectedItemId(R.id.navigation_folder); // change to whichever id should be default
         }
 
+
+        RxPermissions rxPermissions = new RxPermissions(this);
+        rxPermissions
+                .request(Manifest.permission.CAMERA,
+                        Manifest.permission.CAPTURE_VIDEO_OUTPUT,
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ) // ask single or multiple permission once
+                .subscribe(granted -> {
+                    if (granted) { // Always true pre-M
+                        // I can control the camera now
+                    } else {
+                        // Oups permission denied
+                    }
+                });
 
 
        /* mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -401,11 +423,11 @@ public class MyFoldersDMSActivity extends RootActivity {
         mBottomNavigationView = (BottomNavigationView) findViewById(R.id.navigation);
         toggle = (ImageView) findViewById(R.id.toggle);
         sortingView = (LinearLayout) findViewById(R.id.sort);
-        floatingActionMenu = (FloatingActionMenu) findViewById(R.id.floating_action_menu);
-        actionUpload = (FloatingActionButton) findViewById(R.id.menu_upload_item);
+        //floatingActionMenu = (FloatingActionMenu) findViewById(R.id.floating_action_menu);
+        /*actionUpload = (FloatingActionButton) findViewById(R.id.menu_upload_item);
         actionCamera = (FloatingActionButton) findViewById(R.id.menu_camera_item);
         actionNewFolder = (FloatingActionButton) findViewById(R.id.menu_new_folder_item);
-        actionVideo = (FloatingActionButton) findViewById(R.id.menu_camera_video_item);
+        actionVideo = (FloatingActionButton) findViewById(R.id.menu_camera_video_item);*/
         sort = (TextView) findViewById(R.id.name_sort);
         toggleView = (RelativeLayout) findViewById(R.id.toggle_view);
         indicatorParentView=(RelativeLayout) findViewById(R.id.nameIndicatorParentView);
@@ -415,7 +437,7 @@ public class MyFoldersDMSActivity extends RootActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(false);
 
         collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
         collapsingToolbarLayout.setTitle(getResources().getString(R.string.my_folder));
@@ -689,6 +711,7 @@ public class MyFoldersDMSActivity extends RootActivity {
         });
     }
 */
+/*
     public void getCategoryDocuments(String obj, String page) {
 
         if (NetworkUtils.isNetworkAvailable(context)) {
@@ -730,13 +753,16 @@ public class MyFoldersDMSActivity extends RootActivity {
                                 {
                                     emptyText.setVisibility(View.VISIBLE);
                                 }
+*/
 /*
                                 mGetCategoryDocumentsResponses.add((GetCategoryDocumentsResponse) listGetCategoryDocuments);
-*/
+*//*
+
 
                                 totalPages  = Integer.parseInt(response.headers().get("X-Pagination-Page-Count"));
                                 pageNumber = Integer.parseInt(response.headers().get("X-Pagination-Current-Page"));
 
+*/
 /*
                                 if(Integer.parseInt(pageCount) > 1)
                                 {
@@ -744,7 +770,8 @@ public class MyFoldersDMSActivity extends RootActivity {
                                     mGetCategoryDocumentsResponses.addAll(paginationList);
 
                                 }
-*/
+*//*
+
 
                             //    setGridAdapterToView(mGetCategoryDocumentsResponses);
                                 //     paginationList.clear();
@@ -804,6 +831,7 @@ public class MyFoldersDMSActivity extends RootActivity {
             });
         }
     }
+*/
 
     /*private void loadNextPage() {
         if (NetworkUtils.isNetworkAvailable(this)) {
@@ -1809,15 +1837,31 @@ public class MyFoldersDMSActivity extends RootActivity {
 
     @Override
     public void onBackPressed() {
-        if (backButtonCount >= 1) {
-            backButtonCount = 0;
-            moveTaskToBack(true);
-        } else {
-            Toast.makeText(this, "Press the back button once again to close the application.", Toast.LENGTH_SHORT).show();
-            backButtonCount++;
-        }
-    }
+            int i = PreferenceUtils.getBackButtonList(MyFoldersDMSActivity.this, "key").size();
+            i = i - 2;
+            if (i > -1) {
+                String id = PreferenceUtils.getBackButtonList(MyFoldersDMSActivity.this, "key").get(i);
 
+             //   ItemNavigationFolderFragment itemNavigationFolderFragment = (ItemNavigationFolderFragment) getSupportFragmentManager().findFragmentById(R.id.navigation_folder);
+               /* FragmentManager manager = (FragmentManager) getSupportFragmentManager();
+                ItemNavigationFolderFragment fragment = (ItemNavigationFolderFragment)manager.findFragmentById(R.id.navigation_folder);
+                fragment.getCategoryDocuments(id, String.valueOf(pageNumber));*/
+                //itemNavigationFolderFragment.getCategoryDocuments(id, String.valueOf(pageNumber));
+                ArrayList<String> temp;
+                temp = PreferenceUtils.getBackButtonList(MyFoldersDMSActivity.this, "key");
+                temp.remove(i);
+                PreferenceUtils.setBackButtonList(MyFoldersDMSActivity.this, temp, "key");
+
+            } else {
+                ArrayList<String> temp;
+                temp = PreferenceUtils.getBackButtonList(MyFoldersDMSActivity.this, "key");
+                temp.clear();
+                PreferenceUtils.setBackButtonList(MyFoldersDMSActivity.this, temp, "key");
+                moveTaskToBack(true);
+
+            }
+
+        }
     /*  @Override
       public boolean onCreateOptionsMenu(Menu menu) {
 
@@ -2223,15 +2267,30 @@ public class MyFoldersDMSActivity extends RootActivity {
         mRecyclerView.addOnItemTouchListener(mDragSelectTouchListener);
     }*/
 
-    @Override
+/*    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(Build.VERSION.SDK_INT>=24){
+            try{
+                Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
+                m.invoke(null);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        }
 
         if (requestCode == REQUEST_GALLERY_CODE && resultCode == Activity.RESULT_OK) {
             fileUri = data.getData();
 
+            if(Build.VERSION.SDK_INT>=24){
+                try{
+                    Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
+                    m.invoke(null);
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+            }
 
-
-            /*Uri selectedImageUri = null;
+            *//*Uri selectedImageUri = null;
             String Path = null;
             try {
                 Path = data.getExtras().getString("dataImg");
@@ -2287,7 +2346,7 @@ public class MyFoldersDMSActivity extends RootActivity {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-            }*/
+            }*//*
             list_upload = new ArrayList<>();
 
             if (null != data) { // checking empty selection
@@ -2319,8 +2378,8 @@ public class MyFoldersDMSActivity extends RootActivity {
                         String filePath = getRealPathFromURIPath(uri, MyFoldersDMSActivity.this);
                         //File file = new File(filePath);
 
-                      /*  ArrayList<String> filePathList = new ArrayList<String>();
-                        filePathList.add(filePath);*/
+                      *//*  ArrayList<String> filePathList = new ArrayList<String>();
+                        filePathList.add(filePath);*//*
                         list_upload = PreferenceUtils.getupload(MyFoldersDMSActivity.this,"key");
                         list_upload.add(String.valueOf(filePath));
                         PreferenceUtils.setupload(MyFoldersDMSActivity.this,list_upload,"key");
@@ -2345,18 +2404,23 @@ public class MyFoldersDMSActivity extends RootActivity {
         else if (requestCode == REQUEST_CAPTURE_IMAGE_CODE && resultCode == RESULT_OK) {
             list_upload = new ArrayList<>();
             if (resultCode == RESULT_OK) {
+
+
+                fileUri = data.getData();
+
                 // uploadImage(fileUri.getPath());
 
 
 
                 String filePath = fileUri.getPath();
-/*
+*//*
                 File file = new File(filePath);
-*/
+*//*
 
                 ArrayList<String> filePathList = new ArrayList<String>();
                 filePathList.add(filePath);
                 //  list_upload = PreferenceUtils.getupload(MyFoldersDMSActivity.this,"key");
+                list_upload=new ArrayList<>();
                 list_upload.add(String.valueOf(filePath));
                 PreferenceUtils.setupload(MyFoldersDMSActivity.this,list_upload,"key");
                 // list_upload.clear();
@@ -2376,16 +2440,23 @@ public class MyFoldersDMSActivity extends RootActivity {
             // uriVideo = data.getData();
             // uploadVideo(imageStoragePath);
 
-
+            if(Build.VERSION.SDK_INT>=24){
+                try{
+                    Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
+                    m.invoke(null);
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+            }
 
             String filePath =imageStoragePath;
-/*
+*//*
                 File file = new File(filePath);
-*/
+*//*
 
             ArrayList<String> filePathList = new ArrayList<String>();
             filePathList.add(filePath);
-            list_upload = PreferenceUtils.getupload(MyFoldersDMSActivity.this,"key");
+            list_upload = new ArrayList<>();
             list_upload.add(String.valueOf(filePath));
             PreferenceUtils.setupload(MyFoldersDMSActivity.this,list_upload,"key");
             list_upload.clear();
@@ -2393,7 +2464,7 @@ public class MyFoldersDMSActivity extends RootActivity {
             startActivity(intent);
 
         }
-    }
+    }*/
 
     private void uploadVideo(String uriVideo) {
         if (NetworkUtils.isNetworkAvailable(this)) {
