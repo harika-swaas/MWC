@@ -724,6 +724,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         docinfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 Intent intent = new Intent (context,Tab_Activity.class);
                 context.startActivity(intent);
             }
@@ -782,7 +783,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
 
                         switchButton_download.setChecked(true);
                         if (context instanceof MyFoldersDMSActivity) {
-                            ((ItemNavigationFolderFragment) fragment).getDownloadurlFromService(mGetCategoryDocumentsResponses.getDocument_version_id());
+                            ((ItemNavigationFolderFragment) fragment).getDownloadurlFromServiceSingleDocument(mGetCategoryDocumentsResponses);
                         }
                         mBottomSheetDialog.dismiss();
 
@@ -1177,9 +1178,18 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                     public void onClick(View v) {
                         String folder = namer.getText().toString().trim();
 
-                        renamedocument(categoryr,folder,"","");
-                        mAlertDialog.dismiss();
-                        mBottomSheetDialog.dismiss();
+                        if(folder != null && !folder.isEmpty())
+                        {
+                            renamedocument(categoryr,folder,"","");
+                            mAlertDialog.dismiss();
+                            mBottomSheetDialog.dismiss();
+                        }
+                        else
+                        {
+                            Toast.makeText(context, "Please enter name", Toast.LENGTH_SHORT).show();
+                        }
+
+
                     }
                 });
 
@@ -1401,9 +1411,19 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                     public void onClick(View v) {
                         String folder = namer.getText().toString().trim();
 
-                        rename(categoryr,folder,objectr);
-                        mAlertDialog.dismiss();
-                        mBottomSheetDialog.dismiss();
+                        if(folder != null && !folder.isEmpty())
+                        {
+                            rename(categoryr,folder,objectr);
+                            mAlertDialog.dismiss();
+                            mBottomSheetDialog.dismiss();
+                        }
+                        else
+                        {
+                            Toast.makeText(context, "Please enter name", Toast.LENGTH_SHORT).show();
+                        }
+
+
+
                     }
                 });
 

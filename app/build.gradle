@@ -12,15 +12,15 @@ apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion 27
     dexOptions {
         jumboMode true
     }
     defaultConfig {
         applicationId "com.swaas.mwc"
         minSdkVersion 21
-        targetSdkVersion 26
-        buildToolsVersion "26.0.3"
+        targetSdkVersion 27
+        buildToolsVersion "27.0.1"
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
@@ -34,7 +34,11 @@ android {
     dexOptions {
         javaMaxHeapSize "4g"
     }
-    buildToolsVersion '26.0.3'
+    buildToolsVersion '27.0.1'
+    compileOptions {
+        targetCompatibility 1.8
+        sourceCompatibility 1.8
+    }
 }
 
 repositories {
@@ -62,32 +66,31 @@ dependencies {
     compile 'com.facebook.stetho:stetho:1.5.0'
     compile 'com.facebook.stetho:stetho-okhttp:1.5.0'
     //noinspection GradleCompatible
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.android.support:design:25.3.1'
-    compile 'com.android.support:recyclerview-v7:25.3.1'
-    compile 'com.google.code.gson:gson:2.7'
+    compile 'com.android.support:appcompat-v7:27.1.1'
+    compile 'com.android.support:design:27.1.1'
+    compile 'com.android.support:recyclerview-v7:27.1.1'
+    compile 'com.google.code.gson:gson:2.8.0'
     compile 'com.squareup.retrofit2:retrofit:2.0.2'
     compile 'com.squareup.retrofit:retrofit:2.0.0-beta2'
     compile 'com.squareup.retrofit:converter-gson:2.0.0-beta2'
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.android.support:multidex:1.0.1'
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile 'com.google.android.gms:play-services:11.0.0'
-    compile 'com.google.android.gms:play-services-location:11.0.0'
-    compile 'com.google.android.gms:play-services-maps:11.0.0'
-    compile 'com.android.support:support-v4:25.3.1'
-    compile 'com.koushikdutta.ion:ion:2.+'
-    compile 'com.android.support:percent:25.4.0'
+    compile 'com.android.support:appcompat-v7:27.1.1'
+    compile 'com.android.support:multidex:1.0.3'
+    compile 'com.android.support.constraint:constraint-layout:1.1.2'
+    compile 'com.android.support:support-v4:27.1.1'
+    compile 'com.koushikdutta.ion:ion:2.2.1'
+    compile 'com.android.support:percent:27.1.1'
     compile 'com.github.d-max:spots-dialog:0.7@aar'
     compile 'com.github.javiersantos:MaterialStyledDialogs:2.1'
     compile 'com.github.androidquery:androidquery:0.26.9'
     compile 'com.github.stfalcon:smsverifycatcher:0.3.1'
     compile 'com.wang.avi:library:2.1.3'
     compile 'com.afollestad:drag-select-recyclerview:0.3.6'
-    compile 'com.github.MFlisar:DragSelectRecyclerView:0.3'
+   /* compile 'com.github.MFlisar:DragSelectRecyclerView:0.3'*/
     compile 'com.github.barteksc:android-pdf-viewer:2.8.2'
     compile 'es.voghdev.pdfviewpager:library:1.0.4'
     compile 'com.github.clans:fab:1.6.4'
     testCompile 'junit:junit:4.12'
-    compile 'com.github.barteksc:pdfium-android:1.5.0'
+    compile 'com.github.barteksc:pdfium-android:1.7.1'
+    implementation 'com.github.tbruyelle:rxpermissions:0.10.1'
+    implementation 'com.jakewharton.rxbinding2:rxbinding:2.1.1'
 }

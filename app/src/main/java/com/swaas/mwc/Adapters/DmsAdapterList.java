@@ -24,6 +24,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.swaas.mwc.API.Model.ApiResponse;
@@ -301,7 +302,7 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                 holder.indicatorParentView.setVisibility(View.GONE);
             }*/
 
-            holder.foldernext.setOnClickListener(new View.OnClickListener() {
+          /*  holder.foldernext.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (mGetCategoryDocumentsResponses.get(position).getType() != null && mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("category")) {
@@ -319,7 +320,7 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
 
                     }
                 }
-            });
+            });*/
 
 
             holder.list_item_click.setOnClickListener(new View.OnClickListener() {
@@ -573,6 +574,7 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
         ImageView shareImage = (ImageView) view.findViewById(R.id.share_image);
         ImageView availableOfflineImage = (ImageView) view.findViewById(R.id.available_offline_image);
         TextView delete = (TextView)view.findViewById(R.id.delete);
+        RelativeLayout rename_layout = (RelativeLayout) view.findViewById(R.id.rename_layout);
 
 
         final SwitchCompat switchButton_download = (SwitchCompat) view.findViewById(R.id.switchButton_download);
@@ -613,7 +615,7 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
 
                         switchButton_download.setChecked(true);
                         if (context instanceof MyFoldersDMSActivity) {
-                            ((ItemNavigationFolderFragment) fragment).getDownloadurlFromService(categoryDocumentsResponse.getDocument_version_id());
+                            ((ItemNavigationFolderFragment) fragment).getDownloadurlFromServiceSingleDocument(categoryDocumentsResponse);
                         }
                         mBottomSheetDialog.dismiss();
 
@@ -689,7 +691,8 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
         doclayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                PreferenceUtils.setDocumentVersionId(context,categoryDocumentsResponse.getDocument_version_id());
+                PreferenceUtils.setDocument_Id(context, categoryDocumentsResponse.getObject_id());
                 Intent intent = new Intent (context,Tab_Activity.class);
                 context.startActivity(intent);
             }
@@ -1024,7 +1027,7 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
 
         });
 
-        renameImage.setOnClickListener(new View.OnClickListener() {
+        rename_layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -1042,8 +1045,17 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                     public void onClick(View v) {
                         String folder = namer.getText().toString().trim();
 
-                        renamedocument(categoryr,folder,"","");
-                        mAlertDialog.dismiss();
+                        if(folder != null && !folder.isEmpty())
+                        {
+                            renamedocument(categoryr,folder,"","");
+                            mAlertDialog.dismiss();
+                            mBottomSheetDialog.dismiss();
+                        }
+                        else
+                        {
+                            Toast.makeText(context, "Please enter name", Toast.LENGTH_SHORT).show();
+                        }
+
 
                     }
                 });
@@ -1052,7 +1064,7 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                     @Override
                     public void onClick(View v) {
                         mAlertDialog.dismiss();
-
+                        mBottomSheetDialog.dismiss();
                     }
                 });
 
@@ -1354,9 +1366,17 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                     public void onClick(View v) {
                         String folder = namer.getText().toString().trim();
 
-                        rename(categoryr,folder,objectr);
-                        mAlertDialog.dismiss();
-                        mBottomSheetDialog.dismiss();
+                        if(folder != null && !folder.isEmpty())
+                        {
+                            rename(categoryr,folder,objectr);
+                            mAlertDialog.dismiss();
+                            mBottomSheetDialog.dismiss();
+                        }
+                        else
+                        {
+                            Toast.makeText(context, "Please enter name", Toast.LENGTH_SHORT).show();
+                        }
+
                     }
                 });
 

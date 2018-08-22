@@ -36,6 +36,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.google.gson.Gson;
@@ -995,10 +996,6 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
             }
         });
 
-
-
-
-
         final ImageView copyImage = (ImageView) view.findViewById(R.id.copy_image);
         ImageView moveImage = (ImageView) view.findViewById(R.id.move_image);
         ImageView renameImage = (ImageView) view.findViewById(R.id.rename_image);
@@ -1144,9 +1141,18 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                     public void onClick(View v) {
                         String folder = namer.getText().toString().trim();
 
-                        renamedocument(categoryDocumentsResponse.getDocument_version_id(),folder,"","");
-                        mAlertDialog.dismiss();
-                        mBottomSheetDialog.dismiss();
+                        if(folder != null && !folder.isEmpty())
+                        {
+                            renamedocument(categoryDocumentsResponse.getDocument_version_id(),folder,"","");
+                            mAlertDialog.dismiss();
+                            mBottomSheetDialog.dismiss();
+                        }
+                        else
+                        {
+                            Toast.makeText(context, "Please enter name", Toast.LENGTH_SHORT).show();
+                        }
+
+
                     }
                 });
 

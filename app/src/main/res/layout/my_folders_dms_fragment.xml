@@ -102,7 +102,7 @@
 
                             <ImageView
                                 android:id="@+id/toggle"
-                                android:layout_width="wrap_content"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_alignParentRight="true"
                                 android:layout_alignParentEnd="true"
@@ -153,7 +153,7 @@
         app:itemTextColor="@color/black_semi_transparent"
         app:itemIconTint="@drawable/message_item_bg"
         app:menu="@menu/navigation"
-        android:layout_below="@id/container"/>
+        />
 
     <com.github.clans.fab.FloatingActionMenu
         android:id="@+id/floating_action_menu"

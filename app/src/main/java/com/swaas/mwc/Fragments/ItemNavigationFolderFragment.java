@@ -20,6 +20,7 @@ import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.GridLayoutManager;
@@ -58,15 +59,22 @@ import com.google.gson.Gson;
 import com.swaas.mwc.API.Model.ApiResponse;
 import com.swaas.mwc.API.Model.DownloadDocumentRequest;
 import com.swaas.mwc.API.Model.DownloadDocumentResponse;
+import com.swaas.mwc.API.Model.EditDocumentPropertiesRequest;
+import com.swaas.mwc.API.Model.EndUserRenameRequest;
 import com.swaas.mwc.API.Model.GetCategoryDocumentsRequest;
 import com.swaas.mwc.API.Model.GetCategoryDocumentsResponse;
 import com.swaas.mwc.API.Model.ListPinDevicesResponse;
 import com.swaas.mwc.API.Model.LoginResponse;
 import com.swaas.mwc.API.Model.OfflineFiles;
+import com.swaas.mwc.API.Model.SharedDocumentResponseModel;
+import com.swaas.mwc.API.Model.StopSharingRequestModel;
 import com.swaas.mwc.API.Model.UploadNewFolderRequest;
 import com.swaas.mwc.API.Model.WhiteLabelResponse;
 import com.swaas.mwc.API.Service.DownloadDocumentService;
+import com.swaas.mwc.API.Service.EditDocumentPropertiesService;
+import com.swaas.mwc.API.Service.EndUserRenameService;
 import com.swaas.mwc.API.Service.GetCategoryDocumentsService;
+import com.swaas.mwc.API.Service.GetEndUserParentSHaredFoldersService;
 import com.swaas.mwc.API.Service.UploadNewFolderService;
 import com.swaas.mwc.Adapters.DmsAdapter;
 import com.swaas.mwc.Adapters.DmsAdapterList;
@@ -78,6 +86,7 @@ import com.swaas.mwc.Common.SimpleDividerItemDecoration;
 import com.swaas.mwc.DMS.MyFolderActivity;
 import com.swaas.mwc.DMS.MyFolderSharedDocuments;
 import com.swaas.mwc.DMS.MyFoldersDMSActivity;
+import com.swaas.mwc.DMS.Tab_Activity;
 import com.swaas.mwc.DMS.UploadListActivity;
 import com.swaas.mwc.Database.AccountSettings;
 import com.swaas.mwc.Database.OffLine_Files_Repository;
@@ -90,6 +99,7 @@ import com.swaas.mwc.R;
 import com.swaas.mwc.Retrofit.RetrofitAPIBuilder;
 import com.swaas.mwc.Utils.Constants;
 import com.swaas.mwc.Utils.DateHelper;
+import com.swaas.mwc.pdf.PdfViewActivity;
 
 import java.io.File;
 import java.io.Serializable;
@@ -1204,6 +1214,8 @@ public class ItemNavigationFolderFragment extends Fragment {
         mAdapter = new DmsAdapter(getCategoryDocumentsResponses, getActivity(), ItemNavigationFolderFragment.this);
         mRecyclerView.setAdapter(mAdapter);
 
+
+
     }
 
 
@@ -1271,6 +1283,8 @@ public class ItemNavigationFolderFragment extends Fragment {
                                 pageNumber = Integer.parseInt(response.headers().get("X-Pagination-Current-Page"));
 
                                 setGridAdapterToView(mGetCategoryDocumentsResponses);
+                                List<GetCategoryDocumentsResponse> dummyList = new ArrayList<>();
+                                updateToolbarMenuItems(dummyList);
 
 
                             }
@@ -1688,6 +1702,14 @@ public class ItemNavigationFolderFragment extends Fragment {
         RelativeLayout moveLayout = (RelativeLayout) view.findViewById(R.id.move_layout);
         RelativeLayout renameLayout = (RelativeLayout) view.findViewById(R.id.rename_layout);
         SwitchCompat download = (SwitchCompat) view.findViewById(R.id.switchButton_download);
+        SwitchCompat switchButton_share = (SwitchCompat) view.findViewById(R.id.switchButton_share);
+
+
+        RelativeLayout doc_info_layout = (RelativeLayout) view.findViewById(R.id.doc_info_layout);
+        ImageView thumbnailCornerIcon = (ImageView) view.findViewById(R.id.thumbnail_corner_image);
+        TextView thumbnailText = (TextView) view.findViewById(R.id.thumbnail_text);
+        ImageView thumbnailIcon = (ImageView) view.findViewById(R.id.thumbnail_image);
+        TextView docText = (TextView) view.findViewById(R.id.doc_text);
 
         ImageView clearSelectionImage = (ImageView) view.findViewById(R.id.clear_selection_image);
         ImageView copyImage = (ImageView) view.findViewById(R.id.copy_image);
@@ -1696,12 +1718,238 @@ public class ItemNavigationFolderFragment extends Fragment {
         ImageView shareImage = (ImageView) view.findViewById(R.id.share_image);
         ImageView availableOfflineImage = (ImageView) view.findViewById(R.id.available_offline_image);
 
+        RelativeLayout folder_layout = (RelativeLayout) view.findViewById(R.id.folder_layout);
+        TextView categoryText = (TextView) view.findViewById(R.id.category_text);
+        ImageView categoryImage = (ImageView) view.findViewById(R.id.category_image);
+        View line_layout = (View) view.findViewById(R.id.line_layout);
+
+
+
+
         final Dialog mBottomSheetDialog = new Dialog(getActivity(), R.style.MaterialDialogSheet);
         mBottomSheetDialog.setContentView(view);
         mBottomSheetDialog.setCancelable(true);
         mBottomSheetDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         mBottomSheetDialog.getWindow().setGravity(Gravity.BOTTOM);
         mBottomSheetDialog.show();
+
+        if(mSelectedDocumentList != null && mSelectedDocumentList.size() == 1)
+        {
+            if(mSelectedDocumentList.get(0).getType().equalsIgnoreCase("category"))
+            {
+                categoryText.setText(mSelectedDocumentList.get(0).getName());
+            }
+            else {
+
+                if (mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("pdf")) {
+                    //holder.imageView.setImageResource(R.mipmap.ic_pdf);
+                    thumbnailIcon.setColorFilter(ContextCompat.getColor(mActivity, R.color.thumbnail_pdf_color));
+                    thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(mActivity, R.color.thumbnail_pdf_corner_color));
+                    thumbnailText.setText(mSelectedDocumentList.get(0).getFiletype());
+                } else if (mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("xlsx") ||
+                        mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("xls") || mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("xlsm")
+                        || mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("csv")) {
+                    thumbnailIcon.setColorFilter(ContextCompat.getColor(mActivity, R.color.thumbnail_xls_color));
+                    thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(mActivity, R.color.thumbnail_xls_corner_color));
+                    thumbnailText.setText(mSelectedDocumentList.get(0).getFiletype());
+                } else if (mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("doc") ||
+                        mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("docx") || mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("docm")
+                        || mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("gdoc") || mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("keynote")) {
+                    thumbnailIcon.setColorFilter(ContextCompat.getColor(mActivity, R.color.thumbnail_doc_color));
+                    thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(mActivity, R.color.thumbnail_doc_corner_color));
+                    thumbnailText.setText(mSelectedDocumentList.get(0).getFiletype());
+                } else if (mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("ppt") ||
+                        mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("pptx") || mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("pps")
+                        || mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("ai")) {
+                    thumbnailIcon.setColorFilter(ContextCompat.getColor(mActivity, R.color.thumbnail_ppt_color));
+                    thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(mActivity, R.color.thumbnail_ppt_corner_color));
+                    thumbnailText.setText(mSelectedDocumentList.get(0).getFiletype());
+                } else if (mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("xml") ||
+                        mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("log") || mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("zip")
+                        || mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("rar") || mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("zipx")
+                        || mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("mht")) {
+                    thumbnailIcon.setColorFilter(ContextCompat.getColor(mActivity, R.color.thumbnail_xml_color));
+                    thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(mActivity, R.color.thumbnail_xml_corner_color));
+                    thumbnailText.setText(mSelectedDocumentList.get(0).getFiletype());
+                } else if (mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("xml") ||
+                        mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("log") || mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("rtf") ||
+                        mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("txt") || mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("epub")) {
+                    thumbnailIcon.setColorFilter(ContextCompat.getColor(mActivity, R.color.thumbnail_xml_color));
+                    thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(mActivity, R.color.thumbnail_xml_corner_color));
+                    thumbnailText.setText(mSelectedDocumentList.get(0).getFiletype());
+                } else if (mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("msg") || mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("dot") ||
+                        mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("odt")
+                        || mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("ott")) {
+                    thumbnailIcon.setColorFilter(ContextCompat.getColor(mActivity, R.color.thumbnail_msg_color));
+                    thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(mActivity, R.color.thumbnail_msg_corner_color));
+                    thumbnailText.setText(mSelectedDocumentList.get(0).getFiletype());
+                } else if (mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("pages")) {
+                    thumbnailIcon.setColorFilter(ContextCompat.getColor(mActivity, R.color.thumbnail_pages_color));
+                    thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(mActivity, R.color.thumbnail_pages_corner_color));
+                    thumbnailText.setText(mSelectedDocumentList.get(0).getFiletype());
+                } else if (mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("pub") || mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("ods")) {
+                    thumbnailIcon.setColorFilter(ContextCompat.getColor(mActivity, R.color.thumbnail_pub_color));
+                    thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(mActivity, R.color.thumbnail_pub_corner_color));
+                    thumbnailText.setText(mSelectedDocumentList.get(0).getFiletype());
+                } else if (mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("gif") || mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("jpeg")
+                        || mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("jpg") || mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("png") || mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("bmp")
+                        || mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("tif") || mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("tiff") || mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("eps")
+                        || mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("svg") || mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("odp")
+                        || mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("otp")) {
+                    thumbnailIcon.setColorFilter(ContextCompat.getColor(mActivity, R.color.thumbnail_gif_color));
+                    thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(mActivity, R.color.thumbnail_gif_corner_color));
+                    thumbnailText.setText(mSelectedDocumentList.get(0).getFiletype());
+                } else if (mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("avi")
+                        || mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("flv") || mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("mpeg") ||
+                        mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("mpg") || mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("swf") ||
+                        mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("wmv")) {
+                    thumbnailIcon.setColorFilter(ContextCompat.getColor(mActivity, R.color.thumbnail_avi_color));
+                    thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(mActivity, R.color.thumbnail_avi_corner_color));
+                    thumbnailText.setText(mSelectedDocumentList.get(0).getFiletype());
+                } else if (mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("mp3")
+                        || mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("wav") || mSelectedDocumentList.get(0).getFiletype().equalsIgnoreCase("wma")) {
+                    thumbnailIcon.setColorFilter(ContextCompat.getColor(mActivity, R.color.thumbnail_mp3_color));
+                    thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(mActivity, R.color.thumbnail_mp3_corner_color));
+                    thumbnailText.setText(mSelectedDocumentList.get(0).getFiletype());
+                } else {
+                    thumbnailIcon.setColorFilter(ContextCompat.getColor(mActivity, R.color.thumbnail_default_color));
+                    thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(mActivity, R.color.thumbnail_default_corner_color));
+                    thumbnailText.setText(mSelectedDocumentList.get(0).getFiletype());
+                }
+                docText.setText(mSelectedDocumentList.get(0).getName());
+
+            }
+
+
+
+            // category
+
+
+        }
+
+       List<String> temporaryShareList = new ArrayList<>();
+       if(mSelectedDocumentList != null && mSelectedDocumentList.size() > 0)
+       {
+           for(GetCategoryDocumentsResponse getcategoryResponseModel : mSelectedDocumentList)
+           {
+               if(getcategoryResponseModel.getType() != null && getcategoryResponseModel.getType().equalsIgnoreCase("document"))
+               {
+                   if(getcategoryResponseModel.getIs_shared().equalsIgnoreCase("1"))
+                   {
+                       temporaryShareList.add("Is_Shared_Available");
+                   }
+               }
+
+           }
+       }
+
+       if(temporaryShareList != null && temporaryShareList.size() == mSelectedDocumentList.size())
+       {
+           switchButton_share.setChecked(true);
+       }
+       else
+       {
+           switchButton_share.setChecked(false);
+       }
+
+        List<String> temporarydownloadList = new ArrayList<>();
+        if(mSelectedDocumentList != null && mSelectedDocumentList.size() > 0)
+        {
+            for(GetCategoryDocumentsResponse getcategoryResponseModel : mSelectedDocumentList)
+            {
+                if(getcategoryResponseModel.getType() != null && getcategoryResponseModel.getType().equalsIgnoreCase("document")) {
+                    OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(mActivity);
+                    if (!offLine_files_repository.checkAlreadyDocumentAvailableOrNot(getcategoryResponseModel.getDocument_version_id())) {
+                        temporarydownloadList.add("Is_Download_Available");
+                    }
+                }
+
+            }
+        }
+
+
+        if(temporarydownloadList != null && temporarydownloadList.size() == mSelectedDocumentList.size())
+        {
+            download.setChecked(true);
+        }
+        else
+        {
+            download.setChecked(false);
+        }
+
+
+        switchButton_share.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
+        {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+            {
+                if(buttonView.isPressed() == true) {
+
+                    if (!isChecked) {
+                        switchButton_share.setChecked(true);
+                        ArrayList<String> documentIdslist = new ArrayList<>();
+
+                        for(GetCategoryDocumentsResponse categoryDocumentsResponse : mSelectedDocumentList)
+                        {
+                           documentIdslist.add(categoryDocumentsResponse.getObject_id());
+                        }
+
+                        if(documentIdslist !=null && documentIdslist.size() > 0)
+                        {
+                            showWarningMessageAlertForSharingContent(documentIdslist, mSelectedDocumentList);
+                        }
+
+
+                        mBottomSheetDialog.dismiss();
+
+                    } else {
+                        switchButton_share.setChecked(false);
+
+                       /* PreferenceUtils.setCategoryId(context, categoryDocumentsResponse.getCategory_id());
+                        PreferenceUtils.setDocument_Id(context, categoryDocumentsResponse.getObject_id());*/
+
+                        Intent mIntent = new Intent(getActivity(), MyFolderSharedDocuments.class);
+                        mIntent.putExtra(Constants.OBJ, (Serializable) mSelectedDocumentList);
+                        startActivity(mIntent);
+
+                        mBottomSheetDialog.dismiss();
+                    }
+
+
+                }
+
+            }
+        });
+
+
+        doc_info_layout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mBottomSheetDialog.dismiss();
+                if(mSelectedDocumentList != null && mSelectedDocumentList.size() == 1)
+                {
+                    PreferenceUtils.setDocumentVersionId(mActivity,mSelectedDocumentList.get(0).getDocument_version_id());
+                    PreferenceUtils.setDocument_Id(mActivity, mSelectedDocumentList.get(0).getObject_id());
+                }
+
+                Intent intent = new Intent (mActivity,Tab_Activity.class);
+                mActivity.startActivity(intent);
+            }
+        });
+
+        clearSelectionLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isFromList == true) {
+                    mAdapterList.clearAll();
+                } else {
+                    mAdapter.clearAll();
+                }
+                mBottomSheetDialog.dismiss();
+                List<GetCategoryDocumentsResponse> dummyList = new ArrayList<>();
+                updateToolbarMenuItems(dummyList);
+            }
+        });
 
 
         moveLayout.setOnClickListener(new View.OnClickListener() {
@@ -1713,9 +1961,62 @@ public class ItemNavigationFolderFragment extends Fragment {
             }
         });
 
-        rename.setOnClickListener(new View.OnClickListener() {
+        renameLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+                LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View view = inflater.inflate(R.layout.rename_alert, null);
+                builder.setView(view);
+                builder.setCancelable(false);
+
+                Button cancel = (Button) view.findViewById(R.id.cancel_b);
+                Button allow = (Button) view.findViewById(R.id.allow);
+                final EditText namer = (EditText) view.findViewById(R.id.edit_username1);
+                allow.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String folder = namer.getText().toString().trim();
+
+                        if(folder != null && !folder.isEmpty())
+                        {
+                            if(mSelectedDocumentList != null && mSelectedDocumentList.size() == 1) {
+                                mAlertDialog.dismiss();
+                                mBottomSheetDialog.dismiss();
+                                if(mSelectedDocumentList.get(0).getType().equalsIgnoreCase("category"))
+                                {
+                                    renameCategory(mSelectedDocumentList.get(0).getObject_id(), folder, mSelectedDocumentList.get(0).getParent_id());
+                                }
+                                else
+                                {
+                                    renameDocument(mSelectedDocumentList.get(0).getDocument_version_id(),folder,"","");
+                                }
+
+                            }
+                        }
+                        else
+                        {
+                            Toast.makeText(mActivity, "Please enter name", Toast.LENGTH_SHORT).show();
+                        }
+
+
+                    }
+                });
+
+                cancel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mAlertDialog.dismiss();
+                        mBottomSheetDialog.dismiss();
+                    }
+                });
+
+                mAlertDialog = builder.create();
+                mAlertDialog.show();
+
+
+
 
             }
         });
@@ -1755,9 +2056,6 @@ public class ItemNavigationFolderFragment extends Fragment {
                             convertingDownloadUrl(downloadedList);
                         }
 
-
-
-                    } else {
                     }
                 }
             }
@@ -1778,6 +2076,9 @@ public class ItemNavigationFolderFragment extends Fragment {
             }
         }
 
+
+
+
         if (categoryDocumentsResponseFolderList.size() == 1) {
             if (mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
                 String itemSelectedColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
@@ -1785,6 +2086,14 @@ public class ItemNavigationFolderFragment extends Fragment {
 
                 moveImage.setColorFilter(selectedColor);
                 renameImage.setColorFilter(selectedColor);
+
+                if (itemSelectedColor != null) {
+                    categoryImage.setColorFilter(selectedColor);
+                } else {
+                    categoryImage.setImageResource(R.mipmap.ic_folder);
+                }
+
+
             }
             moveLayout.setVisibility(View.VISIBLE);
             renameLayout.setVisibility(View.VISIBLE);
@@ -1793,6 +2102,9 @@ public class ItemNavigationFolderFragment extends Fragment {
             availableOfflineLayout.setVisibility(View.GONE);
             shareLayout.setVisibility(View.GONE);
             copyLayout.setVisibility(View.GONE);
+            folder_layout.setVisibility(View.VISIBLE);
+            doc_info_layout.setVisibility(View.GONE);
+            line_layout.setVisibility(View.VISIBLE);
         }
 
         if (categoryDocumentsResponseDocumentList.size() == 1) {
@@ -1813,6 +2125,9 @@ public class ItemNavigationFolderFragment extends Fragment {
             availableOfflineLayout.setVisibility(View.VISIBLE);
             shareLayout.setVisibility(View.VISIBLE);
             copyLayout.setVisibility(View.VISIBLE);
+            doc_info_layout.setVisibility(View.VISIBLE);
+            folder_layout.setVisibility(View.GONE);
+            line_layout.setVisibility(View.VISIBLE);
 
         } else if (categoryDocumentsResponseDocumentList.size() >= 1) {
             if (mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
@@ -1832,16 +2147,312 @@ public class ItemNavigationFolderFragment extends Fragment {
             availableOfflineLayout.setVisibility(View.VISIBLE);
             shareLayout.setVisibility(View.VISIBLE);
             copyLayout.setVisibility(View.VISIBLE);
+            doc_info_layout.setVisibility(View.GONE);
+            folder_layout.setVisibility(View.GONE);
+            line_layout.setVisibility(View.GONE);
         }
 
-        shareLayout.setOnClickListener(new View.OnClickListener() {
+       /* shareLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent mIntent = new Intent(getActivity(), MyFolderSharedDocuments.class);
                 mIntent.putExtra(Constants.OBJ, (Serializable) mSelectedDocumentList);
                 startActivity(mIntent);
             }
+        });*/
+    }
+
+    private void showWarningMessageAlertForSharingContent(ArrayList<String> stopSharingList, List<GetCategoryDocumentsResponse> mSelectedDocumentList)
+    {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+        LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Warning");
+
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+        txtMessage.setText("This action will stop sharing the selected document(s). Company with whom this has been shared will no longer be able to view this document");
+
+        Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+        cancelButton.setText("CANCEL");
+
+        sendPinButton.setText("OK");
+
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+            }
         });
+
+        sendPinButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+
+                getInternalStoppingSharingContentAPI(stopSharingList, mSelectedDocumentList);
+
+
+            }
+        });
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
+    }
+
+    private void getInternalStoppingSharingContentAPI(ArrayList<String> sharingList, List<GetCategoryDocumentsResponse> selectedDocumentList)
+    {
+        if (NetworkUtils.isNetworkAvailable(mActivity)) {
+
+            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+
+            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
+            transparentProgressDialog.show();
+
+
+            final StopSharingRequestModel stopSharingRequestModel = new StopSharingRequestModel(sharingList, selectedDocumentList.get(0).getCategory_id());
+
+            String request = new Gson().toJson(stopSharingRequestModel);
+
+
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("data", request);
+
+            final GetEndUserParentSHaredFoldersService mGetEndUserParentSHaredstopService = retrofitAPI.create(GetEndUserParentSHaredFoldersService.class);
+
+            Call call = mGetEndUserParentSHaredstopService.getEndUserStopSharedDocuments(params, PreferenceUtils.getAccessToken(mActivity));
+
+            call.enqueue(new Callback<SharedDocumentResponseModel>() {
+                @Override
+                public void onResponse(Response<SharedDocumentResponseModel> response, Retrofit retrofit) {
+
+                    if (response != null) {
+
+                        transparentProgressDialog.dismiss();
+
+                        if (response.body().getStatus().getCode() instanceof Boolean) {
+                            if (response.body().getStatus().getCode() == Boolean.FALSE) {
+                                transparentProgressDialog.dismiss();
+
+
+
+                            }
+
+                        } else if (response.body().getStatus().getCode() instanceof Double) {
+                            transparentProgressDialog.dismiss();
+                            String mMessage = response.body().getStatus().getMessage().toString();
+
+                            Object obj = 401.0;
+                            if(obj.equals(401.0)) {
+                                final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+                                LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+                                builder.setView(view);
+                                builder.setCancelable(false);
+
+                                TextView title = (TextView) view.findViewById(R.id.title);
+                                title.setText("Alert");
+
+                                TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+                                txtMessage.setText(mMessage);
+
+                                Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+                                Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+                                cancelButton.setVisibility(View.GONE);
+
+                                sendPinButton.setText("OK");
+
+                                sendPinButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        mAlertDialog.dismiss();
+                                        AccountSettings accountSettings = new AccountSettings(mActivity);
+                                        accountSettings.deleteAll();
+                                        startActivity(new Intent(mActivity, LoginActivity.class));
+                                    }
+                                });
+
+                                mAlertDialog = builder.create();
+                                mAlertDialog.show();
+                            }
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    transparentProgressDialog.dismiss();
+                    Log.d("PinDevice error", t.getMessage());
+                }
+            });
+        }
+    }
+
+    private void renameDocument(String document_version_id, String rename, String doc_created, String auth)
+    {
+        if (NetworkUtils.isNetworkAvailable(mActivity)) {
+
+            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+
+            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
+            transparentProgressDialog.show();
+
+            final EditDocumentPropertiesRequest editDocumentPropertiesRequest = new EditDocumentPropertiesRequest(document_version_id,rename,doc_created,auth);
+
+            String request = new Gson().toJson(editDocumentPropertiesRequest);
+
+            //Here the json data is add to a hash map with key data
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("data", request);
+
+            final EditDocumentPropertiesService editDocumentPropertiesService = retrofitAPI.create(EditDocumentPropertiesService.class);
+
+            Call call = editDocumentPropertiesService.getRenameDocument(params, PreferenceUtils.getAccessToken(mActivity));
+
+            call.enqueue(new Callback<ListPinDevicesResponse<LoginResponse>>() {
+                @Override
+                public void onResponse(Response<ListPinDevicesResponse<LoginResponse>> response, Retrofit retrofit) {
+                    ListPinDevicesResponse apiResponse = response.body();
+                    if (apiResponse != null) {
+
+                        transparentProgressDialog.dismiss();
+
+                        if (apiResponse.status.getCode() instanceof Boolean) {
+                            if (apiResponse.status.getCode() == Boolean.FALSE) {
+                                transparentProgressDialog.dismiss();
+
+                            }
+
+                        } else if (apiResponse.status.getCode() instanceof Integer) {
+                            transparentProgressDialog.dismiss();
+                            String mMessage = apiResponse.status.getMessage().toString();
+
+                            final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+                            LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+                            builder.setView(view);
+                            builder.setCancelable(false);
+
+                            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+                            txtMessage.setText(mMessage);
+
+                            Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+                            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+                            cancelButton.setVisibility(View.GONE);
+
+                            sendPinButton.setText("OK");
+
+                            sendPinButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    mAlertDialog.dismiss();
+                                    mActivity.startActivity(new Intent(mActivity, LoginActivity.class));
+                                }
+                            });
+
+                            mAlertDialog = builder.create();
+                            mAlertDialog.show();
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    transparentProgressDialog.dismiss();
+                    Log.d("PinDevice error", t.getMessage());
+                }
+            });
+        }
+    }
+
+    private void renameCategory(String object_id, String rename, String parent_id)
+    {
+        if (NetworkUtils.isNetworkAvailable(mActivity)) {
+
+            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+
+            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
+            transparentProgressDialog.show();
+
+            final EndUserRenameRequest endUserRenameRequest = new EndUserRenameRequest(object_id,rename,parent_id);
+
+            String request = new Gson().toJson(endUserRenameRequest);
+
+            //Here the json data is add to a hash map with key data
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("data", request);
+
+            final EndUserRenameService endUserRenameService = retrofitAPI.create(EndUserRenameService.class);
+
+            Call call = endUserRenameService.getRename(params, PreferenceUtils.getAccessToken(mActivity));
+
+            call.enqueue(new Callback<ListPinDevicesResponse<LoginResponse>>() {
+                @Override
+                public void onResponse(Response<ListPinDevicesResponse<LoginResponse>> response, Retrofit retrofit) {
+                    ListPinDevicesResponse apiResponse = response.body();
+                    if (apiResponse != null) {
+
+                        transparentProgressDialog.dismiss();
+
+                        if (apiResponse.status.getCode() instanceof Boolean) {
+                            if (apiResponse.status.getCode() == Boolean.FALSE) {
+                                transparentProgressDialog.dismiss();
+
+
+                            }
+
+                        } else if (apiResponse.status.getCode() instanceof Integer) {
+                            transparentProgressDialog.dismiss();
+                            String mMessage = apiResponse.status.getMessage().toString();
+
+                            final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+                            LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+                            builder.setView(view);
+                            builder.setCancelable(false);
+
+                            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+                            txtMessage.setText(mMessage);
+
+                            Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+                            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+                            cancelButton.setVisibility(View.GONE);
+
+                            sendPinButton.setText("OK");
+
+                            sendPinButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    mAlertDialog.dismiss();
+                                    mActivity.startActivity(new Intent(mActivity, LoginActivity.class));
+                                }
+                            });
+
+                            mAlertDialog = builder.create();
+                            mAlertDialog.show();
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    transparentProgressDialog.dismiss();
+                    Log.d("PinDevice error", t.getMessage());
+                }
+            });
+        }
     }
 
    /* @Override
@@ -1962,7 +2573,7 @@ public class ItemNavigationFolderFragment extends Fragment {
 
     private void getDownloadManagerForDownloading(List<GetCategoryDocumentsResponse> downloadingUrlDataList)
     {
-      //  Toast.makeText(mActivity, String.valueOf(downloadingUrlDataList.size()), Toast.LENGTH_LONG).show();
+
 
         index = 0;
         for (final GetCategoryDocumentsResponse digitalAsset : downloadingUrlDataList) {
@@ -2019,6 +2630,83 @@ public class ItemNavigationFolderFragment extends Fragment {
         offLine_files_repository.InsertOfflineFilesData(offlineFilesModel);
     }
 
+
+
+
+    public void getDownloadurlFromServiceSingleDocument(GetCategoryDocumentsResponse documentsResponse)
+    {
+        if (NetworkUtils.isNetworkAvailable(mActivity)) {
+            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+            final DownloadDocumentService downloadDocumentService = retrofitAPI.create(DownloadDocumentService.class);
+
+            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
+            transparentProgressDialog.show();
+
+            //DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(PreferenceUtils.getDocumentVersionId(this));
+            List<String> strlist = new ArrayList<>();
+            strlist.add(documentsResponse.getObject_id());
+            DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist);
+            final String request = new Gson().toJson(downloadDocumentRequest);
+
+            //Here the json data is add to a hash map with key data
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("data", request);
+
+            Call call = downloadDocumentService.download(params, PreferenceUtils.getAccessToken(mActivity));
+
+            call.enqueue(new Callback<ApiResponse<DownloadDocumentResponse>>() {
+                @Override
+                public void onResponse(Response<ApiResponse<DownloadDocumentResponse>> response, Retrofit retrofit) {
+                    ApiResponse apiResponse = response.body();
+                    if (apiResponse != null) {
+
+                        if (apiResponse.status.getCode() == Boolean.FALSE) {
+                            transparentProgressDialog.dismiss();
+                            DownloadDocumentResponse downloadDocumentResponse = response.body().getData();
+
+                            String downloaded_url = downloadDocumentResponse.getData();
+
+                            String access_Token = PreferenceUtils.getAccessToken(mActivity);
+
+                            byte[] encodeValue = Base64.encode(access_Token.getBytes(), Base64.DEFAULT);
+                            String base64AccessToken = new String(encodeValue);
+
+                            if (android.os.Build.VERSION.SDK_INT > 9) {
+                                StrictMode.ThreadPolicy policy =  new StrictMode.ThreadPolicy.Builder().permitAll().build();
+                                StrictMode.setThreadPolicy(policy);
+                            }
+
+                            documentsResponse.setDownloadUrl(downloaded_url+"&token="+base64AccessToken);
+                            List<GetCategoryDocumentsResponse> downloadingList = new ArrayList<>();
+                            downloadingList.add(documentsResponse);
+                            getDownloadManagerForDownloading(downloadingList);
+
+
+                        }
+                        else {
+                            transparentProgressDialog.dismiss();
+                            String mMessage = apiResponse.status.getMessage().toString();
+                           /*// mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener()
+                                {
+                                @Override
+                                public void onClick(View view) {
+                                    startActivity(new Intent(mActivity, LoginActivity.class));
+                                    mActivity.finish();
+                                }
+                            }, false);
+                        */
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    transparentProgressDialog.dismiss();
+                }
+            });
+        }
+
+    }
 
 
     @Override
@@ -2305,6 +2993,8 @@ public class ItemNavigationFolderFragment extends Fragment {
                     } else {
                         mAdapter.clearAll();
                     }
+                    List<GetCategoryDocumentsResponse> dummyList = new ArrayList<>();
+                    updateToolbarMenuItems(dummyList);
 
                     int i = PreferenceUtils.getBackButtonList(mActivity,"key").size();
                     i = i - 2;

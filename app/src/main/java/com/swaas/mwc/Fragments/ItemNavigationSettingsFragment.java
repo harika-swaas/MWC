@@ -34,9 +34,7 @@ import android.widget.Toast;
 
 import com.androidquery.AQuery;
 import com.github.clans.fab.FloatingActionMenu;
-import com.google.android.gms.gcm.GoogleCloudMessaging;
-import com.google.android.gms.iid.InstanceID;
-import com.google.firebase.iid.FirebaseInstanceId;
+
 import com.google.gson.Gson;
 import com.swaas.mwc.API.Model.AccountSettingsResponse;
 import com.swaas.mwc.API.Model.ExternalShareResponseModel;
@@ -568,29 +566,19 @@ public class ItemNavigationSettingsFragment extends Fragment{
     }
 
 
-    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if(resultCode==RESULT_OK && requestCode==CREDENTIALS_RESULT)
-        {
-            Toast.makeText(mActivity, "Success: Verified user's identity", Toast.LENGTH_SHORT).show();
-          //  Session.setLock(false);
 
-         //   startActivity(new Intent(context,WelcomeACtivity.class));
+        if (requestCode == CREDENTIALS_RESULT) {
 
-        }
-        else if(resultCode == RESULT_CANCELED && requestCode == CREDENTIALS_RESULT)
-        {
-           // finish();
-            Toast.makeText(mActivity, "canceled", Toast.LENGTH_SHORT).show();
-        }
-        else
-        {
-            Toast.makeText(mActivity, "Failure: Unable to verify user's identity", Toast.LENGTH_SHORT).show();
+            if (resultCode == RESULT_OK) {
+             //   updateLocalAuthAndLoggedInStatus();
+            }
+            else{
+                Toast.makeText(mActivity,"Authentication Failed",Toast.LENGTH_SHORT).show();
 
+            }
         }
     }
-
 
 
     private void getWhiteLabelSettings()

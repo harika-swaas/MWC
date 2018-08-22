@@ -49,6 +49,114 @@
 
             </RelativeLayout>
 
+
+            <RelativeLayout
+                android:id="@+id/doc_info_layout"
+                android:layout_width="match_parent"
+                android:layout_height="60dp">
+
+                <RelativeLayout
+                    android:id="@+id/thumbnail_layout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="10dp"
+                    android:visibility="visible"
+                    android:layout_marginLeft="10dp">
+
+                    <ImageView
+                        android:id="@+id/thumbnail_image"
+                        android:layout_width="45dp"
+                        android:layout_height="45dp"
+                        android:src="@mipmap/ic_thumbnail" />
+
+                    <ImageView
+                        android:id="@+id/thumbnail_corner_image"
+                        android:layout_width="45dp"
+                        android:layout_height="45dp"
+                        android:layout_alignTop="@+id/thumbnail_image"
+                        android:src="@mipmap/ic_thumbnail_corner" />
+
+                    <TextView
+                        android:id="@+id/thumbnail_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:text="pdf"
+                        android:textAllCaps="true"
+                        android:textColor="@color/white"
+                        android:textSize="9sp" />
+
+                </RelativeLayout>
+
+                <TextView
+                    android:id="@+id/doc_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="16dp"
+                    android:layout_toRightOf="@+id/thumbnail_layout"
+                    android:alpha="0.87"
+                    android:ellipsize="end"
+                    android:gravity="center_vertical"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:text="@string/share_item"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
+                    android:visibility="visible" />
+
+                <ImageView
+                    android:id="@+id/doc_info_image"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="16dp"
+                    android:src="@mipmap/ic_info" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/folder_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/category_image"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:src="@mipmap/ic_folder"
+                    android:layout_marginLeft="18dp"/>
+
+                <TextView
+                    android:id="@+id/category_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_toRightOf="@+id/category_image"
+                    android:alpha="0.87"
+                    android:gravity="center_vertical"
+                    android:padding="16dp"
+                    android:text="@string/share_item"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
+                    android:visibility="visible"
+                    />
+
+            </RelativeLayout>
+
+            <View
+                android:id="@+id/line_layout"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/draft_grey"
+                android:alpha="0.64"/>
+
             <RelativeLayout
                 android:id="@+id/available_offline_layout"
                 android:layout_width="match_parent"
