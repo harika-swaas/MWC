@@ -46,6 +46,7 @@ import retrofit.Retrofit;
 public class MoveCategoryDmsAdapter extends RecyclerView.Adapter<MoveCategoryDmsAdapter.ViewHolder> {
 
     final Context context;
+    String parent_id;
     private List<GetEndUserCategoriesResponse> mGetEndUserCategoriesResponse;
     List<GetEndUserCategoriesResponse> mSelectedDocumentList;
     AlertDialog mAlertDialog;
@@ -179,6 +180,8 @@ public class MoveCategoryDmsAdapter extends RecyclerView.Adapter<MoveCategoryDms
                     Intent mIntent = new Intent(context, MyFolderCategoryActivity.class);
                     Intent intent = new Intent("custom-message");
                     mIntent.putExtra("abc",id);
+                    parent_id= mGetEndUserCategoriesResponse.get(position).getCategory_id();
+                    PreferenceUtils.setParentId(context,parent_id);
 /*
                     LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 */

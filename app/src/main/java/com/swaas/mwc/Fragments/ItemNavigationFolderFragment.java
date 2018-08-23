@@ -52,6 +52,10 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.angads25.filepicker.controller.DialogSelectionListener;
+import com.github.angads25.filepicker.model.DialogConfigs;
+import com.github.angads25.filepicker.model.DialogProperties;
+import com.github.angads25.filepicker.view.FilePickerDialog;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
 import com.google.gson.Gson;
@@ -134,8 +138,10 @@ public class ItemNavigationFolderFragment extends Fragment {
     RecyclerView mRecyclerView;
     MyFoldersDMSActivity mActivity;
     AlertDialog mCustomAlertDialog;
+    int count =0;
     View mView;
     AlertDialog mAlertDialog;
+    int backCount=0;
     List<GetCategoryDocumentsResponse> mGetCategoryDocumentsResponses = new ArrayList<>();
     List<GetCategoryDocumentsResponse> mSelectedDocumentList = new ArrayList<>();
     List<GetCategoryDocumentsResponse> listGetCategoryDocuments = new ArrayList<>();
@@ -340,11 +346,20 @@ public class ItemNavigationFolderFragment extends Fragment {
                     e.printStackTrace();
                 }
             }
-            Intent openGalleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
-            openGalleryIntent.setType("*/*");
-           openGalleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-           openGalleryIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
-            startActivityForResult(openGalleryIntent, REQUEST_GALLERY_CODE);
+
+            pickFile();
+           //if (fileUri != null) {
+               // Intent intent = new Intent();
+            //    intent.setAction(Intent.ACTION_VIEW);
+            //    intent.setDataAndType(Uri.parse("file://" + fileUri), "***/*//*//**//*");
+           //     startActivity(intent);
+          //  }
+
+            //Intent openGalleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+            //openGalleryIntent.setType("*/*");
+           //openGalleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+           //openGalleryIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+           // startActivityForResult(openGalleryIntent, REQUEST_GALLERY_CODE);
         });
 
         actionCamera.setOnClickListener(v -> {
@@ -418,7 +433,7 @@ public class ItemNavigationFolderFragment extends Fragment {
                         final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
                         transparentProgressDialog.show();
 
-                        final UploadNewFolderRequest uploadNewFolderRequest = new UploadNewFolderRequest(PreferenceUtils.getCategoryId(mActivity), folder);
+                        final UploadNewFolderRequest uploadNewFolderRequest = new UploadNewFolderRequest(String.valueOf(PreferenceUtils.getObjectId(mActivity)), folder);
 
                         String request = new Gson().toJson(uploadNewFolderRequest);
 
@@ -515,6 +530,38 @@ public class ItemNavigationFolderFragment extends Fragment {
         // now access the TextView as you want
     }
 
+
+    public void pickFile() {
+        DialogProperties properties = new DialogProperties();
+        properties.extensions = new String[]{".pdf", ".doc", ".docx", ".xlsx", ".txt", ".jpg", ".png", ".bmp", ".gif", ".tiff", ".jpeg", ".xls" ,".mp4",".mp3",".wav",".mov",".avi",".m4a",".jpeg",".mkv",".ppt",".pptx"};
+        properties.selection_mode = DialogConfigs.MULTI_MODE;
+        FilePickerDialog dialog = new FilePickerDialog(getContext(), properties);
+        dialog.setTitle("Select a File");
+        list_upload = PreferenceUtils.getupload(getContext(),"key");
+        if(list_upload==null){
+            list_upload= new ArrayList<>();
+        }
+        dialog.setDialogSelectionListener(new DialogSelectionListener() {
+            @Override
+            public void onSelectedFilePaths(String[] files) {
+                if (list_upload.size() + files.length <= 10) {
+                    int fileCount = files.length;
+                    for (int i = 0; i <= fileCount - 1; i++) {
+                        list_upload.add(String.valueOf(new File(files[i])));
+                        PreferenceUtils.setupload(getContext(),list_upload,"key");
+                    }
+
+                }
+                else
+                {
+                    Toast.makeText(getContext(),"Please select less then 10 documents ",Toast.LENGTH_SHORT).show();
+                }
+                Intent intent = new Intent(getContext(),UploadListActivity.class);
+                startActivity(intent);
+            }
+        });
+        dialog.show();
+    }
     private FragmentManager getSupportFragmentManager() {
         return getFragmentManager();
     }
@@ -1510,7 +1557,7 @@ public class ItemNavigationFolderFragment extends Fragment {
         int i = PreferenceUtils.getBackButtonList(mActivity,"key").size();
         switch (item.getItemId()) {
             case android.R.id.home:
-               i = i - 2;
+            /*   i = i - 2;
                 if (i >-1) {
                     String id = PreferenceUtils.getBackButtonList(mActivity,"key").get(i);
                     getCategoryDocuments(id,String.valueOf(pageNumber));
@@ -1527,7 +1574,11 @@ public class ItemNavigationFolderFragment extends Fragment {
                     startActivity(new Intent(getActivity(), MyFoldersDMSActivity.class));
                     return true;
 
-                }
+                }*/
+                getCategoryDocuments("0",String.valueOf(pageNumber));
+
+               // startActivity(new Intent(getActivity(), MyFoldersDMSActivity.class));
+
                 break;
             case R.id.action_more:
                 openBottomSheetForMultiSelect();
@@ -2923,7 +2974,20 @@ public class ItemNavigationFolderFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        getCategoryDocuments("0",String.valueOf(pageNumber));
+        if(String.valueOf(PreferenceUtils.getParentId(getContext()))!=null)
+        {
+            getCategoryDocuments(String.valueOf(PreferenceUtils.getParentId(getContext())),String.valueOf(pageNumber));
+            count++;
+            PreferenceUtils.setParentId(getContext(),null);
+            /*if(count>1){
+                PreferenceUtils.setParentId(getContext(),null);
+                count=0;
+            }*/
+        }
+        else
+        {
+            getCategoryDocuments("0",String.valueOf(pageNumber));
+        }
 
 
         if (sortByName == true) {

@@ -1,6 +1,8 @@
 package com.swaas.mwc.Login;
 
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -14,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.swaas.mwc.API.Model.AccountSettingsResponse;
@@ -38,12 +41,14 @@ import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
 
+import static android.app.Activity.RESULT_OK;
+
 
 /**
  * Created by barath on 6/24/2018.
  */
 
-public class Touchid extends Authenticate {
+public class Touchid extends Activity {
 
     Button button2;
     TextView skip1;
@@ -51,6 +56,8 @@ public class Touchid extends Authenticate {
     boolean mIsFromFTL;
     List<AccountSettingsResponse> mAccountSettingsResponses = new ArrayList<>();
     String finger_print_settings;
+    KeyguardManager keyguardManager;
+    private static final int CREDENTIALS_RESULT = 4342;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 
@@ -66,46 +73,9 @@ public class Touchid extends Authenticate {
 
         button2.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-
-                updateLocalAuthAndLoggedInStatus();
-
-                getAccountSettings();
-
-                if(mAccountSettingsResponses != null && mAccountSettingsResponses.size() > 0)
-                {
-                    finger_print_settings =  mAccountSettingsResponses.get(0).getIs_Local_Auth_Enabled();
-                }
-
-                String opt_value =  null;
-                if(finger_print_settings != null && !finger_print_settings.isEmpty())
-                {
-                    if(finger_print_settings.equals("1"))
-                    {
-                        opt_value = "opt-in";
-                    }
-                    else if(finger_print_settings.equals("0"))
-                    {
-                        opt_value = "opt-out";
-                    }
-                }
-
-
-                if(opt_value != null && !opt_value.isEmpty())
-                {
-                    sendFingerPrintStatusToServer(opt_value);
-                }
-
-
-
+                checkCredentials();
             }
         });
-
-
-
-
-
-
-
 
         skip1.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -153,7 +123,7 @@ public class Touchid extends Authenticate {
                                 intent.putExtra(Constants.IS_FROM_FTL,mIsFromFTL);
                                 startActivity(intent);
                                 finish();
-                                checkCredentials();
+
 
 
                             }
@@ -345,5 +315,57 @@ public class Touchid extends Authenticate {
         accountSettings.updateLocalAuthEnableAndLoggedInStatus(String.valueOf(Constants.Local_Auth_Completed),"1");
     }
     public void onBackPressed() { }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public void checkCredentials() {
+        keyguardManager = (KeyguardManager) this.getSystemService(Context.KEYGUARD_SERVICE);
+        Intent credentialsIntent = keyguardManager.createConfirmDeviceCredentialIntent("Password required", "please enter your pattern to receive your token");
+
+        if (credentialsIntent != null) {
+            startActivityForResult(credentialsIntent, CREDENTIALS_RESULT);
+        }
+
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == CREDENTIALS_RESULT) {
+
+            if (resultCode == RESULT_OK) {
+                updateLocalAuthAndLoggedInStatus();
+                getAccountSettings();
+
+                if(mAccountSettingsResponses != null && mAccountSettingsResponses.size() > 0)
+                {
+                    finger_print_settings =  mAccountSettingsResponses.get(0).getIs_Local_Auth_Enabled();
+                }
+
+                String opt_value =  null;
+                if(finger_print_settings != null && !finger_print_settings.isEmpty())
+                {
+                    if(finger_print_settings.equals("1"))
+                    {
+                        opt_value = "opt-in";
+                    }
+                    else if(finger_print_settings.equals("0"))
+                    {
+                        opt_value = "opt-out";
+                    }
+                }
+
+
+                if(opt_value != null && !opt_value.isEmpty())
+                {
+                    sendFingerPrintStatusToServer(opt_value);
+                }
+
+            }
+            else{
+                Toast.makeText(Touchid.this,"Authentication Failed",Toast.LENGTH_SHORT).show();
+
+            }
+        }
+    }
 }
 

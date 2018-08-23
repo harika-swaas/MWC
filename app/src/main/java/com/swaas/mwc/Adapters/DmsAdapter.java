@@ -121,7 +121,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
     String obj = "0";
     String objectr;
     String categoryr;
-    String parentr;
+
     String document;
     ArrayList<String>document_id= new ArrayList<>();
     ArrayList <String> document_version_id= new ArrayList<>();
@@ -389,6 +389,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                         if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("category")) {
                             PreferenceUtils.setObjectId(context, mGetCategoryDocumentsResponses.get(position).getObject_id());
                             obj = mGetCategoryDocumentsResponses.get(position).getObject_id();
+                            PreferenceUtils.setParentId(context,obj);
                             if (context instanceof MyFoldersDMSActivity) {
                                 ((ItemNavigationFolderFragment) fragment).getCategoryDocuments(obj, String.valueOf(pageNumber));
                             }
@@ -396,10 +397,13 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                             {
                             doc_id = PreferenceUtils.getBackButtonList(context,"key");
                             }
+
                             else
                             {
                                 doc_id.add(obj);
-                            PreferenceUtils.setBackButtonList(context,doc_id,"key");}
+                            PreferenceUtils.setBackButtonList(context,doc_id,"key");
+                            }
+
                         } else if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document")) {
                             getDocumentPreviews(mGetCategoryDocumentsResponses.get(position));
 
@@ -442,7 +446,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                 @Override
                 public void onClick(View v) {
                     if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("category")) {
-                        openBottomSheetForCategory(mGetCategoryDocumentsResponses.get(position).getName());
+                        openBottomSheetForCategory(mGetCategoryDocumentsResponses.get(position), mGetCategoryDocumentsResponses.get(position).getName());
                         objectr = mGetCategoryDocumentsResponses.get(position).getParent_id();
                         categoryr = mGetCategoryDocumentsResponses.get(position).getObject_id();
                         PreferenceUtils.setCategoryId(context,categoryr);
@@ -455,7 +459,6 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                     } else if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document")) {
                         openBottomSheetForDocument(mGetCategoryDocumentsResponses.get(position), mGetCategoryDocumentsResponses.get(position).getType(), mGetCategoryDocumentsResponses.get(position).getFiletype(), mGetCategoryDocumentsResponses.get(position).getName());
                         document=mGetCategoryDocumentsResponses.get(position).getObject_id();
-                        parentr = mGetCategoryDocumentsResponses.get(position).getObject_id();
                         categoryr = mGetCategoryDocumentsResponses.get(position).getDocument_version_id();
                         document_id.add(document);
                         version_number=mGetCategoryDocumentsResponses.get(position).getVersion_count();
@@ -841,7 +844,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
             @SuppressLint("ResourceAsColor")
             @Override
             public void onClick(View v)
-            {
+            {mBottomSheetDialog.dismiss();
                 final AlertDialog.Builder builder = new AlertDialog.Builder(context);
                 LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 View view = inflater.inflate(R.layout.delete_document, null);
@@ -900,7 +903,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                                         if (apiResponse.status.getCode() instanceof Boolean) {
                                             if (apiResponse.status.getCode() == Boolean.FALSE) {
                                                 transparentProgressDialog.dismiss();
-                                                getSubCategoryDocuments(parentr,"1");
+                                                getSubCategoryDocuments(mGetCategoryDocumentsResponses.getObject_id(),"1");
                                                 mBackDialog.dismiss();
                                                 // refreshAdapterToView(getCategoryDocumentsResponses);
                                             }
@@ -993,7 +996,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                                         if (apiResponse.status.getCode() instanceof Boolean) {
                                             if (apiResponse.status.getCode() == Boolean.FALSE) {
                                                 transparentProgressDialog.dismiss();
-                                                getSubCategoryDocuments(parentr,"1");
+                                                getSubCategoryDocuments(mGetCategoryDocumentsResponses.getObject_id(),"1");
                                                 mBackDialog.dismiss();
                                                 // refreshAdapterToView(getCategoryDocumentsResponses);
                                             }
@@ -1085,7 +1088,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                                         if (apiResponse.status.getCode() instanceof Boolean) {
                                             if (apiResponse.status.getCode() == Boolean.FALSE) {
                                                 transparentProgressDialog.dismiss();
-                                                getSubCategoryDocuments(parentr,"1");
+                                                getSubCategoryDocuments(mGetCategoryDocumentsResponses.getObject_id(),"1");
                                                 mBackDialog.dismiss();
                                                 // refreshAdapterToView(getCategoryDocumentsResponses);
                                             }
@@ -1346,7 +1349,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
     }
 
 
-    private void openBottomSheetForCategory(String name) {
+    private void openBottomSheetForCategory(GetCategoryDocumentsResponse getCategoryDocumentsResponse, String name) {
 
         getWhiteLabelProperities();
 
@@ -1387,6 +1390,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         moveImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mBottomSheetDialog.show();
                 Intent intent = new Intent(context, MyFolderCategoryActivity.class);
                 context.startActivity(intent);
             }
@@ -1445,6 +1449,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mBottomSheetDialog.show();
                 final AlertDialog.Builder builder = new AlertDialog.Builder(context);
                 LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 View view = inflater.inflate(R.layout.delete_alert, null);
@@ -1492,7 +1497,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
 
                                             if (apiResponse.status.getCode() == Boolean.FALSE) {
                                                 transparentProgressDialog.dismiss();
-                                                getSubCategoryDocuments(parentr,"1");
+                                                getSubCategoryDocuments(getCategoryDocumentsResponse.getObject_id(),"1");
                                                 mBackDialog.dismiss();
                                                 // refreshAdapterToView(getCategoryDocumentsResponses);
                                             }
@@ -1603,7 +1608,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                         if (apiResponse.status.getCode() instanceof Boolean) {
                             if (apiResponse.status.getCode() == Boolean.FALSE) {
                                 transparentProgressDialog.dismiss();
-                                getSubCategoryDocuments(parentr,"1");
+                                getSubCategoryDocuments(PreferenceUtils.getObjectId(context),"1");
                                 // refreshAdapterToView(getCategoryDocumentsResponses);
                             }
 
@@ -1768,21 +1773,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                         if (apiResponse.status.getCode() instanceof Boolean) {
                             if (apiResponse.status.getCode() == Boolean.FALSE) {
                                 transparentProgressDialog.dismiss();
-                                if (obj.equals("0")){
-                                    ActionBar actionBar = myFoldersDMSActivity.getSupportActionBar();
-                                    actionBar.setDisplayHomeAsUpEnabled(false);
-                                    fragment.getView().findViewById(R.id.menu_camera_item).setVisibility(View.GONE);
-                                    fragment.getView().findViewById(R.id.menu_camera_video_item).setVisibility(View.GONE);
-                                    fragment.getView().findViewById(R.id.menu_upload_item).setVisibility(View.GONE);
-                                }
-                                else
-                                {
-                                    ActionBar actionBar = myFoldersDMSActivity.getSupportActionBar();
-                                    actionBar.setDisplayHomeAsUpEnabled(true);
-                                    fragment.getView().findViewById(R.id.menu_camera_item).setVisibility(View.VISIBLE);
-                                    fragment.getView().findViewById(R.id.menu_camera_video_item).setVisibility(View.VISIBLE);
-                                    fragment.getView().findViewById(R.id.menu_upload_item).setVisibility(View.VISIBLE);
-                                }
+
                                 getCategoryDocumentsResponses = response.body().getData();
 
                                 //     getCategoryDocumentsResponses = response.body().getData();
@@ -1790,7 +1781,24 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
 
                                 //   paginationList.add(getCategoryDocumentsResponses);
 
-
+                           /*     if (object_id.equals("0")){
+                                    ActionBar actionBar = myFoldersDMSActivity.getSupportActionBar();
+                                    if (actionBar != null) {
+                                        actionBar.setDisplayHomeAsUpEnabled(false);
+                                    }
+                                    fragment.getView().findViewById(R.id.menu_camera_item).setVisibility(View.GONE);
+                                    fragment.getView().findViewById(R.id.menu_camera_video_item).setVisibility(View.GONE);
+                                    fragment.getView().findViewById(R.id.menu_upload_item).setVisibility(View.GONE);
+                                }
+                                else
+                                {
+                                    ActionBar actionBar = myFoldersDMSActivity.getSupportActionBar();
+                                    if (actionBar != null) {
+                                        actionBar.setDisplayHomeAsUpEnabled(false);
+                                    }                                    fragment.getView().findViewById(R.id.menu_camera_item).setVisibility(View.VISIBLE);
+                                    fragment.getView().findViewById(R.id.menu_camera_video_item).setVisibility(View.VISIBLE);
+                                    fragment.getView().findViewById(R.id.menu_upload_item).setVisibility(View.VISIBLE);
+                                }*/
 
 
 /*

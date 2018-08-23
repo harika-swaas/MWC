@@ -217,6 +217,8 @@ public class MyFoldersDMSActivity extends RootActivity {
         // switchFragment(FOLDER_FRAGMENT);
         // getCategoryDocuments("0",String.valueOf(pageNumber));
         getWhiteLabelProperities();
+
+        PreferenceUtils.setObjectId(MyFoldersDMSActivity.this,"0");
       /*  StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
         StrictMode.setVmPolicy(builder.build());*/
       //  addListenersToViews();

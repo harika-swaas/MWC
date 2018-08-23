@@ -32,11 +32,13 @@ public class PreferenceUtils {
     private static  final String NOTES_ID = "notes_id";
     private static  final String CATEGORY_ID = "category_id";
     private static  final String WORKSPACE_ID = "workspace_id";
+    private static  final String PARENT_ID = "parent_id";
     private static final String DOC_ID="doc_id";
     private static final String UPLOAD_LIST="upload_list";
     private static final String BACK_BUTTON_LIST="back_button_list";
     private static final String DELETE="delete";
     private static final String ASSIST = "assist";
+    private static final int BACK = 0;
 
 
     public static void setAccessToken(Context context, String accesstoken) {
@@ -89,6 +91,19 @@ public class PreferenceUtils {
         SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
         int userPin = sharedPreferences.getInt(PIN, -1);
         return userPin;
+    }
+
+    public static void setBack(Context context, int back) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(String.valueOf(BACK), back);
+        editor.commit();
+    }
+
+    public static int getBack(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        int back = sharedPreferences.getInt(String.valueOf(BACK), -1);
+        return back;
     }
 
     public static void setMobileItemEnableColor(Context context, String mobileItemEnableColor) {
@@ -242,6 +257,19 @@ public class PreferenceUtils {
     public static String getWorkspaceId(Context context) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
         String workspace_id = sharedPreferences.getString(WORKSPACE_ID, null);
+        return workspace_id;
+    }
+
+    public static void setParentId(Context context, String parent_id) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(PARENT_ID, parent_id);
+        editor.commit();
+    }
+
+    public static String getParentId(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        String workspace_id = sharedPreferences.getString(PARENT_ID, null);
         return workspace_id;
     }
     public static void saveArrayList(Context context, ArrayList<String> list, String key){

@@ -285,7 +285,7 @@ public class MyFolderActivity extends RootActivity {
                             category_ids = getCategoryDocumentsResponseList.toArray(new String[getCategoryDocumentsResponseList.size()]);
                         }
                     }
-*/                  String document_ids[]= PreferenceUtils.getArrayList(context, "Key").toArray(new String[0]);
+*/                  ArrayList<String> document_ids= PreferenceUtils.getArrayList(context, "Key");
 
                     final MoveDocumentRequest moveDocumentRequest = new MoveDocumentRequest(document_ids,obj);
 

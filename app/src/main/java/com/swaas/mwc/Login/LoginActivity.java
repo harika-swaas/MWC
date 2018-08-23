@@ -29,7 +29,6 @@ import java.util.TimerTask;
  */
 
 public class LoginActivity extends RootActivity {
-    Authenticate authenticate ;
     LoginFragment mLoginFragment;
     KeyguardManager keyguardManager;
     private static final int CREDENTIALS_RESULT = 4342;
@@ -221,17 +220,17 @@ public class LoginActivity extends RootActivity {
             startActivityForResult(credentialsIntent, CREDENTIALS_RESULT);
         }
 
-        else {
-            //no password needed
-        }
     }
-    public void onActivityResult(int requestCode, int resultCode, Bundle data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         if (requestCode == CREDENTIALS_RESULT) {
 
             if (resultCode == RESULT_OK) {
-
-
+            }
+            else{
+                Toast.makeText(LoginActivity.this,"Authentication Failed",Toast.LENGTH_SHORT).show();
+                android.os.Process.killProcess(android.os.Process.myPid());
+                System.exit(1);
             }
         }
     }

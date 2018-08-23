@@ -50,6 +50,7 @@ public class DeleteDmsAdapter extends RecyclerView.Adapter<DeleteDmsAdapter.View
     private DeleteDmsAdapter.ItemClickListener mClickListener;
     private HashSet<Integer> mSelected;
     String id=null;
+    String parent_id;
 
     public DeleteDmsAdapter(List<GetEndUserCategoriesResponse> mGetEndUserCategoriesResponse, List<GetEndUserCategoriesResponse> mSelectedDocumentList, Activity context) {
         this.context = context;
@@ -177,6 +178,8 @@ public class DeleteDmsAdapter extends RecyclerView.Adapter<DeleteDmsAdapter.View
                     Intent mIntent = new Intent(context, MyfolderDeleteActivity.class);
                     Intent intent = new Intent("custom-message");
                     mIntent.putExtra("abc",id);
+                    parent_id= mGetEndUserCategoriesResponse.get(position).getCategory_id();
+                    PreferenceUtils.setParentId(context,id);
 /*
                     LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 */

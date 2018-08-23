@@ -21,5 +21,5 @@ public interface SendPinService {
     @Headers("content-type: application/x-www-form-urlencoded")
     @POST("/send-pin")
     @FormUrlEncoded
-    Call<ListPinDevicesResponse<LoginResponse>> getSendPin(@FieldMap Map<String, String> params, @Header("access-token") String accessToken);
+    Call<BaseApiResponse> getSendPin(@FieldMap Map<String, String> params, @Header("access-token") String accessToken);
 }

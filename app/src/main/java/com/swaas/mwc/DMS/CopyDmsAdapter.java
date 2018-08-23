@@ -52,6 +52,7 @@ public class CopyDmsAdapter extends RecyclerView.Adapter<CopyDmsAdapter.ViewHold
     private ItemClickListener mClickListener;
     private HashSet<Integer> mSelected;
     String id=null;
+    String parent_id;
 
     public CopyDmsAdapter(List<GetEndUserCategoriesResponse> mGetEndUserCategoriesResponse, List<GetEndUserCategoriesResponse> mSelectedDocumentList, Activity context) {
         this.context = context;
@@ -179,6 +180,8 @@ public class CopyDmsAdapter extends RecyclerView.Adapter<CopyDmsAdapter.ViewHold
                     Intent mIntent = new Intent(context, MyFolderCopyActivity.class);
                     Intent intent = new Intent("custom-message");
                     mIntent.putExtra("abc",id);
+                    parent_id= mGetEndUserCategoriesResponse.get(position).getCategory_id();
+                    PreferenceUtils.setParentId(context,id);
 /*
                     LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 */

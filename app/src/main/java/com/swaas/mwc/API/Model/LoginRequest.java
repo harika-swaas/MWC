@@ -17,10 +17,33 @@ public class LoginRequest {
     @Expose
     private String password;
 
-    public LoginRequest(String UserName, String Password) {
+    @SerializedName("override_pin_bypass")
+    @Expose
+    private boolean override_pin_bypass;
+
+
+    public LoginRequest(String UserName, String Password,boolean overide) {
         this.username = UserName;
         this.password = Password;
+        this.override_pin_bypass=overide;
     }
+
+   /* public LoginRequest(String UserName, String Password) {
+        this.username = UserName;
+        this.password = Password;
+    }*/
+
+
+    public boolean isOverride_pin_bypass() {
+        return override_pin_bypass;
+    }
+
+    public void setOverride_pin_bypass(boolean override_pin_bypass) {
+        this.override_pin_bypass = override_pin_bypass;
+    }
+
+
+
 
     public String getUserName() {
         return username;

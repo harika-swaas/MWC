@@ -34,6 +34,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.angads25.filepicker.controller.DialogSelectionListener;
+import com.github.angads25.filepicker.model.DialogConfigs;
+import com.github.angads25.filepicker.model.DialogProperties;
+import com.github.angads25.filepicker.view.FilePickerDialog;
 import com.google.gson.Gson;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.RequestBody;
@@ -100,6 +104,7 @@ public class UploadListActivity extends Activity{
     int fileindex;
     int size;
     AlertDialog mCustomAlertDialog;
+    String filepath=null;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -127,13 +132,28 @@ public class UploadListActivity extends Activity{
             @Override
             public void onClick(View v) {
                 int index = 0;
-
                 size = PreferenceUtils.getupload(UploadListActivity.this,"key").size();
-                upload(index);
+                add.setEnabled(false);
+                upload.setEnabled(false);
+                back.setEnabled(false);
+                if(size>10){
+                    Toast.makeText(UploadListActivity.this,"Please select less then 10 documents ",Toast.LENGTH_SHORT).show();
+
+                }
+                else{
+                    upload(index);
+                }
+
 
 
             }
 
+        });
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
         });
 
 
@@ -232,12 +252,14 @@ public class UploadListActivity extends Activity{
                 textView.setVisibility(View.GONE);
                 TextView text = (TextView) view.findViewById(R.id.message);
                 text.setText("All Documents were Uploaded Successfully");
+                back.setEnabled(false);
                 BtnCancel.setVisibility(View.INVISIBLE);
                 BtnAllow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         mCustomAlertDialog.dismiss();
-                        UploadListActivity.this.finish();
+                        Intent intent = new Intent(UploadListActivity.this,MyFoldersDMSActivity.class);
+                        startActivity(intent);
 
                     }
                 });
@@ -380,10 +402,11 @@ public class UploadListActivity extends Activity{
                     }
                 }
                 //requestStoragePermission();
-                Intent openGalleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                openGalleryIntent.setType("*/*");
-                openGalleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-                startActivityForResult(openGalleryIntent, REQUEST_GALLERY_CODE);
+              //  Intent openGalleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+               // openGalleryIntent.setType("*/*");
+               // openGalleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+               // startActivityForResult(openGalleryIntent, REQUEST_GALLERY_CODE);
+                pickFile();
                 mBottomSheetDialog.dismiss();
 
             }
@@ -397,6 +420,34 @@ public class UploadListActivity extends Activity{
         });
     }
 
+    public void pickFile() {
+        DialogProperties properties = new DialogProperties();
+        properties.extensions = new String[]{".pdf", ".doc", ".docx", ".xlsx", ".txt", ".jpg", ".png", ".bmp", ".gif", ".tiff", ".jpeg", ".xls" ,".mp4",".mp3",".wav",".mov",".avi",".m4a",".jpeg",".mkv",".ppt",".pptx"};
+        properties.selection_mode = DialogConfigs.MULTI_MODE;
+        FilePickerDialog dialog = new FilePickerDialog(UploadListActivity.this, properties);
+        dialog.setTitle("Select a File");
+        UploadList = PreferenceUtils.getupload(UploadListActivity.this,"key");
+        dialog.setDialogSelectionListener(new DialogSelectionListener() {
+            @Override
+            public void onSelectedFilePaths(String[] files) {
+                if (UploadList.size() + files.length <= 10) {
+                    int fileCount = files.length;
+                    for (int i = 0; i <= fileCount - 1; i++) {
+                        UploadList.add(String.valueOf(new File(files[i])));
+                        PreferenceUtils.setupload(UploadListActivity.this,UploadList,"key");
+                    }
+
+                }
+                else
+                    {
+                           Toast.makeText(UploadListActivity.this,"Please select less then 10 documents ",Toast.LENGTH_SHORT).show();
+                }
+                Intent intent = new Intent(UploadListActivity.this,UploadListActivity.class);
+                startActivity(intent);
+            }
+        });
+        dialog.show();
+    }
 
     public Uri getOutputMediaFileUri(int type) {
         return Uri.fromFile(getOutputMediaFile(type));

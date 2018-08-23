@@ -39,7 +39,6 @@ import com.swaas.mwc.Database.AccountSettings;
 import com.swaas.mwc.Dialogs.LoadingProgressDialog;
 import com.swaas.mwc.FTL.FTLActivity;
 import com.swaas.mwc.FTL.FTLUserValidationActivity;
-import com.swaas.mwc.Login.Authenticate;
 import com.swaas.mwc.Login.Dashboard;
 import com.swaas.mwc.Login.LoginActivity;
 import com.swaas.mwc.Login.LoginAgreeTermsAcceptanceActivity;
@@ -159,7 +158,8 @@ public class LoginFragment extends Fragment {
                         Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
                         final LoginService loginService = retrofitAPI.create(LoginService.class);
 
-                        LoginRequest mLoginRequest = new LoginRequest(username, password);
+                        LoginRequest mLoginRequest = new LoginRequest(username, password,true);
+                        //LoginRequest mLoginRequest = new LoginRequest(username, password);
 
                         final String request = new Gson().toJson(mLoginRequest);
                         //Here the json data is add to a hash map with key data

@@ -45,9 +45,7 @@ import com.swaas.mwc.API.Model.WhiteLabelResponse;
 import com.swaas.mwc.API.Service.ShareEndUserDocumentsService;
 import com.swaas.mwc.DMS.MyFoldersDMSActivity;
 import com.swaas.mwc.Database.AccountSettings;
-import com.swaas.mwc.Dialogs.LoadingProgressDialog;
-import com.swaas.mwc.Login.Authenticate;
-import com.swaas.mwc.Login.LoginActivity;
+
 import com.swaas.mwc.Network.NetworkUtils;
 import com.swaas.mwc.OffLine_Files_List;
 import com.swaas.mwc.Preference.PreferenceUtils;

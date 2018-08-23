@@ -55,9 +55,6 @@
             android:name=".FTL.FTLPasswordValidationActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".Login.Authenticate"
-            android:screenOrientation="portrait" />
-        <activity
             android:name=".Login.Dashboard"
             android:screenOrientation="portrait" />
         <activity

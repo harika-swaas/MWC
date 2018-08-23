@@ -729,10 +729,10 @@ public class FTLPinVerificationFragment extends Fragment {
 
             Call call = sendPinService.getSendPin(params, PreferenceUtils.getAccessToken(mActivity));
 
-            call.enqueue(new Callback<ListPinDevicesResponse<LoginResponse>>() {
+            call.enqueue(new Callback<BaseApiResponse>() {
                 @Override
-                public void onResponse(Response<ListPinDevicesResponse<LoginResponse>> response, Retrofit retrofit) {
-                    ListPinDevicesResponse apiResponse = response.body();
+                public void onResponse(Response<BaseApiResponse> response, Retrofit retrofit) {
+                    BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
 
                         if (apiResponse.status.getCode() instanceof Boolean) {

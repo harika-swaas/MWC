@@ -1,5 +1,6 @@
 package com.swaas.mwc.pdf;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -41,6 +42,7 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.swaas.mwc.API.Model.ApiResponse;
+import com.swaas.mwc.API.Model.DeleteDocumentRequest;
 import com.swaas.mwc.API.Model.DownloadDocumentRequest;
 import com.swaas.mwc.API.Model.DownloadDocumentResponse;
 import com.swaas.mwc.API.Model.EditDocumentPropertiesRequest;
@@ -54,6 +56,7 @@ import com.swaas.mwc.API.Model.OfflineFiles;
 import com.swaas.mwc.API.Model.SharedDocumentResponseModel;
 import com.swaas.mwc.API.Model.StopSharingRequestModel;
 import com.swaas.mwc.API.Model.WhiteLabelResponse;
+import com.swaas.mwc.API.Service.DeleteDocumentService;
 import com.swaas.mwc.API.Service.DownloadDocumentService;
 import com.swaas.mwc.API.Service.EditDocumentPropertiesService;
 import com.swaas.mwc.API.Service.EndUserRenameService;
@@ -135,6 +138,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
     List<WhiteLabelResponse> mWhiteLabelResponses;
     Context context = this;
     AlertDialog mAlertDialog;
+    AlertDialog mBackDialog;
     ImageView external_share_imgage, pdf_info_imgage;
 
     GetCategoryDocumentsResponse categoryDocumentsResponse;
@@ -908,6 +912,8 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
         RelativeLayout rename_Layout = (RelativeLayout) view.findViewById(R.id.rename_layout);
         final SwitchCompat switchButton_share = (SwitchCompat) view.findViewById(R.id.switchButton_share);
         final SwitchCompat switchButton_download = (SwitchCompat) view.findViewById(R.id.switchButton_download);
+        TextView delete= (TextView)view.findViewById(R.id.delete);
+
 
         if(categoryDocumentsResponse.getIs_shared().equals("1"))
         {
@@ -967,6 +973,345 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
             }
         });
+
+
+
+        delete.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("ResourceAsColor")
+            @Override
+            public void onClick(View v)
+            {
+                mBottomSheetDialog.dismiss();
+                final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View view = inflater.inflate(R.layout.delete_document, null);
+                builder.setView(view);
+                builder.setCancelable(false);
+                Button delete = (Button)view.findViewById(R.id.delete);
+                Button delete_historic=(Button)view.findViewById(R.id.movefolder);
+                Button delete_all =(Button)view.findViewById(R.id.deleteall);
+                Button cancel = (Button)view.findViewById(R.id.canceldel);
+
+                if(categoryDocumentsResponse.getVersion_count().equals("0"))
+                {
+                    delete_historic.setEnabled(false);
+                    delete_historic.setTextColor(R.color.grey);
+                    delete_all.setEnabled(false);
+                    delete_all.setTextColor(R.color.grey);
+                }
+
+
+                mBackDialog = builder.create();
+                mBackDialog.show();
+                delete.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (NetworkUtils.isNetworkAvailable(context)) {
+
+                            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+
+                            ArrayList<String> documentVersionList = new ArrayList<>();
+                            documentVersionList.add(categoryDocumentsResponse.getDocument_version_id());
+
+                            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
+                            transparentProgressDialog.show();
+                            DeleteDocumentRequest deleteDocumentRequest= new DeleteDocumentRequest();
+                            deleteDocumentRequest.setDoc_id(categoryDocumentsResponse.getObject_id());
+                            deleteDocumentRequest.setDoc_version_ids(documentVersionList);
+                            deleteDocumentRequest.setMode("0");
+                            DeleteDocumentRequest docs = deleteDocumentRequest;
+                            final DeleteDocumentRequest.DeleteDocRequest deleteDocRequest = new DeleteDocumentRequest.DeleteDocRequest(new DeleteDocumentRequest[]{docs});
+
+                            String request = new Gson().toJson(deleteDocRequest);
+
+                            //Here the json data is add to a hash map with key data
+                            Map<String, String> params = new HashMap<String, String>();
+                            params.put("data", request);
+
+                            final DeleteDocumentService deleteDocumentService = retrofitAPI.create(DeleteDocumentService.class);
+
+                            Call call = deleteDocumentService.delete_eu_document(params, PreferenceUtils.getAccessToken(context));
+
+                            call.enqueue(new Callback<ListPinDevicesResponse<LoginResponse>>() {
+                                @Override
+                                public void onResponse(Response<ListPinDevicesResponse<LoginResponse>> response, Retrofit retrofit) {
+                                    ListPinDevicesResponse apiResponse = response.body();
+                                    if (apiResponse != null) {
+
+                                        transparentProgressDialog.dismiss();
+
+                                        if (apiResponse.status.getCode() instanceof Boolean) {
+                                            if (apiResponse.status.getCode() == Boolean.FALSE) {
+                                                transparentProgressDialog.dismiss();
+                                                finish();
+                                                mBackDialog.dismiss();
+                                                Intent intent= new Intent(PdfViewActivity.this,MyFoldersDMSActivity.class);
+                                                startActivity(intent);
+                                                // refreshAdapterToView(getCategoryDocumentsResponses);
+                                            }
+
+                                        } else if (apiResponse.status.getCode() instanceof Integer) {
+                                            transparentProgressDialog.dismiss();
+                                            mBackDialog.dismiss();
+                                            String mMessage = apiResponse.status.getMessage().toString();
+
+                                            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                                            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+                                            builder.setView(view);
+                                            builder.setCancelable(false);
+
+                                            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+                                            txtMessage.setText(mMessage);
+
+                                            Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+                                            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+                                            cancelButton.setVisibility(View.GONE);
+
+                                            sendPinButton.setText("OK");
+
+                                            sendPinButton.setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    mAlertDialog.dismiss();
+                                                    context.startActivity(new Intent(context, LoginActivity.class));
+                                                }
+                                            });
+
+                                            mAlertDialog = builder.create();
+                                            mAlertDialog.show();
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Throwable t) {
+                                    transparentProgressDialog.dismiss();
+                                    mBackDialog.dismiss();
+                                    Log.d("PinDevice error", t.getMessage());
+                                }
+                            });
+                        }
+
+
+                    }
+                });
+
+
+                delete_historic.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        if (NetworkUtils.isNetworkAvailable(context)) {
+
+                            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+
+                            ArrayList<String> documentVersionList = new ArrayList<>();
+                            documentVersionList.add(categoryDocumentsResponse.getDocument_version_id());
+
+                            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
+                            transparentProgressDialog.show();
+                            DeleteDocumentRequest deleteDocumentRequest= new DeleteDocumentRequest();
+                            deleteDocumentRequest.setDoc_id(categoryDocumentsResponse.getObject_id());
+                            deleteDocumentRequest.setDoc_version_ids(documentVersionList);
+                            deleteDocumentRequest.setMode("1");
+                            DeleteDocumentRequest docs = deleteDocumentRequest;
+                            final DeleteDocumentRequest.DeleteDocRequest deleteDocRequest = new DeleteDocumentRequest.DeleteDocRequest(new DeleteDocumentRequest[]{docs});
+
+                            String request = new Gson().toJson(deleteDocRequest);
+
+                            //Here the json data is add to a hash map with key data
+                            Map<String, String> params = new HashMap<String, String>();
+                            params.put("data", request);
+
+                            final DeleteDocumentService deleteDocumentService = retrofitAPI.create(DeleteDocumentService.class);
+
+                            Call call = deleteDocumentService.delete_eu_document(params, PreferenceUtils.getAccessToken(context));
+
+                            call.enqueue(new Callback<ListPinDevicesResponse<LoginResponse>>() {
+                                @Override
+                                public void onResponse(Response<ListPinDevicesResponse<LoginResponse>> response, Retrofit retrofit) {
+                                    ListPinDevicesResponse apiResponse = response.body();
+                                    if (apiResponse != null) {
+
+                                        transparentProgressDialog.dismiss();
+
+                                        if (apiResponse.status.getCode() instanceof Boolean) {
+                                            if (apiResponse.status.getCode() == Boolean.FALSE) {
+                                                transparentProgressDialog.dismiss();
+                                                finish();
+                                                mBackDialog.dismiss();
+                                                Intent intent= new Intent(PdfViewActivity.this,MyFoldersDMSActivity.class);
+                                                startActivity(intent);
+                                                // refreshAdapterToView(getCategoryDocumentsResponses);
+                                            }
+
+                                        } else if (apiResponse.status.getCode() instanceof Integer) {
+                                            transparentProgressDialog.dismiss();
+                                            mBackDialog.dismiss();
+                                            String mMessage = apiResponse.status.getMessage().toString();
+
+                                            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                                            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+                                            builder.setView(view);
+                                            builder.setCancelable(false);
+
+                                            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+                                            txtMessage.setText(mMessage);
+
+                                            Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+                                            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+                                            cancelButton.setVisibility(View.GONE);
+
+                                            sendPinButton.setText("OK");
+
+                                            sendPinButton.setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    mAlertDialog.dismiss();
+                                                    context.startActivity(new Intent(context, LoginActivity.class));
+                                                }
+                                            });
+
+                                            mAlertDialog = builder.create();
+                                            mAlertDialog.show();
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Throwable t) {
+                                    transparentProgressDialog.dismiss();
+                                    mBackDialog.dismiss();
+                                    Log.d("PinDevice error", t.getMessage());
+                                }
+                            });
+                        }
+
+
+
+                    }
+                });
+
+                delete_all.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (NetworkUtils.isNetworkAvailable(context)) {
+
+                            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+
+                            ArrayList<String> documentVersionList = new ArrayList<>();
+                            documentVersionList.add(categoryDocumentsResponse.getDocument_version_id());
+
+                            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
+                            transparentProgressDialog.show();
+                            DeleteDocumentRequest deleteDocumentRequest= new DeleteDocumentRequest();
+                            deleteDocumentRequest.setDoc_id(categoryDocumentsResponse.getObject_id());
+                            deleteDocumentRequest.setDoc_version_ids(documentVersionList);
+                            deleteDocumentRequest.setMode("2");
+                            DeleteDocumentRequest docs = deleteDocumentRequest;
+                            final DeleteDocumentRequest.DeleteDocRequest deleteDocRequest = new DeleteDocumentRequest.DeleteDocRequest(new DeleteDocumentRequest[]{docs});
+
+                            String request = new Gson().toJson(deleteDocRequest);
+
+                            //Here the json data is add to a hash map with key data
+                            Map<String, String> params = new HashMap<String, String>();
+                            params.put("data", request);
+
+                            final DeleteDocumentService deleteDocumentService = retrofitAPI.create(DeleteDocumentService.class);
+
+                            Call call = deleteDocumentService.delete_eu_document(params, PreferenceUtils.getAccessToken(context));
+
+                            call.enqueue(new Callback<ListPinDevicesResponse<LoginResponse>>() {
+                                @Override
+                                public void onResponse(Response<ListPinDevicesResponse<LoginResponse>> response, Retrofit retrofit) {
+                                    ListPinDevicesResponse apiResponse = response.body();
+                                    if (apiResponse != null) {
+
+                                        transparentProgressDialog.dismiss();
+
+                                        if (apiResponse.status.getCode() instanceof Boolean) {
+                                            if (apiResponse.status.getCode() == Boolean.FALSE) {
+                                                transparentProgressDialog.dismiss();
+                                                finish();
+                                                mBackDialog.dismiss();
+                                                Intent intent= new Intent(PdfViewActivity.this,MyFoldersDMSActivity.class);
+                                                startActivity(intent);
+                                                // refreshAdapterToView(getCategoryDocumentsResponses);
+                                            }
+
+                                        } else if (apiResponse.status.getCode() instanceof Integer) {
+                                            transparentProgressDialog.dismiss();
+                                            mBackDialog.dismiss();
+                                            String mMessage = apiResponse.status.getMessage().toString();
+
+                                            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                                            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+                                            builder.setView(view);
+                                            builder.setCancelable(false);
+
+                                            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+                                            txtMessage.setText(mMessage);
+
+                                            Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+                                            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+                                            cancelButton.setVisibility(View.GONE);
+
+                                            sendPinButton.setText("OK");
+
+                                            sendPinButton.setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    mAlertDialog.dismiss();
+                                                    context.startActivity(new Intent(context, LoginActivity.class));
+                                                }
+                                            });
+
+                                            mAlertDialog = builder.create();
+                                            mAlertDialog.show();
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Throwable t) {
+                                    transparentProgressDialog.dismiss();
+                                    mBackDialog.dismiss();
+                                    Log.d("PinDevice error", t.getMessage());
+                                }
+                            });
+                        }
+
+
+                    }
+                });
+
+                cancel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mBackDialog.dismiss();
+
+                    }
+                });
+
+
+
+
+            }
+
+
+
+
+        });
+
 
 
 
