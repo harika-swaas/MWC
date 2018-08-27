@@ -1,6 +1,9 @@
 package com.swaas.mwc.API.Service;
 
 import com.swaas.mwc.API.Model.ApiResponse;
+import com.swaas.mwc.API.Model.BaseApiResponse;
+import com.swaas.mwc.API.Model.BaseApiResponseStatus;
+import com.swaas.mwc.API.Model.DeleteDocumentResponseModel;
 import com.swaas.mwc.API.Model.LoginResponse;
 
 import java.util.Map;
@@ -20,6 +23,6 @@ public interface DeleteDocumentService {
     @Headers("content-type: application/x-www-form-urlencoded")
     @POST("/delete-end-users-documents")
     @FormUrlEncoded
-    Call<ApiResponse<LoginResponse>> delete_eu_document(@FieldMap Map<String, String> params, @Header("access-token") String accessToken);
+    Call<DeleteDocumentResponseModel> delete_eu_document(@FieldMap Map<String, String> params, @Header("access-token") String accessToken);
 
 }

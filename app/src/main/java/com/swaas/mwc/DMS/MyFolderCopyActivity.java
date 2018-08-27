@@ -281,7 +281,7 @@ public class MyFolderCopyActivity extends RootActivity {
                             category_ids = getCategoryDocumentsResponseList.toArray(new String[getCategoryDocumentsResponseList.size()]);
                         }
                     }
-*/                  String document_ids[]= PreferenceUtils.getArrayList(context, "Key").toArray(new String[0]);
+*/                  ArrayList<String> document_ids = PreferenceUtils.getArrayList(context, "Key");
 
                     final CopyDocumentRequest copyDocumentRequest = new CopyDocumentRequest(document_ids,obj);
 

@@ -4,11 +4,13 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.swaas.mwc.API.Model.AccountSettingsResponse;
 import com.swaas.mwc.API.Model.WhiteLabelResponse;
 import com.swaas.mwc.LogTracer;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -275,6 +277,38 @@ public class AccountSettings {
             DBConnectionClose();
         }
     }
+
+    public void DeleteAllDatabaseTables()
+    {
+        DBConnectionOpen();
+        ArrayList<String> arrTblNames = new ArrayList<String>();
+        Cursor cursor = database.rawQuery("SELECT name FROM sqlite_master WHERE type='table' and name <> 'sqlite_sequence'", null);
+        if (cursor != null && cursor.getCount() > 0) {
+            if (cursor.moveToFirst()) {
+                while (!cursor.isAfterLast()) {
+                    arrTblNames.add(cursor.getString(cursor.getColumnIndex("name")));
+                    cursor.moveToNext();
+                }
+            }
+
+            if(arrTblNames != null && arrTblNames.size() > 0){
+                for(String tableName: arrTblNames){
+                    deleteDatabaseTables(tableName);
+                }
+            }
+
+        }
+
+        dbHandler.onCreate(database);
+
+        DBConnectionClose();
+    }
+
+    private void deleteDatabaseTables(String tableName)
+    {
+        database.execSQL("drop table "+ tableName);
+    }
+
 
     private List<AccountSettingsResponse> getLoggedInStatusFromCursor(Cursor cursor) {
         List<AccountSettingsResponse> accountSettingsResponseList = new ArrayList<>();

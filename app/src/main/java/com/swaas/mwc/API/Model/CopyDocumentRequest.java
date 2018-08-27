@@ -1,5 +1,7 @@
 package com.swaas.mwc.API.Model;
 
+import java.util.ArrayList;
+
 /**
  * Created by barath on 8/8/2018.
  */
@@ -8,14 +10,10 @@ public class CopyDocumentRequest {
 
     String category_id;
 
-    String document_ids[];
+    ArrayList<String> document_ids;
 
 
-
-
-
-
-    public CopyDocumentRequest(String[] document_ids, String categoryId) {
+    public CopyDocumentRequest(ArrayList<String> document_ids , String categoryId) {
         this.category_id=categoryId;
         this.document_ids=document_ids;
 
@@ -29,12 +27,11 @@ public class CopyDocumentRequest {
         this.category_id = category_id;
     }
 
-    public String[] getDocument_obj() {
+    public ArrayList<String> getDocument_ids() {
         return document_ids;
     }
 
-    public void setDocument_obj(String[] document_obj) {
-        this.document_ids = document_obj;
+    public void setDocument_ids(ArrayList<String> document_ids) {
+        this.document_ids = document_ids;
     }
-
 }

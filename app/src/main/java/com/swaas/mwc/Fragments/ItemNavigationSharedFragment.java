@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -292,6 +293,9 @@ public class ItemNavigationSharedFragment extends Fragment
         MyFoldersDMSActivity.sortingView = (LinearLayout) getActivity().findViewById(R.id.sort);
         MyFoldersDMSActivity.sort = (TextView) getActivity().findViewById(R.id.name_sort);
         // your TextView must be declared as (public static TextView text_view) in the Activity
+
+        MyFoldersDMSActivity.collapsingToolbarLayout = (CollapsingToolbarLayout) getActivity(). findViewById(R.id.collapsing_toolbar);
+        MyFoldersDMSActivity.collapsingToolbarLayout.setTitle("Shared");
 
         MyFoldersDMSActivity.toggleView.setOnClickListener(new View.OnClickListener() {
             @Override

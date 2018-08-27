@@ -31,6 +31,8 @@ import com.google.gson.Gson;
 import com.swaas.mwc.API.Model.AccountSettingsResponse;
 import com.swaas.mwc.API.Model.BaseApiResponse;
 import com.swaas.mwc.API.Model.FTLPINResponse;
+import com.swaas.mwc.API.Model.GetAssistancePopupContentResponse;
+import com.swaas.mwc.API.Model.GetTermsPageContentResponse;
 import com.swaas.mwc.API.Model.GetUISettingsResponse;
 import com.swaas.mwc.API.Model.GetUserPreferencesResponse;
 import com.swaas.mwc.API.Model.ListPinDevicesResponse;
@@ -41,6 +43,8 @@ import com.swaas.mwc.API.Model.VerifyFTLRequest;
 import com.swaas.mwc.API.Model.VerifyFTLResponse;
 import com.swaas.mwc.API.Model.VerifyPinRequest;
 import com.swaas.mwc.API.Model.WhiteLabelResponse;
+import com.swaas.mwc.API.Service.GetAssistancePopupService;
+import com.swaas.mwc.API.Service.GetTermsPageContentService;
 import com.swaas.mwc.API.Service.GetUISettingsService;
 import com.swaas.mwc.API.Service.GetUserPreferencesService;
 import com.swaas.mwc.API.Service.SendFTLPINService;
@@ -200,7 +204,7 @@ public class FTLPinVerificationFragment extends Fragment {
                         @Override
                         public void onClick(View v) {
                             mBackDialog.dismiss();
-                            startActivity(new Intent(mActivity, FTLRegistrationActivity.class));
+                            mActivity.startActivity(new Intent(mActivity, FTLRegistrationActivity.class));
                         }
                     });
 
@@ -214,7 +218,7 @@ public class FTLPinVerificationFragment extends Fragment {
                     mBackDialog = builder.create();
                     mBackDialog.show();
                 } else {
-                    startActivity(new Intent(mActivity,LoginActivity.class));
+                    mActivity.startActivity(new Intent(mActivity,LoginActivity.class));
                 }
             }
         });
@@ -350,7 +354,7 @@ public class FTLPinVerificationFragment extends Fragment {
                                             Intent mIntent = new Intent(mActivity, FTLUserValidationActivity.class);
                                             mIntent.putExtra(Constants.ACCESSTOKEN, accessToken);
                                             PreferenceUtils.setDocPortalFTLLoggedObj(mActivity, mFTLPINResponse);
-                                            startActivity(mIntent);
+                                            mActivity.startActivity(mIntent);
                                             mActivity.finish();
                                         }
                                     }
@@ -408,7 +412,7 @@ public class FTLPinVerificationFragment extends Fragment {
                                         mDialog.setButton("OK", new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int which) {
                                                 // Write your code here to execute after dialog closed
-                                                startActivity(new Intent(mActivity, LoginActivity.class));
+                                                mActivity.startActivity(new Intent(mActivity, LoginActivity.class));
                                             }
                                         });
 
@@ -428,7 +432,7 @@ public class FTLPinVerificationFragment extends Fragment {
                                 mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
                                     @Override
                                     public void onClick(View view) {
-                                        startActivity(new Intent(mActivity, LoginActivity.class));
+                                        mActivity.startActivity(new Intent(mActivity, LoginActivity.class));
                                     }
                                 }, false);
                             }
@@ -494,7 +498,7 @@ public class FTLPinVerificationFragment extends Fragment {
                                 mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
                                     @Override
                                     public void onClick(View view) {
-                                        startActivity(new Intent(mActivity, LoginActivity.class));
+                                        mActivity.startActivity(new Intent(mActivity, LoginActivity.class));
                                     }
                                 }, false);
                             }
@@ -557,7 +561,7 @@ public class FTLPinVerificationFragment extends Fragment {
                                 mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
                                     @Override
                                     public void onClick(View view) {
-                                        startActivity(new Intent(mActivity, LoginActivity.class));
+                                        mActivity.startActivity(new Intent(mActivity, LoginActivity.class));
                                     }
                                 }, false);
                             }
@@ -609,8 +613,9 @@ public class FTLPinVerificationFragment extends Fragment {
                                     accountSettingsResponse.setIs_Local_Auth_Enabled("0");
                                     accountSettingsResponse.setIs_Push_Notification_Enabled("0");
 
-                                    AccountSettings accountSettings = new AccountSettings(mActivity);
-                                    accountSettings.InsertAccountSettings(accountSettingsResponse);
+
+                                    getTermsConditionsUrlFromService(accountSettingsResponse);
+
                                 }
 
                             } else {
@@ -624,7 +629,7 @@ public class FTLPinVerificationFragment extends Fragment {
                                 mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
                                     @Override
                                     public void onClick(View view) {
-                                        startActivity(new Intent(mActivity, LoginActivity.class));
+                                        mActivity.startActivity(new Intent(mActivity, LoginActivity.class));
                                     }
                                 }, false);
                             }
@@ -642,6 +647,116 @@ public class FTLPinVerificationFragment extends Fragment {
                 }
             });
         }
+    }
+
+    private void getTermsConditionsUrlFromService(AccountSettingsResponse accountSettingsResponse)
+    {
+        if (NetworkUtils.isNetworkAvailable(mActivity)) {
+
+            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+
+            final GetTermsPageContentService mGetTermsPageContentService = retrofitAPI.create(GetTermsPageContentService.class);
+
+            Call call = mGetTermsPageContentService.getTermsPageContent(PreferenceUtils.getAccessToken(mActivity));
+
+            call.enqueue(new Callback<BaseApiResponse<GetTermsPageContentResponse>>() {
+                @Override
+                public void onResponse(Response<BaseApiResponse<GetTermsPageContentResponse>> response, Retrofit retrofit) {
+                    BaseApiResponse apiResponse = response.body();
+                    if (apiResponse != null) {
+
+                        if (apiResponse.status.getCode() instanceof Boolean) {
+
+                            if (apiResponse.status.getCode() == Boolean.FALSE) {
+                                GetTermsPageContentResponse mGetTermsPageContentResponse = response.body().getData();
+                                if (mGetTermsPageContentResponse != null) {
+
+                                   String mTermsURL = mGetTermsPageContentResponse.getTerms_url();
+
+                                    accountSettingsResponse.setTerms_URL(mTermsURL);
+
+                                    getHelpGuideUrl(accountSettingsResponse);
+
+                                }
+                            } else {
+
+                            }
+
+                        } else if (apiResponse.status.getCode() instanceof Integer) {
+
+                            String mMessage = apiResponse.status.getMessage().toString();
+                            mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    mActivity.startActivity(new Intent(mActivity, LoginActivity.class));
+                                    mActivity.finish();
+                                }
+                            }, false);
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                }
+            });
+        }
+    }
+
+    private void getHelpGuideUrl(AccountSettingsResponse accountSettingsResponse)
+    {
+        if (NetworkUtils.isNetworkAvailable(mActivity)) {
+
+            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+
+            final GetAssistancePopupService mGetAssistancePopupService = retrofitAPI.create(GetAssistancePopupService.class);
+
+            Call call = mGetAssistancePopupService.getAssistancePopupContent(PreferenceUtils.getAccessToken(mActivity));
+
+            call.enqueue(new Callback<BaseApiResponse<GetAssistancePopupContentResponse>>() {
+                @Override
+                public void onResponse(Response<BaseApiResponse<GetAssistancePopupContentResponse>> response, Retrofit retrofit) {
+                    BaseApiResponse apiResponse = response.body();
+                    if (apiResponse != null) {
+
+                        if (apiResponse.status.getCode() instanceof Boolean) {
+                            if (apiResponse.status.getCode() == Boolean.FALSE) {
+                                GetAssistancePopupContentResponse mGetAssistancePopupContentResponse = response.body().getData();
+                                if (mGetAssistancePopupContentResponse != null) {
+
+                                    String mHelpGuideURL = mGetAssistancePopupContentResponse.getHelp_guide_url();
+
+                                    accountSettingsResponse.setHelp_Guide_URL(mHelpGuideURL);
+
+                                    AccountSettings accountSettings = new AccountSettings(mActivity);
+                                    accountSettings.InsertAccountSettings(accountSettingsResponse);
+
+                                }
+
+                            } else {
+
+                            }
+
+                        } else if (apiResponse.status.getCode() instanceof Integer) {
+
+                            String mMessage = apiResponse.status.getMessage().toString();
+                            mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    mActivity.startActivity(new Intent(mActivity, LoginActivity.class));
+                                    mActivity.finish();
+                                }
+                            }, false);
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                }
+            });
+        }
+
     }
 
     private void sendFTLPin() {
@@ -693,7 +808,7 @@ public class FTLPinVerificationFragment extends Fragment {
                                 mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
                                     @Override
                                     public void onClick(View view) {
-                                        startActivity(new Intent(mActivity, LoginActivity.class));
+                                        mActivity.startActivity(new Intent(mActivity, LoginActivity.class));
                                     }
                                 }, false);
                             }
@@ -749,7 +864,7 @@ public class FTLPinVerificationFragment extends Fragment {
                                 mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
                                     @Override
                                     public void onClick(View view) {
-                                        startActivity(new Intent(mActivity, LoginActivity.class));
+                                        mActivity.startActivity(new Intent(mActivity, LoginActivity.class));
                                     }
                                 }, false);
                             }
@@ -771,11 +886,11 @@ public class FTLPinVerificationFragment extends Fragment {
         KeyguardManager keyguardManager = (KeyguardManager) mActivity.getSystemService(Context.KEYGUARD_SERVICE);
         if (keyguardManager.isKeyguardSecure() == true) {
             Intent intent = new Intent(mActivity, Touchid.class);
-            startActivity(intent);
+            mActivity.startActivity(intent);
             mActivity.finish();
         } else {
             Intent intent = new Intent(mActivity, Notifiy.class);
-            startActivity(intent);
+            mActivity.startActivity(intent);
             mActivity.finish();
         }
     }

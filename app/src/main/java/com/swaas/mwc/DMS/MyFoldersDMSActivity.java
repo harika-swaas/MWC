@@ -146,8 +146,8 @@ public class MyFoldersDMSActivity extends RootActivity {
     boolean check = false;
     public boolean isFromList = false;
     int backButtonCount = 0;
-    CollapsingToolbarLayout collapsingToolbarLayout;
-    boolean sortByName = false;
+    public static CollapsingToolbarLayout collapsingToolbarLayout;
+     public boolean sortByName = false;
     boolean sortByNewest = false;
     boolean sortBySize = false;
     boolean sortByDate = false;
@@ -203,6 +203,9 @@ public class MyFoldersDMSActivity extends RootActivity {
     String obj="0";
     Context context=this;
     ItemNavigationFolderFragment fragment;
+    private static final int CREDENTIALS_RESULT = 4342;
+
+    public static String localAuthenticatonStatusValue;
 
     List<GetCategoryDocumentsResponse> paginationList = new ArrayList<>();
     public static LinearLayout title_layout;
@@ -217,8 +220,6 @@ public class MyFoldersDMSActivity extends RootActivity {
         // switchFragment(FOLDER_FRAGMENT);
         // getCategoryDocuments("0",String.valueOf(pageNumber));
         getWhiteLabelProperities();
-
-        PreferenceUtils.setObjectId(MyFoldersDMSActivity.this,"0");
       /*  StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
         StrictMode.setVmPolicy(builder.build());*/
       //  addListenersToViews();
@@ -1477,7 +1478,7 @@ public class MyFoldersDMSActivity extends RootActivity {
             Call call = null;
 
             if(sortByNameAsc == true) {
-                call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortByName(params, PreferenceUtils.getAccessToken(this),page);
+          //      call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortByName(params, PreferenceUtils.getAccessToken(this),page);
                 sortByNameAsc = false;
             } else {
                 call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortByNameDesc(params, PreferenceUtils.getAccessToken(this),page);
@@ -2791,6 +2792,19 @@ public class MyFoldersDMSActivity extends RootActivity {
     }
 */
 
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == CREDENTIALS_RESULT) {
+
+            if (resultCode == RESULT_OK) {
+                localAuthenticatonStatusValue = "Success";
+            }
+            else{
+                localAuthenticatonStatusValue = "failure";
+            }
+        }
+
+    }
 
 
 

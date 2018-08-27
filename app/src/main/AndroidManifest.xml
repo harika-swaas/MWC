@@ -5,7 +5,8 @@
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
-    <uses-permission android:name="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
+    <uses-permission
+        android:name="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
         tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
     <uses-permission android:name="com.pixelpoint.permission.C2D_MESSAGE" />
@@ -17,7 +18,8 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.CAPTURE_VIDEO_OUTPUT"
+    <uses-permission
+        android:name="android.permission.CAPTURE_VIDEO_OUTPUT"
         tools:ignore="ProtectedPermissions" />
 
 
@@ -46,8 +48,8 @@
             android:name=".FTL.FTLRegistrationActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".FTL.FTLPinVerificationActivity"
-            android:screenOrientation="portrait" />
+            android:name=".FTL.FTLPinVerificationActivity"/>
+           <!-- android:screenOrientation="portrait" -->
         <activity
             android:name=".FTL.FTLUserValidationActivity"
             android:screenOrientation="portrait" />
@@ -70,33 +72,30 @@
             android:name=".Login.Verify"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".FTL.FTLAgreeTermsAcceptanceActivity"
-            android:screenOrientation="portrait" />
+            android:name=".FTL.FTLAgreeTermsAcceptanceActivity"/>
+           <!-- android:screenOrientation="portrait" -->
         <activity
-            android:name=".FTL.WebviewLoaderTermsActivity"
-            android:screenOrientation="portrait" />
+            android:name=".FTL.WebviewLoaderTermsActivity"/>
+           <!-- android:screenOrientation="portrait" -->
         <activity
-            android:name=".Login.LoginAgreeTermsAcceptanceActivity"
-            android:screenOrientation="portrait" />
+            android:name=".Login.LoginAgreeTermsAcceptanceActivity"/>
+           <!-- android:screenOrientation="portrait" -->
         <activity
-            android:name=".Login.LoginHelpUserGuideActivity"
-            android:screenOrientation="portrait" />
+            android:name=".Login.LoginHelpUserGuideActivity"/>
+          <!--  android:screenOrientation="portrait" -->
         <activity
             android:name=".DMS.MyFoldersDMSActivity"
             android:screenOrientation="portrait" />
-
-        <activity android:name=".DMS.MyFolderCopyActivity"/>
-        <activity android:name=".DMS.MyFolderCategoryActivity"/>
-        <activity android:name=".DMS.UploadListActivity"></activity>
+        <activity android:name=".DMS.MyFolderCopyActivity" />
+        <activity android:name=".DMS.MyFolderCategoryActivity" />
+        <activity android:name=".DMS.UploadListActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".DMS.MyFolderSharedDocuments"
             android:screenOrientation="portrait" />
         <activity
             android:name=".DMS.Tab_Activity"
             android:label="Document Info"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".Common.PDFViewer"
             android:screenOrientation="portrait" />
         <activity android:name=".DMS.MyFolderEndUserAllowedSharedFoldersActivity" />
         <activity android:name=".DMS.MyFolderActivity" />
@@ -134,7 +133,11 @@
             android:value="d96603e1352aa9824c02ecac1485febe32590ab7" />
 
         <activity android:name=".OffLine_Files_List" />
+
         <activity android:name=".UserProfileActivity"></activity>
+        <activity android:name=".DMS.NavigationMyFolderActivity" />
+        <activity android:name=".DMS.NavigationSharedActivity" />
+        <activity android:name=".DMS.NavigationSettingsActivity"></activity>
     </application>
 
 </manifest>

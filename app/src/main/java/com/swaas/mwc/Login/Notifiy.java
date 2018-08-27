@@ -28,6 +28,7 @@ import com.swaas.mwc.API.Model.SharedDocumentResponseModel;
 import com.swaas.mwc.API.Model.WhiteLabelResponse;
 import com.swaas.mwc.API.Service.ShareEndUserDocumentsService;
 import com.swaas.mwc.DMS.MyFoldersDMSActivity;
+import com.swaas.mwc.DMS.NavigationMyFolderActivity;
 import com.swaas.mwc.Database.AccountSettings;
 import com.swaas.mwc.Network.NetworkUtils;
 import com.swaas.mwc.Preference.PreferenceUtils;
@@ -243,7 +244,7 @@ public class Notifiy extends RootActivity {
                                             startActivity(intent);
                                             finish();
                                         } else if(mAccountSettingsResponses.get(0).getIs_Help_Accepted().equals("0")){
-                                            Intent intent = new Intent(Notifiy.this, MyFoldersDMSActivity.class);
+                                            Intent intent = new Intent(Notifiy.this, NavigationMyFolderActivity.class);
                                             startActivity(intent);
                                             finish();
                                         }
@@ -253,7 +254,7 @@ public class Notifiy extends RootActivity {
                                             finish();
                                         }
                                     } else {
-                                        Intent intent = new Intent(Notifiy.this, MyFoldersDMSActivity.class);
+                                        Intent intent = new Intent(Notifiy.this, NavigationMyFolderActivity.class);
                                         startActivity(intent);
                                         finish();
                                     }

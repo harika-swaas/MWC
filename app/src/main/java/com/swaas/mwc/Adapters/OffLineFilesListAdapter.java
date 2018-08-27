@@ -3,6 +3,7 @@ package com.swaas.mwc.Adapters;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -37,6 +38,7 @@ import com.swaas.mwc.R;
 import com.swaas.mwc.Retrofit.RetrofitAPIBuilder;
 import com.swaas.mwc.pdf.PdfViewActivity;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -286,7 +288,7 @@ public class OffLineFilesListAdapter extends RecyclerView.Adapter<OffLineFilesLi
                     {
                         if(offLineFileListData.get(position).getDocumentVersionId() != null && !offLineFileListData.get(position).getDocumentVersionId().isEmpty())
                         {
-                            showWarningAlertForSharingContent(offLineFileListData.get(position).getFilename(), offLineFileListData.get(position).getDocumentVersionId());
+                            showWarningAlertForSharingContent(offLineFileListData.get(position), offLineFileListData.get(position).getFilename(), offLineFileListData.get(position).getDocumentVersionId());
                         }
 
                     }
@@ -296,7 +298,7 @@ public class OffLineFilesListAdapter extends RecyclerView.Adapter<OffLineFilesLi
         }
     }
 
-    public void showWarningAlertForSharingContent(final String filename, final String documentVersionId)
+    public void showWarningAlertForSharingContent(OfflineFiles offlineFiles, final String filename, final String documentVersionId)
     {
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -330,7 +332,7 @@ public class OffLineFilesListAdapter extends RecyclerView.Adapter<OffLineFilesLi
             public void onClick(View v) {
                 mAlertDialog.dismiss();
 
-                getExternalSharingContentAPI(filename, documentVersionId);
+                getExternalSharingContentAPI(offlineFiles, filename, documentVersionId);
 
 
 
@@ -341,7 +343,7 @@ public class OffLineFilesListAdapter extends RecyclerView.Adapter<OffLineFilesLi
         mAlertDialog.show();
     }
 
-    public void getExternalSharingContentAPI(final String filename, final String versionId)
+    public void getExternalSharingContentAPI(OfflineFiles offlineFiles, final String filename, final String versionId)
     {
         if (NetworkUtils.isNetworkAvailable(context)) {
 
@@ -377,11 +379,21 @@ public class OffLineFilesListAdapter extends RecyclerView.Adapter<OffLineFilesLi
                             if (response.body().getStatus().getCode() == Boolean.FALSE) {
                                 transparentProgressDialog.dismiss();
 
+                                String[] mimetypes = {"image/*", "application/*|text/*"};
+
+                                String imagePath = offlineFiles.getFilePath();
+
+                                File imageFileToShare = new File(imagePath);
+
+                                Uri uri = Uri.fromFile(imageFileToShare);
+
                                 Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
-                                sharingIntent.setType("text/plain");
-                                String shareBody = "Here is the share content body";
+                                sharingIntent.setType("*/*");
+                                String shareBody = "";
                                 sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, filename);
                                 sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+                                sharingIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
+                                sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
                                 Intent.createChooser(sharingIntent,"Share via");
                                 context.startActivity(sharingIntent);
 

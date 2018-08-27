@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.provider.MediaStore;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
@@ -84,6 +85,7 @@ import com.swaas.mwc.Adapters.DmsAdapter;
 import com.swaas.mwc.Adapters.DmsAdapterList;
 
 import com.swaas.mwc.Common.CameraUtils;
+import com.swaas.mwc.Common.CommonFunctions;
 import com.swaas.mwc.Common.FileDownloadManager;
 import com.swaas.mwc.Common.ServerConfig;
 import com.swaas.mwc.Common.SimpleDividerItemDecoration;
@@ -147,9 +149,7 @@ public class ItemNavigationFolderFragment extends Fragment {
     List<GetCategoryDocumentsResponse> listGetCategoryDocuments = new ArrayList<>();
     boolean mToogleGrid;
     boolean isSortByName, isSortByNewest, isSortBySize, isSortByDate;
-   /* private DragSelectionProcessor.Mode mMode = DragSelectionProcessor.Mode.Simple;
-    private DragSelectTouchListener mDragSelectTouchListener;
-    private DragSelectionProcessor mDragSelectionProcessor;*/
+
     MenuItem menuItemAdd, menuItemSearch, menuItemDelete, menuItemShare, menuItemMove, menuItemMore;
     String pageCount = "1";
     NestedScrollView scrollView;
@@ -164,7 +164,7 @@ public class ItemNavigationFolderFragment extends Fragment {
     boolean check = false;
     boolean isFromList = false;
     LinearLayoutManager linearLayoutManager;
-    boolean sortByName = false;
+   public static boolean sortByName = false;
     boolean sortByNewest = false;
     boolean sortBySize = false;
     boolean sortByDate = false;
@@ -265,6 +265,8 @@ public class ItemNavigationFolderFragment extends Fragment {
        floatingActionMenu = (FloatingActionMenu) getActivity().findViewById(R.id.floating_action_menu);
        floatingActionMenu.setVisibility(View.VISIBLE);
 
+        MyFoldersDMSActivity.collapsingToolbarLayout = (CollapsingToolbarLayout) getActivity(). findViewById(R.id.collapsing_toolbar);
+        MyFoldersDMSActivity.collapsingToolbarLayout.setTitle(getResources().getString(R.string.my_folder));
         /*if(floatingActionButton_visible == true)
         {
             actionUpload.setVisibility(View.VISIBLE);
@@ -716,7 +718,7 @@ public class ItemNavigationFolderFragment extends Fragment {
                 mGetCategoryDocumentsResponses.clear();
                 listGetCategoryDocuments.clear();
                 getCategoryDocumentsSortByNewest("1");
-                 scrollView.fullScroll(ScrollView.FOCUS_UP);
+                scrollView.fullScroll(ScrollView.FOCUS_UP);
 
             }
         });
@@ -1258,7 +1260,7 @@ public class ItemNavigationFolderFragment extends Fragment {
         // Setup the RecyclerView
         MyFoldersDMSActivity.toggle.setImageResource(R.mipmap.ic_grid);
         mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 3));
-        mAdapter = new DmsAdapter(getCategoryDocumentsResponses, getActivity(), ItemNavigationFolderFragment.this);
+     //   mAdapter = new DmsAdapter(getCategoryDocumentsResponses, getActivity(), ItemNavigationFolderFragment.this);
         mRecyclerView.setAdapter(mAdapter);
 
 
@@ -1397,7 +1399,7 @@ public class ItemNavigationFolderFragment extends Fragment {
         linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         mRecyclerView.setLayoutManager(linearLayoutManager);
         mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
-        mAdapterList = new DmsAdapterList(getCategoryDocumentsResponses, getActivity(), ItemNavigationFolderFragment.this);
+   //     mAdapterList = new DmsAdapterList(getCategoryDocumentsResponses, getActivity(), ItemNavigationFolderFragment.this);
         mRecyclerView.setAdapter(mAdapterList);
 
 
@@ -1409,7 +1411,7 @@ public class ItemNavigationFolderFragment extends Fragment {
 
         public void updateToolbarMenuItems(List<GetCategoryDocumentsResponse> selectedDocumentList) {
 
-            mSelectedDocumentList = selectedDocumentList;
+        mSelectedDocumentList = selectedDocumentList;
 
         getWhiteLabelProperities();
 
@@ -1649,7 +1651,7 @@ public class ItemNavigationFolderFragment extends Fragment {
             Call call = null;
 
             if(sortByNameAsc == true) {
-                call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortByName(params, PreferenceUtils.getAccessToken(getActivity()),page);
+             //   call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortByName(params, PreferenceUtils.getAccessToken(getActivity()),page);
                 sortByNameAsc = false;
             } else {
                 call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortByNameDesc(params, PreferenceUtils.getAccessToken(getActivity()),page);
@@ -2639,7 +2641,13 @@ public class ItemNavigationFolderFragment extends Fragment {
 
                         OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(mActivity);
                         if (!offLine_files_repository.checkAlreadyDocumentAvailableOrNot(digitalAsset.getDocument_version_id())) {
+
                             offLine_files_repository.deleteAlreadydownloadedFile(digitalAsset.getDocument_version_id());
+                            String filepath = offLine_files_repository.getFilePathFromLocalTable(digitalAsset.getDocument_version_id());
+                            if(filepath != null && !filepath.isEmpty())
+                            {
+                                CommonFunctions.deleteFileFromInternalStorage(filepath);
+                            }
                             insertIntoOffLineFilesTable(digitalAsset, path);
                         }
                         else
@@ -2845,7 +2853,7 @@ public class ItemNavigationFolderFragment extends Fragment {
 
                             list_upload.add(String.valueOf(filePath));
                             PreferenceUtils.setupload(getContext(),list_upload,"key");
-                            PreferenceUtils.setupload(getContext(),list_upload,"key");
+                         //   PreferenceUtils.setupload(getContext(),list_upload,"key");
 
 
                         }
@@ -2973,21 +2981,9 @@ public class ItemNavigationFolderFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-
-        if(String.valueOf(PreferenceUtils.getParentId(getContext()))!=null)
-        {
-            getCategoryDocuments(String.valueOf(PreferenceUtils.getParentId(getContext())),String.valueOf(pageNumber));
-            count++;
-            PreferenceUtils.setParentId(getContext(),null);
-            /*if(count>1){
-                PreferenceUtils.setParentId(getContext(),null);
-                count=0;
-            }*/
-        }
-        else
-        {
-            getCategoryDocuments("0",String.valueOf(pageNumber));
-        }
+        PreferenceUtils.setObjectId(mActivity, "");
+        getCategoryDocuments("0",String.valueOf(pageNumber));
+        sortByName = true;
 
 
         if (sortByName == true) {

@@ -17,6 +17,9 @@ import com.swaas.mwc.R;
 import com.swaas.mwc.Utils.Constants;
 import com.wang.avi.AVLoadingIndicatorView;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
 /**
  * Created by harika on 04-07-2018.
  */
@@ -43,7 +46,9 @@ public class WebviewLoaderTermsActivity extends AppCompatActivity {
         mHelpWebview.getSettings().setAllowFileAccess(true);
         mHelpWebview.getSettings().setAppCacheEnabled(true);
         mHelpWebview.getSettings().setJavaScriptEnabled(true);
+        mHelpWebview.getSettings().setDefaultTextEncodingName("utf-8");
         mHelpWebview.getSettings().setUseWideViewPort(true);
+        mHelpWebview.getSettings().setDomStorageEnabled(true);
         if (Build.VERSION.SDK_INT >= 19) {
             mHelpWebview.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         } else {
@@ -102,6 +107,9 @@ public class WebviewLoaderTermsActivity extends AppCompatActivity {
 
     private void getIntentData() {
         if(getIntent() != null){
+
+
+
             mUrl = getIntent().getStringExtra(Constants.SETTERMS);
             mTermsPageContentUrl = getIntent().getStringExtra(Constants.SETTERMSPAGECONTENTURL);
             mAssistanceHelpGuideUrl = getIntent().getStringExtra(Constants.SETASSISTANCEPOPUPCONTENTURL);

@@ -8,22 +8,16 @@ import java.util.ArrayList;
 
 public class DeleteEndUserFolderRequest {
 
-    String category_ids[];
+
+    ArrayList<String> category_ids;
     String mode;
 
 
     public DeleteEndUserFolderRequest(ArrayList<String> categoryids, String s) {
-        this.category_ids= categoryids.toArray(new String[0]);
+        this.category_ids= categoryids;
         this.mode=s;
     }
 
-    public String[] getCategory_ids() {
-        return category_ids;
-    }
-
-    public void setCategory_ids(String[] category_ids) {
-        this.category_ids = category_ids;
-    }
 
     public String getMode() {
         return mode;
@@ -33,5 +27,11 @@ public class DeleteEndUserFolderRequest {
         this.mode = mode;
     }
 
+    public ArrayList<String> getCategory_ids() {
+        return category_ids;
+    }
 
+    public void setCategory_ids(ArrayList<String> category_ids) {
+        this.category_ids = category_ids;
+    }
 }

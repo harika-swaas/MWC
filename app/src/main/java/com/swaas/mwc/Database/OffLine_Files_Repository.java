@@ -104,6 +104,25 @@ public class OffLine_Files_Repository
         }
     }
 
+    public String getFilePathFromLocalTable(String document_version_id)
+    {
+
+        String filePath = "";
+        try {
+            DBConnectionOpen();
+            String selectQuery = "SELECT filePath FROM tbl_Offline_Files WHERE documentVersionId = '"+document_version_id+"' ";
+            Cursor cursor = database.rawQuery(selectQuery, null);
+            if (cursor != null && cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                filePath = cursor.getString(cursor.getColumnIndex("filePath"));
+            }
+            cursor.close();
+        } finally {
+            DBConnectionClose();
+        }
+        return filePath;
+    }
+
 
     public interface GetOfflineFilesListenerCB {
         void getOfflineFilesDataSuccessCB(List<OfflineFiles> Listdata);

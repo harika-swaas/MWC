@@ -29,9 +29,13 @@ public interface GetCategoryDocumentsService {
     @FormUrlEncoded
     Call<ListPinDevicesResponse<GetCategoryDocumentsResponse>> getCategoryDocumentsV2SortByType(@FieldMap Map<String,String> params, @Header("access-token") String accessToken, @Query("page") String page);
 
-    @POST("v2/get-category-documents?page=1&per-page=20&sort=name")
+
+    @POST("v2/get-category-documents?")
     @FormUrlEncoded
-    Call<ListPinDevicesResponse<GetCategoryDocumentsResponse>> getCategoryDocumentsV2SortByName(@FieldMap Map<String,String> params, @Header("access-token") String accessToken, @Query("page") String page);
+    Call<ListPinDevicesResponse<GetCategoryDocumentsResponse>> getCategoryDocuments(@FieldMap Map<String,String> params, @Header("access-token") String accessToken,
+                                                                                                @Query("page") String page,
+                                                                                                @Query("per-page") String per_page,
+                                                                                                @Query("sort") String sortType);
 
     @POST("v2/get-category-documents?page=1&per-page=20&sort=filesize")
     @FormUrlEncoded

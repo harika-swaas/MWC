@@ -29,6 +29,7 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.swaas.mwc.API.Model.ApiResponse;
 import com.swaas.mwc.API.Model.BaseApiResponse;
+import com.swaas.mwc.API.Model.ColorCodeModel;
 import com.swaas.mwc.API.Model.DeleteDocumentRequest;
 import com.swaas.mwc.API.Model.DeleteEndUserFolderRequest;
 import com.swaas.mwc.API.Model.DocumentPreviewRequest;
@@ -49,11 +50,14 @@ import com.swaas.mwc.API.Service.EditDocumentPropertiesService;
 import com.swaas.mwc.API.Service.EndUserRenameService;
 import com.swaas.mwc.API.Service.GetCategoryDocumentsService;
 import com.swaas.mwc.API.Service.GetEndUserParentSHaredFoldersService;
+import com.swaas.mwc.Common.CommonFunctions;
+import com.swaas.mwc.Common.GlobalVariables;
 import com.swaas.mwc.DMS.MyFolderActivity;
 import com.swaas.mwc.DMS.MyFolderCopyActivity;
 import com.swaas.mwc.DMS.MyFolderSharedDocuments;
 import com.swaas.mwc.DMS.MyFoldersDMSActivity;
 import com.swaas.mwc.DMS.MyfolderDeleteActivity;
+import com.swaas.mwc.DMS.NavigationMyFolderActivity;
 import com.swaas.mwc.DMS.Tab_Activity;
 import com.swaas.mwc.Database.AccountSettings;
 import com.swaas.mwc.Database.OffLine_Files_Repository;
@@ -98,9 +102,9 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
     String document;
     String version_number;
     ArrayList<String>document_id= new ArrayList<>();
-    Fragment fragment;
+
     AlertDialog mBackDialog;
-    int mode = 0;
+
     ArrayList <String> document_version_id= new ArrayList<>();
     ArrayList<String> categoryids = new ArrayList<String>();
 
@@ -109,10 +113,10 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
 
     DocumentPreviewResponse getDocumentPreviewResponses;
     String pageCount = "1";
-    public DmsAdapterList(List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses, Activity context, Fragment fragment) {
+    public DmsAdapterList(List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses, Activity context) {
         this.context = context;
         this.mGetCategoryDocumentsResponses = getCategoryDocumentsResponses;
-        this.fragment = fragment;
+
     }
 
 
@@ -199,129 +203,55 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                 holder.folderView.setVisibility(View.GONE);
                 holder.thumbnailView.setVisibility(View.VISIBLE);
                 holder.thumbnailCornerIcon.setVisibility(View.VISIBLE);
-                if (mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("pdf")) {
-                    //holder.imageView.setImageResource(R.mipmap.ic_pdf);
-                    holder.thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_pdf_color));
-                    holder.thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_pdf_corner_color));
-                    holder.thumbnailText.setText(mGetCategoryDocumentsResponses.get(position).getFiletype());
-                } else if (mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("xlsx") ||
-                        mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("xls") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("xlsm")
-                        || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("csv")) {
-                    holder.thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_xls_color));
-                    holder.thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_xls_corner_color));
-                    holder.thumbnailText.setText(mGetCategoryDocumentsResponses.get(position).getFiletype());
-                } else if (mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("doc") ||
-                        mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("docx") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("docm")
-                        || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("gdoc") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("keynote")) {
-                    holder.thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_doc_color));
-                    holder.thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_doc_corner_color));
-                    holder.thumbnailText.setText(mGetCategoryDocumentsResponses.get(position).getFiletype());
-                } else if (mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("ppt") ||
-                        mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("pptx") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("pps")
-                        || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("ai")){
-                    holder.thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_ppt_color));
-                    holder.thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_ppt_corner_color));
-                    holder.thumbnailText.setText(mGetCategoryDocumentsResponses.get(position).getFiletype());
-                } else if (mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("xml") ||
-                        mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("log") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("zip")
-                        || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("rar") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("zipx")
-                        || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("mht")){
-                    holder.thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_xml_color));
-                    holder.thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_xml_corner_color));
-                    holder.thumbnailText.setText(mGetCategoryDocumentsResponses.get(position).getFiletype());
-                } else if (mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("xml") ||
-                        mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("log") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("rtf") ||
-                        mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("txt") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("epub")){
-                    holder.thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_xml_color));
-                    holder.thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_xml_corner_color));
-                    holder.thumbnailText.setText(mGetCategoryDocumentsResponses.get(position).getFiletype());
-                } else if (mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("msg") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("dot") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("odt")
-                        || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("ott")){
-                    holder.thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_msg_color));
-                    holder.thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_msg_corner_color));
-                    holder.thumbnailText.setText(mGetCategoryDocumentsResponses.get(position).getFiletype());
-                } else if (mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("pages")){
-                    holder.thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_pages_color));
-                    holder.thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_pages_corner_color));
-                    holder.thumbnailText.setText(mGetCategoryDocumentsResponses.get(position).getFiletype());
-                } else if (mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("pub") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("ods")){
-                    holder.thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_pub_color));
-                    holder.thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_pub_corner_color));
-                    holder.thumbnailText.setText(mGetCategoryDocumentsResponses.get(position).getFiletype());
-                } else if (mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("gif") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("jpeg")
-                        || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("jpg") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("png") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("bmp")
-                        || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("tif") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("tiff") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("eps")
-                        || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("svg") || (mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("odp")
-                        || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("otp"))){
-                    holder.thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_gif_color));
-                    holder.thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_gif_corner_color));
-                    holder.thumbnailText.setText(mGetCategoryDocumentsResponses.get(position).getFiletype());
-                } else if (mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("avi")
-                        || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("flv") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("mpeg") ||
-                        mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("mpg") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("swf") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("wmv")){
-                    holder.thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_avi_color));
-                    holder.thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_avi_corner_color));
-                    holder.thumbnailText.setText(mGetCategoryDocumentsResponses.get(position).getFiletype());
-                }  else if (mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("mp3")
-                        || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("wav") || mGetCategoryDocumentsResponses.get(position).getFiletype().equalsIgnoreCase("wma")){
-                    holder.thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_mp3_color));
-                    holder.thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_mp3_corner_color));
-                    holder.thumbnailText.setText(mGetCategoryDocumentsResponses.get(position).getFiletype());
-                } else {
-                    holder.thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_default_color));
-                    holder.thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_default_corner_color));
-                    holder.thumbnailText.setText(mGetCategoryDocumentsResponses.get(position).getFiletype());
+                ColorCodeModel colorCodeModel = CommonFunctions.getColorCodesforFileType(mGetCategoryDocumentsResponses.get(position).getFiletype());
+                if(colorCodeModel != null) {
+
+                    holder.thumbnailIcon.setColorFilter(context.getResources().getColor(colorCodeModel.getPrimaryColor()));
+                    holder.thumbnailCornerIcon.setColorFilter(context.getResources().getColor(colorCodeModel.getSecondaryColor()));
+
+                    holder.thumbnailText.setText(colorCodeModel.getFileType());
+
                 }
+
+                final String createdDate = mGetCategoryDocumentsResponses.get(position).getCreated_date();
+                holder.folder_date.setText(createdDate);
+
             }
 
             final String name = mGetCategoryDocumentsResponses.get(position).getName();
             holder.folder_name.setText(name);
 
-            final String createdDate = mGetCategoryDocumentsResponses.get(position).getCreated_date();
-            holder.folder_date.setText(createdDate);
 
-            if(position > 0){
-                char poschar = resp.getName().toUpperCase().charAt(0);
-                char prevchar = mGetCategoryDocumentsResponses.get(position-1).getName().toUpperCase().charAt(0);
-                if(poschar == prevchar){
-                    holder.indicatorParentView.setVisibility(View.GONE);
+            if(GlobalVariables.isMoveInitiated)
+            {
+                holder.imageMore.setVisibility(View.GONE);
+            }
+            else
+            {
+                holder.imageMore.setVisibility(View.VISIBLE);
+            }
+
+            if(GlobalVariables.sortType.equalsIgnoreCase("name"))
+            {
+                holder.indicatorParentView.setVisibility(View.VISIBLE);
+                if(position > 0){
+                    char poschar = resp.getName().toUpperCase().charAt(0);
+                    char prevchar = mGetCategoryDocumentsResponses.get(position-1).getName().toUpperCase().charAt(0);
+                    if(poschar == prevchar){
+                        holder.indicatorParentView.setVisibility(View.GONE);
+                    }else{
+                        holder.indicatorParentView.setVisibility(View.VISIBLE);
+                        holder.indicatorTextValue.setText(String.valueOf(mGetCategoryDocumentsResponses.get(position).getName().charAt(0)));
+                    }
                 }else{
                     holder.indicatorParentView.setVisibility(View.VISIBLE);
                     holder.indicatorTextValue.setText(String.valueOf(mGetCategoryDocumentsResponses.get(position).getName().charAt(0)));
                 }
-            }else{
-                holder.indicatorParentView.setVisibility(View.VISIBLE);
-                holder.indicatorTextValue.setText(String.valueOf(mGetCategoryDocumentsResponses.get(position).getName().charAt(0)));
             }
-
-            /*if (!TextUtils.isEmpty(mGetCategoryDocumentsResponses.get(position).getName())) {
-                holder.indicatorParentView.setVisibility(View.VISIBLE);
-                holder.indicatorTextValue.setText(String.valueOf(mGetCategoryDocumentsResponses.get(position).getName().charAt(0)));
-            }
-            else {
+            else
+            {
                 holder.indicatorParentView.setVisibility(View.GONE);
-            }*/
-
-          /*  holder.foldernext.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mGetCategoryDocumentsResponses.get(position).getType() != null && mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("category")) {
-                        getSubCategoryDocuments(mGetCategoryDocumentsResponses.get(position).getObject_id(),pageCount);
-                        doc_id = PreferenceUtils.getBackButtonList(context,"key");
-                        doc_id.add(mGetCategoryDocumentsResponses.get(position).getObject_id());
-                        PreferenceUtils.setBackButtonList(context,doc_id,"key");
-                    }
-                    else if (mGetCategoryDocumentsResponses.get(position).getType() != null && mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document"))
-                    {
-                        if(mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document"))
-                        {
-                            getDocumentPreviews(mGetCategoryDocumentsResponses.get(position));
-                        }
-
-                    }
-                }
-            });*/
-
+            }
 
             holder.list_item_click.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -329,13 +259,16 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                     if (isMultiSelect)
                     {
                         multi_select(position);
-
                     }
                     else {
 
                         if (mGetCategoryDocumentsResponses.get(position).getType() != null && mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("category")) {
                             PreferenceUtils.setObjectId(context, mGetCategoryDocumentsResponses.get(position).getObject_id());
-                            getSubCategoryDocuments(mGetCategoryDocumentsResponses.get(position).getObject_id(), pageCount);
+
+                            Intent intent = new Intent(context, NavigationMyFolderActivity.class);
+                            intent.putExtra("ObjectId", mGetCategoryDocumentsResponses.get(position).getObject_id());
+                            context.startActivity(intent);
+
 
                             doc_id.add(mGetCategoryDocumentsResponses.get(position).getObject_id());
                         } else if (mGetCategoryDocumentsResponses.get(position).getType() != null && mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document")) {
@@ -353,52 +286,25 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
             holder.list_item_click.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
+                    if (!GlobalVariables.isMoveInitiated) {
+                        if (!isMultiSelect) {
+                            selectedList = new ArrayList<>();
+                            isMultiSelect = true;
+                        }
 
-                    if (!isMultiSelect) {
-                        selectedList = new ArrayList<>();
-                        isMultiSelect = true;
+                        multi_select(position);
                     }
-
-                    multi_select(position);
-
 
                     return false;
                 }
             });
 
 
-           /* holder.imageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mGetCategoryDocumentsResponses.get(position).getType() != null && mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("category")) {
-                        getSubCategoryDocuments(mGetCategoryDocumentsResponses.get(position).getObject_id(),pageCount);
-                        doc_id = PreferenceUtils.getBackButtonList(context,"key");
-                        doc_id.add(mGetCategoryDocumentsResponses.get(position).getObject_id());
-                        PreferenceUtils.setBackButtonList(context,doc_id,"key");
-                    }
-                    else if (mGetCategoryDocumentsResponses.get(position).getType() != null && mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document"))
-                    {
-                        if(mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document"))
-                        {
-                            getDocumentPreviews(mGetCategoryDocumentsResponses.get(position).getDocument_version_id(), mGetCategoryDocumentsResponses.get(position).getName());
-                        }
-
-                    }
-                }
-            });
-
-            holder.thumbnailView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    getDocumentPreviews(mGetCategoryDocumentsResponses.get(position).getDocument_version_id(), mGetCategoryDocumentsResponses.get(position).getName());
-                }
-            });
-*/
             holder.imageMore.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("category")) {
-                        openBottomSheetForCategory(mGetCategoryDocumentsResponses.get(position).getName());
+                        openBottomSheetForCategory(mGetCategoryDocumentsResponses.get(position), mGetCategoryDocumentsResponses.get(position).getName());
                         objectr = mGetCategoryDocumentsResponses.get(position).getParent_id();
                         categoryr = mGetCategoryDocumentsResponses.get(position).getObject_id();
                         PreferenceUtils.setCategoryId(context,categoryr);
@@ -445,28 +351,27 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
 
     private void multi_select(int position)
     {
-        if (selectedList.contains(mGetCategoryDocumentsResponses.get(position)))
-        {
-            selectedList.remove(mGetCategoryDocumentsResponses.get(position));
-            if(selectedList != null && selectedList.size() == 0)
-            {
-                selectedList.clear();
-                isMultiSelect = false;
-                notifyDataSetChanged();
+     //   if(!GlobalVariables.isMoveInitiated) {
+            if (selectedList.contains(mGetCategoryDocumentsResponses.get(position))) {
+                selectedList.remove(mGetCategoryDocumentsResponses.get(position));
+                if (selectedList != null && selectedList.size() == 0) {
+                    selectedList.clear();
+                    isMultiSelect = false;
+                    notifyDataSetChanged();
+                }
+            } else {
+                selectedList.add(mGetCategoryDocumentsResponses.get(position));
             }
-        }
-        else
-        {
-            selectedList.add(mGetCategoryDocumentsResponses.get(position));
-        }
 
 
-        notifyDataSetChanged();
+            notifyDataSetChanged();
 
-        if (context instanceof MyFoldersDMSActivity) {
-            ((ItemNavigationFolderFragment) fragment).updateToolbarMenuItems(selectedList);
-        }
+            if (context instanceof NavigationMyFolderActivity) {
+                ((NavigationMyFolderActivity) context).updateToolbarMenuItems(selectedList);
+            }
 
+
+     //   }
     }
 
     public void clearAll()
@@ -559,7 +464,7 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
 
     private void openBottomSheetForDocument(final GetCategoryDocumentsResponse categoryDocumentsResponse, String type, String fileType, String name) {
 
-        View view = ((MyFoldersDMSActivity) context).getLayoutInflater().inflate(R.layout.bottom_sheet_document_sort, null);
+        View view = ((NavigationMyFolderActivity) context).getLayoutInflater().inflate(R.layout.bottom_sheet_document_sort, null);
         RelativeLayout shareView = (RelativeLayout)view.findViewById(R.id.share_layout);
         RelativeLayout doclayout = (RelativeLayout)view.findViewById(R.id.doc_info_layout);
         TextView docText = (TextView) view.findViewById(R.id.doc_text);
@@ -579,6 +484,10 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
 
         final SwitchCompat switchButton_download = (SwitchCompat) view.findViewById(R.id.switchButton_download);
         final SwitchCompat switchButton_share = (SwitchCompat) view.findViewById(R.id.switchButton_share);
+
+        List<GetCategoryDocumentsResponse> categoryDocumentlist = new ArrayList<>();
+        categoryDocumentlist.add(categoryDocumentsResponse);
+        CommonFunctions.setSelectedItems(categoryDocumentlist);
 
 
         final Dialog mBottomSheetDialog = new Dialog(context, R.style.MaterialDialogSheet);
@@ -614,8 +523,8 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                     if (isChecked) {
 
                         switchButton_download.setChecked(true);
-                        if (context instanceof MyFoldersDMSActivity) {
-                            ((ItemNavigationFolderFragment) fragment).getDownloadurlFromServiceSingleDocument(categoryDocumentsResponse);
+                        if (context instanceof NavigationMyFolderActivity) {
+                            ((NavigationMyFolderActivity) context).getDownloadurlFromServiceSingleDocument(categoryDocumentsResponse);
                         }
                         mBottomSheetDialog.dismiss();
 
@@ -624,6 +533,12 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                     {
                         OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(context);
                         offLine_files_repository.deleteAlreadydownloadedFile(categoryDocumentsResponse.getDocument_version_id());
+                        String filepath = offLine_files_repository.getFilePathFromLocalTable(categoryDocumentsResponse.getDocument_version_id());
+
+                        if(filepath != null && !filepath.isEmpty())
+                        {
+                            CommonFunctions.deleteFileFromInternalStorage(filepath);
+                        }
                         switchButton_download.setChecked(false);
                         mBottomSheetDialog.dismiss();
                     }
@@ -683,8 +598,9 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
         move.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(context, MyFolderActivity.class);
-                context.startActivity(intent);
+                if (context instanceof NavigationMyFolderActivity) {
+                    ((NavigationMyFolderActivity) context).initiateMoveAction("move");
+                }
             }
         });
 
@@ -700,8 +616,9 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
         copy.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(context, MyFolderCopyActivity.class);
-                context.startActivity(intent);
+                if (context instanceof NavigationMyFolderActivity) {
+                    ((NavigationMyFolderActivity) context).initiateMoveAction("copy");
+                }
             }
         });
 
@@ -736,91 +653,11 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                 delete.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (NetworkUtils.isNetworkAvailable(context)) {
+                        mBackDialog.dismiss();
 
-                            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
-
-                            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
-                            transparentProgressDialog.show();
-                            DeleteDocumentRequest deleteDocumentRequest= new DeleteDocumentRequest();
-                            deleteDocumentRequest.setDoc_id(document);
-                            deleteDocumentRequest.setDoc_version_ids(document_version_id);
-                            deleteDocumentRequest.setMode("0");
-                            DeleteDocumentRequest docs = deleteDocumentRequest;
-                            final DeleteDocumentRequest.DeleteDocRequest deleteDocRequest = new DeleteDocumentRequest.DeleteDocRequest(new DeleteDocumentRequest[]{docs});
-
-                            String request = new Gson().toJson(deleteDocRequest);
-
-                            //Here the json data is add to a hash map with key data
-                            Map<String, String> params = new HashMap<String, String>();
-                            params.put("data", request);
-
-                            final DeleteDocumentService deleteDocumentService = retrofitAPI.create(DeleteDocumentService.class);
-
-                            Call call = deleteDocumentService.delete_eu_document(params, PreferenceUtils.getAccessToken(context));
-
-                            call.enqueue(new Callback<ListPinDevicesResponse<LoginResponse>>() {
-                                @Override
-                                public void onResponse(Response<ListPinDevicesResponse<LoginResponse>> response, Retrofit retrofit) {
-                                    ListPinDevicesResponse apiResponse = response.body();
-                                    if (apiResponse != null) {
-
-                                        transparentProgressDialog.dismiss();
-
-                                        if (apiResponse.status.getCode() instanceof Boolean) {
-                                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                                transparentProgressDialog.dismiss();
-                                                getSubCategoryDocuments(parentr,"1");
-                                                mBackDialog.dismiss();
-                                                // refreshAdapterToView(getCategoryDocumentsResponses);
-                                            }
-
-                                        } else if (apiResponse.status.getCode() instanceof Integer) {
-                                            transparentProgressDialog.dismiss();
-                                            mBackDialog.dismiss();
-                                            String mMessage = apiResponse.status.getMessage().toString();
-
-                                            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                                            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                                            builder.setView(view);
-                                            builder.setCancelable(false);
-
-                                            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                                            txtMessage.setText(mMessage);
-
-                                            Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                                            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                                            cancelButton.setVisibility(View.GONE);
-
-                                            sendPinButton.setText("OK");
-
-                                            sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View v) {
-                                                    mAlertDialog.dismiss();
-                                                    context.startActivity(new Intent(context, LoginActivity.class));
-                                                }
-                                            });
-
-                                            mAlertDialog = builder.create();
-                                            mAlertDialog.show();
-                                        }
-                                    }
-                                }
-
-                                @Override
-                                public void onFailure(Throwable t) {
-                                    transparentProgressDialog.dismiss();
-                                    mBackDialog.dismiss();
-                                    Log.d("PinDevice error", t.getMessage());
-                                }
-                            });
+                        if (context instanceof NavigationMyFolderActivity) {
+                            ((NavigationMyFolderActivity) context).deleteDocumentsService(document, document_version_id, "0");
                         }
-
-
                     }
                 });
 
@@ -828,92 +665,11 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                 delete_historic.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        mBackDialog.dismiss();
 
-                        if (NetworkUtils.isNetworkAvailable(context)) {
-
-                            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
-
-                            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
-                            transparentProgressDialog.show();
-                            DeleteDocumentRequest deleteDocumentRequest= new DeleteDocumentRequest();
-                            deleteDocumentRequest.setDoc_id(document);
-                            deleteDocumentRequest.setDoc_version_ids(document_version_id);
-                            deleteDocumentRequest.setMode("1");
-                            DeleteDocumentRequest docs = deleteDocumentRequest;
-                            final DeleteDocumentRequest.DeleteDocRequest deleteDocRequest = new DeleteDocumentRequest.DeleteDocRequest(new DeleteDocumentRequest[]{docs});
-
-                            String request = new Gson().toJson(deleteDocRequest);
-
-                            //Here the json data is add to a hash map with key data
-                            Map<String, String> params = new HashMap<String, String>();
-                            params.put("data", request);
-
-                            final DeleteDocumentService deleteDocumentService = retrofitAPI.create(DeleteDocumentService.class);
-
-                            Call call = deleteDocumentService.delete_eu_document(params, PreferenceUtils.getAccessToken(context));
-
-                            call.enqueue(new Callback<ListPinDevicesResponse<LoginResponse>>() {
-                                @Override
-                                public void onResponse(Response<ListPinDevicesResponse<LoginResponse>> response, Retrofit retrofit) {
-                                    ListPinDevicesResponse apiResponse = response.body();
-                                    if (apiResponse != null) {
-
-                                        transparentProgressDialog.dismiss();
-
-                                        if (apiResponse.status.getCode() instanceof Boolean) {
-                                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                                transparentProgressDialog.dismiss();
-                                                getSubCategoryDocuments(parentr,"1");
-                                                mBackDialog.dismiss();
-                                                // refreshAdapterToView(getCategoryDocumentsResponses);
-                                            }
-
-                                        } else if (apiResponse.status.getCode() instanceof Integer) {
-                                            transparentProgressDialog.dismiss();
-                                            mBackDialog.dismiss();
-                                            String mMessage = apiResponse.status.getMessage().toString();
-
-                                            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                                            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                                            builder.setView(view);
-                                            builder.setCancelable(false);
-
-                                            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                                            txtMessage.setText(mMessage);
-
-                                            Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                                            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                                            cancelButton.setVisibility(View.GONE);
-
-                                            sendPinButton.setText("OK");
-
-                                            sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View v) {
-                                                    mAlertDialog.dismiss();
-                                                    context.startActivity(new Intent(context, LoginActivity.class));
-                                                }
-                                            });
-
-                                            mAlertDialog = builder.create();
-                                            mAlertDialog.show();
-                                        }
-                                    }
-                                }
-
-                                @Override
-                                public void onFailure(Throwable t) {
-                                    transparentProgressDialog.dismiss();
-                                    mBackDialog.dismiss();
-                                    Log.d("PinDevice error", t.getMessage());
-                                }
-                            });
+                        if (context instanceof NavigationMyFolderActivity) {
+                            ((NavigationMyFolderActivity) context).deleteDocumentsService(document, document_version_id, "1");
                         }
-
-
 
                     }
                 });
@@ -921,90 +677,11 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                 delete_all.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (NetworkUtils.isNetworkAvailable(context)) {
+                        mBackDialog.dismiss();
 
-                            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
-
-                            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
-                            transparentProgressDialog.show();
-                            DeleteDocumentRequest deleteDocumentRequest= new DeleteDocumentRequest();
-                            deleteDocumentRequest.setDoc_id(document);
-                            deleteDocumentRequest.setDoc_version_ids(document_version_id);
-                            deleteDocumentRequest.setMode("2");
-                            DeleteDocumentRequest docs = deleteDocumentRequest;
-                            final DeleteDocumentRequest.DeleteDocRequest deleteDocRequest = new DeleteDocumentRequest.DeleteDocRequest(new DeleteDocumentRequest[]{docs});
-
-                            String request = new Gson().toJson(deleteDocRequest);
-
-                            //Here the json data is add to a hash map with key data
-                            Map<String, String> params = new HashMap<String, String>();
-                            params.put("data", request);
-
-                            final DeleteDocumentService deleteDocumentService = retrofitAPI.create(DeleteDocumentService.class);
-
-                            Call call = deleteDocumentService.delete_eu_document(params, PreferenceUtils.getAccessToken(context));
-
-                            call.enqueue(new Callback<ListPinDevicesResponse<LoginResponse>>() {
-                                @Override
-                                public void onResponse(Response<ListPinDevicesResponse<LoginResponse>> response, Retrofit retrofit) {
-                                    ListPinDevicesResponse apiResponse = response.body();
-                                    if (apiResponse != null) {
-
-                                        transparentProgressDialog.dismiss();
-
-                                        if (apiResponse.status.getCode() instanceof Boolean) {
-                                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                                transparentProgressDialog.dismiss();
-                                                getSubCategoryDocuments(parentr,"1");
-                                                mBackDialog.dismiss();
-                                                // refreshAdapterToView(getCategoryDocumentsResponses);
-                                            }
-
-                                        } else if (apiResponse.status.getCode() instanceof Integer) {
-                                            transparentProgressDialog.dismiss();
-                                            mBackDialog.dismiss();
-                                            String mMessage = apiResponse.status.getMessage().toString();
-
-                                            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                                            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                                            builder.setView(view);
-                                            builder.setCancelable(false);
-
-                                            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                                            txtMessage.setText(mMessage);
-
-                                            Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                                            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                                            cancelButton.setVisibility(View.GONE);
-
-                                            sendPinButton.setText("OK");
-
-                                            sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View v) {
-                                                    mAlertDialog.dismiss();
-                                                    context.startActivity(new Intent(context, LoginActivity.class));
-                                                }
-                                            });
-
-                                            mAlertDialog = builder.create();
-                                            mAlertDialog.show();
-                                        }
-                                    }
-                                }
-
-                                @Override
-                                public void onFailure(Throwable t) {
-                                    transparentProgressDialog.dismiss();
-                                    mBackDialog.dismiss();
-                                    Log.d("PinDevice error", t.getMessage());
-                                }
-                            });
+                        if (context instanceof NavigationMyFolderActivity) {
+                            ((NavigationMyFolderActivity) context).deleteDocumentsService(document, document_version_id, "1");
                         }
-
 
                     }
                 });
@@ -1016,8 +693,6 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
 
                     }
                 });
-
-
 
 
             }
@@ -1074,79 +749,17 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
 
             }
         });
-        if (fileType.equalsIgnoreCase("pdf")) {
-            thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_pdf_color));
-            thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_pdf_corner_color));
-            thumbnailText.setText(fileType);
-        } else if (fileType.equalsIgnoreCase("xlsx") ||
-                fileType.equalsIgnoreCase("xls") || fileType.equalsIgnoreCase("xlsm")
-                || fileType.equalsIgnoreCase("csv")) {
-            thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_xls_color));
-            thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_xls_corner_color));
-            thumbnailText.setText(fileType);
-        } else if (fileType.equalsIgnoreCase("doc") ||
-                fileType.equalsIgnoreCase("docx") || fileType.equalsIgnoreCase("docm")
-                || fileType.equalsIgnoreCase("gdoc") || fileType.equalsIgnoreCase("keynote")) {
-            thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_doc_color));
-            thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_doc_corner_color));
-            thumbnailText.setText(fileType);
-        } else if (fileType.equalsIgnoreCase("ppt") ||
-                fileType.equalsIgnoreCase("pptx") || fileType.equalsIgnoreCase("pps")
-                || fileType.equalsIgnoreCase("ai")) {
-            thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_ppt_color));
-            thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_ppt_corner_color));
-            thumbnailText.setText(fileType);
-        } else if (fileType.equalsIgnoreCase("xml") ||
-                fileType.equalsIgnoreCase("log") || fileType.equalsIgnoreCase("zip")
-                || fileType.equalsIgnoreCase("rar") || fileType.equalsIgnoreCase("zipx")
-                || fileType.equalsIgnoreCase("mht")) {
-            thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_xml_color));
-            thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_xml_corner_color));
-            thumbnailText.setText(fileType);
-        } else if (fileType.equalsIgnoreCase("xml") ||
-                fileType.equalsIgnoreCase("log") || fileType.equalsIgnoreCase("rtf") ||
-                fileType.equalsIgnoreCase("txt") || fileType.equalsIgnoreCase("epub")) {
-            thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_xml_color));
-            thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_xml_corner_color));
-            thumbnailText.setText(fileType);
-        } else if (fileType.equalsIgnoreCase("msg") || fileType.equalsIgnoreCase("dot") || fileType.equalsIgnoreCase("odt")
-                || fileType.equalsIgnoreCase("ott")) {
-            thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_msg_color));
-            thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_msg_corner_color));
-            thumbnailText.setText(fileType);
-        } else if (fileType.equalsIgnoreCase("pages")) {
-            thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_pages_color));
-            thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_pages_corner_color));
-            thumbnailText.setText(fileType);
-        } else if (fileType.equalsIgnoreCase("pub") || fileType.equalsIgnoreCase("ods")) {
-            thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_pub_color));
-            thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_pub_corner_color));
-            thumbnailText.setText(fileType);
-        } else if (fileType.equalsIgnoreCase("gif") || fileType.equalsIgnoreCase("jpeg")
-                || fileType.equalsIgnoreCase("jpg") || fileType.equalsIgnoreCase("png") || fileType.equalsIgnoreCase("bmp")
-                || fileType.equalsIgnoreCase("tif") || fileType.equalsIgnoreCase("tiff") || fileType.equalsIgnoreCase("eps")
-                || fileType.equalsIgnoreCase("svg") || fileType.equalsIgnoreCase("odp")
-                || fileType.equalsIgnoreCase("otp")) {
-            thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_gif_color));
-            thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_gif_corner_color));
-            thumbnailText.setText(fileType);
-        } else if (fileType.equalsIgnoreCase("avi")
-                || fileType.equalsIgnoreCase("flv") || fileType.equalsIgnoreCase("mpeg") ||
-                fileType.equalsIgnoreCase("mpg") || fileType.equalsIgnoreCase("swf") || fileType.equalsIgnoreCase("wmv")) {
-            thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_avi_color));
-            thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_avi_corner_color));
-            thumbnailText.setText(fileType);
-        } else if (fileType.equalsIgnoreCase("mp3")
-                || fileType.equalsIgnoreCase("wav") || fileType.equalsIgnoreCase("wma")) {
-            thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_mp3_color));
-            thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_mp3_corner_color));
-            thumbnailText.setText(fileType);
-        } else {
-            thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_default_color));
-            thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_default_corner_color));
-            thumbnailText.setText(fileType);
-        }
 
+
+
+        ColorCodeModel colorCodeModel = CommonFunctions.getColorCodesforFileType(fileType);
+        if(colorCodeModel != null)
+        {
+
+            thumbnailIcon.setColorFilter(context.getResources().getColor(colorCodeModel.getPrimaryColor()));
+            thumbnailCornerIcon.setColorFilter(context.getResources().getColor(colorCodeModel.getSecondaryColor()));
+            thumbnailText.setText(colorCodeModel.getFileType());
+        }
 
 
         shareView.setOnClickListener(new View.OnClickListener() {
@@ -1297,11 +910,11 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
     }
 
 
-    private void openBottomSheetForCategory(String name) {
+    private void openBottomSheetForCategory(GetCategoryDocumentsResponse categoryDocumentsResponse, String name) {
 
         getWhiteLabelProperties();
 
-        View view = ((MyFoldersDMSActivity) context).getLayoutInflater().inflate(R.layout.bottom_sheet_category_sort, null);
+        View view = ((NavigationMyFolderActivity) context).getLayoutInflater().inflate(R.layout.bottom_sheet_category_sort, null);
 
         TextView categoryText = (TextView) view.findViewById(R.id.category_text);
         ImageView categoryImage = (ImageView) view.findViewById(R.id.category_image);
@@ -1311,6 +924,10 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
         RelativeLayout move = (RelativeLayout)view.findViewById(R.id.move1);
         TextView delete = (TextView) view.findViewById(R.id.delete);
         RelativeLayout share = (RelativeLayout)view.findViewById(R.id.share1);
+
+        List<GetCategoryDocumentsResponse> categoryDocumentlist = new ArrayList<>();
+        categoryDocumentlist.add(categoryDocumentsResponse);
+        CommonFunctions.setSelectedItems(categoryDocumentlist);
 
 
         categoryText.setText(name);
@@ -1341,10 +958,11 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
         move.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(context,MyFolderActivity.class);
-                String object = "0";
-                intent.putExtra(object,"0");
-                context.startActivity(intent);
+                mBottomSheetDialog.dismiss();
+                if (context instanceof NavigationMyFolderActivity) {
+                    ((NavigationMyFolderActivity) context).initiateMoveAction("move");
+                }
+
             }
         });
 
@@ -1400,6 +1018,7 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
         delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mBottomSheetDialog.dismiss();
                 final AlertDialog.Builder builder = new AlertDialog.Builder(context);
                 LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 View view = inflater.inflate(R.layout.delete_alert, null);
@@ -1418,81 +1037,12 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                 delete.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (NetworkUtils.isNetworkAvailable(context)) {
+                        NavigationMyFolderActivity.mode = 0;
+                        mBackDialog.dismiss();
 
-                            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
 
-                            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
-                            transparentProgressDialog.show();
-
-                            final DeleteEndUserFolderRequest deleteEndUserFolderRequest = new DeleteEndUserFolderRequest(categoryids,"0");
-
-                            String request = new Gson().toJson(deleteEndUserFolderRequest);
-
-                            //Here the json data is add to a hash map with key data
-                            Map<String, String> params = new HashMap<String, String>();
-                            params.put("data", request);
-
-                            final DeleteEndUserFolderService deleteEndUserFolderService = retrofitAPI.create(DeleteEndUserFolderService.class);
-
-                            Call call = deleteEndUserFolderService.delete_eu_folder(params, PreferenceUtils.getAccessToken(context));
-
-                            call.enqueue(new Callback<ApiResponse<LoginResponse>>() {
-                                @Override
-                                public void onResponse(Response<ApiResponse<LoginResponse>> response, Retrofit retrofit) {
-                                    ApiResponse apiResponse = response.body();
-                                    if (apiResponse != null) {
-
-                                        transparentProgressDialog.dismiss();
-
-                                        if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                            transparentProgressDialog.dismiss();
-                                            getSubCategoryDocuments(parentr,"1");
-                                            mBackDialog.dismiss();
-                                            // refreshAdapterToView(getCategoryDocumentsResponses);
-                                        }
-                                        else {
-                                            transparentProgressDialog.dismiss();
-                                            String mMessage = apiResponse.status.getMessage().toString();
-                                            mBackDialog.dismiss();
-                                            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                                            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                                            builder.setView(view);
-                                            builder.setCancelable(false);
-
-                                            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                                            txtMessage.setText(mMessage);
-
-                                            Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                                            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                                            cancelButton.setVisibility(View.GONE);
-
-                                            sendPinButton.setText("OK");
-
-                                            sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View v) {
-                                                    mAlertDialog.dismiss();
-                                                    context.startActivity(new Intent(context, LoginActivity.class));
-                                                }
-                                            });
-
-                                            mAlertDialog = builder.create();
-                                            mAlertDialog.show();
-                                        }
-                                    }
-                                }
-
-                                @Override
-                                public void onFailure(Throwable t) {
-                                    mBackDialog.dismiss();
-                                    transparentProgressDialog.dismiss();
-                                    Log.d("PinDevice error", t.getMessage());
-                                }
-                            });
+                        if (context instanceof NavigationMyFolderActivity) {
+                            ((NavigationMyFolderActivity) context).delete_Folder_DeleteDocuments();
                         }
 
 
@@ -1503,10 +1053,11 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                 move_to_folder.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        mode = 1;
-                        PreferenceUtils.setDelete(context,categoryids,"key");
-                        Intent intent = new Intent(context,MyfolderDeleteActivity.class);
-                        context.startActivity(intent);
+                        NavigationMyFolderActivity.mode = 1;
+                        mBackDialog.dismiss();
+                        if (context instanceof NavigationMyFolderActivity) {
+                            ((NavigationMyFolderActivity) context).initiateMoveAction("delete");
+                        }
 
                     }
                 });
@@ -1560,7 +1111,10 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                         if (apiResponse.status.getCode() instanceof Boolean) {
                             if (apiResponse.status.getCode() == Boolean.FALSE) {
                                 transparentProgressDialog.dismiss();
-                                getSubCategoryDocuments(objectr,"1");
+                                if (context instanceof NavigationMyFolderActivity) {
+                                    ((NavigationMyFolderActivity) context).resetPageNumber();
+                                    ((NavigationMyFolderActivity) context).getCategoryDocuments();
+                                }
                             }
 
                         } else if (apiResponse.status.getCode() instanceof Integer) {
@@ -1640,7 +1194,10 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                         if (apiResponse.status.getCode() instanceof Boolean) {
                             if (apiResponse.status.getCode() == Boolean.FALSE) {
                                 transparentProgressDialog.dismiss();
-                                getSubCategoryDocuments(parentr,"1");
+                                if (context instanceof NavigationMyFolderActivity) {
+                                    ((NavigationMyFolderActivity) context).resetPageNumber();
+                                    ((NavigationMyFolderActivity) context).getCategoryDocuments();
+                                }
                             }
 
                         } else if (apiResponse.status.getCode() instanceof Integer) {

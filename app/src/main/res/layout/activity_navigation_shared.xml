@@ -58,7 +58,7 @@
 
                     <RelativeLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="30dp"
                         android:layout_alignParentLeft="true"
                         android:layout_alignParentStart="true"
                         android:layout_alignParentTop="true">
@@ -68,6 +68,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentLeft="true"
+                            android:layout_centerInParent="true"
                             android:orientation="horizontal">
 
                             <TextView
@@ -92,10 +93,10 @@
                         <RelativeLayout
                             android:id="@+id/toggle_view"
                             android:layout_width="50dp"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
                             android:layout_alignParentRight="true"
                             android:layout_alignParentEnd="true"
-                            android:layout_centerVertical="true"
+                            android:layout_centerInParent="true"
                             android:clickable="true"
                             android:focusable="true"
                             android:focusableInTouchMode="true">
@@ -106,6 +107,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_alignParentRight="true"
                                 android:layout_alignParentEnd="true"
+                                android:layout_centerInParent="true"
                                 android:src="@mipmap/ic_grid" />
 
                         </RelativeLayout>
@@ -124,27 +126,28 @@
             android:layout_marginTop="0dp"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-            <FrameLayout
-                android:id="@+id/container"
+            <android.support.v4.widget.NestedScrollView
+                android:id="@+id/nest_scrollview"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_below="@+id/appBarLayout"
-                android:clickable="true">
+                android:layout_marginTop="0dp"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-               <!-- <android.support.v7.widget.RecyclerView
-                    android:layout_marginTop="0dp"
+                <android.support.v7.widget.RecyclerView
                     android:id="@+id/recycler_dms"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_below="@id/l1">
+                    android:layout_height="match_parent">
 
-                </android.support.v7.widget.RecyclerView>-->
+                </android.support.v7.widget.RecyclerView>
 
-            </FrameLayout>
+            </android.support.v4.widget.NestedScrollView>
+
         </LinearLayout>
+
+
     </android.support.design.widget.CoordinatorLayout>
 
-    <android.support.design.widget.BottomNavigationView
+   <!-- <android.support.design.widget.BottomNavigationView
         android:id="@+id/navigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -153,86 +156,16 @@
         app:itemTextColor="@color/black_semi_transparent"
         app:itemIconTint="@drawable/message_item_bg"
         app:menu="@menu/navigation"
+        />-->
+
+    <include
+        layout="@layout/activity_dms_bottom_navigation_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_alignParentBottom="true"
         />
 
-    <com.github.clans.fab.FloatingActionMenu
-        android:id="@+id/floating_action_menu"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginBottom="80dp"
-        android:layout_marginLeft="11dp"
-        android:layout_marginRight="11dp"
-        fab:menu_animationDelayPerItem="55"
-        fab:menu_backgroundColor="@android:color/transparent"
-        fab:menu_buttonSpacing="0dp"
-        fab:menu_colorNormal="@color/sky_blue"
-        fab:menu_colorPressed="@color/sky_blue"
-        fab:menu_fab_size="normal"
-        fab:menu_icon="@drawable/fab_add"
-        fab:menu_labels_colorNormal="@color/black"
-        fab:menu_labels_colorPressed="#444"
-        fab:menu_labels_colorRipple="#66efecec"
-        fab:menu_labels_cornerRadius="3dp"
-        fab:menu_labels_ellipsize="none"
-        fab:menu_labels_margin="0dp"
-        fab:menu_labels_maxLines="-1"
-        fab:menu_labels_padding="8dp"
-        fab:menu_labels_position="left"
-        fab:menu_labels_showShadow="true"
-        fab:menu_labels_singleLine="false"
-        fab:menu_labels_textColor="#f2f1f1"
-        fab:menu_labels_textSize="15sp"
-        fab:menu_openDirection="up"
-        fab:menu_shadowColor="#66aff198"
-        fab:menu_shadowRadius="4dp"
-        fab:menu_shadowXOffset="1dp"
-        fab:menu_shadowYOffset="4dp"
-        fab:menu_showShadow="false">
 
-        <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/menu_upload_item"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:fab_colorNormal="@color/sky_blue"
-            app:fab_colorPressed="@color/sky_blue"
-            android:src="@mipmap/ic_upload"
-            fab:fab_size="mini"
-            fab:fab_label="@string/document" />
-
-        <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/menu_camera_item"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:fab_colorNormal="@color/sky_blue"
-            app:fab_colorPressed="@color/sky_blue"
-            android:src="@mipmap/ic_upload"
-            fab:fab_size="mini"
-            fab:fab_label="@string/camera" />
-
-        <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/menu_camera_video_item"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@mipmap/ic_create_folder"
-            app:fab_colorNormal="@color/sky_blue"
-            app:fab_colorPressed="@color/sky_blue"
-            fab:fab_size="mini"
-            fab:fab_label="@string/video" />
-
-        <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/menu_new_folder_item"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@mipmap/ic_create_folder"
-            app:fab_colorNormal="@color/sky_blue"
-            app:fab_colorPressed="@color/sky_blue"
-            fab:fab_size="mini"
-            fab:fab_label="@string/new_folder" />
-
-    </com.github.clans.fab.FloatingActionMenu>
-
-    <!--<include layout="@layout/activity_dms_bottom_navigation_view" />-->
 
 </RelativeLayout>

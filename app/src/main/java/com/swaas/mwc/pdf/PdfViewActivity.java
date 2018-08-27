@@ -42,7 +42,9 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.swaas.mwc.API.Model.ApiResponse;
+import com.swaas.mwc.API.Model.ColorCodeModel;
 import com.swaas.mwc.API.Model.DeleteDocumentRequest;
+import com.swaas.mwc.API.Model.DeleteDocumentResponseModel;
 import com.swaas.mwc.API.Model.DownloadDocumentRequest;
 import com.swaas.mwc.API.Model.DownloadDocumentResponse;
 import com.swaas.mwc.API.Model.EditDocumentPropertiesRequest;
@@ -62,11 +64,14 @@ import com.swaas.mwc.API.Service.EditDocumentPropertiesService;
 import com.swaas.mwc.API.Service.EndUserRenameService;
 import com.swaas.mwc.API.Service.GetEndUserParentSHaredFoldersService;
 import com.swaas.mwc.API.Service.ShareEndUserDocumentsService;
+import com.swaas.mwc.Common.CommonFunctions;
 import com.swaas.mwc.Common.FileDownloadManager;
+import com.swaas.mwc.Common.GlobalVariables;
 import com.swaas.mwc.DMS.MyFolderActivity;
 import com.swaas.mwc.DMS.MyFolderCopyActivity;
 import com.swaas.mwc.DMS.MyFolderSharedDocuments;
 import com.swaas.mwc.DMS.MyFoldersDMSActivity;
+import com.swaas.mwc.DMS.NavigationMyFolderActivity;
 import com.swaas.mwc.DMS.Tab_Activity;
 import com.swaas.mwc.Database.AccountSettings;
 import com.swaas.mwc.Database.OffLine_Files_Repository;
@@ -887,7 +892,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
             case R.id.action_more:
 
-                openBottomSheetForDocument(categoryDocumentsResponse.getFiletype(), categoryDocumentsResponse.getName());
+                openBottomSheetForDocument(categoryDocumentsResponse, categoryDocumentsResponse.getFiletype(), categoryDocumentsResponse.getName());
                 return true;
 
             default:
@@ -896,7 +901,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
     }
 
 
-    private void openBottomSheetForDocument(final String fileType, String name) {
+    private void openBottomSheetForDocument(GetCategoryDocumentsResponse categoryDocumentsResponse, final String fileType, String name) {
 
         getWhiteLabelProperities();
 
@@ -915,7 +920,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
         TextView delete= (TextView)view.findViewById(R.id.delete);
 
 
-        if(categoryDocumentsResponse.getIs_shared().equals("1"))
+        if(this.categoryDocumentsResponse.getIs_shared().equals("1"))
         {
             switchButton_share.setChecked(true);
         }
@@ -924,9 +929,13 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
             switchButton_share.setChecked(false);
         }
 
+        List<GetCategoryDocumentsResponse> categoryDocumentlist = new ArrayList<>();
+        categoryDocumentlist.add(categoryDocumentsResponse);
+        CommonFunctions.setSelectedItems(categoryDocumentlist);
+
 
         OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(context);
-        if (!offLine_files_repository.checkAlreadyDocumentAvailableOrNot(categoryDocumentsResponse.getDocument_version_id())) {
+        if (!offLine_files_repository.checkAlreadyDocumentAvailableOrNot(this.categoryDocumentsResponse.getDocument_version_id())) {
 
             switchButton_download.setChecked(true);
         }
@@ -957,10 +966,10 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                     } else {
                         switchButton_share.setChecked(false);
                         List<GetCategoryDocumentsResponse> selectedList = new ArrayList<>();
-                        selectedList.add(categoryDocumentsResponse);
+                        selectedList.add(PdfViewActivity.this.categoryDocumentsResponse);
 
-                        PreferenceUtils.setCategoryId(context, categoryDocumentsResponse.getCategory_id());
-                        PreferenceUtils.setDocument_Id(context, categoryDocumentsResponse.getObject_id());
+                        PreferenceUtils.setCategoryId(context, PdfViewActivity.this.categoryDocumentsResponse.getCategory_id());
+                        PreferenceUtils.setDocument_Id(context, PdfViewActivity.this.categoryDocumentsResponse.getObject_id());
 
                         Intent mIntent = new Intent(context, MyFolderSharedDocuments.class);
                         mIntent.putExtra(Constants.OBJ, (Serializable) selectedList);
@@ -992,7 +1001,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                 Button delete_all =(Button)view.findViewById(R.id.deleteall);
                 Button cancel = (Button)view.findViewById(R.id.canceldel);
 
-                if(categoryDocumentsResponse.getVersion_count().equals("0"))
+                if(PdfViewActivity.this.categoryDocumentsResponse.getVersion_count().equals("0"))
                 {
                     delete_historic.setEnabled(false);
                     delete_historic.setTextColor(R.color.grey);
@@ -1011,12 +1020,12 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
 
                             ArrayList<String> documentVersionList = new ArrayList<>();
-                            documentVersionList.add(categoryDocumentsResponse.getDocument_version_id());
+                            documentVersionList.add(PdfViewActivity.this.categoryDocumentsResponse.getDocument_version_id());
 
                             final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
                             transparentProgressDialog.show();
                             DeleteDocumentRequest deleteDocumentRequest= new DeleteDocumentRequest();
-                            deleteDocumentRequest.setDoc_id(categoryDocumentsResponse.getObject_id());
+                            deleteDocumentRequest.setDoc_id(PdfViewActivity.this.categoryDocumentsResponse.getObject_id());
                             deleteDocumentRequest.setDoc_version_ids(documentVersionList);
                             deleteDocumentRequest.setMode("0");
                             DeleteDocumentRequest docs = deleteDocumentRequest;
@@ -1032,28 +1041,30 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
                             Call call = deleteDocumentService.delete_eu_document(params, PreferenceUtils.getAccessToken(context));
 
-                            call.enqueue(new Callback<ListPinDevicesResponse<LoginResponse>>() {
+                            call.enqueue(new Callback<DeleteDocumentResponseModel>() {
                                 @Override
-                                public void onResponse(Response<ListPinDevicesResponse<LoginResponse>> response, Retrofit retrofit) {
-                                    ListPinDevicesResponse apiResponse = response.body();
+                                public void onResponse(Response<DeleteDocumentResponseModel> response, Retrofit retrofit) {
+                                    DeleteDocumentResponseModel apiResponse = response.body();
                                     if (apiResponse != null) {
 
                                         transparentProgressDialog.dismiss();
 
-                                        if (apiResponse.status.getCode() instanceof Boolean) {
-                                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                                transparentProgressDialog.dismiss();
-                                                finish();
+                                        if (apiResponse.getStatus().getCode() instanceof Boolean) {
+                                            if (apiResponse.getStatus().getCode() == Boolean.FALSE) {
                                                 mBackDialog.dismiss();
-                                                Intent intent= new Intent(PdfViewActivity.this,MyFoldersDMSActivity.class);
-                                                startActivity(intent);
-                                                // refreshAdapterToView(getCategoryDocumentsResponses);
+                                                GlobalVariables.refreshDMS = true;
+                                                finish();
+
+
+
+
+
                                             }
 
-                                        } else if (apiResponse.status.getCode() instanceof Integer) {
+                                        } else if (apiResponse.getStatus().getCode() instanceof Integer) {
                                             transparentProgressDialog.dismiss();
                                             mBackDialog.dismiss();
-                                            String mMessage = apiResponse.status.getMessage().toString();
+                                            String mMessage = apiResponse.getStatus().getMessage().toString();
 
                                             final AlertDialog.Builder builder = new AlertDialog.Builder(context);
                                             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -1109,12 +1120,12 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
 
                             ArrayList<String> documentVersionList = new ArrayList<>();
-                            documentVersionList.add(categoryDocumentsResponse.getDocument_version_id());
+                            documentVersionList.add(PdfViewActivity.this.categoryDocumentsResponse.getDocument_version_id());
 
                             final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
                             transparentProgressDialog.show();
                             DeleteDocumentRequest deleteDocumentRequest= new DeleteDocumentRequest();
-                            deleteDocumentRequest.setDoc_id(categoryDocumentsResponse.getObject_id());
+                            deleteDocumentRequest.setDoc_id(PdfViewActivity.this.categoryDocumentsResponse.getObject_id());
                             deleteDocumentRequest.setDoc_version_ids(documentVersionList);
                             deleteDocumentRequest.setMode("1");
                             DeleteDocumentRequest docs = deleteDocumentRequest;
@@ -1130,28 +1141,28 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
                             Call call = deleteDocumentService.delete_eu_document(params, PreferenceUtils.getAccessToken(context));
 
-                            call.enqueue(new Callback<ListPinDevicesResponse<LoginResponse>>() {
+                            call.enqueue(new Callback<DeleteDocumentResponseModel>() {
                                 @Override
-                                public void onResponse(Response<ListPinDevicesResponse<LoginResponse>> response, Retrofit retrofit) {
-                                    ListPinDevicesResponse apiResponse = response.body();
+                                public void onResponse(Response<DeleteDocumentResponseModel> response, Retrofit retrofit) {
+                                    DeleteDocumentResponseModel apiResponse = response.body();
                                     if (apiResponse != null) {
 
                                         transparentProgressDialog.dismiss();
 
-                                        if (apiResponse.status.getCode() instanceof Boolean) {
-                                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                                transparentProgressDialog.dismiss();
-                                                finish();
+                                        if (apiResponse.getStatus().getCode() instanceof Boolean) {
+                                            if (apiResponse.getStatus().getCode() == Boolean.FALSE) {
                                                 mBackDialog.dismiss();
-                                                Intent intent= new Intent(PdfViewActivity.this,MyFoldersDMSActivity.class);
-                                                startActivity(intent);
-                                                // refreshAdapterToView(getCategoryDocumentsResponses);
+                                                GlobalVariables.refreshDMS = true;
+                                                finish();
+
+
+
                                             }
 
-                                        } else if (apiResponse.status.getCode() instanceof Integer) {
+                                        } else if (apiResponse.getStatus().getCode() instanceof Integer) {
                                             transparentProgressDialog.dismiss();
                                             mBackDialog.dismiss();
-                                            String mMessage = apiResponse.status.getMessage().toString();
+                                            String mMessage = apiResponse.getStatus().getMessage().toString();
 
                                             final AlertDialog.Builder builder = new AlertDialog.Builder(context);
                                             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -1206,12 +1217,12 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
 
                             ArrayList<String> documentVersionList = new ArrayList<>();
-                            documentVersionList.add(categoryDocumentsResponse.getDocument_version_id());
+                            documentVersionList.add(PdfViewActivity.this.categoryDocumentsResponse.getDocument_version_id());
 
                             final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
                             transparentProgressDialog.show();
                             DeleteDocumentRequest deleteDocumentRequest= new DeleteDocumentRequest();
-                            deleteDocumentRequest.setDoc_id(categoryDocumentsResponse.getObject_id());
+                            deleteDocumentRequest.setDoc_id(PdfViewActivity.this.categoryDocumentsResponse.getObject_id());
                             deleteDocumentRequest.setDoc_version_ids(documentVersionList);
                             deleteDocumentRequest.setMode("2");
                             DeleteDocumentRequest docs = deleteDocumentRequest;
@@ -1227,28 +1238,28 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
                             Call call = deleteDocumentService.delete_eu_document(params, PreferenceUtils.getAccessToken(context));
 
-                            call.enqueue(new Callback<ListPinDevicesResponse<LoginResponse>>() {
+                            call.enqueue(new Callback<DeleteDocumentResponseModel>() {
                                 @Override
-                                public void onResponse(Response<ListPinDevicesResponse<LoginResponse>> response, Retrofit retrofit) {
-                                    ListPinDevicesResponse apiResponse = response.body();
+                                public void onResponse(Response<DeleteDocumentResponseModel> response, Retrofit retrofit) {
+                                    DeleteDocumentResponseModel apiResponse = response.body();
                                     if (apiResponse != null) {
 
                                         transparentProgressDialog.dismiss();
 
-                                        if (apiResponse.status.getCode() instanceof Boolean) {
-                                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                                transparentProgressDialog.dismiss();
-                                                finish();
+                                        if (apiResponse.getStatus().getCode() instanceof Boolean) {
+                                            if (apiResponse.getStatus().getCode() == Boolean.FALSE) {
                                                 mBackDialog.dismiss();
-                                                Intent intent= new Intent(PdfViewActivity.this,MyFoldersDMSActivity.class);
-                                                startActivity(intent);
-                                                // refreshAdapterToView(getCategoryDocumentsResponses);
+                                                GlobalVariables.refreshDMS = true;
+                                                finish();
+
+
+
                                             }
 
-                                        } else if (apiResponse.status.getCode() instanceof Integer) {
+                                        } else if (apiResponse.getStatus().getCode() instanceof Integer) {
                                             transparentProgressDialog.dismiss();
                                             mBackDialog.dismiss();
-                                            String mMessage = apiResponse.status.getMessage().toString();
+                                            String mMessage = apiResponse.getStatus().getMessage().toString();
 
                                             final AlertDialog.Builder builder = new AlertDialog.Builder(context);
                                             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -1324,13 +1335,18 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
                     if (isChecked) {
                         switchButton_download.setChecked(true);
-                        getDownloadurlFromService(categoryDocumentsResponse.getObject_id());
+                        getDownloadurlFromService(PdfViewActivity.this.categoryDocumentsResponse.getObject_id());
                         mBottomSheetDialog.dismiss();
                     }
                     else
                     {
                         OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(context);
-                        offLine_files_repository.deleteAlreadydownloadedFile(categoryDocumentsResponse.getDocument_version_id());
+                        offLine_files_repository.deleteAlreadydownloadedFile(PdfViewActivity.this.categoryDocumentsResponse.getDocument_version_id());
+                        String filepath = offLine_files_repository.getFilePathFromLocalTable(PdfViewActivity.this.categoryDocumentsResponse.getDocument_version_id());
+                        if(filepath != null && !filepath.isEmpty())
+                        {
+                            CommonFunctions.deleteFileFromInternalStorage(filepath);
+                        }
                         switchButton_download.setChecked(false);
                         mBottomSheetDialog.dismiss();
                     }
@@ -1360,86 +1376,23 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
         docText.setText(name);
 
-        if (fileType.equalsIgnoreCase("pdf")) {
-            //holder.imageView.setImageResource(R.mipmap.ic_pdf);
-            thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_pdf_color));
-            thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_pdf_corner_color));
-            thumbnailText.setText(fileType);
-        } else if (fileType.equalsIgnoreCase("xlsx") ||
-                fileType.equalsIgnoreCase("xls") || fileType.equalsIgnoreCase("xlsm")
-                || fileType.equalsIgnoreCase("csv")) {
-            thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_xls_color));
-            thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_xls_corner_color));
-            thumbnailText.setText(fileType);
-        } else if (fileType.equalsIgnoreCase("doc") ||
-                fileType.equalsIgnoreCase("docx") || fileType.equalsIgnoreCase("docm")
-                || fileType.equalsIgnoreCase("gdoc") || fileType.equalsIgnoreCase("keynote")) {
-            thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_doc_color));
-            thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_doc_corner_color));
-            thumbnailText.setText(fileType);
-        } else if (fileType.equalsIgnoreCase("ppt") ||
-                fileType.equalsIgnoreCase("pptx") || fileType.equalsIgnoreCase("pps")
-                || fileType.equalsIgnoreCase("ai")) {
-            thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_ppt_color));
-            thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_ppt_corner_color));
-            thumbnailText.setText(fileType);
-        } else if (fileType.equalsIgnoreCase("xml") ||
-                fileType.equalsIgnoreCase("log") || fileType.equalsIgnoreCase("zip")
-                || fileType.equalsIgnoreCase("rar") || fileType.equalsIgnoreCase("zipx")
-                || fileType.equalsIgnoreCase("mht")) {
-            thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_xml_color));
-            thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_xml_corner_color));
-            thumbnailText.setText(fileType);
-        } else if (fileType.equalsIgnoreCase("xml") ||
-                fileType.equalsIgnoreCase("log") || fileType.equalsIgnoreCase("rtf") ||
-                fileType.equalsIgnoreCase("txt") || fileType.equalsIgnoreCase("epub")) {
-            thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_xml_color));
-            thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_xml_corner_color));
-            thumbnailText.setText(fileType);
-        } else if (fileType.equalsIgnoreCase("msg") || fileType.equalsIgnoreCase("dot") || fileType.equalsIgnoreCase("odt")
-                || fileType.equalsIgnoreCase("ott")) {
-            thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_msg_color));
-            thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_msg_corner_color));
-            thumbnailText.setText(fileType);
-        } else if (fileType.equalsIgnoreCase("pages")) {
-            thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_pages_color));
-            thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_pages_corner_color));
-            thumbnailText.setText(fileType);
-        } else if (fileType.equalsIgnoreCase("pub") || fileType.equalsIgnoreCase("ods")) {
-            thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_pub_color));
-            thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_pub_corner_color));
-            thumbnailText.setText(fileType);
-        } else if (fileType.equalsIgnoreCase("gif") || fileType.equalsIgnoreCase("jpeg")
-                || fileType.equalsIgnoreCase("jpg") || fileType.equalsIgnoreCase("png") || fileType.equalsIgnoreCase("bmp")
-                || fileType.equalsIgnoreCase("tif") || fileType.equalsIgnoreCase("tiff") || fileType.equalsIgnoreCase("eps")
-                || fileType.equalsIgnoreCase("svg") || fileType.equalsIgnoreCase("odp")
-                || fileType.equalsIgnoreCase("otp")) {
-            thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_gif_color));
-            thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_gif_corner_color));
-            thumbnailText.setText(fileType);
-        } else if (fileType.equalsIgnoreCase("avi")
-                || fileType.equalsIgnoreCase("flv") || fileType.equalsIgnoreCase("mpeg") ||
-                fileType.equalsIgnoreCase("mpg") || fileType.equalsIgnoreCase("swf") || fileType.equalsIgnoreCase("wmv")) {
-            thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_avi_color));
-            thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_avi_corner_color));
-            thumbnailText.setText(fileType);
-        } else if (fileType.equalsIgnoreCase("mp3")
-                || fileType.equalsIgnoreCase("wav") || fileType.equalsIgnoreCase("wma")) {
-            thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_mp3_color));
-            thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_mp3_corner_color));
-            thumbnailText.setText(fileType);
-        } else {
-            thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_default_color));
-            thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_default_corner_color));
-            thumbnailText.setText(fileType);
+        ColorCodeModel colorCodeModel = CommonFunctions.getColorCodesforFileType(fileType);
+        if(colorCodeModel != null)
+        {
+            thumbnailIcon.setColorFilter(context.getResources().getColor(colorCodeModel.getPrimaryColor()));
+            thumbnailCornerIcon.setColorFilter(context.getResources().getColor(colorCodeModel.getSecondaryColor()));
+            thumbnailText.setText(colorCodeModel.getFileType());
+
         }
+
+
 
 
         docinfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                PreferenceUtils.setDocumentVersionId(context,categoryDocumentsResponse.getDocument_version_id());
-                PreferenceUtils.setDocument_Id(context, categoryDocumentsResponse.getObject_id());
+                PreferenceUtils.setDocumentVersionId(context, PdfViewActivity.this.categoryDocumentsResponse.getDocument_version_id());
+                PreferenceUtils.setDocument_Id(context, PdfViewActivity.this.categoryDocumentsResponse.getObject_id());
                 Intent intent = new Intent(context, Tab_Activity.class);
                 startActivity(intent);
             }
@@ -1455,16 +1408,17 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
         move.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(context, MyFolderActivity.class);
-                startActivity(intent);
+
+                initiateMoveAction("move");
+
+
             }
         });
 
         copy.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(context, MyFolderCopyActivity.class);
-                startActivity(intent);
+                initiateMoveAction("copy");
             }
         });
 
@@ -1488,7 +1442,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
                         if(folder != null && !folder.isEmpty())
                         {
-                            renamedocument(categoryDocumentsResponse.getDocument_version_id(),folder,"","");
+                            renamedocument(PdfViewActivity.this.categoryDocumentsResponse.getDocument_version_id(),folder,"","");
                             mAlertDialog.dismiss();
                             mBottomSheetDialog.dismiss();
                         }
@@ -1607,6 +1561,11 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                         OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(PdfViewActivity.this);
                         if (!offLine_files_repository.checkAlreadyDocumentAvailableOrNot(digitalAsset.getDocument_version_id())) {
                             offLine_files_repository.deleteAlreadydownloadedFile(digitalAsset.getDocument_version_id());
+                            String filepath = offLine_files_repository.getFilePathFromLocalTable(digitalAsset.getDocument_version_id());
+                            if(filepath != null && !filepath.isEmpty())
+                            {
+                                CommonFunctions.deleteFileFromInternalStorage(filepath);
+                            }
                             insertIntoOffLineFilesTable(digitalAsset, path);
                         }
                         else
@@ -1865,6 +1824,17 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                 }
             });
         }
+    }
+
+
+    public void initiateMoveAction(String actionName) {
+        GlobalVariables.isMoveInitiated = true;
+        GlobalVariables.selectedActionName =  actionName;
+        Intent intent = new Intent(context, NavigationMyFolderActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra("ObjectId", "0");
+        startActivity(intent);
+
     }
 
 

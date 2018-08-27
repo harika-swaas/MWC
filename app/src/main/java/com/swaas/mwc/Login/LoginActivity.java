@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import com.swaas.mwc.API.Model.AccountSettingsResponse;
 import com.swaas.mwc.DMS.MyFoldersDMSActivity;
+import com.swaas.mwc.DMS.NavigationMyFolderActivity;
 import com.swaas.mwc.Database.AccountSettings;
 import com.swaas.mwc.Fragments.LoginFragment;
 import com.swaas.mwc.R;
@@ -168,7 +169,7 @@ public class LoginActivity extends RootActivity {
                 public void run() {
                     finish();
 
-                    startActivity(new Intent(LoginActivity.this, MyFoldersDMSActivity.class));
+                    startActivity(new Intent(LoginActivity.this, NavigationMyFolderActivity.class));
                     LoginActivity.this.finish();
                     if(mAccountSettingsResponses.get(0).getIs_Local_Auth_Enabled().equalsIgnoreCase("1")) {
                         checkCredentials();

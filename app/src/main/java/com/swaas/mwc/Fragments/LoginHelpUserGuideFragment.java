@@ -29,6 +29,7 @@ import com.swaas.mwc.API.Model.WhiteLabelResponse;
 import com.swaas.mwc.API.Service.GetAssistancePopupService;
 import com.swaas.mwc.API.Service.SetUserPreferenceGuideService;
 import com.swaas.mwc.DMS.MyFoldersDMSActivity;
+import com.swaas.mwc.DMS.NavigationMyFolderActivity;
 import com.swaas.mwc.Database.AccountSettings;
 import com.swaas.mwc.Dialogs.LoadingProgressDialog;
 import com.swaas.mwc.FTL.WebviewLoaderTermsActivity;
@@ -241,8 +242,8 @@ public class LoginHelpUserGuideFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 updateHelpAcceptedAndLoggedInStatus();
-              //  startActivity(new Intent(mActivity, MyFoldersDMSActivity.class));
-                Intent intent = new Intent(mActivity, MyFoldersDMSActivity.class);
+              //  startActivity(new Intent(mActivity, NavigationMyFolderActivity.class));
+                Intent intent = new Intent(mActivity, NavigationMyFolderActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
                 mActivity.finish();
@@ -256,7 +257,7 @@ public class LoginHelpUserGuideFragment extends Fragment {
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(mActivity, MyFoldersDMSActivity.class);
+                Intent intent = new Intent(mActivity, NavigationMyFolderActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
                 mActivity.finish();

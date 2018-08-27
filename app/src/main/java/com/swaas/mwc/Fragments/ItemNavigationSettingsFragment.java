@@ -7,6 +7,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
@@ -15,13 +16,15 @@ import android.os.Bundle;
 
 import android.provider.Settings;
 import android.support.annotation.RequiresApi;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.NotificationManagerCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.SwitchCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -45,15 +48,18 @@ import com.swaas.mwc.API.Model.WhiteLabelResponse;
 import com.swaas.mwc.API.Service.ShareEndUserDocumentsService;
 import com.swaas.mwc.DMS.MyFoldersDMSActivity;
 import com.swaas.mwc.Database.AccountSettings;
-
+import com.swaas.mwc.FTL.WebviewLoaderTermsActivity;
+import com.swaas.mwc.Login.LoginActivity;
 import com.swaas.mwc.Network.NetworkUtils;
 import com.swaas.mwc.OffLine_Files_List;
 import com.swaas.mwc.Preference.PreferenceUtils;
 import com.swaas.mwc.R;
 import com.swaas.mwc.Retrofit.RetrofitAPIBuilder;
 import com.swaas.mwc.UserProfileActivity;
+import com.swaas.mwc.Utils.Constants;
 
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -93,6 +99,8 @@ public class ItemNavigationSettingsFragment extends Fragment{
     private static final int CREDENTIALS_RESULT = 4342;
     String register_type = "0";
     Boolean finger_print_enabled = false;
+    private static final String MWC = "MWC";
+    AlertDialog mAlertDialog;
     public static ItemNavigationSettingsFragment newInstance() {
         ItemNavigationSettingsFragment fragment = new ItemNavigationSettingsFragment();
         return fragment;
@@ -114,6 +122,10 @@ public class ItemNavigationSettingsFragment extends Fragment{
         getAccountSettings();
         getWhiteLabelSettings();
         OnClickListeners();
+
+        ActionBar actionBar = mActivity.getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+
 
 
         keyguardManager = (KeyguardManager) mActivity.getSystemService(Context.KEYGUARD_SERVICE);
@@ -195,7 +207,9 @@ public class ItemNavigationSettingsFragment extends Fragment{
             }
         }
 
-        if(finger_print_enabled == true)
+
+
+        if(MyFoldersDMSActivity.localAuthenticatonStatusValue != null && MyFoldersDMSActivity.localAuthenticatonStatusValue.equalsIgnoreCase("Success"))
         {
             if(opt_value != null && !opt_value.isEmpty())
             {
@@ -275,9 +289,17 @@ public class ItemNavigationSettingsFragment extends Fragment{
                                 if(opt_value.equalsIgnoreCase("opt-in"))
                                 {
                                     optValue = "opt-out";
+                                    String message = "Secutity settings revoked";
+                                    showWarningAlertForLocalAuthenticationStatus(message, optValue);
+
+
                                 }
                                 else {
                                     optValue = "opt-in";
+                                    String message = "Thank you for enabling protection. From now on every app launch, you will be required to provide your authentication";
+                                    showWarningAlertForLocalAuthenticationStatus(message, optValue);
+
+
                                 }
 
                                 AccountSettings accountSettings = new AccountSettings(mActivity);
@@ -335,6 +357,61 @@ public class ItemNavigationSettingsFragment extends Fragment{
                 }
             });
         }
+    }
+
+    private void showWarningAlertForLocalAuthenticationStatus(String message, String optValue)
+    {
+
+        final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+        LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Alert");
+
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+        txtMessage.setText(message);
+
+        Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+        cancelButton.setText("CANCEL");
+        cancelButton.setVisibility(View.GONE);
+
+        sendPinButton.setText("OK");
+
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+            }
+        });
+
+        sendPinButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+
+
+                if(optValue.equalsIgnoreCase("opt-out"))
+                {
+                    finger_print_Switch.setChecked(false);
+                }
+                else {
+                    finger_print_Switch.setChecked(true);
+                }
+
+
+
+            }
+        });
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
+
     }
 
     private void getPushNotificationDocumentService(final String register_type)
@@ -466,45 +543,33 @@ public class ItemNavigationSettingsFragment extends Fragment{
         });
 
 
-        /*push_notification_Switch.setOnTouchListener(new View.OnTouchListener() {
+        push_notification_Switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                isTouched = true;
-                return false;
-            }
-        });*/
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (buttonView.isPressed() == true) {
 
-        push_notification_Switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
-        {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
-            {
-                if(buttonView.isPressed() == true) {
-
-                    if(push_notification_Switch.isChecked() ==  true)
-                    {
+                    if (push_notification_Switch.isChecked() == true) {
                         push_notification_Switch.setChecked(false);
-                    }
-                    else {
+                    } else {
                         push_notification_Switch.setChecked(true);
                     }
 
 
-                        Intent intent = new Intent();
-                        if (android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.N_MR1) {
-                            intent.setAction("android.settings.APP_NOTIFICATION_SETTINGS");
-                            intent.putExtra("android.provider.extra.APP_PACKAGE", mActivity.getPackageName());
-                        } else if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            intent.setAction("android.settings.APP_NOTIFICATION_SETTINGS");
-                            intent.putExtra("app_package", mActivity.getPackageName());
-                            intent.putExtra("app_uid", mActivity.getApplicationInfo().uid);
-                        } else {
-                            intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                            intent.addCategory(Intent.CATEGORY_DEFAULT);
-                            intent.setData(Uri.parse("package:" + mActivity.getPackageName()));
-                        }
+                    Intent intent = new Intent();
+                    if (android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.N_MR1) {
+                        intent.setAction("android.settings.APP_NOTIFICATION_SETTINGS");
+                        intent.putExtra("android.provider.extra.APP_PACKAGE", mActivity.getPackageName());
+                    } else if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        intent.setAction("android.settings.APP_NOTIFICATION_SETTINGS");
+                        intent.putExtra("app_package", mActivity.getPackageName());
+                        intent.putExtra("app_uid", mActivity.getApplicationInfo().uid);
+                    } else {
+                        intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                        intent.addCategory(Intent.CATEGORY_DEFAULT);
+                        intent.setData(Uri.parse("package:" + mActivity.getPackageName()));
+                    }
 
-                        mActivity.startActivity(intent);
+                    mActivity.startActivity(intent);
 
                         /*AccountSettings accountSettings = new AccountSettings(mActivity);
                         accountSettings.UpdatePushNotificatoinSettings(register_type);*/
@@ -516,20 +581,10 @@ public class ItemNavigationSettingsFragment extends Fragment{
 
 
 
-       /* finger_print_Switch.setOnTouchListener(new View.OnTouchListener() {
+        finger_print_Switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                fingerPrintTouch = true;
-                return false;
-            }
-        });
-*/
-        finger_print_Switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
-        {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
-            {
-                if(buttonView.isPressed() == true) {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (buttonView.isPressed() == true) {
 
                     if (finger_print_Switch.isChecked() == true) {
                         finger_print_Switch.setChecked(false);
@@ -546,8 +601,138 @@ public class ItemNavigationSettingsFragment extends Fragment{
         });
 
 
+        help_layout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if(mAccountSettingsResponses != null && mAccountSettingsResponses.size() > 0)
+                {
+                    Intent mIntent = new Intent(mActivity, WebviewLoaderTermsActivity.class);
+                    mIntent.putExtra(Constants.SETASSISTANCEPOPUPCONTENTURL, mAccountSettingsResponses.get(0).getHelp_Guide_URL());
+                    startActivity(mIntent);
+                }
+
+            }
+        });
 
 
+        terms_privacy_layout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if(mAccountSettingsResponses != null && mAccountSettingsResponses.size() > 0)
+                {
+                    Intent mIntent = new Intent(mActivity, WebviewLoaderTermsActivity.class);
+                    mIntent.putExtra(Constants.SETTERMSPAGECONTENTURL, mAccountSettingsResponses.get(0).getTerms_URL());
+                    startActivity(mIntent);
+                }
+
+            }
+        });
+
+
+        logout_layout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                ShowWarningMessageForLogout();
+
+            }
+        });
+
+    }
+
+    private void ShowWarningMessageForLogout()
+    {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+        LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Alert");
+
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+        txtMessage.setText("Do you want to logout?");
+
+        Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+        cancelButton.setText("CANCEL");
+
+
+        sendPinButton.setText("OK");
+
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+            }
+        });
+
+        sendPinButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+
+                AccountSettings accountSettings = new AccountSettings(getActivity());
+                accountSettings.DeleteAllDatabaseTables();
+
+                SharedPreferences share_settings = mActivity.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = share_settings.edit();
+                editor.clear();
+                editor.commit();
+
+             //   deleteCacheData(mActivity);
+                clearApplicationData();
+
+                //  File dir = new File(Environment.getExternalStorageDirectory() + "/HiDoctor");
+                //  deleteRecursive(dir);
+
+                Intent intent = new Intent(mActivity, LoginActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                startActivity(intent);
+                mActivity.finish();
+
+            }
+        });
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
+
+
+    }
+
+    private void clearApplicationData()
+    {
+        File cache = mActivity.getCacheDir();
+        File appDir = new File(cache.getParent());
+        if(appDir.exists()){
+            String[] children = appDir.list();
+            for(String s : children){
+                if(!s.equals("lib")){
+                    deleteDir(new File(appDir, s));
+                    Log.i("TAG", "File /data/data/APP_PACKAGE/" + s +" DELETED");
+                }
+            }
+        }
+    }
+
+    public static boolean deleteDir(File dir) {
+        if (dir != null && dir.isDirectory()) {
+            String[] children = dir.list();
+            for (int i = 0; i < children.length; i++) {
+                boolean success = deleteDir(new File(dir, children[i]));
+                if (!success) {
+                    return false;
+                }
+            }
+        }
+
+        return dir.delete();
     }
 
 
@@ -564,19 +749,7 @@ public class ItemNavigationSettingsFragment extends Fragment{
     }
 
 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        if (requestCode == CREDENTIALS_RESULT) {
-
-            if (resultCode == RESULT_OK) {
-             //   updateLocalAuthAndLoggedInStatus();
-            }
-            else{
-                Toast.makeText(mActivity,"Authentication Failed",Toast.LENGTH_SHORT).show();
-
-            }
-        }
-    }
 
 
     private void getWhiteLabelSettings()
@@ -645,8 +818,27 @@ public class ItemNavigationSettingsFragment extends Fragment{
         MyFoldersDMSActivity.title_layout= (LinearLayout) getActivity().findViewById(R.id.linearlayout1);
         MyFoldersDMSActivity.title_layout.setVisibility(View.GONE);
 
+        MyFoldersDMSActivity.collapsingToolbarLayout = (CollapsingToolbarLayout) getActivity().findViewById(R.id.collapsing_toolbar);
+        MyFoldersDMSActivity.collapsingToolbarLayout.setTitle("Settings");
+
        /* MyFoldersDMSActivity.floatingActionMenu = (FloatingActionMenu) getActivity().findViewById(R.id.floating_action_menu);
         MyFoldersDMSActivity.floatingActionMenu.setVisibility(View.GONE);
 */
     }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                mActivity.moveTaskToBack(true);
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
+
+
 }
