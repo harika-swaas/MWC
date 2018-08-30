@@ -1,0 +1,62 @@
+{
+  "project_info": {
+    "project_number": "733914719102",
+    "firebase_url": "https://mwc-docportal.firebaseio.com",
+    "project_id": "mwc-docportal",
+    "storage_bucket": "mwc-docportal.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:733914719102:android:011fe8ae584caa3a",
+        "android_client_info": {
+          "package_name": "com.mwc.docportal"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "733914719102-mnksfnnbhmat219a9rsf35llc4srnnba.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mwc.docportal",
+            "certificate_hash": "acb45bc3f0a52e77fc60061b0f39ca787a14f8aa"
+          }
+        },
+        {
+          "client_id": "733914719102-iaq4dr0kgt5i4kvefd8vl0s0irv7mtt9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARjdppjSETxQr478MHX0Pb2hdVMZIbDOE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "733914719102-iaq4dr0kgt5i4kvefd8vl0s0irv7mtt9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "733914719102-hn1vpec8qefltejhmfvpbchrisrstfev.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.mwc.docportal"
+              }
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
