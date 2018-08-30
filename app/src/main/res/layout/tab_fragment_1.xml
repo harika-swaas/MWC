@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.swaas.mwc.Fragments.Properties_Fragment">
+    tools:context="com.mwc.docportal.Fragments.Properties_Fragment">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -52,6 +52,20 @@
             android:textColor="@color/black"
             android:textSize="15sp"
             android:layout_gravity="right"/>
+
+        <EditText
+            android:id="@+id/name_edtText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:visibility="gone"
+            android:imeOptions="actionDone"
+            android:singleLine="true"
+            android:textSize="15sp"
+            android:layout_marginRight="10dp"
+            android:layout_gravity="right"/>
+
+
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
