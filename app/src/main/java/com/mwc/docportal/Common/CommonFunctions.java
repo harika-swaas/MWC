@@ -139,14 +139,12 @@ public class CommonFunctions
         GlobalVariables.selectedDocumentsList = mSelectedDocumentList;
     }
 
+
     public static void deleteFileFromInternalStorage(String selectedFilePath)
     {
         File file = new File(selectedFilePath);
         boolean deleted = file.delete();
     }
-
-
-
 
 
 

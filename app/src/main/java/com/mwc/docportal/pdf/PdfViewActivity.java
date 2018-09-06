@@ -17,7 +17,6 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.StrictMode;
 import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
@@ -27,7 +26,6 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -45,21 +43,25 @@ import com.mwc.docportal.API.Model.ApiResponse;
 import com.mwc.docportal.API.Model.ColorCodeModel;
 import com.mwc.docportal.API.Model.DeleteDocumentRequest;
 import com.mwc.docportal.API.Model.DeleteDocumentResponseModel;
+import com.mwc.docportal.API.Model.DocumentPreviewRequest;
+import com.mwc.docportal.API.Model.DocumentPropertiesRequest;
+import com.mwc.docportal.API.Model.DocumentPropertiesResponse;
 import com.mwc.docportal.API.Model.DownloadDocumentRequest;
 import com.mwc.docportal.API.Model.DownloadDocumentResponse;
 import com.mwc.docportal.API.Model.EditDocumentPropertiesRequest;
 import com.mwc.docportal.API.Model.EditDocumentResponse;
-import com.mwc.docportal.API.Model.EndUserRenameRequest;
 import com.mwc.docportal.API.Model.ExternalShareResponseModel;
 import com.mwc.docportal.API.Model.GetCategoryDocumentsResponse;
-import com.mwc.docportal.API.Model.GetEndUserSharedParentFoldersResponse;
 import com.mwc.docportal.API.Model.ListPinDevicesResponse;
 import com.mwc.docportal.API.Model.LoginResponse;
 import com.mwc.docportal.API.Model.OfflineFiles;
+import com.mwc.docportal.API.Model.PdfDocumentResponseModel;
 import com.mwc.docportal.API.Model.SharedDocumentResponseModel;
 import com.mwc.docportal.API.Model.StopSharingRequestModel;
 import com.mwc.docportal.API.Model.WhiteLabelResponse;
 import com.mwc.docportal.API.Service.DeleteDocumentService;
+import com.mwc.docportal.API.Service.DocumentPreviewService;
+import com.mwc.docportal.API.Service.DocumentPropertiesService;
 import com.mwc.docportal.API.Service.DownloadDocumentService;
 import com.mwc.docportal.API.Service.EditDocumentPropertiesService;
 
@@ -147,10 +149,12 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
     ImageView external_share_imgage, pdf_info_imgage;
 
     GetCategoryDocumentsResponse categoryDocumentsResponse;
-    boolean isFromOffLine, isFromStatus400;
+    boolean isFromOffLine, isFromStatus400, isFromDocumentShare;
     LinearLayout document_preview_linearlayout;
     Button download_button;
     MenuItem  menuItemMore;
+    List<DocumentPropertiesResponse> documentPropertiesResponse;
+    String urlName;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -184,15 +188,24 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
         StrictMode.setVmPolicy(builder.build());
 
+        if(PreferenceUtils.getPushNotificationDocumentVersionId(context) != null && !PreferenceUtils.getPushNotificationDocumentVersionId(context).isEmpty())
+        {
+            getDocumentDetailsBasedOnDocument(PreferenceUtils.getPushNotificationDocumentVersionId(context), PreferenceUtils.getPushNotificationDocumentShare(context));
+            PreferenceUtils.setPushNotificationDocumentVersionId(context, null);
+            PreferenceUtils.setPushNotificationDocumentShare(context, null);
+        }
+
 
         getWhiteLabelProperities();
         DownloadPdfAysnc downloadPdfAysnc =  new DownloadPdfAysnc(mContext,this);
 
 
             playmode = getIntent().getIntExtra("mode", 0);
-            String urlName = getIntent().getStringExtra("url");
+            urlName = getIntent().getStringExtra("url");
             isFromOffLine = getIntent().getBooleanExtra("IsFromOffline", false);
             isFromStatus400 = getIntent().getBooleanExtra("isFrom_Status400", false);
+            isFromDocumentShare = getIntent().getBooleanExtra("IsFromShare", false);
+
 
             if(getIntent().getSerializableExtra("documentDetails") != null)
             {
@@ -282,7 +295,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
                 if(download_button.getText().toString().equalsIgnoreCase("Download"))
                 {
-                    getDownloadurlFromService(PdfViewActivity.this.categoryDocumentsResponse.getObject_id());
+                    getDownloadurlFromService(categoryDocumentsResponse.getObject_id(), categoryDocumentsResponse.getIs_shared(),false);
                     getSupportActionBar().setDisplayHomeAsUpEnabled(false);
                 }
                 else if(download_button.getText().toString().equalsIgnoreCase("View"))
@@ -314,12 +327,12 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
         txtMessage.setText("You are sharing this document to external contacts. Please aware that document security will not be carried over to the recipient");
 
-        Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button okButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
         cancelButton.setText("CANCEL");
 
-        sendPinButton.setText("OK");
+        okButton.setText("OK");
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -328,7 +341,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
             }
         });
 
-        sendPinButton.setOnClickListener(new View.OnClickListener() {
+        okButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mAlertDialog.dismiss();
@@ -337,7 +350,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
                 if(filepath == null || filepath.isEmpty())
                 {
-                    getDownloadurlFromService(PdfViewActivity.this.categoryDocumentsResponse.getObject_id());
+                    getDownloadurlFromService(categoryDocumentsResponse.getObject_id(), categoryDocumentsResponse.getIs_shared(),true);
                 }
                 else
                 {
@@ -1050,6 +1063,14 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
         mBottomSheetDialog.getWindow().setGravity(Gravity.BOTTOM);
         mBottomSheetDialog.show();
 
+        if(isFromDocumentShare)
+        {
+            shareView.setVisibility(View.GONE);
+            move.setVisibility(View.GONE);
+            rename_Layout.setVisibility(View.GONE);
+            delete.setVisibility(View.GONE);
+        }
+
 
         switchButton_share.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
         {
@@ -1441,7 +1462,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
                     if (isChecked) {
                         switchButton_download.setChecked(true);
-                        getDownloadurlFromService(PdfViewActivity.this.categoryDocumentsResponse.getObject_id());
+                        getDownloadurlFromService(categoryDocumentsResponse.getObject_id(), categoryDocumentsResponse.getIs_shared(),false);
                         mBottomSheetDialog.dismiss();
                     }
                     else
@@ -1580,7 +1601,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
     }
 
-    private void getDownloadurlFromService(String object_id)
+    private void getDownloadurlFromService(String object_id, String is_Shared, boolean isFromshare)
     {
         if (NetworkUtils.isNetworkAvailable(context)) {
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
@@ -1592,7 +1613,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
             //DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(PreferenceUtils.getDocumentVersionId(this));
             List<String> strlist = new ArrayList<>();
             strlist.add(object_id);
-            DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist);
+            DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist, is_Shared);
             final String request = new Gson().toJson(downloadDocumentRequest);
 
             //Here the json data is add to a hash map with key data
@@ -1625,7 +1646,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
 
                             categoryDocumentsResponse.setDownloadUrl(downloaded_url+"&token="+base64AccessToken);
-                            getDownloadManagerForDownloading(categoryDocumentsResponse);
+                            getDownloadManagerForDownloading(categoryDocumentsResponse, isFromshare);
 
                         }
                         else {
@@ -1678,7 +1699,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
         }
     }
 
-    private void getDownloadManagerForDownloading(final GetCategoryDocumentsResponse digitalAsset)
+    private void getDownloadManagerForDownloading(final GetCategoryDocumentsResponse digitalAsset, boolean isFromshare)
     {
 
             if (!TextUtils.isEmpty(digitalAsset.getDownloadUrl())) {
@@ -1697,7 +1718,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                             download_button.setText("View");
                             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
                         }
-                        else if(!isFromOffLine)
+                        else if(isFromshare)
                         {
                             getExternalSharingContentAPI(digitalAsset.getName(), digitalAsset.getDocument_version_id(), path);
                         }
@@ -1988,7 +2009,8 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
     {
         if(isFromStatus400)
         {
-            if (!download_button.getText().toString().equalsIgnoreCase("Download")) {
+            if(getSupportActionBar().getDisplayOptions() != 0)
+            {
                 super.onBackPressed();
             }
         }
@@ -1998,6 +2020,218 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
         }
 
 
+    }
+
+
+    private void getDocumentDetailsBasedOnDocument(String pushNotificationDocumentVersionId, String documentShareType)
+    {
+        if (NetworkUtils.isNetworkAvailable(context)) {
+            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+            final DocumentPropertiesService documentPropertiesService = retrofitAPI.create(DocumentPropertiesService.class);
+            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
+            transparentProgressDialog.show();
+
+            DocumentPropertiesRequest documentPropertiesRequest = new DocumentPropertiesRequest(pushNotificationDocumentVersionId);
+            String request = new Gson().toJson(documentPropertiesRequest);
+
+            //Here the json data is add to a hash map with key data
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("data", request);
+
+            Call call = documentPropertiesService.getdocumentprop(params, PreferenceUtils.getAccessToken(context));
+
+            call.enqueue(new Callback<ListPinDevicesResponse<DocumentPropertiesResponse>>() {
+                @Override
+                public void onResponse(Response<ListPinDevicesResponse<DocumentPropertiesResponse>> response, Retrofit retrofit) {
+                    ListPinDevicesResponse apiResponse = response.body();
+                    if (apiResponse != null) {
+                        transparentProgressDialog.dismiss();
+                        if (apiResponse.status.getCode() == Boolean.FALSE) {
+
+                            documentPropertiesResponse = response.body().getData();
+
+                            getDocumentViewUrl(documentPropertiesResponse, pushNotificationDocumentVersionId, documentShareType);
+
+
+                        } else if (apiResponse.status.getCode() instanceof Double) {
+
+                            double status_value = new Double(apiResponse.status.getCode().toString());
+                            if(status_value == 401.0)
+                            {
+                                String mMessage = apiResponse.status.getMessage().toString();
+                                showSessionExpiryAlert(mMessage);
+
+                            }
+
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    transparentProgressDialog.dismiss();
+                }
+            });
+        }
+    }
+
+
+    private void getDocumentViewUrl(List<DocumentPropertiesResponse> documentPropertiesResponse, String pushNotificationDocumentVersionId, String documentShare)
+    {
+        if (NetworkUtils.isNetworkAvailable(context)) {
+
+            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+
+            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
+            transparentProgressDialog.show();
+
+            final DocumentPreviewRequest mDocumentPreviewRequest = new DocumentPreviewRequest(pushNotificationDocumentVersionId);
+
+            String request = new Gson().toJson(mDocumentPreviewRequest);
+
+            //Here the json data is add to a hash map with key data
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("data", request);
+
+            final DocumentPreviewService mDocumentPreviewService = retrofitAPI.create(DocumentPreviewService.class);
+            Call call = mDocumentPreviewService.getDocumentPreviews(params, PreferenceUtils.getAccessToken(context));
+
+            call.enqueue(new Callback<PdfDocumentResponseModel>() {
+                @Override
+                public void onResponse(Response<PdfDocumentResponseModel> response, Retrofit retrofit) {
+                    PdfDocumentResponseModel apiResponse = response.body();
+                    if (apiResponse != null) {
+
+                        transparentProgressDialog.dismiss();
+
+                        if (apiResponse.getStatus().getCode() instanceof Boolean) {
+                            if (apiResponse.getStatus().getCode() == Boolean.FALSE) {
+                                transparentProgressDialog.dismiss();
+                                PdfDocumentResponseModel getDocumentPreviewResponses = response.body();
+
+
+
+                                playmode = 1;
+                                String document_preview_url = getDocumentPreviewResponses.getData().getDocumentPdfUrl();
+
+                                GetCategoryDocumentsResponse  categoryDocumentsResponse = new GetCategoryDocumentsResponse();
+                                categoryDocumentsResponse.setObject_id(documentPropertiesResponse.get(0).getDocument_id());
+                                categoryDocumentsResponse.setDocument_version_id(pushNotificationDocumentVersionId);
+                                categoryDocumentsResponse.setName(documentPropertiesResponse.get(0).getDocument_name());
+                                categoryDocumentsResponse.setFiletype(documentPropertiesResponse.get(0).getFiletype());
+                                categoryDocumentsResponse.setFilesize(documentPropertiesResponse.get(0).getFilesize());
+                                categoryDocumentsResponse.setCreated_date(documentPropertiesResponse.get(0).getCreation_date());
+                                categoryDocumentsResponse.setCategory_id(documentPropertiesResponse.get(0).getCategory_id());
+                                categoryDocumentsResponse.setVersion_number(documentPropertiesResponse.get(0).getVersion_number());
+                                categoryDocumentsResponse.setIs_shared(documentPropertiesResponse.get(0).getIs_shared());
+                                categoryDocumentsResponse.setVersion_count(documentPropertiesResponse.get(0).getVersion_count());
+
+                                boolean isFromShare = false;
+                                if(documentShare.equalsIgnoreCase("document_share"))
+                                {
+                                    isFromShare = true;
+                                }
+
+
+
+                                Intent intent = new Intent(context, PdfViewActivity.class);
+                                intent.putExtra("mode",1);
+                                intent.putExtra("url", document_preview_url);
+                                intent.putExtra("documentDetails", categoryDocumentsResponse);
+                                intent.putExtra("IsFromShare", isFromShare);
+                                context.startActivity(intent);
+                                finish();
+                            }
+
+                        } else if (apiResponse.getStatus().getCode() instanceof Double) {
+                            transparentProgressDialog.dismiss();
+
+                            double status_value = new Double(apiResponse.getStatus().getCode().toString());
+
+                            if (status_value == 400.0)
+                            {
+                                boolean isFromShare = false;
+                                if(documentShare.equalsIgnoreCase("document_share"))
+                                {
+                                    isFromShare = true;
+                                }
+
+                                isFromStatus400 = true;
+                                GetCategoryDocumentsResponse categoryDocumentsResponse = new GetCategoryDocumentsResponse();
+                                categoryDocumentsResponse.setObject_id(documentPropertiesResponse.get(0).getDocument_id());
+                                categoryDocumentsResponse.setDocument_version_id(pushNotificationDocumentVersionId);
+                                categoryDocumentsResponse.setName(documentPropertiesResponse.get(0).getDocument_name());
+                                categoryDocumentsResponse.setFiletype(documentPropertiesResponse.get(0).getFiletype());
+                                categoryDocumentsResponse.setFilesize(documentPropertiesResponse.get(0).getFilesize());
+                                categoryDocumentsResponse.setCreated_date(documentPropertiesResponse.get(0).getCreation_date());
+                                categoryDocumentsResponse.setCategory_id(documentPropertiesResponse.get(0).getCategory_id());
+                                categoryDocumentsResponse.setVersion_number(documentPropertiesResponse.get(0).getVersion_number());
+                                categoryDocumentsResponse.setIs_shared(documentPropertiesResponse.get(0).getIs_shared());
+                                categoryDocumentsResponse.setVersion_count(documentPropertiesResponse.get(0).getVersion_count());
+
+
+                                Intent intent = new Intent(context, PdfViewActivity.class);
+                                intent.putExtra("isFrom_Status400",true);
+                                intent.putExtra("documentDetails", categoryDocumentsResponse);
+                                intent.putExtra("IsFromShare", isFromShare);
+                                context.startActivity(intent);
+                                finish();
+
+                            }
+                            else if (status_value == 401.0 ) {
+
+                                String mMessage = apiResponse.getStatus().getMessage().toString();
+                                showSessionExpiryAlert(mMessage);
+
+                            }
+
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    transparentProgressDialog.dismiss();
+                    Log.d("PinDevice error", t.getMessage());
+                }
+            });
+        }
+    }
+
+    private void showSessionExpiryAlert(String mMessage)
+    {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Alert");
+
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+        txtMessage.setText(mMessage);
+
+        Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+        cancelButton.setVisibility(View.GONE);
+
+        sendPinButton.setText("OK");
+
+        sendPinButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+                AccountSettings accountSettings = new AccountSettings(context);
+                accountSettings.deleteAll();
+                startActivity(new Intent(context, LoginActivity.class));
+            }
+        });
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
     }
 
 }

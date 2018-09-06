@@ -2544,7 +2544,7 @@ public class ItemNavigationFolderFragment extends Fragment {
             //DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(PreferenceUtils.getDocumentVersionId(this));
             List<String> strlist = new ArrayList<>();
             strlist.add(document_version_id);
-            DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist);
+            DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist, "");
             final String request = new Gson().toJson(downloadDocumentRequest);
 
             //Here the json data is add to a hash map with key data
@@ -2709,7 +2709,7 @@ public class ItemNavigationFolderFragment extends Fragment {
             //DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(PreferenceUtils.getDocumentVersionId(this));
             List<String> strlist = new ArrayList<>();
             strlist.add(documentsResponse.getObject_id());
-            DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist);
+            DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist, "");
             final String request = new Gson().toJson(downloadDocumentRequest);
 
             //Here the json data is add to a hash map with key data

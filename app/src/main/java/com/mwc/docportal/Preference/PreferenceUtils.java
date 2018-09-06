@@ -42,7 +42,8 @@ public class PreferenceUtils {
     private static final String FILE_FORMATS="file_formats";
     private static final String MAX_SIZE_UPLOAD="max_size_upload";
 
-    private static final String MOBILE_DEVICE_TOKEN = "mobile_device_token";
+    private static final String PUSH_NOTIFICATION_DOCUMENT_VERSION_ID = "push_notification_document_version_id";
+    private static final String PUSH_NOTIFICATION_DOCUMENT_SHARE = "push_notification_document_share";
 
 
     public static void setAccessToken(Context context, String accesstoken) {
@@ -377,17 +378,33 @@ public class PreferenceUtils {
     }
 
 
-    public static void setMobiledeviceToken(Context context, String accesstoken) {
+
+
+    public static void setPushNotificationDocumentVersionId(Context context, String accesstoken) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(MOBILE_DEVICE_TOKEN, accesstoken);
+        editor.putString(PUSH_NOTIFICATION_DOCUMENT_VERSION_ID, accesstoken);
         editor.commit();
     }
 
-    public static String getMobileDeviceToken(Context context) {
+    public static String getPushNotificationDocumentVersionId(Context context) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
-        String deviceToken = sharedPreferences.getString(MOBILE_DEVICE_TOKEN, null);
-        return deviceToken;
+        String pushNotificationDocumentId = sharedPreferences.getString(PUSH_NOTIFICATION_DOCUMENT_VERSION_ID, null);
+        return pushNotificationDocumentId;
+    }
+
+
+    public static void setPushNotificationDocumentShare(Context context, String documentShare) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(PUSH_NOTIFICATION_DOCUMENT_SHARE, documentShare);
+        editor.commit();
+    }
+
+    public static String getPushNotificationDocumentShare(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        String pushNotificationShareType = sharedPreferences.getString(PUSH_NOTIFICATION_DOCUMENT_SHARE, null);
+        return pushNotificationShareType;
     }
 
 

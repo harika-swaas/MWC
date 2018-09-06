@@ -11,27 +11,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <RelativeLayout
-            android:id="@+id/nameIndicatorParentView"
-            android:layout_width="match_parent"
-            android:layout_height="25dp"
-            android:background="@color/gray_non_pressed"
-            android:visibility="visible"
-            android:alpha="0.64">
-
-            <TextView
-                android:id="@+id/indicatorTextValueView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="16dp"
-                android:text="A"
-                android:textColor="@color/black"
-                android:textAllCaps="true"
-                android:textSize="13sp"
-                android:alpha="0.87"/>
-
-        </RelativeLayout>
 
         <LinearLayout
             android:id="@+id/list_click"
@@ -102,14 +81,6 @@
 
                 </RelativeLayout>
 
-                <ImageView
-                    android:id="@+id/selected_item"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:background="@drawable/circle_color"
-                    android:padding="4dp"
-                    android:src="@mipmap/ic_sort_selected"
-                    android:visibility="gone" />
 
                 <RelativeLayout
                     android:id="@+id/folder_rl_2"
@@ -149,7 +120,20 @@
                             android:alpha="0.87"
                             android:text="Date Created"
                             android:textColor="@color/black"
+                            android:textSize="14sp"/>
+
+
+                        <TextView
+                            android:id="@+id/folder_path"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/folder_name"
+                            android:layout_centerVertical="true"
+                            android:alpha="0.87"
+                            android:text="My Folder/Banking/Investment"
+                            android:textColor="@color/black"
                             android:textSize="14sp">
+
 
                         </TextView>
 
@@ -165,13 +149,30 @@
                     android:layout_centerVertical="true"
                     android:layout_toRightOf="@+id/folder_rl_2">
 
-                    <ImageView
-                        android:id="@+id/more"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentEnd="true"
-                        android:layout_alignParentRight="true"
-                        android:background="@mipmap/ic_more" />
+                        android:orientation="horizontal"
+                        android:weightSum="2">
+
+                        <ImageView
+                            android:id="@+id/offline_download"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:visibility="invisible"
+                            android:background="@mipmap/ic_download" />
+
+                        <ImageView
+                            android:id="@+id/more"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:background="@mipmap/ic_more" />
+
+                    </LinearLayout>
+
+
 
                 </RelativeLayout>
 

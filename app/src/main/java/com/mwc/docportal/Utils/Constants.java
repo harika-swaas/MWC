@@ -57,6 +57,8 @@ public class Constants {
 
 
 
+    public static final String SHARED_COMPANY_BASE_URL = "http://172.16.40.40";
+
 }
 
 

@@ -13,6 +13,7 @@ public class ListPinDevicesResponse<T> {
 
     public BaseApiResponseStatus status;
 
+
     @SerializedName("data")
     @Expose
     private List<T> data;

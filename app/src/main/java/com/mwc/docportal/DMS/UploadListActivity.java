@@ -1,5 +1,6 @@
 package com.mwc.docportal.DMS;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -8,19 +9,27 @@ import android.content.ClipData;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.icu.lang.UProperty;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -33,6 +42,9 @@ import com.github.angads25.filepicker.model.DialogConfigs;
 import com.github.angads25.filepicker.model.DialogProperties;
 import com.github.angads25.filepicker.view.FilePickerDialog;
 import com.google.gson.Gson;
+import com.mwc.docportal.Common.CommonFunctions;
+import com.mwc.docportal.GlobalSearch.GlobalSearchActivity;
+import com.mwc.docportal.RootActivity;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.RequestBody;
 import com.mwc.docportal.API.Model.UploadDocumentResponse;
@@ -62,15 +74,12 @@ import static com.mwc.docportal.Common.CameraUtils.getOutputMediaFile;
  * Created by barath on 8/8/2018.
  */
 
-public class UploadListActivity extends Activity{
+public class UploadListActivity extends RootActivity{
 
-    ImageView back;
-    ImageView add;
-    ImageView upload;
     RecyclerView upload_list;
     Uri fileUri;
     TextView camera,video,browse,cancel;
-    ArrayList<String> UploadList=new ArrayList<>();
+    ArrayList<String> UploadList;
     ArrayList<String> uploadFailedList = new ArrayList<>();
     private  String imageStoragePath;
     String path;
@@ -78,107 +87,50 @@ public class UploadListActivity extends Activity{
     public static final int REQUEST_GALLERY_CODE = 200;
     public static final int REQUEST_CAPTURE_IMAGE_CODE = 300;
     public static final int CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE = 400;
-    public static final  int REQUEST_STORAGE_PERMISSION = 500;
-    public static final int REQUEST_CAMERA_PERMISSION=100;
+
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final int MEDIA_TYPE_VIDEO = 2;
     int fileindex;
 
     AlertDialog mCustomAlertDialog;
-    String filepath=null;
-    Boolean exist = false;
     Context context = this;
+
+    public static final int REQUEST_STORAGE_PERMISSION = 111;
+    public static final int REQUEST_CAMERA_PERMISSION = 222;
+    boolean isVideo = false;
+    Toolbar toolbar;
+    MenuItem menuItemUpload, menuItemAdd;
+    LinearLayout empty_view;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.upload_list);
 
-        back = (ImageView) findViewById(R.id.back_image_view);
-        add = (ImageView) findViewById(R.id.add);
-        upload = (ImageView) findViewById(R.id.uploadlist);
+
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(getResources().getDrawable(R.mipmap.ic_back));
+        getSupportActionBar().setTitle("Upload");
+        empty_view = (LinearLayout)findViewById(R.id.empty_view);
+
+
         upload_list = (RecyclerView) findViewById(R.id.list_upload);
         upload_list.setLayoutManager(new LinearLayoutManager(this));
-        final ArrayList<String> UploadList = PreferenceUtils.getupload(UploadListActivity.this, "key");
+        UploadList = PreferenceUtils.getupload(UploadListActivity.this, "key");
         customAdapter = new UploadListAdapter(UploadListActivity.this, UploadList);
         upload_list.setAdapter(customAdapter);
-        add.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-                openBottomSheet();
+        if(UploadList != null && UploadList.size() > 0)
+        {
+            empty_view.setVisibility(View.GONE);
+        }
+        else
+        {
+            empty_view.setVisibility(View.VISIBLE);
+        }
 
-            }
-        });
-
-        upload.setOnClickListener(new View.OnClickListener() {
-            @SuppressLint("SetTextI18n")
-            @Override
-            public void onClick(View v) {
-
-                if (NetworkUtils.isNetworkAvailable(context)) {
-
-
-                    int choosenFilesCount = PreferenceUtils.getupload(UploadListActivity.this, "key").size();
-                    add.setEnabled(false);
-                    upload.setEnabled(false);
-                    back.setEnabled(false);
-                    Boolean isError = false;
-
-                    if (choosenFilesCount > 10) {
-                        showAlertMessage("Please select less then 10 documents", false, "");
-                        isError = true;
-                    } else {
-                        for (int i = 0; i < choosenFilesCount; i++) {
-                            File file = new File(UploadList.get(i));
-                            float file_size = Float.parseFloat(String.valueOf(file.length() / 1024 / 1024));
-                            String size = PreferenceUtils.getMaxSizeUpload(UploadListActivity.this);
-                            float sizeAPI = Float.parseFloat(size);
-
-                            if (file_size > sizeAPI) {
-                                showAlertMessage(UploadList.get(i) + "exceeds" + PreferenceUtils.getMaxSizeUpload(UploadListActivity.this) + "MB", false, "");
-                                isError = true;
-                                break;
-                            } else {
-                                String[] fileParts = UploadList.get(i).split("\\.");
-                                String fileExtension = fileParts[fileParts.length - 1];
-                                Boolean validFormat = false;
-
-                                for (int j = 0; j < PreferenceUtils.getFileFormats(UploadListActivity.this, "key").size(); j++) {
-                                    if (fileExtension.equalsIgnoreCase(PreferenceUtils.getFileFormats(UploadListActivity.this, "key").get(j))) {
-                                        validFormat = true;
-                                        break;
-                                    }
-                                }
-
-                                if (!validFormat) {
-                                    upload.setEnabled(false);
-                                    showAlertMessage(UploadList.get(i) + " " + fileExtension + " is unsupported", false, "unsupported");
-                                    isError = true;
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (!isError) {
-                            uploadFailedList.clear();
-
-                            if (choosenFilesCount > 0) {
-                                upload(0);
-                            }
-                        } else {
-                            upload.setEnabled(true);
-                        }
-                    }
-                }
-            }
-
-        });
-        back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
     }
 
     public void upload(final int i)
@@ -224,6 +176,8 @@ public class UploadListActivity extends Activity{
                         UploadDocumentResponse apiResponse = response.body();
                         if (apiResponse != null)
                         {
+                            Log.d("Upload status", apiResponse.toString());
+
                             if (apiResponse.getStatus().getCode() == true)
                             {
                                 showAlertMessage(apiResponse.getStatus().getMessage(), false, "");
@@ -252,9 +206,11 @@ public class UploadListActivity extends Activity{
             if (uploadFailedList.size() == 0)
             {
                 showAlertMessage("All documents uploaded successfully", true, "");
+                empty_view.setVisibility(View.VISIBLE);
             }
             else
             {
+                empty_view.setVisibility(View.GONE);
                 uploadFailedList.clear();
 
                 final AlertDialog.Builder builder = new AlertDialog.Builder(UploadListActivity.this);
@@ -308,23 +264,10 @@ public class UploadListActivity extends Activity{
         camera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                if(Build.VERSION.SDK_INT>=24){
-                    try{
-                        Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
-                        m.invoke(null);
-                    }catch(Exception e){
-                        e.printStackTrace();
-                    }
-                }
-                // requestCameraPermission();
-                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                fileUri = getOutputMediaFileUri(1);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
-                UploadList =  PreferenceUtils.getupload(UploadListActivity.this, "key");
-                startActivityForResult(takePictureIntent, REQUEST_CAPTURE_IMAGE_CODE);
-                upload_list.setAdapter(customAdapter);
                 mBottomSheetDialog.dismiss();
+                isVideo = false;
+                cameraAndStoragePermission();
+
 
             }
         });
@@ -332,35 +275,10 @@ public class UploadListActivity extends Activity{
         video.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                if(Build.VERSION.SDK_INT>=24){
-                    try{
-                        Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
-                        m.invoke(null);
-                    }catch(Exception e){
-                        e.printStackTrace();
-                    }
-                }
-                //  requestCameraPermission();
-                /*Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-                fileUri = Uri.fromFile(mediaFile);
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
-                startActivityForResult(intent, CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE);*/
-
-                Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-                File file = CameraUtils.getOutputMediaFile(MEDIA_TYPE_VIDEO);
-                if (file != null) {
-                    imageStoragePath = file.getAbsolutePath();
-                }
-
-                Uri fileUri = CameraUtils.getOutputMediaFileUri(getApplicationContext(), file);
-
-                // set video quality
-                takeVideoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
-                takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
-                startActivityForResult(takeVideoIntent, CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE);
-                upload_list.setAdapter(customAdapter);
                 mBottomSheetDialog.dismiss();
+                isVideo = true;
+                cameraAndStoragePermissionForVideo();
+
 
             }
         });
@@ -368,21 +286,8 @@ public class UploadListActivity extends Activity{
             @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
             @Override
             public void onClick(View v) {
-                if(Build.VERSION.SDK_INT>=24){
-                    try{
-                        Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
-                        m.invoke(null);
-                    }catch(Exception e){
-                        e.printStackTrace();
-                    }
-                }
-                //requestStoragePermission();
-                //  Intent openGalleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                // openGalleryIntent.setType("*/*");
-                // openGalleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-                // startActivityForResult(openGalleryIntent, REQUEST_GALLERY_CODE);
-                pickFile();
                 mBottomSheetDialog.dismiss();
+                storageAccessPermission();
 
             }
         });
@@ -393,6 +298,122 @@ public class UploadListActivity extends Activity{
 
             }
         });
+    }
+
+    private void cameraAndStoragePermissionForVideo()
+    {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            int permission = ContextCompat.checkSelfPermission(context, android.Manifest.permission.CAMERA);
+            int storagePermission = ContextCompat.checkSelfPermission(context, android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            if (permission == PackageManager.PERMISSION_GRANTED && storagePermission == PackageManager.PERMISSION_GRANTED) {
+
+                videoAccess();
+
+            } else if (permission == PackageManager.PERMISSION_GRANTED && storagePermission != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CAMERA_PERMISSION);
+            } else if (permission != PackageManager.PERMISSION_GRANTED && storagePermission == PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{android.Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+            } else {
+                requestPermissions(new String[]{android.Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CAMERA_PERMISSION);
+            }
+        } else {
+            videoAccess();
+        }
+    }
+
+    private void videoAccess()
+    {
+        if(Build.VERSION.SDK_INT>=24){
+            try{
+                Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
+                m.invoke(null);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+
+        Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+        File file = CameraUtils.getOutputMediaFile(MEDIA_TYPE_VIDEO);
+        if (file != null) {
+            imageStoragePath = file.getAbsolutePath();
+        }
+
+        Uri fileUri = CameraUtils.getOutputMediaFileUri(getApplicationContext(), file);
+
+        // set video quality
+        takeVideoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
+        takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+        startActivityForResult(takeVideoIntent, CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE);
+        upload_list.setAdapter(customAdapter);
+    }
+
+    private void cameraAndStoragePermission()
+    {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            int permission = ContextCompat.checkSelfPermission(context, android.Manifest.permission.CAMERA);
+            int storagePermission = ContextCompat.checkSelfPermission(context, android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            if (permission == PackageManager.PERMISSION_GRANTED && storagePermission == PackageManager.PERMISSION_GRANTED) {
+
+                cameraAccess();
+
+            } else if (permission == PackageManager.PERMISSION_GRANTED && storagePermission != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CAMERA_PERMISSION);
+            } else if (permission != PackageManager.PERMISSION_GRANTED && storagePermission == PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{android.Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+            } else {
+                requestPermissions(new String[]{android.Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CAMERA_PERMISSION);
+            }
+        } else {
+            cameraAccess();
+        }
+    }
+
+    private void cameraAccess()
+    {
+        if(Build.VERSION.SDK_INT>=24){
+            try{
+                Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
+                m.invoke(null);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        fileUri = getOutputMediaFileUri(1);
+        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+        UploadList =  PreferenceUtils.getupload(UploadListActivity.this, "key");
+        startActivityForResult(takePictureIntent, REQUEST_CAPTURE_IMAGE_CODE);
+        upload_list.setAdapter(customAdapter);
+    }
+
+    private void storageAccessPermission()
+    {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            int storagePermission = ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE);
+            if (storagePermission == PackageManager.PERMISSION_GRANTED) {
+                documentUpload();
+            } else {
+                requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_STORAGE_PERMISSION);
+            }
+        } else {
+            documentUpload();
+        }
+    }
+
+    private void documentUpload()
+    {
+        if(Build.VERSION.SDK_INT>=24){
+            try{
+                Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
+                m.invoke(null);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+
+        pickFile();
     }
 
     public void pickFile() {
@@ -570,7 +591,6 @@ public class UploadListActivity extends Activity{
 
     private String getRealPathFromURIPath(Uri uri, Activity context) {
 
-
         if (null == uri) return null;
         final String scheme = uri.getScheme();
         String data = null;
@@ -599,13 +619,16 @@ public class UploadListActivity extends Activity{
     @Override
     public void onBackPressed() {
 
-       /* UploadList.clear();
-        PreferenceUtils.setupload(UploadListActivity.this,UploadList,"key");*/
-
           if(PreferenceUtils.getupload(context, "key") != null && PreferenceUtils.getupload(context, "key").size() > 0)
            {
                showUploadWarningMessage();
            }
+           else
+          {
+              Intent intent= new Intent(UploadListActivity.this,NavigationMyFolderActivity.class);
+              intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+              startActivity(intent);
+          }
 
 
     }
@@ -614,7 +637,7 @@ public class UploadListActivity extends Activity{
     {
         final AlertDialog.Builder builder = new AlertDialog.Builder(UploadListActivity.this);
         LayoutInflater inflater = (LayoutInflater) UploadListActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.custom_dialog, null);
+        View view = inflater.inflate(R.layout.upload_cancel_alert, null);
         builder.setView(view);
         builder.setCancelable(false);
 
@@ -626,7 +649,9 @@ public class UploadListActivity extends Activity{
         textView.setVisibility(View.GONE);
         TextView text = (TextView) view.findViewById(R.id.message);
         text.setText("Some of the files are not yet uploaded. Do you want to cancel all the uploads?");
-        back.setEnabled(false);
+
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
         BtnAllow.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -669,7 +694,9 @@ public class UploadListActivity extends Activity{
         textView.setVisibility(View.GONE);
         TextView text = (TextView) view.findViewById(R.id.message);
         text.setText(message);
-        back.setEnabled(false);
+
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         BtnCancel.setVisibility(View.GONE);
         BtnAllow.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -678,13 +705,13 @@ public class UploadListActivity extends Activity{
 
                 if(!unsupported.isEmpty() && unsupported.equalsIgnoreCase("unsupported"))
                 {
-                    upload.setEnabled(true);
+                    menuItemUpload.setVisible(true);
                 }
 
-                if(buttonEnabled)
+                if(buttonEnabled == true)
                 {
-                    add.setEnabled(true);
-                    back.setEnabled(true);
+                    menuItemAdd.setVisible(true);
+                    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
                 }
 
             }
@@ -694,4 +721,154 @@ public class UploadListActivity extends Activity{
         mCustomAlertDialog.show();
 
     }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_CAMERA_PERMISSION:
+                if (grantResults.length > 1) {
+                    if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+
+                        showVideoOrCameraAccess();
+
+                    } else {
+                        if (grantResults[0] != PackageManager.PERMISSION_GRANTED && grantResults[1] != PackageManager.PERMISSION_GRANTED) {
+                            Toast.makeText(context, "Camera and storage access permission denied", Toast.LENGTH_LONG).show();
+                        } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] != PackageManager.PERMISSION_GRANTED) {
+                            Toast.makeText(context, "Storage access permission denied", Toast.LENGTH_LONG).show();
+                        } else if (grantResults[0] != PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                            Toast.makeText(context, "Camera access permission denied", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                } else {
+                    if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    } else {
+                        Toast.makeText(context, "Permission denied", Toast.LENGTH_LONG).show();
+                    }
+                }
+                break;
+            case REQUEST_STORAGE_PERMISSION:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    documentUpload();
+                } else {
+                    Toast.makeText(context, "Storage access permission denied", Toast.LENGTH_LONG).show();
+                }
+                break;
+        }
+    }
+
+    private void showVideoOrCameraAccess()
+    {
+        if(isVideo)
+        {
+            videoAccess();
+        }
+        else
+        {
+            cameraAccess();
+        }
+    }
+
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        getMenuInflater().inflate(R.menu.upload_items, menu);
+         menuItemUpload = menu.findItem(R.id.action_upload);
+         menuItemAdd = menu.findItem(R.id.action_add);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                break;
+
+            case R.id.action_upload:
+                uploadDocuments();
+                break;
+
+            case R.id.action_add:
+                openBottomSheet();
+                break;
+
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void uploadDocuments()
+    {
+        if (NetworkUtils.isNetworkAvailable(context)) {
+            int choosenFilesCount = PreferenceUtils.getupload(UploadListActivity.this, "key").size();
+            menuItemAdd.setVisible(false);
+            menuItemUpload.setVisible(false);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            Boolean isError = false;
+
+            if (choosenFilesCount > 10) {
+                showAlertMessage("Please select less then 10 documents", false, "");
+                isError = true;
+            } else {
+                for (int i = 0; i < choosenFilesCount; i++) {
+                    File file = new File(UploadList.get(i));
+                    float file_size = Float.parseFloat(String.valueOf(file.length() / 1024 / 1024));
+                    String size = PreferenceUtils.getMaxSizeUpload(UploadListActivity.this);
+                    float sizeAPI = Float.parseFloat(size);
+
+                    if (file_size > sizeAPI) {
+                        showAlertMessage(UploadList.get(i) + "exceeds" + PreferenceUtils.getMaxSizeUpload(UploadListActivity.this) + "MB", false, "");
+                        isError = true;
+                        break;
+                    } else {
+                        String[] fileParts = UploadList.get(i).split("\\.");
+                        String fileExtension = fileParts[fileParts.length - 1];
+                        Boolean validFormat = false;
+
+                        for (int j = 0; j < PreferenceUtils.getFileFormats(UploadListActivity.this, "key").size(); j++) {
+                            if (fileExtension.equalsIgnoreCase(PreferenceUtils.getFileFormats(UploadListActivity.this, "key").get(j))) {
+                                validFormat = true;
+                                break;
+                            }
+                        }
+
+                        if (!validFormat) {
+
+                            menuItemUpload.setVisible(false);
+                            showAlertMessage(UploadList.get(i) + " " + fileExtension + " is unsupported", false, "unsupported");
+                            isError = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!isError) {
+                    uploadFailedList.clear();
+
+                    if (choosenFilesCount > 0) {
+                        upload(0);
+                    }
+                } else {
+                    menuItemUpload.setVisible(true);
+                }
+            }
+        }
+    }
+
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mCustomAlertDialog != null) {
+            mCustomAlertDialog.dismiss();
+            mCustomAlertDialog = null;
+        }
+    }
+
 }

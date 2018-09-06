@@ -117,7 +117,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
     List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList<>();
     AlertDialog mAlertDialog;
    // private ItemClickListener mClickListener;
-    MyFoldersDMSActivity myFoldersDMSActivity;
+
 
     private HashSet<Integer> mSelected;
     public List<GetCategoryDocumentsResponse> selectedList = new ArrayList<>();
@@ -324,12 +324,22 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
 
                     if (isMultiSelect)
                     {
-                        multi_select(position);
-
+                        if(mGetCategoryDocumentsResponses.get(position).getPermission().isCanViewDocument()) {
+                            multi_select(position);
+                        }
                     }
                     else {
 
                         if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("category")) {
+
+                            if(!mGetCategoryDocumentsResponses.get(position).getPermission().isCanViewDocument())
+                            {
+                                if (context instanceof NavigationMyFolderActivity) {
+                                    ((NavigationMyFolderActivity) context).showUnAuthorizedMessageAlert("You are not authorised to perform this action.");
+                                }
+                                return;
+                            }
+
                             PreferenceUtils.setObjectId(context, mGetCategoryDocumentsResponses.get(position).getObject_id());
                             obj = mGetCategoryDocumentsResponses.get(position).getObject_id();
                             PreferenceUtils.setParentId(context,obj);
@@ -353,24 +363,20 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
             holder.parentLayout.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    if (!GlobalVariables.isMoveInitiated) {
-                        if (!isMultiSelect) {
-                            selectedList = new ArrayList<>();
-                            isMultiSelect = true;
-                        }
+                    if(mGetCategoryDocumentsResponses.get(position).getPermission().isCanViewDocument()) {
+                        if (!GlobalVariables.isMoveInitiated) {
+                            if (!isMultiSelect) {
+                                selectedList = new ArrayList<>();
+                                isMultiSelect = true;
+                            }
 
-                        multi_select(position);
+                            multi_select(position);
+                        }
                     }
                     return false;
                 }
             });
 
-          /*  holder.thumbnailLayout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    getDocumentPreviews(mGetCategoryDocumentsResponses.get(position));
-                }
-            });*/
 
 
             holder.moreIcon.setOnClickListener(new View.OnClickListener() {
@@ -421,24 +427,22 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                 holder.moreIcon.setVisibility(View.VISIBLE);
             }
 
+            if(!mGetCategoryDocumentsResponses.get(position).getPermission().isCanViewDocument()) {
+                holder.moreIcon.setVisibility(View.GONE);
+            }
+            else
+            {
+                holder.moreIcon.setVisibility(View.VISIBLE);
+            }
 
-         /*   if (selectedList.contains(mGetCategoryDocumentsResponses.get(position))) {
-                holder.selectedItemIv.setVisibility(View.VISIBLE);
-            } else {
-                holder.selectedItemIv.setVisibility(View.GONE);
-            }*/
         }
-        else
-        {
-            myFoldersDMSActivity.emptyText.setVisibility(View.VISIBLE);
-        }
+
     }
+
+
 
     public void multi_select(int position)
     {
-
-      //  if(!GlobalVariables.isMoveInitiated) {
-
             if (selectedList.contains(mGetCategoryDocumentsResponses.get(position))) {
                 selectedList.remove(mGetCategoryDocumentsResponses.get(position));
                 if (selectedList != null && selectedList.size() == 0) {
@@ -458,9 +462,6 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                 ((NavigationMyFolderActivity) context).updateToolbarMenuItems(selectedList);
             }
 
-
-      //      CommonFunctions.assignSelectedList(selectedList);
-     //   }
 
     }
 
@@ -1357,131 +1358,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         return mDrawable;
     }
 
-    public void getSubCategoryDocuments(final String object_id, final String page) {
 
-        if (NetworkUtils.isNetworkAvailable(context)) {
-
-            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
-
-            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
-            transparentProgressDialog.show();
-
-            final GetCategoryDocumentsRequest mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(object_id, "list", "category", "1", "0");
-
-            String request = new Gson().toJson(mGetCategoryDocumentsRequest);
-
-            //Here the json data is add to a hash map with key data
-            Map<String, String> params = new HashMap<String, String>();
-            params.put("data", request);
-            final GetCategoryDocumentsService mGetCategoryDocumentsService = retrofitAPI.create(GetCategoryDocumentsService.class);
-            Call call = mGetCategoryDocumentsService.getCategoryDocumentsV2(params, PreferenceUtils.getAccessToken(context),page);
-
-            call.enqueue(new Callback<ListPinDevicesResponse<GetCategoryDocumentsResponse>>() {
-                @Override
-                public void onResponse(Response<ListPinDevicesResponse<GetCategoryDocumentsResponse>> response, Retrofit retrofit) {
-                    ListPinDevicesResponse apiResponse = response.body();
-                    if (apiResponse != null) {
-
-                        transparentProgressDialog.dismiss();
-                        if (apiResponse.status.getCode() instanceof Boolean) {
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
-
-                                getCategoryDocumentsResponses = response.body().getData();
-
-                                //     getCategoryDocumentsResponses = response.body().getData();
-                                //     getCategoryDocumentsResponses.addAll(paginationList);
-
-                                //   paginationList.add(getCategoryDocumentsResponses);
-
-                           /*     if (object_id.equals("0")){
-                                    ActionBar actionBar = myFoldersDMSActivity.getSupportActionBar();
-                                    if (actionBar != null) {
-                                        actionBar.setDisplayHomeAsUpEnabled(false);
-                                    }
-                                    fragment.getView().findViewById(R.id.menu_camera_item).setVisibility(View.GONE);
-                                    fragment.getView().findViewById(R.id.menu_camera_video_item).setVisibility(View.GONE);
-                                    fragment.getView().findViewById(R.id.menu_upload_item).setVisibility(View.GONE);
-                                }
-                                else
-                                {
-                                    ActionBar actionBar = myFoldersDMSActivity.getSupportActionBar();
-                                    if (actionBar != null) {
-                                        actionBar.setDisplayHomeAsUpEnabled(false);
-                                    }                                    fragment.getView().findViewById(R.id.menu_camera_item).setVisibility(View.VISIBLE);
-                                    fragment.getView().findViewById(R.id.menu_camera_video_item).setVisibility(View.VISIBLE);
-                                    fragment.getView().findViewById(R.id.menu_upload_item).setVisibility(View.VISIBLE);
-                                }*/
-
-
-/*
-
-                                totalPage = Integer.parseInt(response.headers().get("X-Pagination-Page-Count"));
-
-
-                                if(pageNumber+ 1<=totalPage)
-                                {
-                                  getSubCategoryDocuments(obj,String.valueOf(pageNumber+1));
-                                  pageNumber=pageNumber+1;
-                                }
-*/
-
-                                refreshAdapterToView(getCategoryDocumentsResponses);
-                                //    paginationList.clear();
-/*
-                                while(pageCount!=null&&Integer.parseInt(pageCount)>1){
-                                    getSubCategoryDocuments(obj,pageCount);
-                                    refreshAdapterToView(getCategoryDocumentsResponses);
-
-                                }
-*/
-
-
-                            }
-
-                        } else if (apiResponse.status.getCode() instanceof Integer) {
-                            transparentProgressDialog.dismiss();
-                            String mMessage = apiResponse.status.getMessage().toString();
-
-                            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                            builder.setView(view);
-                            builder.setCancelable(false);
-
-                            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                            txtMessage.setText(mMessage);
-
-                            Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                            cancelButton.setVisibility(View.GONE);
-
-                            sendPinButton.setText("OK");
-
-                            sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    mAlertDialog.dismiss();
-                                    context.startActivity(new Intent(context, LoginActivity.class));
-                                }
-                            });
-
-                            mAlertDialog = builder.create();
-                            mAlertDialog.show();
-                        }
-                    }
-                }
-
-                @Override
-                public void onFailure(Throwable t) {
-                    transparentProgressDialog.dismiss();
-                    Log.d("PinDevice error", t.getMessage());
-                }
-            });
-        }
-    }
     public ArrayList<String> getArrayList(){
         return doc_id;
     }
@@ -1490,12 +1367,5 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         return doc_id;
     }
 
-    public void refreshAdapterToView(List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses) {
 
-        this.mGetCategoryDocumentsResponses.clear();
-        this.mGetCategoryDocumentsResponses.addAll(getCategoryDocumentsResponses);
-        //getSubCategoryDocuments(parentr,"1");
-
-        notifyDataSetChanged();
-    }
 }

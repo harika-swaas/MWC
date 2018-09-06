@@ -278,7 +278,7 @@ public class AccountSettings {
         }
     }
 
-    public void DeleteAllDatabaseTables()
+   /* public void DeleteAllDatabaseTables()
     {
         DBConnectionOpen();
         ArrayList<String> arrTblNames = new ArrayList<String>();
@@ -306,7 +306,24 @@ public class AccountSettings {
 
     private void deleteDatabaseTables(String tableName)
     {
-        database.execSQL("drop table "+ tableName);
+        if(!tableName.equalsIgnoreCase("tbl_pushNotificationSettings"))
+        {
+            database.execSQL("drop table "+ tableName);
+        }
+
+    }
+*/
+
+
+    public void deleteAllTables()
+    {
+        DBConnectionOpen();
+
+        database.delete("tbl_white_label",null,null);
+        database.delete("tbl_Account_Settings",null,null);
+        database.delete("tbl_Offline_Files",null,null);
+        DBConnectionClose();
+
     }
 
 
@@ -384,6 +401,25 @@ public class AccountSettings {
             DBConnectionClose();
         }
 
+    }
+
+
+    public String getPushNotificatonStatusFromTable()
+    {
+        String pushNotificationEnabled = "";
+        try {
+            DBConnectionOpen();
+            String selectQuery = "SELECT Is_Push_Notification_Enabled FROM tbl_Account_Settings";
+            Cursor cursor = database.rawQuery(selectQuery, null);
+            if (cursor != null && cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                pushNotificationEnabled = cursor.getString(cursor.getColumnIndex("Is_Push_Notification_Enabled"));
+            }
+            cursor.close();
+        } finally {
+            DBConnectionClose();
+        }
+        return pushNotificationEnabled;
     }
 
     public interface GetLoggedInCB {

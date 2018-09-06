@@ -67,17 +67,17 @@ public class PushNotificatoinSettings_Respository
         return rowCount;
     }
 
-    public void insertIntoPushNotificatonTable(int allowStatus, int loginSource)
+    public void insertIntoPushNotificatonTable(String deviceToken)
     {
         DBConnectionOpen();
-        String mobileDeviceToken = PreferenceUtils.getMobileDeviceToken(mContext);
+       // String mobileDeviceToken = PreferenceUtils.getMobileDeviceToken(mContext);
 
         try {
 
             ContentValues deviceContentValues = new ContentValues();
-            deviceContentValues.put(DEVICETOKEN, mobileDeviceToken);
-            deviceContentValues.put(ISPNENABLED, allowStatus);
-            deviceContentValues.put(LOGINSOURCE, loginSource);
+            deviceContentValues.put(DEVICETOKEN, deviceToken);
+            /*deviceContentValues.put(ISPNENABLED, allowStatus);
+            deviceContentValues.put(LOGINSOURCE, loginSource);*/
             database.insert(TABLE_PUSHNOTIFICATIONSETTINGS, null, deviceContentValues);
 
         } catch (Exception e) {
@@ -93,11 +93,11 @@ public class PushNotificatoinSettings_Respository
         String pushNotificationStatus = "";
         try {
             DBConnectionOpen();
-            String selectQuery = "SELECT loginSource FROM tbl_pushNotificationSettings";
+            String selectQuery = "SELECT isPNEnabled FROM tbl_pushNotificationSettings";
             Cursor cursor = database.rawQuery(selectQuery, null);
             if (cursor != null && cursor.getCount() > 0) {
                 cursor.moveToFirst();
-                pushNotificationStatus = cursor.getString(cursor.getColumnIndex("loginSource"));
+                pushNotificationStatus = cursor.getString(cursor.getColumnIndex("isPNEnabled"));
             }
             cursor.close();
         } finally {
@@ -105,4 +105,41 @@ public class PushNotificatoinSettings_Respository
         }
         return pushNotificationStatus;
     }
+
+    public void updatePushNotificatoinStatus(String register_type)
+    {
+        String query = "UPDATE tbl_pushNotificationSettings SET isPNEnabled = '" + register_type + "'";
+
+        try {
+            DBConnectionOpen();
+            database.execSQL(query);
+        } finally {
+            DBConnectionClose();
+        }
+
+    }
+
+
+    public String getDeviceTokenFromTableStatus()
+    {
+        String deviceToken = "";
+        try {
+            DBConnectionOpen();
+            String selectQuery = "SELECT deviceToken FROM tbl_pushNotificationSettings";
+            Cursor cursor = database.rawQuery(selectQuery, null);
+            if (cursor != null && cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                deviceToken = cursor.getString(cursor.getColumnIndex("deviceToken"));
+            }
+            cursor.close();
+        } finally {
+            DBConnectionClose();
+        }
+        return deviceToken;
+    }
+
+
+
+
+
 }

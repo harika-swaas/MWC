@@ -8,6 +8,7 @@ import android.content.ClipData;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -15,8 +16,10 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.StrictMode;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -24,6 +27,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -63,6 +67,7 @@ import com.mwc.docportal.API.Model.DeleteDocumentRequest;
 import com.mwc.docportal.API.Model.DeleteDocumentResponseModel;
 import com.mwc.docportal.API.Model.DeleteEndUserFolderMoveRequest;
 import com.mwc.docportal.API.Model.DeleteEndUserFolderRequest;
+
 import com.mwc.docportal.API.Model.DownloadDocumentRequest;
 import com.mwc.docportal.API.Model.DownloadDocumentResponse;
 import com.mwc.docportal.API.Model.EditDocumentPropertiesRequest;
@@ -78,6 +83,7 @@ import com.mwc.docportal.API.Model.LoginResponse;
 import com.mwc.docportal.API.Model.MaxDocumentUploadSizeResponse;
 import com.mwc.docportal.API.Model.MoveDocumentRequest;
 import com.mwc.docportal.API.Model.OfflineFiles;
+
 import com.mwc.docportal.API.Model.SharedDocumentResponseModel;
 import com.mwc.docportal.API.Model.StopSharingRequestModel;
 import com.mwc.docportal.API.Model.UploadNewFolderRequest;
@@ -86,6 +92,8 @@ import com.mwc.docportal.API.Service.CopyDocumentService;
 import com.mwc.docportal.API.Service.DeleteDocumentService;
 import com.mwc.docportal.API.Service.DeleteEndUserFolderService;
 import com.mwc.docportal.API.Service.DeleteEndUserMoveService;
+
+
 import com.mwc.docportal.API.Service.DownloadDocumentService;
 import com.mwc.docportal.API.Service.EditDocumentPropertiesService;
 import com.mwc.docportal.API.Service.EndUserRenameService;
@@ -107,6 +115,7 @@ import com.mwc.docportal.Common.SimpleDividerItemDecoration;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Database.OffLine_Files_Repository;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
+import com.mwc.docportal.GlobalSearch.GlobalSearchActivity;
 import com.mwc.docportal.Login.LoginActivity;
 import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.Preference.PreferenceUtils;
@@ -114,7 +123,9 @@ import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
 import com.mwc.docportal.Utils.Constants;
 import com.mwc.docportal.Utils.DateHelper;
-import com.tbruyelle.rxpermissions2.RxPermissions;
+import com.mwc.docportal.pdf.PdfViewActivity;
+
+
 
 import java.io.File;
 import java.io.Serializable;
@@ -141,10 +152,6 @@ public class NavigationMyFolderActivity extends BaseActivity {
     AlertDialog mCustomAlertDialog;
     AlertDialog mAlertDialog;
     MenuItem menuItemSearch, menuItemDelete, menuItemShare, menuItemMove, menuItemMore;
-    boolean sortByNameAsc = true;
-    boolean sortByTypeAsc = true;
-    boolean sortBySizeAsc = true;
-    boolean sortByDateAsc = true;
 
     boolean isFromList;
     LinearLayoutManager linearLayoutManager;
@@ -162,7 +169,7 @@ public class NavigationMyFolderActivity extends BaseActivity {
     Toolbar toolbar;
     RelativeLayout toggleView;
     ImageView toggle, sort_image;
-    public static TextView sort;
+    TextView sort;
     LinearLayout sortingView;
     FloatingActionMenu floatingActionMenu;
     FloatingActionButton actionUpload, actionCamera, actionNewFolder, actionVideo;
@@ -193,26 +200,30 @@ public class NavigationMyFolderActivity extends BaseActivity {
     LinearLayout empty_view;
     TextView no_documents_txt;
 
+    public static final int REQUEST_STORAGE_PERMISSION = 111;
+    public static final int REQUEST_CAMERA_PERMISSION = 222;
 
-    private String[] camera_Permissions = {Manifest.permission.CAMERA,
-                                            Manifest.permission.CAPTURE_VIDEO_OUTPUT,
-                                            Manifest.permission.READ_EXTERNAL_STORAGE,
-                                            Manifest.permission.WRITE_EXTERNAL_STORAGE};
-
-    RxPermissions rxPermissions;
-
-
+    boolean isVideo = false;
+    boolean isFromSearchData = false;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        rxPermissions = new RxPermissions(this);
+
+        if(PreferenceUtils.getPushNotificationDocumentVersionId(context) != null && !PreferenceUtils.getPushNotificationDocumentVersionId(context).isEmpty())
+        {
+           Intent intent = new Intent(NavigationMyFolderActivity.this, PdfViewActivity.class);
+           startActivity(intent);
+        }
+
+
         intiaizeViews();
         OnClickListeners();
         getWhiteLabelProperities();
         no_documents_txt.setText("");
+
 
         mRecyclerView.setNestedScrollingEnabled(false);
 
@@ -234,8 +245,6 @@ public class NavigationMyFolderActivity extends BaseActivity {
             categoryName = "My Folder";
         }
 
-
-
         toggleAddAndBackButton();
         getCategoryDocuments();
 
@@ -246,60 +255,15 @@ public class NavigationMyFolderActivity extends BaseActivity {
             showBottomView();
         }
 
-
-
-       // requestForPermissionGrant();
-     //   permission();
-
-
-
-        /*rxPermissions
-                .requestEachCombined(Manifest.permission.CAMERA,
-                        Manifest.permission.CAPTURE_VIDEO_OUTPUT,
-                        Manifest.permission.READ_EXTERNAL_STORAGE,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE
-
-                )
-                   .subscribe(permission -> { // will emit 2 Permission objects
-                    if (permission.granted) {
-                        // `permission.name` is granted !
-                        Toast.makeText(context, "permission ok", Toast.LENGTH_SHORT).show();
-                    } else if (permission.shouldShowRequestPermissionRationale) {
-                        // Denied permission without ask never again
-                        Toast.makeText(context, "one permission granted", Toast.LENGTH_SHORT).show();
-                    } else {
-                        // Denied permission with ask never again
-                        // Need to go to the settings
-                        Toast.makeText(context, "permission denied", Toast.LENGTH_SHORT).show();
-                    }
-                });*/
-
         if(PreferenceUtils.getupload(context, "key") != null && PreferenceUtils.getupload(context, "key").size() > 0)
         {
             showFailedUploadList();
         }
 
 
-
     }
 
-public  void permission(){
 
-    RxPermissions rxPermissions = new RxPermissions(this);
-    rxPermissions
-            .request(Manifest.permission.CAMERA,
-                    Manifest.permission.CAPTURE_VIDEO_OUTPUT,
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-            ) // ask single or multiple permission once
-            .subscribe(granted -> {
-                if (granted) { // Always true pre-M
-                    // I can control the camera now
-                } else {
-                    // Oups permission denied
-                }
-            });
-}
 
     private void showBottomView()
     {
@@ -536,14 +500,26 @@ public  void permission(){
 
 
                                 totalPages  = Integer.parseInt(response.headers().get("X-Pagination-Page-Count"));
-                            //    pageNumber = Integer.parseInt(response.headers().get("X-Pagination-Current-Page"));
 
                                 setSortTitle();
                                 toggleEmptyState();
 
                                 reloadAdapterData();
-                                List<GetCategoryDocumentsResponse> dummyList = new ArrayList<>();
-                                updateToolbarMenuItems(dummyList);
+
+
+
+                                if(isFromSearchData == true && GlobalVariables.searchKey != null && !GlobalVariables.searchKey.isEmpty())
+                                {
+                                    Handler handler = new Handler();
+                                    handler.postDelayed(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Intent intent = new Intent(NavigationMyFolderActivity.this, GlobalSearchActivity.class);
+                                            startActivity(intent);
+                                        }
+                                    }, 1000);
+
+                                }
 
 
                                 if(PreferenceUtils.getMaxSizeUpload(context) == null || PreferenceUtils.getMaxSizeUpload(context).isEmpty())
@@ -756,6 +732,8 @@ public  void permission(){
         move_textview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+
                 if(GlobalVariables.selectedActionName.equalsIgnoreCase("move"))
                 {
                     moveDocuments();
@@ -808,125 +786,38 @@ public  void permission(){
         });
 
 
+        actionUpload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
-
-        actionUpload.setOnClickListener(v -> {
-            floatingActionMenu.setClosedOnTouchOutside(true);
-
-              floatingActionMenu.close(true);
-                if(Build.VERSION.SDK_INT >= 24){
-                    try{
-                        Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
-                        m.invoke(null);
-                    }catch(Exception e){
-                        e.printStackTrace();
-                    }
-                }
-
-                pickFile();
+                storageAccessPermission();
 
 
 
+            }
+        });
+
+
+        actionCamera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                isVideo = false;
+                cameraAndStoragePermission();
+
+            }
 
         });
 
-        actionCamera.setOnClickListener(v ->
-        {
-            floatingActionMenu.setClosedOnTouchOutside(true);
 
 
-
-            RxPermissions rxPermissions = new RxPermissions(this);
-            rxPermissions
-                    .request(Manifest.permission.CAMERA,
-                            Manifest.permission.CAPTURE_VIDEO_OUTPUT,
-                            Manifest.permission.READ_EXTERNAL_STORAGE,
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE
-                    ) // ask single or multiple permission once
-                    .subscribe(granted -> {
-                        if (granted) { // Always true pre-M
-                            // I can control the camera now
-
-                            if(Build.VERSION.SDK_INT>=24){
-                                try{
-                                    Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
-                                    m.invoke(null);
-                                }catch(Exception e){
-                                    e.printStackTrace();
-                                }
-                            }
-                            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                            takePictureIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                            fileUri = getOutputMediaFileUri(1);
-                            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
-                            startActivityForResult(takePictureIntent, REQUEST_CAPTURE_IMAGE_CODE);
-
-                        } else {
-                            // Oups permission denied
-                            //toast
-                            floatingActionMenu.close(true);
-
-                        }
-
-
-                    });
-
-            /*floatingActionMenu.close(true);
-                //   requestCameraPermission();
-                if(Build.VERSION.SDK_INT>=24){
-                    try{
-                        Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
-                        m.invoke(null);
-                    }catch(Exception e){
-                        e.printStackTrace();
-                    }
-                }
-                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                takePictureIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                fileUri = getOutputMediaFileUri(1);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
-                startActivityForResult(takePictureIntent, REQUEST_CAPTURE_IMAGE_CODE);*/
-
-
-
-
+        actionVideo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isVideo = true;
+                cameraAndStoragePermissionForVideo();
+            }
         });
-
-        actionVideo.setOnClickListener(v -> {
-            permission();
-
-            floatingActionMenu.setClosedOnTouchOutside(true);
-
-
-
-                floatingActionMenu.close(true);
-                if(Build.VERSION.SDK_INT>=24){
-                    try{
-                        Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
-                        m.invoke(null);
-                    }catch(Exception e){
-                        e.printStackTrace();
-                    }
-                }
-
-                Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-                File file = CameraUtils.getOutputMediaFile(MEDIA_TYPE_VIDEO);
-                if (file != null) {
-                    imageStoragePath = file.getAbsolutePath();
-                }
-
-                Uri fileUri = CameraUtils.getOutputMediaFileUri(context, file);
-
-                // set video quality
-                takeVideoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
-                takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
-                startActivityForResult(takeVideoIntent, CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE);
-
-
-
-
-        });
-
 
 
         actionNewFolder.setOnClickListener(v -> {
@@ -1080,6 +971,84 @@ public  void permission(){
 
 
 
+    }
+
+    private void storageAccessPermission()
+    {
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                int storagePermission = ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE);
+                if (storagePermission == PackageManager.PERMISSION_GRANTED) {
+                    documentUpload();
+                } else {
+                    requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_STORAGE_PERMISSION);
+                }
+            } else {
+                documentUpload();
+            }
+
+    }
+
+    private void documentUpload()
+    {
+        floatingActionMenu.close(true);
+        if(Build.VERSION.SDK_INT >= 24){
+            try{
+                Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
+                m.invoke(null);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+
+        pickFile();
+    }
+
+    private void cameraAndStoragePermissionForVideo()
+    {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            int permission = ContextCompat.checkSelfPermission(context, android.Manifest.permission.CAMERA);
+            int storagePermission = ContextCompat.checkSelfPermission(context, android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            if (permission == PackageManager.PERMISSION_GRANTED && storagePermission == PackageManager.PERMISSION_GRANTED) {
+
+                videoAccess();
+
+            } else if (permission == PackageManager.PERMISSION_GRANTED && storagePermission != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CAMERA_PERMISSION);
+            } else if (permission != PackageManager.PERMISSION_GRANTED && storagePermission == PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{android.Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+            } else {
+                requestPermissions(new String[]{android.Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CAMERA_PERMISSION);
+            }
+        } else {
+            videoAccess();
+        }
+    }
+
+    private void videoAccess()
+    {
+        floatingActionMenu.close(true);
+        if(Build.VERSION.SDK_INT>=24){
+            try{
+                Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
+                m.invoke(null);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+
+        Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+        File file = CameraUtils.getOutputMediaFile(MEDIA_TYPE_VIDEO);
+        if (file != null) {
+            imageStoragePath = file.getAbsolutePath();
+        }
+
+        Uri fileUri = CameraUtils.getOutputMediaFileUri(context, file);
+
+        // set video quality
+        takeVideoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
+        takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+        startActivityForResult(takeVideoIntent, CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE);
     }
 
     private void showWarningAlertAlreadyFolderExist(String mMessage)
@@ -1409,6 +1378,7 @@ public  void permission(){
                                 //    Toast.makeText(NavigationMyFolderActivity.this,mMessage,Toast.LENGTH_SHORT).show();
                                 hideBottomView();
                                 resetPageNumber();
+                                isFromSearchData = true;
                                 getCategoryDocuments();
 
 
@@ -1521,6 +1491,7 @@ public  void permission(){
                                 String mMessage = apiResponse.status.getMessage().toString();
                                 hideBottomView();
                                 resetPageNumber();
+                                isFromSearchData = true;
                                 getCategoryDocuments();
 
 
@@ -1650,6 +1621,7 @@ public  void permission(){
         sorting_layout = (LinearLayout) findViewById(R.id.sorting_layout);
         bottomNavigationLayout = (BottomNavigationView) findViewById(R.id.navigation);
         floatingActionMenu = (FloatingActionMenu)findViewById(R.id.floating_action_menu);
+        floatingActionMenu.setClosedOnTouchOutside(true);
         empty_view = (LinearLayout)findViewById(R.id.empty_view);
         no_documents_txt = (TextView)findViewById(R.id.no_documents_txt);
 
@@ -1995,6 +1967,7 @@ public  void permission(){
         pageNumber = 0;
         totalPages = 1;
 
+
     }
 
 
@@ -2100,7 +2073,17 @@ public  void permission(){
 
             ArrayList<String> filePathList = new ArrayList<String>();
             filePathList.add(filePath);
-            list_upload = PreferenceUtils.getupload(context,"key");
+
+            if(PreferenceUtils.getupload(context,"key") != null && PreferenceUtils.getupload(context,"key").size() > 0)
+            {
+                list_upload = PreferenceUtils.getupload(context,"key");
+            }
+            else
+            {
+                list_upload = new ArrayList<>();
+            }
+
+
             list_upload.add(String.valueOf(filePath));
             PreferenceUtils.setupload(context,list_upload,"key");
             list_upload.clear();
@@ -2177,464 +2160,6 @@ public  void permission(){
     }
 
 
-    private void getCategoryDocumentsSortByName(String objectId, String page) {
-
-        if (NetworkUtils.isNetworkAvailable(context)) {
-
-            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
-
-            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
-            transparentProgressDialog.show();
-
-            final GetCategoryDocumentsRequest mGetCategoryDocumentsRequest;
-
-           /* if (PreferenceUtils.getObjectId(context).equalsIgnoreCase("")) {
-                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest("0", "list", "category", "1", "0");
-            } else {
-                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(PreferenceUtils.getObjectId(context), "list", "category", "1", "0");
-            }*/
-            mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(objectId, "list", "category", "1", "0");
-
-            String request = new Gson().toJson(mGetCategoryDocumentsRequest);
-
-            //Here the json data is add to a hash map with key data
-            Map<String, String> params = new HashMap<String, String>();
-            params.put("data", request);
-
-            final GetCategoryDocumentsService mGetCategoryDocumentsService = retrofitAPI.create(GetCategoryDocumentsService.class);
-
-            Call call = null;
-            String perPage = "20";
-
-            call = mGetCategoryDocumentsService.getCategoryDocuments(params, PreferenceUtils.getAccessToken(context),page,perPage, "name" );
-
-           /* if(sortByNameAsc == true) {
-
-                sortByNameAsc = false;
-            } else {
-                call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortByName(params, PreferenceUtils.getAccessToken(context),page,perPage, "-name" );
-                sortByNameAsc = true;
-            }*/
-
-            call.enqueue(new Callback<ListPinDevicesResponse<GetCategoryDocumentsResponse>>() {
-                @Override
-                public void onResponse(Response<ListPinDevicesResponse<GetCategoryDocumentsResponse>> response, Retrofit retrofit) {
-                    ListPinDevicesResponse apiResponse = response.body();
-                    if (apiResponse != null) {
-
-                        transparentProgressDialog.dismiss();
-
-                        if (apiResponse.status.getCode() instanceof Boolean) {
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
-                                mGetCategoryDocumentsResponses = response.body().getData();
-
-                                if (isFromList == true) {
-                                    setListAdapterToView(mGetCategoryDocumentsResponses);
-                                } else {
-                                    setGridAdapterToView(mGetCategoryDocumentsResponses);
-                                }
-
-                                totalPages = Integer.parseInt(response.headers().get("X-Pagination-Page-Count"));
-                                pageNumber = Integer.parseInt(response.headers().get("X-Pagination-Current-Page"));
-                            }
-                         //   sort.setText("Name");
-
-
-
-
-                        } else if (apiResponse.status.getCode() instanceof Double) {
-                            transparentProgressDialog.dismiss();
-                            String mMessage = apiResponse.status.getMessage().toString();
-
-                            Object obj = 401.0;
-                            if (obj.equals(401.0)) {
-
-                                final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                                builder.setView(view);
-                                builder.setCancelable(false);
-
-                                TextView title = (TextView) view.findViewById(R.id.title);
-                                title.setText("Alert");
-
-                                TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                                txtMessage.setText(mMessage);
-
-                                Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                                Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                                cancelButton.setVisibility(View.GONE);
-
-                                sendPinButton.setText("OK");
-
-                                sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        mAlertDialog.dismiss();
-                                        AccountSettings accountSettings = new AccountSettings(context);
-                                        accountSettings.deleteAll();
-                                        startActivity(new Intent(context, LoginActivity.class));
-                                    }
-                                });
-
-                                mAlertDialog = builder.create();
-                                mAlertDialog.show();
-                            }
-                        }
-                    }
-                }
-
-                @Override
-                public void onFailure(Throwable t) {
-                    transparentProgressDialog.dismiss();
-                    Log.d("PinDevice error", t.getMessage());
-                }
-            });
-        }
-
-    }
-
-
-    private void getCategoryDocumentsSortByNewest(String page) {
-        if (NetworkUtils.isNetworkAvailable(context)) {
-
-            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
-
-            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
-            transparentProgressDialog.show();
-
-            final GetCategoryDocumentsRequest mGetCategoryDocumentsRequest;
-
-            if (PreferenceUtils.getObjectId(context).equalsIgnoreCase("")) {
-                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest("0", "list", "category", "1", "0");
-            } else {
-                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(PreferenceUtils.getObjectId(context), "list", "category", "1", "0");
-            }
-
-            String request = new Gson().toJson(mGetCategoryDocumentsRequest);
-
-            //Here the json data is add to a hash map with key data
-            Map<String, String> params = new HashMap<String, String>();
-            params.put("data", request);
-
-            final GetCategoryDocumentsService mGetCategoryDocumentsService = retrofitAPI.create(GetCategoryDocumentsService.class);
-
-            Call call = null;
-
-            if(sortByTypeAsc == true) {
-                call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortByType(params, PreferenceUtils.getAccessToken(context),page);
-                sortByTypeAsc = false;
-            } else {
-                call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortByTypeDesc(params, PreferenceUtils.getAccessToken(context),page);
-                sortByTypeAsc = true;
-            }
-
-            call.enqueue(new Callback<ListPinDevicesResponse<GetCategoryDocumentsResponse>>() {
-                @Override
-                public void onResponse(Response<ListPinDevicesResponse<GetCategoryDocumentsResponse>> response, Retrofit retrofit) {
-                    ListPinDevicesResponse apiResponse = response.body();
-                    if (apiResponse != null) {
-
-                        transparentProgressDialog.dismiss();
-
-                        if (apiResponse.status.getCode() instanceof Boolean) {
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
-                                mGetCategoryDocumentsResponses = response.body().getData();
-                                if (isFromList == true) {
-                                    setListAdapterToView(mGetCategoryDocumentsResponses);
-                                } else {
-                                    setGridAdapterToView(mGetCategoryDocumentsResponses);
-                                }
-                                totalPages = Integer.parseInt(response.headers().get("X-Pagination-Page-Count"));
-                                pageNumber = Integer.parseInt(response.headers().get("X-Pagination-Current-Page"));
-                            }
-
-                            sort.setText("Type");
-
-                        } else if (apiResponse.status.getCode() instanceof Double) {
-                            transparentProgressDialog.dismiss();
-                            String mMessage = apiResponse.status.getMessage().toString();
-
-                            Object obj = 401.0;
-                            if (obj.equals(401.0)) {
-                                final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                                builder.setView(view);
-                                builder.setCancelable(false);
-
-                                TextView title = (TextView) view.findViewById(R.id.title);
-                                title.setText("Alert");
-
-                                TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                                txtMessage.setText(mMessage);
-
-                                Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                                Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                                cancelButton.setVisibility(View.GONE);
-
-                                sendPinButton.setText("OK");
-
-                                sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        mAlertDialog.dismiss();
-                                        AccountSettings accountSettings = new AccountSettings(context);
-                                        accountSettings.deleteAll();
-                                        startActivity(new Intent(context, LoginActivity.class));
-                                    }
-                                });
-
-                                mAlertDialog = builder.create();
-                                mAlertDialog.show();
-                            }
-                        }
-                    }
-                }
-
-                @Override
-                public void onFailure(Throwable t) {
-                    transparentProgressDialog.dismiss();
-                    Log.d("PinDevice error", t.getMessage());
-                }
-            });
-        }
-
-    }
-
-
-    private void getCategoryDocumentsSortBySize(String page) {
-
-        if (NetworkUtils.isNetworkAvailable(context)) {
-
-            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
-
-            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
-            transparentProgressDialog.show();
-
-            final GetCategoryDocumentsRequest mGetCategoryDocumentsRequest;
-
-            if (PreferenceUtils.getObjectId(context).equalsIgnoreCase("")) {
-                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest("0", "list", "category", "1", "0");
-            } else {
-                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(PreferenceUtils.getObjectId(context), "list", "category", "1", "0");
-            }
-
-            String request = new Gson().toJson(mGetCategoryDocumentsRequest);
-
-            //Here the json data is add to a hash map with key data
-            Map<String, String> params = new HashMap<String, String>();
-            params.put("data", request);
-
-            final GetCategoryDocumentsService mGetCategoryDocumentsService = retrofitAPI.create(GetCategoryDocumentsService.class);
-
-            Call call = null;
-
-            if(sortBySizeAsc == true) {
-                call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortBySize(params, PreferenceUtils.getAccessToken(context),page);
-                sortBySizeAsc = false;
-            } else {
-                call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortBySizeDesc(params, PreferenceUtils.getAccessToken(context),page);
-                sortBySizeAsc = true;
-            }
-
-            call.enqueue(new Callback<ListPinDevicesResponse<GetCategoryDocumentsResponse>>() {
-                @Override
-                public void onResponse(Response<ListPinDevicesResponse<GetCategoryDocumentsResponse>> response, Retrofit retrofit) {
-                    ListPinDevicesResponse apiResponse = response.body();
-                    if (apiResponse != null) {
-
-                        transparentProgressDialog.dismiss();
-
-                        if (apiResponse.status.getCode() instanceof Boolean) {
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
-                                mGetCategoryDocumentsResponses = response.body().getData();
-                                if (isFromList == true) {
-                                    setListAdapterToView(mGetCategoryDocumentsResponses);
-                                } else {
-                                    setGridAdapterToView(mGetCategoryDocumentsResponses);
-                                }
-
-                                totalPages = Integer.parseInt(response.headers().get("X-Pagination-Page-Count"));
-                                pageNumber = Integer.parseInt(response.headers().get("X-Pagination-Current-Page"));
-                            }
-
-                            sort.setText("Size");
-
-                        } else if (apiResponse.status.getCode() instanceof Double) {
-                            transparentProgressDialog.dismiss();
-                            String mMessage = apiResponse.status.getMessage().toString();
-
-                            Object obj = 401.0;
-                            if (obj.equals(401.0)) {
-                                final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                                builder.setView(view);
-                                builder.setCancelable(false);
-
-                                TextView title = (TextView) view.findViewById(R.id.title);
-                                title.setText("Alert");
-
-                                TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                                txtMessage.setText(mMessage);
-
-                                Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                                Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                                cancelButton.setVisibility(View.GONE);
-
-                                sendPinButton.setText("OK");
-
-                                sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        mAlertDialog.dismiss();
-                                        AccountSettings accountSettings = new AccountSettings(context);
-                                        accountSettings.deleteAll();
-                                        startActivity(new Intent(context, LoginActivity.class));
-                                    }
-                                });
-
-                                mAlertDialog = builder.create();
-                                mAlertDialog.show();
-                            }
-                        }
-                    }
-                }
-
-                @Override
-                public void onFailure(Throwable t) {
-                    transparentProgressDialog.dismiss();
-                    Log.d("PinDevice error", t.getMessage());
-                }
-            });
-        }
-
-    }
-
-
-    private void getCategoryDocumentsSortByDate(String page) {
-
-        if (NetworkUtils.isNetworkAvailable(context)) {
-
-            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
-
-            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
-            transparentProgressDialog.show();
-
-            final GetCategoryDocumentsRequest mGetCategoryDocumentsRequest;
-
-            if (PreferenceUtils.getObjectId(context).equalsIgnoreCase("")) {
-                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest("0", "list", "category", "1", "0");
-            } else {
-                mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(PreferenceUtils.getObjectId(context), "list", "category", "1", "0");
-            }
-
-            String request = new Gson().toJson(mGetCategoryDocumentsRequest);
-
-            //Here the json data is add to a hash map with key data
-            Map<String, String> params = new HashMap<String, String>();
-            params.put("data", request);
-
-            final GetCategoryDocumentsService mGetCategoryDocumentsService = retrofitAPI.create(GetCategoryDocumentsService.class);
-
-            Call call = null;
-
-            if(sortByDateAsc == true) {
-                call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortByDate(params, PreferenceUtils.getAccessToken(context),page);
-                sortByDateAsc = false;
-            } else {
-                call = mGetCategoryDocumentsService.getCategoryDocumentsV2SortByDateDesc(params, PreferenceUtils.getAccessToken(context),page);
-                sortByDateAsc = true;
-            }
-
-            call.enqueue(new Callback<ListPinDevicesResponse<GetCategoryDocumentsResponse>>() {
-                @Override
-                public void onResponse(Response<ListPinDevicesResponse<GetCategoryDocumentsResponse>> response, Retrofit retrofit) {
-                    ListPinDevicesResponse apiResponse = response.body();
-                    if (apiResponse != null) {
-
-                        transparentProgressDialog.dismiss();
-
-                        if (apiResponse.status.getCode() instanceof Boolean) {
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
-
-                                mGetCategoryDocumentsResponses = response.body().getData();
-                                if (isFromList == true) {
-                                    setListAdapterToView(mGetCategoryDocumentsResponses);
-                                } else {
-                                    setGridAdapterToView(mGetCategoryDocumentsResponses);
-                                }
-
-                                totalPages = Integer.parseInt(response.headers().get("X-Pagination-Page-Count"));
-                                pageNumber= Integer.parseInt(response.headers().get("X-Pagination-Current-Page"));
-                            }
-
-                            sort.setText("Date");
-
-                        } else if (apiResponse.status.getCode() instanceof Double) {
-                            transparentProgressDialog.dismiss();
-                            String mMessage = apiResponse.status.getMessage().toString();
-
-                            Object obj = 401.0;
-                            if (obj.equals(401.0)) {
-                                final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                                builder.setView(view);
-                                builder.setCancelable(false);
-
-                                TextView title = (TextView) view.findViewById(R.id.title);
-                                title.setText("Alert");
-
-                                TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                                txtMessage.setText(mMessage);
-
-                                Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                                Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                                cancelButton.setVisibility(View.GONE);
-
-                                sendPinButton.setText("OK");
-
-                                sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        mAlertDialog.dismiss();
-                                        AccountSettings accountSettings = new AccountSettings(context);
-                                        accountSettings.deleteAll();
-                                        startActivity(new Intent(context, LoginActivity.class));
-                                    }
-                                });
-
-                                mAlertDialog = builder.create();
-                                mAlertDialog.show();
-                            }
-                        }
-                    }
-                }
-
-                @Override
-                public void onFailure(Throwable t) {
-                    transparentProgressDialog.dismiss();
-                    Log.d("PinDevice error", t.getMessage());
-                }
-            });
-        }
-
-    }
-
 
     public void setListAdapterToView(final List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses) {
 
@@ -2672,6 +2197,19 @@ public  void permission(){
           int selectedColor = Color.parseColor(itemSelectedColor);
 
           menuIconColor(menuItemSearch,selectedColor);
+
+          menuItemSearch.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+              @Override
+              public boolean onMenuItemClick(MenuItem item) {
+
+                  Intent intent = new Intent(NavigationMyFolderActivity.this, GlobalSearchActivity.class);
+                  startActivity(intent);
+
+                  return false;
+              }
+          });
+
+
 
           return true;
       }
@@ -2718,44 +2256,7 @@ public  void permission(){
                       showDeleteAlertDialogForDocuments();
                   }
 
-        /*  final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                          LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                          View view = inflater.inflate(R.layout.delete_alert, null);
-                          builder.setView(view);
-                          builder.setCancelable(false);
 
-                          Button cancel = (Button) view.findViewById(R.id.canceldel);
-                          Button delete = (Button) view.findViewById(R.id.delete);
-                          Button move = (Button) view.findViewById(R.id.movefolder);
-
-                          delete.setOnClickListener(new View.OnClickListener() {
-                              @Override
-                              public void onClick(View v) {
-                                  mAlertDialog.dismiss();
-                                  mode = 0;
-                                  delete_Folder_DeleteDocuments();
-                              }
-                          });
-                          move.setOnClickListener(new View.OnClickListener() {
-                              @Override
-                              public void onClick(View v) {
-                                 mAlertDialog.dismiss();
-                                 mode = 1;
-                                 initiateMoveAction("delete");
-
-                              }
-                          });
-
-                          cancel.setOnClickListener(new View.OnClickListener() {
-                              @Override
-                              public void onClick(View v) {
-                                  mAlertDialog.dismiss();
-
-                              }
-                          });
-
-                          mAlertDialog = builder.create();
-                          mAlertDialog.show();*/
 
                   break;
               case R.id.action_move:
@@ -3821,14 +3322,14 @@ public  void permission(){
         downloadingUrlDataList = downloadedList;
         if(downloadingUrlDataList.size()> index) {
 
-            getDownloadurlFromService(downloadingUrlDataList.get(index).getObject_id());
+            getDownloadurlFromService(downloadingUrlDataList.get(index).getObject_id(), downloadingUrlDataList.get(index).getIs_shared());
 
         }
 
 
     }
 
-    public void getDownloadurlFromService(String document_version_id)
+    public void getDownloadurlFromService(String document_version_id, String is_Shared)
     {
         if (NetworkUtils.isNetworkAvailable(context)) {
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
@@ -3837,10 +3338,9 @@ public  void permission(){
             final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
             transparentProgressDialog.show();
 
-            //DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(PreferenceUtils.getDocumentVersionId(this));
             List<String> strlist = new ArrayList<>();
             strlist.add(document_version_id);
-            DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist);
+            DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist, is_Shared);
             final String request = new Gson().toJson(downloadDocumentRequest);
 
             //Here the json data is add to a hash map with key data
@@ -3877,7 +3377,7 @@ public  void permission(){
 
                             index++;
                             if(downloadingUrlDataList.size()> index) {
-                                getDownloadurlFromService(downloadingUrlDataList.get(index).getObject_id());
+                                getDownloadurlFromService(downloadingUrlDataList.get(index).getObject_id(),downloadingUrlDataList.get(index).getIs_shared());
 
                             }
                             else
@@ -3929,6 +3429,9 @@ public  void permission(){
     private void getDownloadManagerForDownloading(List<GetCategoryDocumentsResponse> downloadingUrlDataList)
     {
 
+        List<GetCategoryDocumentsResponse> dummyList = new ArrayList<>();
+        updateToolbarMenuItems(dummyList);
+
 
         index = 0;
         for (final GetCategoryDocumentsResponse digitalAsset : downloadingUrlDataList) {
@@ -3940,6 +3443,7 @@ public  void permission(){
                 fileDownloadManager.setmFileDownloadListener(new FileDownloadManager.FileDownloadListener() {
                     @Override
                     public void fileDownloadSuccess(String path) {
+
 
                         OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(context);
                         if (!offLine_files_repository.checkAlreadyDocumentAvailableOrNot(digitalAsset.getDocument_version_id())) {
@@ -4139,7 +3643,7 @@ public  void permission(){
             //DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(PreferenceUtils.getDocumentVersionId(this));
             List<String> strlist = new ArrayList<>();
             strlist.add(documentsResponse.getObject_id());
-            DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist);
+            DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist, documentsResponse.getIs_shared());
             final String request = new Gson().toJson(downloadDocumentRequest);
 
             //Here the json data is add to a hash map with key data
@@ -4180,15 +3684,7 @@ public  void permission(){
                         else {
                             transparentProgressDialog.dismiss();
                             String mMessage = apiResponse.status.getMessage().toString();
-                           /*// mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener()
-                                {
-                                @Override
-                                public void onClick(View view) {
-                                    startActivity(new Intent(mActivity, LoginActivity.class));
-                                    mActivity.finish();
-                                }
-                            }, false);
-                        */
+                            showSessionExpiryAlert(mMessage);
                         }
                     }
                 }
@@ -4230,6 +3726,41 @@ public  void permission(){
     }
 
 
+    private void showSessionExpiryAlert(String mMessage)
+    {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Alert");
+
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+        txtMessage.setText(mMessage);
+
+        Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+        cancelButton.setVisibility(View.GONE);
+
+        sendPinButton.setText("OK");
+
+        sendPinButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+                AccountSettings accountSettings = new AccountSettings(context);
+                accountSettings.deleteAll();
+                startActivity(new Intent(context, LoginActivity.class));
+            }
+        });
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
+    }
 
 
     public void deleteDocumentsService(String deleteMode)
@@ -4394,4 +3925,140 @@ public  void permission(){
         mCustomAlertDialog = builder.create();
         mCustomAlertDialog.show();
     }
+
+    public void cameraAccess()
+    {
+        floatingActionMenu.close(true);
+
+        if(Build.VERSION.SDK_INT>=24){
+            try{
+                Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
+                m.invoke(null);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        takePictureIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        fileUri = getOutputMediaFileUri(1);
+        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+        startActivityForResult(takePictureIntent, REQUEST_CAPTURE_IMAGE_CODE);
+    }
+
+
+
+
+    public void cameraAndStoragePermission() {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            int permission = ContextCompat.checkSelfPermission(context, android.Manifest.permission.CAMERA);
+            int storagePermission = ContextCompat.checkSelfPermission(context, android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            if (permission == PackageManager.PERMISSION_GRANTED && storagePermission == PackageManager.PERMISSION_GRANTED) {
+
+                cameraAccess();
+
+            } else if (permission == PackageManager.PERMISSION_GRANTED && storagePermission != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CAMERA_PERMISSION);
+            } else if (permission != PackageManager.PERMISSION_GRANTED && storagePermission == PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{android.Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+            } else {
+                requestPermissions(new String[]{android.Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CAMERA_PERMISSION);
+            }
+        } else {
+            cameraAccess();
+        }
+    }
+
+
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_CAMERA_PERMISSION:
+                if (grantResults.length > 1) {
+                    if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+
+                        showVideoOrCameraAccess();
+
+                    } else {
+                        if (grantResults[0] != PackageManager.PERMISSION_GRANTED && grantResults[1] != PackageManager.PERMISSION_GRANTED) {
+                            floatingActionMenu.close(true);
+                            Toast.makeText(context, "Camera and storage access permission denied", Toast.LENGTH_LONG).show();
+                        } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] != PackageManager.PERMISSION_GRANTED) {
+                            floatingActionMenu.close(true);
+                            Toast.makeText(context, "Storage access permission denied", Toast.LENGTH_LONG).show();
+                        } else if (grantResults[0] != PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                            floatingActionMenu.close(true);
+                            Toast.makeText(context, "Camera access permission denied", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                } else {
+                    if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    } else {
+                        floatingActionMenu.close(true);
+                        Toast.makeText(context, "Permission denied", Toast.LENGTH_LONG).show();
+                    }
+                }
+                break;
+            case REQUEST_STORAGE_PERMISSION:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    documentUpload();
+                } else {
+                    floatingActionMenu.close(true);
+                    Toast.makeText(context, "Storage access permission denied", Toast.LENGTH_LONG).show();
+                }
+                break;
+        }
+    }
+
+    private void showVideoOrCameraAccess()
+    {
+        if(isVideo)
+        {
+            videoAccess();
+        }
+        else
+        {
+            cameraAccess();
+        }
+    }
+
+    public void showUnAuthorizedMessageAlert(String mMessage)
+    {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Alert");
+
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+        txtMessage.setText(mMessage);
+
+        Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+        cancelButton.setVisibility(View.GONE);
+
+        sendPinButton.setText("OK");
+
+        sendPinButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+
+            }
+        });
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
+    }
+
+
+
 }

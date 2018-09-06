@@ -45,6 +45,55 @@ public class DocumentPropertiesResponse {
     @Expose
     String tag;
 
+    @SerializedName("document_id")
+    @Expose
+    String document_id;
+
+    @SerializedName("category_id")
+    @Expose
+    String category_id;
+
+    @SerializedName("is_shared")
+    @Expose
+    String is_shared;
+
+
+    @SerializedName("version_count")
+    @Expose
+    String version_count;
+
+
+    public String getVersion_count() {
+        return version_count;
+    }
+
+    public void setVersion_count(String version_count) {
+        this.version_count = version_count;
+    }
+
+    public String getIs_shared() {
+        return is_shared;
+    }
+
+    public void setIs_shared(String is_shared) {
+        this.is_shared = is_shared;
+    }
+
+    public String getCategory_id() {
+        return category_id;
+    }
+
+    public void setCategory_id(String category_id) {
+        this.category_id = category_id;
+    }
+
+    public String getDocument_id() {
+        return document_id;
+    }
+
+    public void setDocument_id(String document_id) {
+        this.document_id = document_id;
+    }
 
     public String getVersion_number() {
         return version_number;

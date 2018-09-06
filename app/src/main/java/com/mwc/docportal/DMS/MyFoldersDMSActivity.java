@@ -93,7 +93,7 @@ import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
 import com.mwc.docportal.RootActivity;
 import com.mwc.docportal.Utils.Constants;
-import com.tbruyelle.rxpermissions2.RxPermissions;
+
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -108,13 +108,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import io.fabric.sdk.android.services.persistence.FileStore;
+
 import retrofit.Call;
 import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
 
-import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+
 
 /**
  * Created by harika on 11-07-2018.
@@ -1841,7 +1841,7 @@ public class MyFoldersDMSActivity extends RootActivity {
 
           getMenuInflater().inflate(R.menu.menu_multi_select, menu);
           menuItemSearch = menu.findItem(R.id.action_search);
-          menuItemDelete = menu.findItem(R.id.action_delete);
+          menuItemDelete = menu.findItem(R.id.action_delete);d
           menuItemShare = menu.findItem(R.id.action_share);
           menuItemMore = menu.findItem(R.id.action_more);
           menuItemMove = menu.findItem(R.id.action_move);
@@ -2104,7 +2104,7 @@ public class MyFoldersDMSActivity extends RootActivity {
             //DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(PreferenceUtils.getDocumentVersionId(this));
             List<String> strlist = new ArrayList<>();
             strlist.add("11917");
-            DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist);
+            DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist, "");
             final String request = new Gson().toJson(downloadDocumentRequest);
 
             //Here the json data is add to a hash map with key data

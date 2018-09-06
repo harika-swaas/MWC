@@ -1,6 +1,11 @@
 package com.mwc.docportal.API.Model;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+import com.mwc.docportal.API.Model.SharedFolderModel.SharedDocumentResponseModel;
+
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Created by harika on 12-07-2018.
@@ -39,6 +44,38 @@ public class GetCategoryDocumentsResponse implements Serializable{
     private String is_shared;
     private String category_id;
 
+    private String file_path;
+    private String doc_status;
+
+
+    @SerializedName("permission")
+    @Expose
+    private Permission permission;
+
+
+    public Permission getPermission() {
+        return permission;
+    }
+
+    public void setPermission(Permission permission) {
+        this.permission = permission;
+    }
+
+    public String getFile_path() {
+        return file_path;
+    }
+
+    public void setFile_path(String file_path) {
+        this.file_path = file_path;
+    }
+
+    public String getDoc_status() {
+        return doc_status;
+    }
+
+    public void setDoc_status(String doc_status) {
+        this.doc_status = doc_status;
+    }
 
     public String getCategory_id() {
         return category_id;
@@ -195,5 +232,19 @@ public class GetCategoryDocumentsResponse implements Serializable{
     }
 
 
+    public static class Permission implements Serializable{
+
+        @SerializedName("pvt-view-document")
+        @Expose
+        private boolean canViewDocument = true;
+
+        public boolean isCanViewDocument() {
+            return canViewDocument;
+        }
+
+        public void setCanViewDocument(boolean canViewDocument) {
+            this.canViewDocument = canViewDocument;
+        }
+    }
 
 }

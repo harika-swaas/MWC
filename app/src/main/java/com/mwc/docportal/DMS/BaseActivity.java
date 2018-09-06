@@ -42,7 +42,10 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
             if (itemId == R.id.navigation_folder) {
                 startActivity(new Intent(this, NavigationMyFolderActivity.class));
             } else if (itemId == R.id.navigation_shared) {
-                    startActivity(new Intent(this, NavigationSharedActivity.class));
+                Intent intent = new Intent(this, NavigationSharedActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                //    startActivity(new Intent(this, NavigationSharedActivity.class));
             } else if (itemId == R.id.navigation_settings) {
                     startActivity(new Intent(this, NavigationSettingsActivity.class));
             }

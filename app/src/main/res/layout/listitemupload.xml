@@ -103,7 +103,7 @@
                             android:layout_centerVertical="true"
                             android:alpha="0.87"
                             android:ellipsize="end"
-                            android:maxLines="1"
+                            android:maxLines="4"
                             android:singleLine="true"
                             android:text="File"
                             android:textColor="@color/black"

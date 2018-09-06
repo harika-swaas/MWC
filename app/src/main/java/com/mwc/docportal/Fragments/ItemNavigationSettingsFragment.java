@@ -48,6 +48,7 @@ import com.mwc.docportal.API.Model.WhiteLabelResponse;
 import com.mwc.docportal.API.Service.ShareEndUserDocumentsService;
 import com.mwc.docportal.DMS.MyFoldersDMSActivity;
 import com.mwc.docportal.Database.AccountSettings;
+import com.mwc.docportal.Database.PushNotificatoinSettings_Respository;
 import com.mwc.docportal.FTL.WebviewLoaderTermsActivity;
 import com.mwc.docportal.Login.LoginActivity;
 import com.mwc.docportal.Network.NetworkUtils;
@@ -420,7 +421,10 @@ public class ItemNavigationSettingsFragment extends Fragment{
 
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
 
-            final PushNotificationRequestModel externalShareResponseModel = new PushNotificationRequestModel("", "Android", register_type);
+            PushNotificatoinSettings_Respository pushNotificatoinSettings_respository = new PushNotificatoinSettings_Respository(mActivity);
+            String DeviceTokenId = pushNotificatoinSettings_respository.getDeviceTokenFromTableStatus();
+
+            final PushNotificationRequestModel externalShareResponseModel = new PushNotificationRequestModel(DeviceTokenId, "Android", register_type);
 
             String request = new Gson().toJson(externalShareResponseModel);
 
@@ -677,8 +681,7 @@ public class ItemNavigationSettingsFragment extends Fragment{
             public void onClick(View v) {
                 mAlertDialog.dismiss();
 
-                AccountSettings accountSettings = new AccountSettings(getActivity());
-                accountSettings.DeleteAllDatabaseTables();
+
 
                 SharedPreferences share_settings = mActivity.getSharedPreferences(MWC, Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = share_settings.edit();

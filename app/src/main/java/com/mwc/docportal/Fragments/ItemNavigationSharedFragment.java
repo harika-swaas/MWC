@@ -14,6 +14,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -24,13 +25,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.github.clans.fab.FloatingActionMenu;
 import com.google.gson.Gson;
 
 import com.mwc.docportal.API.Model.APIResponseModel;
-import com.mwc.docportal.API.Model.BaseApiResponse;
 import com.mwc.docportal.API.Model.GetCategoryDocumentsResponse;
 import com.mwc.docportal.API.Model.GetSharedCategoryDocumentsRequest;
 import com.mwc.docportal.API.Model.WhiteLabelResponse;
@@ -38,8 +37,8 @@ import com.mwc.docportal.API.Service.GetCategoryDocumentsService;
 
 
 
-import com.mwc.docportal.Adapters.SharedAdapter;
-import com.mwc.docportal.Adapters.SharedAdapterList;
+import com.mwc.docportal.Adapters.SharedFolderAdapter;
+import com.mwc.docportal.Adapters.SharedFolderAdapterList;
 import com.mwc.docportal.Common.SimpleDividerItemDecoration;
 import com.mwc.docportal.DMS.MyFoldersDMSActivity;
 
@@ -55,7 +54,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -85,8 +83,8 @@ public class ItemNavigationSharedFragment extends Fragment
     List<GetCategoryDocumentsResponse> mGetCategoryDocumentsResponses = new ArrayList<>();
 
     List<GetCategoryDocumentsResponse> mSelectedDocumentList = new ArrayList<>();
-    SharedAdapter mAdapter;
-    SharedAdapterList mAdapterList;
+    SharedFolderAdapter mAdapter;
+    SharedFolderAdapterList mAdapterList;
     AlertDialog mAlertDialog;
     boolean isFromList = false;
   /*  private DragSelectionProcessor.Mode mMode = DragSelectionProcessor.Mode.Simple;
@@ -516,62 +514,8 @@ public class ItemNavigationSharedFragment extends Fragment
         });
 
         mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 3));
-        mAdapter = new SharedAdapter(getCategoryDocumentsResponses, mSelectedDocumentList, getActivity(), ItemNavigationSharedFragment.this);
+        mAdapter = new SharedFolderAdapter(getCategoryDocumentsResponses, mActivity, "ObjectId");
         mRecyclerView.setAdapter(mAdapter);
-
-        mAdapter.setClickListener(new SharedAdapter.ItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-                mAdapter.toggleSelection(position);
-                mSelectedDocumentList.remove(mGetCategoryDocumentsResponses.get(position));
-
-                updateToolbarMenuItems(mSelectedDocumentList);
-            }
-
-            @Override
-            public boolean onItemLongClick(View view, int position) {
-                // if one item is long pressed, we start the drag selection like following:
-                // we just call this function and pass in the position of the first selected item
-                // the selection processor does take care to update the positions selection mode correctly
-                // and will correctly transform the touch events so that they can be directly applied to your adapter!!!
-                menuItemDelete.setVisible(true);
-                menuItemShare.setVisible(true);
-                menuItemMore.setVisible(true);
-                menuItemSearch.setVisible(false);
-
-           //     mDragSelectTouchListener.startDragSelection(position);
-
-                GetCategoryDocumentsResponse documentsResponseObj = mGetCategoryDocumentsResponses.get(position);
-                mSelectedDocumentList.add(documentsResponseObj);
-
-                updateToolbarMenuItems(mSelectedDocumentList);
-
-                return true;
-            }
-        });
-
-
-       /* mDragSelectionProcessor = new DragSelectionProcessor(new DragSelectionProcessor.ISelectionHandler() {
-            @Override
-            public HashSet<Integer> getSelection() {
-                return mAdapter.getSelection();
-            }
-
-            @Override
-            public boolean isSelected(int index) {
-                return mAdapter.getSelection().contains(index);
-            }
-
-            @Override
-            public void updateSelection(int start, int end, boolean isSelected, boolean calledFromOnStart) {
-                mAdapter.selectRange(start, end, isSelected);
-            }
-        })
-                .withMode(mMode);
-        mDragSelectTouchListener = new DragSelectTouchListener()
-                .withSelectListener(mDragSelectionProcessor);
-        updateSelectionListener();
-        mRecyclerView.addOnItemTouchListener(mDragSelectTouchListener);*/
 
 
 
@@ -590,7 +534,7 @@ public class ItemNavigationSharedFragment extends Fragment
 
         // Setup the RecyclerView
         mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 3));
-        mAdapter = new SharedAdapter(getCategoryDocumentsResponses, mSelectedDocumentList, getActivity(), ItemNavigationSharedFragment.this);
+        mAdapter = new SharedFolderAdapter(getCategoryDocumentsResponses, mActivity, "ObjectId");
         mRecyclerView.setAdapter(mAdapter);
 
 
@@ -603,7 +547,7 @@ public class ItemNavigationSharedFragment extends Fragment
         linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         mRecyclerView.setLayoutManager(linearLayoutManager);
         mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
-        mAdapterList = new SharedAdapterList(getCategoryDocumentsResponses, mSelectedDocumentList, getActivity());
+        mAdapterList = new SharedFolderAdapterList(getCategoryDocumentsResponses, getActivity(),"ObjectId");
         mRecyclerView.setAdapter(mAdapterList);
 
 

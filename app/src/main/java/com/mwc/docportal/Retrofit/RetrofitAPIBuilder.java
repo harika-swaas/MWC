@@ -19,6 +19,7 @@ import retrofit.Retrofit;
 public class RetrofitAPIBuilder {
 
     static Retrofit retrofit = null;
+    static Retrofit sharedRetrofit = null;
 
     public static synchronized Retrofit getInstance() {
 
@@ -47,4 +48,35 @@ public class RetrofitAPIBuilder {
         }
         return retrofit;
     }
+
+
+    public static synchronized Retrofit getSharedInstance() {
+
+        /*String UA = System.getProperty("http.agent");*/
+
+        int versionCode = BuildConfig.VERSION_CODE;
+        String versionName = BuildConfig.VERSION_NAME;
+        String versionRelease = Build.VERSION.RELEASE;
+        String MwcApp = "MWCApp";
+
+        String UA = "(MWCAndroid)"+"("+MwcApp + " " + versionName+"["+versionCode+"]"+")"+"(Android" + " " + versionRelease+")";
+        //  String UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36";
+
+        final OkHttpClient okHttpClient = new OkHttpClient();
+        okHttpClient.setReadTimeout(600, TimeUnit.SECONDS);
+        okHttpClient.setConnectTimeout(600, TimeUnit.SECONDS);
+        okHttpClient.networkInterceptors().add(new StethoInterceptor());
+        okHttpClient.interceptors().add(new UserAgentInterceptor(UA));
+
+        if(sharedRetrofit == null) {
+            sharedRetrofit = new Retrofit.Builder()
+                    .baseUrl(Constants.SHARED_COMPANY_BASE_URL)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .client(okHttpClient)
+                    .build();
+        }
+        return sharedRetrofit;
+    }
+
+
 }

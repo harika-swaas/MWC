@@ -1,101 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
 
-
     <android.support.design.widget.AppBarLayout
-        android:id="@+id/appbar"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:fitsSystemWindows="true"
-        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
 
-        <RelativeLayout
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="?android:attr/actionBarSize"
+            android:background="@color/white"
+            app:titleTextColor="@color/black"
+            app:popupTheme="@style/AppTheme.PopupOverlay" >
 
-            <RelativeLayout
-                android:id="@+id/l1"
-                android:layout_width="wrap_content"
-                android:layout_marginTop="5dp"
-
-                android:layout_height="wrap_content">
-
-                <ImageView
-                    android:id="@+id/back_image_view"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginTop="4dp"
-                    android:src="@mipmap/ic_back" />
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:gravity="center"
-                    android:text="Upload"
-                    android:textSize="17dp"
-                    android:textColor="@color/black" />
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/l2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="270dp"
-                android:layout_marginTop="5dp"
-                android:layout_toRightOf="@id/l1">
-
-                <ImageView
-                    android:id="@+id/uploadlist"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:src="@mipmap/ic_upload" />
-
-
-
-            </RelativeLayout>
-
-            <LinearLayout
-                android:id="@+id/l3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="5dp"
-                android:layout_marginTop="5dp"
-                android:layout_toRightOf="@id/l2">
-
-                <ImageView
-                    android:id="@+id/add"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_centerVertical="true"
-                    android:src="@mipmap/ic_add" />
-            </LinearLayout>
-        </RelativeLayout>
+        </android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>
-
 
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/nest_scrollview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/appbar"
+        android:layout_height="wrap_content"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <FrameLayout
@@ -112,6 +42,29 @@
             </android.support.v7.widget.RecyclerView>
         </FrameLayout>
     </android.support.v4.widget.NestedScrollView>
-</RelativeLayout>
+
+
+    <LinearLayout
+        android:id="@+id/empty_view"
+        android:layout_width="match_parent"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:visibility="gone"
+        android:orientation="vertical"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/document_empty_txt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:textSize="15sp"
+            android:text="No documents found." />
+
+    </LinearLayout>
+
+
+</LinearLayout>
 
 

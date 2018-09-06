@@ -46,7 +46,7 @@ import com.mwc.docportal.Login.LoginHelpUserGuideActivity;
 import com.mwc.docportal.Login.Notifiy;
 import com.mwc.docportal.Login.PinVerificationActivity;
 import com.mwc.docportal.Login.Touchid;
-import com.mwc.docportal.MessageDialog;
+
 import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;

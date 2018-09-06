@@ -9,6 +9,7 @@
         android:name="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
         tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="com.pixelpoint.permission.C2D_MESSAGE" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.READ_SMS" />
@@ -18,10 +19,10 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.GET_TASKS" />
     <uses-permission
         android:name="android.permission.CAPTURE_VIDEO_OUTPUT"
         tools:ignore="ProtectedPermissions" />
-
 
     <application
         android:name=".MWCApplication"
@@ -47,9 +48,8 @@
         <activity
             android:name=".FTL.FTLRegistrationActivity"
             android:screenOrientation="portrait" />
-        <activity
-            android:name=".FTL.FTLPinVerificationActivity"/>
-           <!-- android:screenOrientation="portrait" -->
+        <activity android:name=".FTL.FTLPinVerificationActivity" />
+        <!-- android:screenOrientation="portrait" -->
         <activity
             android:name=".FTL.FTLUserValidationActivity"
             android:screenOrientation="portrait" />
@@ -71,25 +71,22 @@
         <activity
             android:name=".Login.Verify"
             android:screenOrientation="portrait" />
-        <activity
-            android:name=".FTL.FTLAgreeTermsAcceptanceActivity"/>
-           <!-- android:screenOrientation="portrait" -->
-        <activity
-            android:name=".FTL.WebviewLoaderTermsActivity"/>
-           <!-- android:screenOrientation="portrait" -->
-        <activity
-            android:name=".Login.LoginAgreeTermsAcceptanceActivity"/>
-           <!-- android:screenOrientation="portrait" -->
-        <activity
-            android:name=".Login.LoginHelpUserGuideActivity"/>
-          <!--  android:screenOrientation="portrait" -->
+        <activity android:name=".FTL.FTLAgreeTermsAcceptanceActivity" />
+        <!-- android:screenOrientation="portrait" -->
+        <activity android:name=".FTL.WebviewLoaderTermsActivity" />
+        <!-- android:screenOrientation="portrait" -->
+        <activity android:name=".Login.LoginAgreeTermsAcceptanceActivity" />
+        <!-- android:screenOrientation="portrait" -->
+        <activity android:name=".Login.LoginHelpUserGuideActivity" />
+        <!-- android:screenOrientation="portrait" -->
         <activity
             android:name=".DMS.MyFoldersDMSActivity"
             android:screenOrientation="portrait" />
         <activity android:name=".DMS.MyFolderCopyActivity" />
         <activity android:name=".DMS.MyFolderCategoryActivity" />
-        <activity android:name=".DMS.UploadListActivity"
-            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".DMS.UploadListActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".DMS.MyFolderSharedDocuments"
             android:screenOrientation="portrait" />
@@ -101,6 +98,7 @@
         <activity android:name=".DMS.MyFolderActivity" />
         <activity android:name=".pdf.PdfViewActivity" />
         <activity android:name=".DMS.MyfolderDeleteActivity" />
+
         <receiver android:name=".ReadSms">
             <intent-filter>
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
@@ -116,7 +114,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
-
         <provider
             android:name=".GenericFileProvider"
             android:authorities="${applicationId}.my.package.name.provider"
@@ -124,46 +121,44 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_paths"/>
+                android:resource="@xml/provider_paths" />
         </provider>
 
-
-        <meta-data
+        <!--<meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/notification_bg_low" />
-        <!-- Set color used with incoming notification messages. This is used when no color is set for the incoming
-             notification message. See README(https://goo.gl/6BKBk7) for more. -->
+        &lt;!&ndash;
+             Set color used with incoming notification messages. This is used when no color is set for the incoming
+             notification message. See README(https://goo.gl/6BKBk7) for more.
+        &ndash;&gt;
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
-            android:resource="@color/colorAccent" />
+            android:resource="@color/colorAccent" />-->
 
 
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="d96603e1352aa9824c02ecac1485febe32590ab7" />
 
-
-        <service
-            android:name=".Firebase.MyFirebaseInstanceIdService">
+        <service android:name=".Firebase.MyFirebaseInstanceIdService">
             <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
-
         <service
-            android:name=".Firebase.MyFirebaseMessagingService">
+            android:name=".Firebase.MyFirebaseMessagingService"
+            android:stopWithTask="true">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-
 
         <activity android:name=".OffLine_Files_List" />
-
-        <activity android:name=".UserProfileActivity"></activity>
+        <activity android:name=".UserProfileActivity" />
         <activity android:name=".DMS.NavigationMyFolderActivity" />
         <activity android:name=".DMS.NavigationSharedActivity" />
-        <activity android:name=".DMS.NavigationSettingsActivity"></activity>
+        <activity android:name=".DMS.NavigationSettingsActivity" />
+        <activity android:name=".GlobalSearch.GlobalSearchActivity"></activity>
     </application>
 
 </manifest>

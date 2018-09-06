@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Log;
@@ -54,6 +55,7 @@ public class FileDownloadManager extends RootActivity {
     long downloadId;
     GetCategoryDocumentsResponse digitalAssets;
     FileDownloadListener mFileDownloadListener;
+    public static final int REQUEST_STORAGE_PERMISSION = 111;
 
     public FileDownloadManager(Activity context) {
         this.context = context;
@@ -112,7 +114,7 @@ public class FileDownloadManager extends RootActivity {
                         }
                     } else {
                         setmFileDownloadManager(mFileDownloadManager);
-                        context.requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, Constants.REQUEST_PERMISSION_STORAGE);
+                        context.requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_STORAGE_PERMISSION);
                     }
                 } else {
                     if (digitalAssets == null) {
@@ -364,4 +366,24 @@ public class FileDownloadManager extends RootActivity {
     public void setmFileDownloadListener(FileDownloadListener fileDownloadListener) {
         mFileDownloadListener = fileDownloadListener;
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+
+            case REQUEST_STORAGE_PERMISSION:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if (digitalAssets == null) {
+                        successToDownload();
+                    } else {
+                        successToAssetDownload();
+                    }
+                } else {
+                    Toast.makeText(context, "Storage access permission denied", Toast.LENGTH_LONG).show();
+                }
+                break;
+        }
+    }
+
+
 }

@@ -5,6 +5,7 @@ import com.mwc.docportal.API.Model.ApiResponse;
 import com.mwc.docportal.API.Model.BaseApiResponse;
 import com.mwc.docportal.API.Model.GetCategoryDocumentsResponse;
 import com.mwc.docportal.API.Model.ListPinDevicesResponse;
+import com.mwc.docportal.API.Model.SharedFolderModel.SharedDocumentResponseModel;
 
 import java.util.Map;
 
@@ -64,4 +65,8 @@ public interface GetCategoryDocumentsService {
     @POST("get-shared-category-documents?")
     @FormUrlEncoded
     Call<APIResponseModel> getSharedCategoryDocumentsV2(@FieldMap Map<String,String> params, @Header("access-token") String accessToken);
+
+    @POST("get-shared-category-documents-tree")
+    @FormUrlEncoded
+    Call<SharedDocumentResponseModel> getSharedDocumentAndCategoryDocumentsV2(@FieldMap Map<String,String> params, @Header("access-token") String accessToken);
 }

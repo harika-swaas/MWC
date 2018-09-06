@@ -30,13 +30,14 @@ import com.mwc.docportal.API.Service.ShareEndUserDocumentsService;
 import com.mwc.docportal.DMS.MyFoldersDMSActivity;
 import com.mwc.docportal.DMS.NavigationMyFolderActivity;
 import com.mwc.docportal.Database.AccountSettings;
+import com.mwc.docportal.Database.PushNotificatoinSettings_Respository;
 import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
 import com.mwc.docportal.RootActivity;
 import com.mwc.docportal.Utils.Constants;
-import com.tbruyelle.rxpermissions2.RxPermissions;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -62,7 +63,7 @@ public class Notifiy extends RootActivity {
     AlertDialog mCustomAlertDialog;
     Notifiy mActivity;
     Context context = this;
-    String register_type;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,7 +75,6 @@ public class Notifiy extends RootActivity {
         setButtonBackgroundColor();
         getAccountSettings();
 
-        RxPermissions rxPermissions = new RxPermissions(this);
 
         button5.setOnClickListener(new View.OnClickListener() {
 
@@ -97,38 +97,8 @@ public class Notifiy extends RootActivity {
                         mCustomAlertDialog.dismiss();
 
                         updatePushNotificationAndLoggedInStatus();
-
-
-
-                        rxPermissions
-                                .request(Manifest.permission.ACCESS_NOTIFICATION_POLICY
-
-
-                                ) // ask single or multiple permission once
-                                .subscribe(granted -> {
-                                    if (granted) { // Always true pre-M
-                                        // I can control the camera now
-                                        String channalId = "my_channel_01";
-
-                                        if(isNotificationChannelEnabled(context, channalId) == true)
-                                        {
-                                            register_type = "1";
-                                        }
-                                        else {
-                                            register_type = "0";
-                                        }
-
-                                        getPushNotificationDocumentService(register_type);
-
-
-                                    } else {
-                                       Toast.makeText(context, "Please enable notification in settings page", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-
-
-
-
+                        String register_type = "1";
+                        getPushNotificationDocumentService(register_type);
 
                     }
                 });
@@ -139,16 +109,7 @@ public class Notifiy extends RootActivity {
                         mCustomAlertDialog.dismiss();
                         updateLoggedInStatus();
 
-                        String channalId = "my_channel_01";
-                        String register_type;
-                        if(isNotificationChannelEnabled(context, channalId) == true)
-                        {
-                            register_type = "1";
-                        }
-                        else {
-                            register_type = "0";
-                        }
-
+                       String register_type = "0";
                         getPushNotificationDocumentService(register_type);
 
 
@@ -181,7 +142,11 @@ public class Notifiy extends RootActivity {
             @Override
             public void onClick(View v) {
                 updateLoggedInStatus();
-                if (mIsFromFTL) {
+
+                String register_type = "0";
+                getPushNotificationDocumentService(register_type);
+
+                /*if (mIsFromFTL) {
                     Intent intent = new Intent(Notifiy.this, LoginHelpUserGuideActivity.class);
                     startActivity(intent);
                     finish();
@@ -197,18 +162,21 @@ public class Notifiy extends RootActivity {
                             finish();
                         }
                     }
-                }
+                }*/
             }
         });
     }
 
-    private void getPushNotificationDocumentService(final String register_type)
+    private void getPushNotificationDocumentService(String register_type)
     {
         if (NetworkUtils.isNetworkAvailable(context)) {
 
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
 
-            final PushNotificationRequestModel externalShareResponseModel = new PushNotificationRequestModel("", "Android", register_type);
+            PushNotificatoinSettings_Respository pushNotificatoinSettings_respository = new PushNotificatoinSettings_Respository(context);
+            String DeviceTokenId = pushNotificatoinSettings_respository.getDeviceTokenFromTableStatus();
+
+            final PushNotificationRequestModel externalShareResponseModel = new PushNotificationRequestModel(DeviceTokenId, "Android", register_type);
 
             String request = new Gson().toJson(externalShareResponseModel);
 
@@ -232,6 +200,11 @@ public class Notifiy extends RootActivity {
                                 AccountSettings accountSettings = new AccountSettings(context);
                                 accountSettings.UpdatePushNotificatoinSettings(register_type);
 
+                                PushNotificatoinSettings_Respository pushNotificatoinSettings = new PushNotificatoinSettings_Respository(context);
+                                pushNotificatoinSettings.updatePushNotificatoinStatus(register_type);
+
+                                getAccountSettings();
+
                                 if (mIsFromFTL) {
                                     Intent intent = new Intent(Notifiy.this, LoginHelpUserGuideActivity.class);
                                     startActivity(intent);
@@ -242,20 +215,16 @@ public class Notifiy extends RootActivity {
                                             Intent intent = new Intent(Notifiy.this, LoginAgreeTermsAcceptanceActivity.class);
                                             startActivity(intent);
                                             finish();
-                                        } else if(mAccountSettingsResponses.get(0).getIs_Help_Accepted().equals("0")){
-                                            Intent intent = new Intent(Notifiy.this, NavigationMyFolderActivity.class);
-                                            startActivity(intent);
-                                            finish();
-                                        }
-                                        else{
+                                        } else if(mAccountSettingsResponses.get(0).getIs_Help_Accepted().equals("1")){
                                             Intent intent = new Intent(Notifiy.this, LoginHelpUserGuideActivity.class);
                                             startActivity(intent);
                                             finish();
                                         }
-                                    } else {
-                                        Intent intent = new Intent(Notifiy.this, NavigationMyFolderActivity.class);
-                                        startActivity(intent);
-                                        finish();
+                                        else{
+                                            Intent intent = new Intent(Notifiy.this, NavigationMyFolderActivity.class);
+                                            startActivity(intent);
+                                            finish();
+                                        }
                                     }
                                 }
 
@@ -451,18 +420,5 @@ public class Notifiy extends RootActivity {
     }
 
 
-    public boolean isNotificationChannelEnabled(Context context,String channelId){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if(!TextUtils.isEmpty(channelId)) {
-                NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-                if(manager==null)
-                {
-                    NotificationChannel channel = manager.getNotificationChannel(channelId);
-                return channel.getImportance() != NotificationManager.IMPORTANCE_NONE;
-            }}
-            return false;
-        } else {
-            return NotificationManagerCompat.from(context).areNotificationsEnabled();
-        }
-    }
+
 }

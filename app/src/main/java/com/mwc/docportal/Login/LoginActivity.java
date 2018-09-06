@@ -14,12 +14,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.mwc.docportal.API.Model.AccountSettingsResponse;
 import com.mwc.docportal.DMS.MyFoldersDMSActivity;
 import com.mwc.docportal.DMS.NavigationMyFolderActivity;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Database.PushNotificatoinSettings_Respository;
 import com.mwc.docportal.Fragments.LoginFragment;
+import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
 import com.mwc.docportal.RootActivity;
 import com.mwc.docportal.Utils.Constants;
@@ -41,59 +43,28 @@ public class LoginActivity extends RootActivity {
     private static final int CREDENTIALS_RESULT = 4342;
     List<AccountSettingsResponse> mAccountSettingsResponses = new ArrayList<>();
     int backButtonCount;
-    Context context = this;
 
-    PushNotificatoinSettings_Respository pushNotificatoinSettings_respository;
-    AlertDialog mCustomAlertDialog;
-    String pushNotificatonStatus;
+    String documentVersionId = "";
+    String notificationType = "";
+    Context context = this;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        pushNotificatoinSettings_respository = new PushNotificatoinSettings_Respository(context);
-        int rowCount = pushNotificatoinSettings_respository.getCountOfPushNotificationSettings();
 
-        if (rowCount == 0) {
-
-            showPushNotificationWarningAlert();
+        if(getIntent().getStringExtra("document_version_id") != null)
+        {
+            documentVersionId = getIntent().getStringExtra("document_version_id");
+            notificationType = getIntent().getStringExtra("notification_type");
+            PreferenceUtils.setPushNotificationDocumentVersionId(LoginActivity.this, documentVersionId);
+            PreferenceUtils.setPushNotificationDocumentShare(LoginActivity.this, notificationType);
         }
+
 
         mLoginFragment = new LoginFragment();
         loadFTLFragment();
     }
-
-    private void showPushNotificationWarningAlert()
-    {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.custom_dialog, null);
-        builder.setView(view);
-        builder.setCancelable(false);
-
-        final Button BtnAllow = (Button) view.findViewById(R.id.allow_button);
-        final Button BtnCancel = (Button) view.findViewById(R.id.cancel_button);
-
-        BtnAllow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mCustomAlertDialog.dismiss();
-                pushNotificatoinSettings_respository.insertIntoPushNotificatonTable(1, 1);
-            }
-        });
-
-        BtnCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mCustomAlertDialog.dismiss();
-                pushNotificatoinSettings_respository.insertIntoPushNotificatonTable(0, 1);
-            }
-        });
-
-        mCustomAlertDialog = builder.create();
-        mCustomAlertDialog.show();
-    }
-
 
 
     private void loadFTLFragment() {
@@ -106,13 +77,7 @@ public class LoginActivity extends RootActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
-        pushNotificatonStatus = pushNotificatoinSettings_respository.getPushNotificatonSettingsStatus();
-
-
         checkAppStatus();
-
-
 
     }
 
@@ -153,16 +118,8 @@ public class LoginActivity extends RootActivity {
                     finish();
                     checkCredentials();
 
-                    if(pushNotificatonStatus != null && pushNotificatonStatus.equals("1"))
-                    {
-                        startActivity(new Intent(LoginActivity.this, LoginHelpUserGuideActivity.class));
-                        LoginActivity.this.finish();
-                    }
-                    else
-                    {
-                        startActivity(new Intent(LoginActivity.this, Notifiy.class));
-                        LoginActivity.this.finish();
-                    }
+                    startActivity(new Intent(LoginActivity.this, Notifiy.class));
+                    LoginActivity.this.finish();
 
                 }
             }, timeout);
@@ -237,11 +194,13 @@ public class LoginActivity extends RootActivity {
                 public void run() {
                     finish();
 
-                    startActivity(new Intent(LoginActivity.this, NavigationMyFolderActivity.class));
-                    LoginActivity.this.finish();
                     if(mAccountSettingsResponses.get(0).getIs_Local_Auth_Enabled().equalsIgnoreCase("1")) {
                         checkCredentials();
                     }
+
+                    startActivity(new Intent(LoginActivity.this, NavigationMyFolderActivity.class));
+                    LoginActivity.this.finish();
+
                 }
             }, timeout);
         }
@@ -276,18 +235,9 @@ public class LoginActivity extends RootActivity {
             LoginActivity.this.finish();
         } else {
 
-            if(pushNotificatonStatus != null && pushNotificatonStatus.equals("1"))
-            {
-                Intent intent = new Intent(LoginActivity.this, LoginHelpUserGuideActivity.class);
-                startActivity(intent);
-                LoginActivity.this.finish();
-            }
-            else
-            {
                 Intent intent = new Intent(LoginActivity.this, Notifiy.class);
                 startActivity(intent);
                 LoginActivity.this.finish();
-            }
 
 
         }
@@ -308,6 +258,7 @@ public class LoginActivity extends RootActivity {
 
             if (resultCode == RESULT_OK) {
 
+                Toast.makeText(getApplicationContext(), "Success", Toast.LENGTH_SHORT).show();
             }
             else{
                 Toast.makeText(LoginActivity.this,"Authentication Failed",Toast.LENGTH_SHORT).show();

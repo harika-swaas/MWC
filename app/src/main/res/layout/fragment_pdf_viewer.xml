@@ -33,7 +33,7 @@
         android:textSize="16sp"
         android:textColor="#FFFFFF"
         android:id="@+id/progress_text"
-        android:text="Please wait Loading"/>
+        android:text="Please wait"/>
 
     <com.mwc.docportal.pdf.PDFView
         android:id="@+id/asset_pdf_player"
