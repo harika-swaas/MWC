@@ -30,6 +30,7 @@ import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -235,8 +236,8 @@ public class SharedDMSEndUserParentFolderAdapter extends RecyclerView.Adapter<Sh
                     document_ids = getCategoryDocumentsResponseList.toArray(new String[getCategoryDocumentsResponseList.size()]);
                 }
             }*/
-
-            final ShareEndUserDocumentsRequest mShareEndUserDocumentsRequest = new ShareEndUserDocumentsRequest(new String[]{PreferenceUtils.getDocument_Id(context)},PreferenceUtils.getWorkspaceId(context), PreferenceUtils.getCategoryId(context));
+            ArrayList<String> documentIds = new ArrayList<>();
+            final ShareEndUserDocumentsRequest mShareEndUserDocumentsRequest = new ShareEndUserDocumentsRequest(documentIds,PreferenceUtils.getWorkspaceId(context), PreferenceUtils.getCategoryId(context));
 
             String request = new Gson().toJson(mShareEndUserDocumentsRequest);
 

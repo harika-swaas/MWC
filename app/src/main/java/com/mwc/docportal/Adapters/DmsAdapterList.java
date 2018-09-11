@@ -60,6 +60,7 @@ import com.mwc.docportal.DMS.MyFolderSharedDocuments;
 import com.mwc.docportal.DMS.MyFoldersDMSActivity;
 import com.mwc.docportal.DMS.MyfolderDeleteActivity;
 import com.mwc.docportal.DMS.NavigationMyFolderActivity;
+import com.mwc.docportal.DMS.NavigationSharedActivity;
 import com.mwc.docportal.DMS.Tab_Activity;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Database.OffLine_Files_Repository;
@@ -228,14 +229,6 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
             holder.folder_name.setText(name);
 
 
-            if(GlobalVariables.isMoveInitiated)
-            {
-                holder.imageMore.setVisibility(View.GONE);
-            }
-            else
-            {
-                holder.imageMore.setVisibility(View.VISIBLE);
-            }
 
             if(GlobalVariables.sortType.equalsIgnoreCase("name"))
             {
@@ -356,23 +349,12 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                 holder.selectedItemIv.setVisibility(View.GONE);
             }
 
-            if(selectedList != null && selectedList.size() > 0)
+            holder.imageMore.setVisibility(View.VISIBLE);
+
+            if(selectedList.size() > 0 || !mGetCategoryDocumentsResponses.get(position).getPermission().isCanViewDocument() || GlobalVariables.isMoveInitiated)
             {
                 holder.imageMore.setVisibility(View.GONE);
             }
-            else
-            {
-                holder.imageMore.setVisibility(View.VISIBLE);
-            }
-
-            if(!mGetCategoryDocumentsResponses.get(position).getPermission().isCanViewDocument()) {
-                holder.imageMore.setVisibility(View.GONE);
-            }
-            else
-            {
-                holder.imageMore.setVisibility(View.VISIBLE);
-            }
-
 
         }
     }
@@ -588,24 +570,18 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
             {
                 if(buttonView.isPressed() == true) {
-
+                    mBottomSheetDialog.dismiss();
                     if (!isChecked) {
                         switchButton_share.setChecked(true);
                         showWarningMessageAlertForSharingContent(categoryDocumentsResponse);
-                        mBottomSheetDialog.dismiss();
 
                     } else {
                         switchButton_share.setChecked(false);
-                        List<GetCategoryDocumentsResponse> selectedList = new ArrayList<>();
-                        selectedList.add(categoryDocumentsResponse);
-
-                        PreferenceUtils.setCategoryId(context, categoryDocumentsResponse.getCategory_id());
-                        PreferenceUtils.setDocument_Id(context, categoryDocumentsResponse.getObject_id());
-
-                        Intent mIntent = new Intent(context,MyFolderSharedDocuments.class);
-                        mIntent.putExtra(Constants.OBJ, (Serializable) selectedList);
-                        context.startActivity(mIntent);
-                        mBottomSheetDialog.dismiss();
+                        GlobalVariables.isMoveInitiated = true;
+                        GlobalVariables.selectedActionName =  "share";
+                        Intent intent = new Intent(context, NavigationSharedActivity.class);
+                        intent.putExtra("ObjectId", "0");
+                        context.startActivity(intent);
                     }
 
 

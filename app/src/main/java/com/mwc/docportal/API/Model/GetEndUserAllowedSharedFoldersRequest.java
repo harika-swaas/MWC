@@ -11,30 +11,30 @@ public class GetEndUserAllowedSharedFoldersRequest {
 
     @SerializedName("workspace_id")
     @Expose
-    private int workspace_id;
+    private String workspace_id;
 
     @SerializedName("category_id")
     @Expose
-    private int category_id;
+    private String category_id;
 
-    public GetEndUserAllowedSharedFoldersRequest(int workspace_id,int category_id){
+    public GetEndUserAllowedSharedFoldersRequest(String workspace_id,String category_id){
         this.workspace_id = workspace_id;
         this.category_id = category_id;
     }
 
-    public int getWorkspace_id() {
+    public String getWorkspace_id() {
         return workspace_id;
     }
 
-    public void setWorkspace_id(int workspace_id) {
+    public void setWorkspace_id(String workspace_id) {
         this.workspace_id = workspace_id;
     }
 
-    public int getCategory_id() {
+    public String getCategory_id() {
         return category_id;
     }
 
-    public void setCategory_id(int category_id) {
+    public void setCategory_id(String category_id) {
         this.category_id = category_id;
     }
 }

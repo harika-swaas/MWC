@@ -55,7 +55,7 @@ public class FileDownloadManager extends RootActivity {
     long downloadId;
     GetCategoryDocumentsResponse digitalAssets;
     FileDownloadListener mFileDownloadListener;
-    public static final int REQUEST_STORAGE_PERMISSION = 111;
+    public static final int REQUEST_STORAGE_PERMISSION = 4444;
 
     public FileDownloadManager(Activity context) {
         this.context = context;
@@ -196,13 +196,35 @@ public class FileDownloadManager extends RootActivity {
             request.setDestinationInExternalPublicDir(file.getAbsolutePath(), fileName);
             BroadcastReceiver onComplete = new BroadcastReceiver() {
                 @Override
-                public void onReceive(Context context, Intent intent) {
-                    if (digitalAssets.getIs_Downloaded() != 1) {
+                public void onReceive(Context context, Intent intent)
+                {
 
-                        if (getDownloadUrl().endsWith("zip")) {
-                            unpackZip(Environment.getExternalStorageDirectory()
-                                    .getAbsolutePath() + context.getCacheDir().getAbsolutePath() + File.separator + digitalAssets.getDocument_version_id() + File.separator, fileName);
+                    if (getDownloadUrl().endsWith("zip")) {
+
+                        if(unpackZip(Environment.getExternalStorageDirectory()
+                                .getAbsolutePath() + context.getCacheDir().getAbsolutePath() + File.separator + digitalAssets.getDocument_version_id() + File.separator, fileName)){
+
+                            digitalAssets.setIs_Downloaded(1);
+                            if (!getDownloadUrl().endsWith("zip")) {
+                                digitalAssets.setDownloadUrl(Environment.getExternalStorageDirectory()
+                                        .getAbsolutePath() + context.getCacheDir().getAbsolutePath() + File.separator + digitalAssets.getDocument_version_id() + File.separator + fileName);
+                            } else {
+                                digitalAssets.setDownloadUrl(Environment.getExternalStorageDirectory()
+                                        .getAbsolutePath() + context.getCacheDir().getAbsolutePath() + File.separator + digitalAssets.getDocument_version_id() + File.separator + fileName);
+                            }
+
+                            if (mFileDownloadListener != null) {
+                                mFileDownloadListener.fileDownloadSuccess(digitalAssets.getDownloadUrl());
+                            }
+
+                        }else{
+                            if (mFileDownloadListener != null) {
+                                mFileDownloadListener.fileDownloadFailure();
+                            }
                         }
+                    }
+                    else if (digitalAssets.getIs_Downloaded() != 1) {
+
                         digitalAssets.setIs_Downloaded(1);
                         if (!getDownloadUrl().endsWith("zip")) {
                             digitalAssets.setDownloadUrl(Environment.getExternalStorageDirectory()
@@ -211,12 +233,11 @@ public class FileDownloadManager extends RootActivity {
                             digitalAssets.setDownloadUrl(Environment.getExternalStorageDirectory()
                                     .getAbsolutePath() + context.getCacheDir().getAbsolutePath() + File.separator + digitalAssets.getDocument_version_id() + File.separator + fileName);
                         }
-                        OffLine_Files_Repository digitalAssetRepository = new OffLine_Files_Repository(context);
-                      //  digitalAssetRepository.insertOrUpdateDAHeader(digitalAssets);
-                     //   digitalAssetRepository.insertDownloadedAsset(digitalAssets.getDocumentVersionId(), digitalAssets.getDA_Offline_URL());
-                        if (mFileDownloadListener != null) {
+
+                         if (mFileDownloadListener != null) {
                             mFileDownloadListener.fileDownloadSuccess(digitalAssets.getDownloadUrl());
-                        }
+                         }
+
                     }
                 }
             };

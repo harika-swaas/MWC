@@ -44,15 +44,22 @@ import com.mwc.docportal.API.Model.ColorCodeModel;
 import com.mwc.docportal.API.Model.DownloadDocumentRequest;
 import com.mwc.docportal.API.Model.DownloadDocumentResponse;
 import com.mwc.docportal.API.Model.GetCategoryDocumentsResponse;
+import com.mwc.docportal.API.Model.GetEndUserAllowedSharedFoldersRequest;
+import com.mwc.docportal.API.Model.GetEndUserCategoriesResponse;
+import com.mwc.docportal.API.Model.GetEndUserSharedParentFoldersResponse;
 import com.mwc.docportal.API.Model.GetSharedCategoryDocumentsRequest;
+import com.mwc.docportal.API.Model.ListPinDevicesResponse;
 import com.mwc.docportal.API.Model.OfflineFiles;
+import com.mwc.docportal.API.Model.ShareEndUserDocumentsRequest;
 import com.mwc.docportal.API.Model.SharedFolderModel.SharedDocumentRequestModel;
 import com.mwc.docportal.API.Model.SharedFolderModel.SharedDocumentResponseModel;
 import com.mwc.docportal.API.Model.StopSharingRequestModel;
 import com.mwc.docportal.API.Model.WhiteLabelResponse;
 import com.mwc.docportal.API.Service.DownloadDocumentService;
 import com.mwc.docportal.API.Service.GetCategoryDocumentsService;
+import com.mwc.docportal.API.Service.GetEndUserAllowedSharedFoldersService;
 import com.mwc.docportal.API.Service.GetEndUserParentSHaredFoldersService;
+import com.mwc.docportal.API.Service.ShareEndUserDocumentsService;
 import com.mwc.docportal.Adapters.DmsAdapter;
 import com.mwc.docportal.Adapters.DmsAdapterList;
 import com.mwc.docportal.Adapters.SharedFolderAdapter;
@@ -123,15 +130,16 @@ public class NavigationSharedActivity extends BaseActivity {
     SharedFolderAdapter mAdapter;
     SharedFolderAdapterList mAdapterList;
     LinearLayoutManager linearLayoutManager;
-    String categoryName;
+    String categoryName, workSpaceId;
     int backButtonCount = 0;
     MenuItem menuItemSearch, menuItemDelete, menuItemShare, menuItemMove, menuItemMore;
     List<GetCategoryDocumentsResponse> mSelectedDocumentList = new ArrayList<>();
     static Boolean isTouched = false;
     List<GetCategoryDocumentsResponse> downloadingUrlDataList = new ArrayList<>();
     int index=0;
+    int downloadIndex = 0;
     boolean isSecondLevel = false;
-
+    List<GetCategoryDocumentsResponse> downloadingItemsList = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -140,9 +148,245 @@ public class NavigationSharedActivity extends BaseActivity {
         OnClickListeners();
         getWhiteLabelProperities();
         no_documents_txt.setText("");
-
         mRecyclerView.setNestedScrollingEnabled(false);
 
+        getIntentData();
+        getDocuments();
+        toggleAddAndBackButton();
+    }
+
+    private void getDocuments()
+    {
+        if(ObjectId.equals("0"))
+        {
+            if(!GlobalVariables.isMoveInitiated && !GlobalVariables.selectedActionName.equalsIgnoreCase("share"))
+            {
+                getWorkSpaceCategoriesDocument();
+            }
+            else
+            {
+                getShareParentFolders();
+            }
+        }
+        else if(isSecondLevel == true)
+        {
+            if(!GlobalVariables.isMoveInitiated && !GlobalVariables.selectedActionName.equalsIgnoreCase("share"))
+            {
+                getSharedDocs();
+            }
+            else
+            {
+                getAllowedSharedFolders();
+            }
+
+        }
+        else if(isSecondLevel == false)
+        {
+            getSharedDocumentsFromLocal(ObjectId);
+        }
+    }
+
+    private void getAllowedSharedFolders()
+    {
+        if (NetworkUtils.isNetworkAvailable(context)) {
+
+            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+
+            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
+            transparentProgressDialog.show();
+
+            final GetEndUserAllowedSharedFoldersRequest mGetEndUserAllowedSharedFoldersRequest = new GetEndUserAllowedSharedFoldersRequest(workSpaceId, ObjectId);
+
+            String request = new Gson().toJson(mGetEndUserAllowedSharedFoldersRequest);
+
+            //Here the json data is add to a hash map with key data
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("data", request);
+
+            final GetEndUserAllowedSharedFoldersService mGetEndUserAllowedSharedFoldersService = retrofitAPI.create(GetEndUserAllowedSharedFoldersService.class);
+
+            Call call = mGetEndUserAllowedSharedFoldersService.getEndUserAllowedSharedFolders(params, PreferenceUtils.getAccessToken(context));
+
+            call.enqueue(new Callback<ListPinDevicesResponse<GetEndUserSharedParentFoldersResponse>>() {
+                @Override
+                public void onResponse(Response<ListPinDevicesResponse<GetEndUserSharedParentFoldersResponse>> response, Retrofit retrofit) {
+                    ListPinDevicesResponse apiResponse = response.body();
+                    if (apiResponse != null) {
+
+                        transparentProgressDialog.dismiss();
+
+                        if (apiResponse.status.getCode() instanceof Boolean) {
+                            if (apiResponse.status.getCode() == Boolean.FALSE) {
+
+                                List<GetEndUserSharedParentFoldersResponse> sharedParentAllowedList = response.body().getData();
+
+                                if(sharedParentAllowedList != null && sharedParentAllowedList.size() > 0)
+                                {
+                                    for(GetEndUserSharedParentFoldersResponse endUserSharedParentFoldersResponse : sharedParentAllowedList)
+                                    {
+                                        GetCategoryDocumentsResponse categoryDocumentsResponse = new GetCategoryDocumentsResponse();
+                                        categoryDocumentsResponse.setObject_id(endUserSharedParentFoldersResponse.getCategory_id());
+                                        categoryDocumentsResponse.setName(endUserSharedParentFoldersResponse.getCategory_name());
+                                        categoryDocumentsResponse.setCreated_date("");
+                                        categoryDocumentsResponse.setShared_date("");
+                                        categoryDocumentsResponse.setCategory_id(endUserSharedParentFoldersResponse.getWorkspace_id());
+                                        categoryDocumentsResponse.setFilesize("0");
+                                        categoryDocumentsResponse.setType("category");
+
+                                        documentsCategoryList.add(categoryDocumentsResponse);
+
+                                    }
+                                }
+
+                                reloadAdapter();
+
+                            }
+
+                        }
+                        else if (apiResponse.status.getCode() instanceof Integer) {
+                            int status_value = new Integer(apiResponse.status.getCode().toString());
+
+                            if(status_value == 401)
+                            {
+                                String mMessage = apiResponse.status.getMessage().toString();
+                                showSessionExpiryAlert(mMessage);
+                            }
+
+                        }
+                        else if (apiResponse.status.getCode() instanceof Double) {
+                            double status_double_value = new Double(apiResponse.status.getCode().toString());
+                            if(status_double_value == 401.3)
+                            {
+                                String mMessage = apiResponse.status.getMessage().toString();
+                                showAccessDeniedAlert(mMessage);
+                            }
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    transparentProgressDialog.dismiss();
+                    Log.d("PinDevice error", t.getMessage());
+                }
+            });
+        }
+
+    }
+
+    private void showAccessDeniedAlert(String mMessage)
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Alert");
+
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+        txtMessage.setText(mMessage);
+
+        Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+        cancelButton.setVisibility(View.GONE);
+
+        sendPinButton.setText("OK");
+
+        sendPinButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+            }
+        });
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
+    }
+
+    private void getShareParentFolders()
+    {
+        if (NetworkUtils.isNetworkAvailable(this)) {
+
+            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+
+            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(this);
+            transparentProgressDialog.show();
+
+            final GetEndUserParentSHaredFoldersService mGetEndUserParentSHaredFoldersService = retrofitAPI.create(GetEndUserParentSHaredFoldersService.class);
+
+            Call call = mGetEndUserParentSHaredFoldersService.getEndUserParentSharedFolders(PreferenceUtils.getAccessToken(this));
+
+            call.enqueue(new Callback<ListPinDevicesResponse<GetEndUserSharedParentFoldersResponse>>() {
+                @Override
+                public void onResponse(Response<ListPinDevicesResponse<GetEndUserSharedParentFoldersResponse>> response, Retrofit retrofit) {
+                    ListPinDevicesResponse apiResponse = response.body();
+                    if (apiResponse != null) {
+
+                        transparentProgressDialog.dismiss();
+
+                        if (apiResponse.status.getCode() instanceof Boolean) {
+                            if (apiResponse.status.getCode() == Boolean.FALSE) {
+
+                                List<GetEndUserSharedParentFoldersResponse> sharedParentList = response.body().getData();
+
+                                if(sharedParentList != null && sharedParentList.size() > 0)
+                                {
+                                    for(GetEndUserSharedParentFoldersResponse endUserSharedParentFoldersResponse : sharedParentList)
+                                    {
+                                        GetCategoryDocumentsResponse categoryDocumentsResponse = new GetCategoryDocumentsResponse();
+                                        categoryDocumentsResponse.setObject_id(endUserSharedParentFoldersResponse.getCategory_id());
+                                        categoryDocumentsResponse.setName(endUserSharedParentFoldersResponse.getCategory_name());
+                                        categoryDocumentsResponse.setCreated_date("");
+                                        categoryDocumentsResponse.setShared_date("");
+                                        categoryDocumentsResponse.setCategory_id(endUserSharedParentFoldersResponse.getWorkspace_id());
+                                        categoryDocumentsResponse.setFilesize("0");
+                                        categoryDocumentsResponse.setType("category");
+
+                                        documentsCategoryList.add(categoryDocumentsResponse);
+
+                                    }
+                                }
+
+                                reloadAdapter();
+
+                            }
+
+                        } else if (apiResponse.status.getCode() instanceof Integer) {
+                            int status_value = new Integer(apiResponse.status.getCode().toString());
+
+                            if(status_value == 401)
+                            {
+                                String mMessage = apiResponse.status.getMessage().toString();
+                                showSessionExpiryAlert(mMessage);
+                            }
+
+                        }
+                        else if (apiResponse.status.getCode() instanceof Double) {
+                            double status_double_value = new Double(apiResponse.status.getCode().toString());
+                            if(status_double_value == 401.3)
+                            {
+                                String mMessage = apiResponse.status.getMessage().toString();
+                                showAccessDeniedAlert(mMessage);
+                            }
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    transparentProgressDialog.dismiss();
+                    Log.d("PinDevice error", t.getMessage());
+                }
+            });
+        }
+    }
+
+    private void getIntentData()
+    {
         if(getIntent().getStringExtra("ObjectId") != null)
         {
             ObjectId = getIntent().getStringExtra("ObjectId");
@@ -161,26 +405,16 @@ public class NavigationSharedActivity extends BaseActivity {
             categoryName = "Shared";
         }
 
+        if(getIntent().getStringExtra("WorkSpaceId") != null)
+        {
+            workSpaceId = getIntent().getStringExtra("WorkSpaceId");
+        }
+        else
+        {
+            workSpaceId = "";
+        }
+
         isSecondLevel = getIntent().getBooleanExtra("isSecondLevel", false);
-
-
-
-        if(ObjectId.equals("0"))
-        {
-            getWorkSpaceCategoriesDocument();
-        }
-        else if(isSecondLevel == true)
-        {
-            getSharedDocs();
-        }
-        else if(isSecondLevel == false)
-        {
-            getSharedDocumentsFromLocal(ObjectId);
-        }
-
-
-
-        toggleAddAndBackButton();
 
     }
 
@@ -450,7 +684,7 @@ public class NavigationSharedActivity extends BaseActivity {
 
     private void reloadAdapter()
     {
-        if (GlobalVariables.isSharedTileView && !GlobalVariables.isSharedMoveInitiated)
+        if (GlobalVariables.isSharedTileView && !GlobalVariables.isMoveInitiated)
         {
             toggle.setImageResource(R.mipmap.ic_grid);
             setGridAdapterToView(documentsCategoryList);
@@ -501,7 +735,7 @@ public class NavigationSharedActivity extends BaseActivity {
         linearLayoutManager = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
         mRecyclerView.setLayoutManager(linearLayoutManager);
         mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(context));
-        mAdapterList = new SharedFolderAdapterList(getCategoryDocumentsResponses, NavigationSharedActivity.this, ObjectId);
+        mAdapterList = new SharedFolderAdapterList(getCategoryDocumentsResponses, NavigationSharedActivity.this, ObjectId, isSecondLevel);
         mRecyclerView.setAdapter(mAdapterList);
 
 
@@ -847,6 +1081,33 @@ public class NavigationSharedActivity extends BaseActivity {
                             }
 
                         }
+                        else
+                        {
+                            mBottomSheetDialog.dismiss();
+                            if (mSelectedDocumentList != null && mSelectedDocumentList.size() > 0) {
+                                for(GetCategoryDocumentsResponse categoryDocumentsResponse : mSelectedDocumentList)
+                                {
+                                    OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(context);
+                                    offLine_files_repository.deleteAlreadydownloadedFile(categoryDocumentsResponse.getDocument_version_id());
+                                    String filepath = offLine_files_repository.getFilePathFromLocalTable(categoryDocumentsResponse.getDocument_version_id());
+
+                                    if(filepath != null && !filepath.isEmpty())
+                                    {
+                                        CommonFunctions.deleteFileFromInternalStorage(filepath);
+                                    }
+                                }
+                            }
+
+                            if (isFromList == true) {
+                                mAdapterList.clearAll();
+                            } else {
+                                mAdapter.clearAll();
+                            }
+                            List<GetCategoryDocumentsResponse> dummyList = new ArrayList<>();
+                            updateToolbarMenuItems(dummyList);
+
+
+                        }
                     }
                 }
             });
@@ -1045,46 +1306,72 @@ public class NavigationSharedActivity extends BaseActivity {
 
     private void getDownloadManagerForDownloading(List<GetCategoryDocumentsResponse> downloadingUrlDataList)
     {
+        if (isFromList == true) {
+            mAdapterList.clearAll();
+        } else {
+            mAdapter.clearAll();
+        }
         List<GetCategoryDocumentsResponse> dummyList = new ArrayList<>();
         updateToolbarMenuItems(dummyList);
-
         index = 0;
-        for (final GetCategoryDocumentsResponse digitalAsset : downloadingUrlDataList) {
-            if (!TextUtils.isEmpty(digitalAsset.getDownloadUrl())) {
-                FileDownloadManager fileDownloadManager = new FileDownloadManager(NavigationSharedActivity.this);
-                fileDownloadManager.setFileTitle(digitalAsset.getName());
-                fileDownloadManager.setDownloadUrl(digitalAsset.getDownloadUrl());
-                fileDownloadManager.setDigitalAssets(digitalAsset);
-                fileDownloadManager.setmFileDownloadListener(new FileDownloadManager.FileDownloadListener() {
-                    @Override
-                    public void fileDownloadSuccess(String path) {
 
-                        OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(context);
-                        if (!offLine_files_repository.checkAlreadyDocumentAvailableOrNot(digitalAsset.getDocument_version_id())) {
-                            offLine_files_repository.deleteAlreadydownloadedFile(digitalAsset.getDocument_version_id());
-                            String filepath = offLine_files_repository.getFilePathFromLocalTable(digitalAsset.getDocument_version_id());
-                            if(filepath != null && !filepath.isEmpty())
-                            {
-                                CommonFunctions.deleteFileFromInternalStorage(filepath);
-                            }
-                            insertIntoOffLineFilesTable(digitalAsset, path);
-                        }
-                        else
-                        {
-                            insertIntoOffLineFilesTable(digitalAsset, path);
-                        }
-
-                    }
-
-                    @Override
-                    public void fileDownloadFailure() {
-
-                    }
-                });
-                fileDownloadManager.downloadTheFile();
-            }
+        downloadingItemsList = downloadingUrlDataList;
+        if(downloadingItemsList.size() > downloadIndex) {
+            downLoadImageSeparately(downloadingItemsList.get(downloadIndex));
         }
 
+
+    }
+
+    private void downLoadImageSeparately(GetCategoryDocumentsResponse categoryDocumentsResponse)
+    {
+        if (!TextUtils.isEmpty(categoryDocumentsResponse.getDownloadUrl())) {
+            FileDownloadManager fileDownloadManager = new FileDownloadManager(NavigationSharedActivity.this);
+            fileDownloadManager.setFileTitle(categoryDocumentsResponse.getName());
+            fileDownloadManager.setDownloadUrl(categoryDocumentsResponse.getDownloadUrl());
+            fileDownloadManager.setDigitalAssets(categoryDocumentsResponse);
+            fileDownloadManager.setmFileDownloadListener(new FileDownloadManager.FileDownloadListener() {
+                @Override
+                public void fileDownloadSuccess(String path) {
+
+                    OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(context);
+                    if (!offLine_files_repository.checkAlreadyDocumentAvailableOrNot(categoryDocumentsResponse.getDocument_version_id())) {
+                        offLine_files_repository.deleteAlreadydownloadedFile(categoryDocumentsResponse.getDocument_version_id());
+                        String filepath = offLine_files_repository.getFilePathFromLocalTable(categoryDocumentsResponse.getDocument_version_id());
+                        if(filepath != null && !filepath.isEmpty())
+                        {
+                            CommonFunctions.deleteFileFromInternalStorage(filepath);
+                        }
+                        insertIntoOffLineFilesTable(categoryDocumentsResponse, path);
+                    }
+                    else
+                    {
+                        insertIntoOffLineFilesTable(categoryDocumentsResponse, path);
+                    }
+
+
+                    downloadIndex++;
+                    if(downloadingItemsList.size()> downloadIndex) {
+                        downLoadImageSeparately(downloadingItemsList.get(downloadIndex));
+
+                    }
+                    else
+                    {
+                        downloadIndex = 0;
+                    }
+
+
+                }
+
+                @Override
+                public void fileDownloadFailure() {
+
+                    Toast.makeText(context, "Download Failed", Toast.LENGTH_LONG).show();
+
+                }
+            });
+            fileDownloadManager.downloadTheFile();
+        }
     }
 
     private void insertIntoOffLineFilesTable(GetCategoryDocumentsResponse digitalAsset, String path)
@@ -1650,6 +1937,94 @@ public class NavigationSharedActivity extends BaseActivity {
         else
         {
             Collections.reverse(documentsCategoryList);
+        }
+
+    }
+
+    public void shareEndUserDocuments(String categoryId, String shareWorkSpaceId)
+    {
+        if (NetworkUtils.isNetworkAvailable(context)){
+
+            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+
+            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
+            transparentProgressDialog.show();
+
+           ArrayList<String> document_ids = new ArrayList<>();
+            if(GlobalVariables.selectedDocumentsList.size() > 0)
+            {
+                for(GetCategoryDocumentsResponse categoryDocumentsResponse : GlobalVariables.selectedDocumentsList)
+                {
+                    document_ids.add(categoryDocumentsResponse.getObject_id());
+                }
+            }
+
+            ShareEndUserDocumentsRequest mShareEndUserDocumentsRequest = new ShareEndUserDocumentsRequest(document_ids,shareWorkSpaceId, categoryId);
+
+            String request = new Gson().toJson(mShareEndUserDocumentsRequest);
+
+            //Here the json data is add to a hash map with key data
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("data", request);
+
+            final ShareEndUserDocumentsService mShareEndUserDocumentsService = retrofitAPI.create(ShareEndUserDocumentsService.class);
+            Call call = mShareEndUserDocumentsService.getSharedEndUserDocuments(params,PreferenceUtils.getAccessToken(context));
+
+            call.enqueue(new Callback<ListPinDevicesResponse<GetEndUserSharedParentFoldersResponse>>() {
+                @Override
+                public void onResponse(Response<ListPinDevicesResponse<GetEndUserSharedParentFoldersResponse>> response, Retrofit retrofit) {
+                    ListPinDevicesResponse apiResponse = response.body();
+                    if (apiResponse != null) {
+
+                        transparentProgressDialog.dismiss();
+
+                        if (apiResponse.status.getCode() instanceof Boolean) {
+                            if (apiResponse.status.getCode() == Boolean.FALSE) {
+                                String mMessage = apiResponse.status.getMessage().toString();
+                                Toast.makeText(context,mMessage,Toast.LENGTH_SHORT).show();
+                                GlobalVariables.isMoveInitiated = false;
+                                GlobalVariables.selectedActionName = "";
+                                GlobalVariables.selectedDocumentsList.clear();
+
+                                Intent intent = new Intent(context, NavigationSharedActivity.class);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                intent.putExtra("ObjectId", "0");
+                                startActivity(intent);
+
+                            } else {
+                                String mMessage = apiResponse.status.getMessage().toString();
+                                Toast.makeText(context,mMessage,Toast.LENGTH_SHORT).show();
+                            }
+
+                        }
+                        else if (apiResponse.status.getCode() instanceof Integer) {
+                            int status_value = new Integer(apiResponse.status.getCode().toString());
+
+                            if(status_value == 401)
+                            {
+                                String mMessage = apiResponse.status.getMessage().toString();
+                                showSessionExpiryAlert(mMessage);
+                            }
+
+                        }
+                        else if (apiResponse.status.getCode() instanceof Double) {
+                            double status_double_value = new Double(apiResponse.status.getCode().toString());
+                            if(status_double_value == 401.3)
+                            {
+                                String mMessage = apiResponse.status.getMessage().toString();
+                                showAccessDeniedAlert(mMessage);
+                            }
+                        }
+
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    transparentProgressDialog.dismiss();
+                    Log.d("PinDevice error", t.getMessage());
+                }
+            });
         }
 
     }

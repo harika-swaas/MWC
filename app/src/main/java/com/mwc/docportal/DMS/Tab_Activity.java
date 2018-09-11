@@ -1,17 +1,14 @@
 package com.mwc.docportal.DMS;
 
-import android.content.Intent;
-import android.graphics.Color;
+
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.view.Menu;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.widget.Toolbar;
-
 import com.mwc.docportal.Fragments.History_Fragment;
 import com.mwc.docportal.Fragments.Notes_Fragment;
 import com.mwc.docportal.Fragments.Properties_Fragment;
@@ -30,20 +27,24 @@ public class Tab_Activity extends RootActivity {
     private TabLayout tabLayout;
     private ViewPager viewPager;
     Toolbar toolbar;
-    MenuItem edit_Item;
     private final List<Fragment> mFragmentList = new ArrayList<>();
     private final List<String> mFragmentTitleList = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setMainContentView(R.layout.document_history_tab_layout);
+        setContentView(R.layout.document_history_tab_layout);
 
         viewPager = (ViewPager) findViewById(R.id.simpleViewPager);
         addTabs(viewPager);
 
         tabLayout = (TabLayout) findViewById(R.id.simpleTabLayout);
         tabLayout.setupWithViewPager(viewPager);
-        toolbar = (Toolbar) findViewByIdInContent(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(getResources().getDrawable(R.mipmap.ic_back));
+        getSupportActionBar().setTitle("Document Info");
 
     }
 

@@ -547,7 +547,7 @@ public class ItemNavigationSharedFragment extends Fragment
         linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         mRecyclerView.setLayoutManager(linearLayoutManager);
         mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
-        mAdapterList = new SharedFolderAdapterList(getCategoryDocumentsResponses, getActivity(),"ObjectId");
+        mAdapterList = new SharedFolderAdapterList(getCategoryDocumentsResponses, getActivity(),"ObjectId", true);
         mRecyclerView.setAdapter(mAdapterList);
 
 

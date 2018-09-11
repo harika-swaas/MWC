@@ -1,7 +1,10 @@
 package com.mwc.docportal.Database;
 
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
@@ -9,6 +12,7 @@ import android.util.Log;
 import com.mwc.docportal.API.Model.AccountSettingsResponse;
 import com.mwc.docportal.API.Model.WhiteLabelResponse;
 import com.mwc.docportal.LogTracer;
+import com.mwc.docportal.Login.LoginActivity;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -22,6 +26,7 @@ import retrofit.Retrofit;
 
 public class AccountSettings {
 
+    private static final String MWC = "MWC";
     private static final LogTracer LOG_TRACER = LogTracer.instance(AccountSettings.class);
 
     public static final String TABLE_WHITE_LABEL = "tbl_white_label";
@@ -445,10 +450,35 @@ public class AccountSettings {
             DBConnectionOpen();
             database.delete(TABLE_ACCOUNT_SETTINGS,null,null);
             database.delete(TABLE_WHITE_LABEL,null,null);
+            database.delete("tbl_Offline_Files", null, null);
         } catch (Exception e){
             e.printStackTrace();
         } finally {
             DBConnectionClose();
         }
     }
+
+
+    public void LogouData(Activity context)
+    {
+        deleteAllTables();
+        SharedPreferences share_settings = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = share_settings.edit();
+        editor.clear();
+        editor.commit();
+
+        //   deleteCacheData(mActivity);
+        //    clearApplicationData();
+
+        //  File dir = new File(Environment.getExternalStorageDirectory() + "/HiDoctor");
+        //  deleteRecursive(dir);
+
+        Intent intent = new Intent(context, LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        context.startActivity(intent);
+        context.finish();
+    }
+
+
 }

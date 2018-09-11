@@ -210,17 +210,9 @@ public class MyFolderSharedDocuments extends RootActivity {
                     final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(MyFolderSharedDocuments.this);
                     transparentProgressDialog.show();
 
-                    String[] document_ids = new String[0];
-
-                    if(mSelectedDocumentList != null){
-                        for(GetCategoryDocumentsResponse categoryDocumentsResponse : mSelectedDocumentList){
-                            List<String> getCategoryDocumentsResponseList = new ArrayList<String>();
-                            getCategoryDocumentsResponseList.add(categoryDocumentsResponse.getDocument_version_id());
-                            document_ids = getCategoryDocumentsResponseList.toArray(new String[getCategoryDocumentsResponseList.size()]);
-                        }
-                    }
+                    ArrayList<String> documentIds = new ArrayList<>();
                     
-                    final ShareEndUserDocumentsRequest mShareEndUserDocumentsRequest = new ShareEndUserDocumentsRequest(document_ids,PreferenceUtils.getWorkspaceId(MyFolderSharedDocuments.this), PreferenceUtils.getCategoryId(MyFolderSharedDocuments.this));
+                    final ShareEndUserDocumentsRequest mShareEndUserDocumentsRequest = new ShareEndUserDocumentsRequest(documentIds,PreferenceUtils.getWorkspaceId(MyFolderSharedDocuments.this), PreferenceUtils.getCategoryId(MyFolderSharedDocuments.this));
 
                     String request = new Gson().toJson(mShareEndUserDocumentsRequest);
 

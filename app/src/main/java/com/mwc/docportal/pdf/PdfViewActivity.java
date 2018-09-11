@@ -74,6 +74,7 @@ import com.mwc.docportal.Common.GlobalVariables;
 import com.mwc.docportal.DMS.MyFolderSharedDocuments;
 
 import com.mwc.docportal.DMS.NavigationMyFolderActivity;
+import com.mwc.docportal.DMS.NavigationSharedActivity;
 import com.mwc.docportal.DMS.Tab_Activity;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Database.OffLine_Files_Repository;
@@ -540,16 +541,6 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
 
 
-   /* private void setOnclickListeners() {
-
-        mPrevious.setOnClickListener(this);
-        mNext.setOnClickListener(this);
-        mSinglePageChanger.setOnClickListener(this);
-        mContinousPageCahnger.setOnClickListener(this);
-
-    }*/
-
-
     @Override
     public void onResume() {
         super.onResume();
@@ -573,36 +564,13 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
         }
 
 
-      /*  if (assetPlayerActivity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
-
-            setUpLandscape();
-
-        }else {
-
-            setPortrait();
-
-        }*/
-
-
         Log.e("Pdf","onResume");
         LoadOfflinePdf();
 
 
     }
 
-   /* private void showProgressDialogue(String message) {
 
-        pDialog = new ProgressDialog(assetPlayerActivity);
-        // Set progressbar title
-        pDialog.setTitle("Hi Doctor");
-        // Set progressbar message
-        pDialog.setMessage(message);
-        pDialog.setIndeterminate(false);
-
-        // Show progressbar
-        pDialog.show();
-
-    }*/
 
     @Override
     public void onPause() {
@@ -646,23 +614,6 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
     }
 
 
-    /*private void showNextAssetAlert() {
-
-        new CountDownTimer(2000, 300){
-
-            @Override
-            public void onTick(long millisUntilFinished) {
-
-            }
-
-            @Override
-            public void onFinish() {
-                assetPlayerActivity.ShowAlert(getString(R.string.willingtonextasset));
-
-            }
-        }.start();
-
-    }*/
 
     @Override
     public void loadComplete(int nbPages) {
@@ -734,38 +685,6 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
     @Override
     public void onSingletapTouch() {
 
-/*        if (countDownTimer!=null){
-            countDownTimer.cancel();
-        }
-        countDownTimer = new CountDownTimer(6000,300) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-
-            }
-
-            @Override
-            public void onFinish() {
-
-                if (mMediaControllerHolder.getVisibility()==View.VISIBLE) {
-                    mMediaControllerHolder.setVisibility(View.GONE);
-                }
-                assetPlayerActivity.HideActionBarControll();
-            }
-        }.start();
-
-
-        assetPlayerActivity.ShowActionBarControll();
-        if (mMediaControllerHolder.getVisibility() == View.VISIBLE) {
-            mMediaControllerHolder.setVisibility(View.GONE);
-
-        } else {
-
-            mMediaControllerHolder.setVisibility(View.VISIBLE);
-            if (isVisible){
-                assetPlayerActivity.ShowSettingsButton();
-            }
-
-        }*/
     }
 
 
@@ -783,24 +702,6 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
         }*/
     }
-
-
-  /*  private void setUpLandscape(){
-
-        mPrevious.setImageResource(R.mipmap.ic_previous_land);
-        mNext.setImageResource(R.mipmap.ic_next_land);
-
-    }
-
-
-    private void setPortrait() {
-
-        mNext.setImageResource(R.mipmap.ic_next);
-        mPrevious.setImageResource(R.mipmap.ic_previous);
-
-    }
-*/
-
 
 
     private void UpdatePage(String onlinePdfPath, int currentPageNumber, int totalPageNumber) {
@@ -1078,24 +979,18 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
             {
                 if(buttonView.isPressed() == true) {
-
+                    mBottomSheetDialog.dismiss();
                     if (!isChecked) {
                         switchButton_share.setChecked(true);
                         showWarningMessageAlertForSharingContent();
-                        mBottomSheetDialog.dismiss();
 
                     } else {
                         switchButton_share.setChecked(false);
-                        List<GetCategoryDocumentsResponse> selectedList = new ArrayList<>();
-                        selectedList.add(PdfViewActivity.this.categoryDocumentsResponse);
-
-                        PreferenceUtils.setCategoryId(context, PdfViewActivity.this.categoryDocumentsResponse.getCategory_id());
-                        PreferenceUtils.setDocument_Id(context, PdfViewActivity.this.categoryDocumentsResponse.getObject_id());
-
-                        Intent mIntent = new Intent(context, MyFolderSharedDocuments.class);
-                        mIntent.putExtra(Constants.OBJ, (Serializable) selectedList);
-                        startActivity(mIntent);
-                        mBottomSheetDialog.dismiss();
+                        GlobalVariables.isMoveInitiated = true;
+                        GlobalVariables.selectedActionName =  "share";
+                        Intent intent = new Intent(context, NavigationSharedActivity.class);
+                        intent.putExtra("ObjectId", "0");
+                        context.startActivity(intent);
                     }
 
 
@@ -2053,10 +1948,10 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                             getDocumentViewUrl(documentPropertiesResponse, pushNotificationDocumentVersionId, documentShareType);
 
 
-                        } else if (apiResponse.status.getCode() instanceof Double) {
+                        } else if (apiResponse.status.getCode() instanceof Integer) {
 
-                            double status_value = new Double(apiResponse.status.getCode().toString());
-                            if(status_value == 401.0)
+                            int status_value = new Integer(apiResponse.status.getCode().toString());
+                            if(status_value == 401)
                             {
                                 String mMessage = apiResponse.status.getMessage().toString();
                                 showSessionExpiryAlert(mMessage);

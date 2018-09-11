@@ -45,6 +45,8 @@ public class PreferenceUtils {
     private static final String PUSH_NOTIFICATION_DOCUMENT_VERSION_ID = "push_notification_document_version_id";
     private static final String PUSH_NOTIFICATION_DOCUMENT_SHARE = "push_notification_document_share";
 
+    private static final String LOGO_IMAGE_PATH = "logo_image_path";
+
 
     public static void setAccessToken(Context context, String accesstoken) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
@@ -407,5 +409,18 @@ public class PreferenceUtils {
         return pushNotificationShareType;
     }
 
+
+    public static void setLogoImagePath(Context context, String imagePath) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(LOGO_IMAGE_PATH, imagePath);
+        editor.commit();
+    }
+
+    public static String getLogoImagePath(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        String imagePath = sharedPreferences.getString(LOGO_IMAGE_PATH, null);
+        return imagePath;
+    }
 
 }

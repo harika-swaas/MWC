@@ -8,6 +8,8 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
@@ -33,22 +35,19 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.androidquery.AQuery;
-import com.github.clans.fab.FloatingActionMenu;
+
+
 import com.google.gson.Gson;
 import com.mwc.docportal.API.Model.AccountSettingsResponse;
 import com.mwc.docportal.API.Model.FingerPrintRequestModel;
-import com.mwc.docportal.API.Model.GetCategoryDocumentsResponse;
 import com.mwc.docportal.API.Model.PushNotificationRequestModel;
 import com.mwc.docportal.API.Model.SharedDocumentResponseModel;
 import com.mwc.docportal.API.Model.WhiteLabelResponse;
 import com.mwc.docportal.API.Service.ShareEndUserDocumentsService;
-import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Database.PushNotificatoinSettings_Respository;
 import com.mwc.docportal.FTL.WebviewLoaderTermsActivity;
 import com.mwc.docportal.Login.LoginActivity;
-import com.mwc.docportal.Login.Touchid;
 import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.OffLine_Files_List;
 import com.mwc.docportal.Preference.PreferenceUtils;
@@ -128,7 +127,7 @@ public class NavigationSettingsActivity extends BaseActivity {
         }
 
 
-        Uri.Builder builder = new Uri.Builder();
+      /*  Uri.Builder builder = new Uri.Builder();
         builder.scheme("http")
                 .authority("172.16.40.51")
                 .appendPath("assets")
@@ -138,9 +137,19 @@ public class NavigationSettingsActivity extends BaseActivity {
                 .appendPath("mwc-logo.png");
         String myUrl = builder.build().toString();
         AQuery aq = new AQuery(context); // intsialze aquery
-        aq.id(LOGO_image).image(myUrl);
+        aq.id(LOGO_image).image(myUrl);*/
 
+        if(PreferenceUtils.getLogoImagePath(context) != null)
+        {
+            File imgFile = new  File(PreferenceUtils.getLogoImagePath(context));
 
+            if(imgFile.exists()){
+
+                Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                LOGO_image.setImageBitmap(myBitmap);
+
+            }
+        }
     }
 
 
@@ -563,25 +572,7 @@ public class NavigationSettingsActivity extends BaseActivity {
                 mAlertDialog.dismiss();
 
                 AccountSettings accountSettings = new AccountSettings(context);
-                accountSettings.deleteAllTables();
-              //  accountSettings.DeleteAllDatabaseTables();
-
-                SharedPreferences share_settings = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = share_settings.edit();
-                editor.clear();
-                editor.commit();
-
-                //   deleteCacheData(mActivity);
-            //    clearApplicationData();
-
-                //  File dir = new File(Environment.getExternalStorageDirectory() + "/HiDoctor");
-                //  deleteRecursive(dir);
-
-                Intent intent = new Intent(context, LoginActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-                startActivity(intent);
-                finish();
+                accountSettings.LogouData(NavigationSettingsActivity.this);
 
             }
         });

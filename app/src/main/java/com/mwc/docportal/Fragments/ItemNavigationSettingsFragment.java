@@ -35,7 +35,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.androidquery.AQuery;
+
 import com.github.clans.fab.FloatingActionMenu;
 
 import com.google.gson.Gson;
@@ -161,7 +161,7 @@ public class ItemNavigationSettingsFragment extends Fragment{
         }
 
 
-        Uri.Builder builder = new Uri.Builder();
+        /*Uri.Builder builder = new Uri.Builder();
         builder.scheme("http")
                 .authority("172.16.40.51")
                 .appendPath("assets")
@@ -171,7 +171,7 @@ public class ItemNavigationSettingsFragment extends Fragment{
                 .appendPath("mwc-logo.png");
         String myUrl = builder.build().toString();
         AQuery aq = new AQuery(getActivity()); // intsialze aquery
-        aq.id(LOGO_image).image(myUrl);
+        aq.id(LOGO_image).image(myUrl);*/
 
 
         return mView;

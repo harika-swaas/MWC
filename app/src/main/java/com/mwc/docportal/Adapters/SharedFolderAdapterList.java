@@ -89,12 +89,14 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
     ArrayList <String> document_version_id= new ArrayList<>();
     List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList<>();
     String objectId;
+    boolean isFromSecondlevel;
 
     PdfDocumentResponseModel getDocumentPreviewResponses;
-    public SharedFolderAdapterList(List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses, Activity context, String objectId) {
+    public SharedFolderAdapterList(List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses, Activity context, String objectId, boolean isFromSecondLevel) {
         this.context = context;
         this.mGetCategoryDocumentsResponses = getCategoryDocumentsResponses;
         this.objectId = objectId;
+        this.isFromSecondlevel = isFromSecondLevel;
     }
 
 
@@ -173,7 +175,7 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
 
                 final String createdDate = mGetCategoryDocumentsResponses.get(position).getCreated_date();
                 holder.folder_date.setText("Uploaded on "+createdDate);
-                holder.imageMore.setVisibility(View.GONE);
+
 
             } else if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document")) {
                 holder.folderView.setVisibility(View.GONE);
@@ -191,7 +193,6 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
 
                 final String createdDate = mGetCategoryDocumentsResponses.get(position).getCreated_date();
                 holder.folder_date.setText("Uploaded on "+createdDate);
-                holder.imageMore.setVisibility(View.VISIBLE);
 
             }
 
@@ -237,8 +238,14 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
                         if (mGetCategoryDocumentsResponses.get(position).getType() != null && mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("category")) {
                             PreferenceUtils.setObjectId(context, mGetCategoryDocumentsResponses.get(position).getObject_id());
 
-                            Intent intent = new Intent(context, NavigationSharedActivity.class);
+                            if(GlobalVariables.isMoveInitiated && isFromSecondlevel)
+                            {
+                                showShareDocumentAlert("Do you want to share here?", mGetCategoryDocumentsResponses.get(position).getObject_id(),
+                                        mGetCategoryDocumentsResponses.get(position).getCategory_id());
+                                return;
+                            }
 
+                            Intent intent = new Intent(context, NavigationSharedActivity.class);
                             if(objectId.equals("0"))
                             {
                                 intent.putExtra("isSecondLevel", true);
@@ -249,6 +256,7 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
                             }
                             intent.putExtra("ObjectId", mGetCategoryDocumentsResponses.get(position).getObject_id());
                             intent.putExtra("CategoryName", mGetCategoryDocumentsResponses.get(position).getName());
+                            intent.putExtra("WorkSpaceId", mGetCategoryDocumentsResponses.get(position).getCategory_id());
                             context.startActivity(intent);
 
                             doc_id.add(mGetCategoryDocumentsResponses.get(position).getObject_id());
@@ -268,7 +276,7 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
                 @Override
                 public boolean onLongClick(View v) {
                     if(mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document")) {
-                        if (!GlobalVariables.isSharedMoveInitiated) {
+                        if (!GlobalVariables.isMoveInitiated) {
                             if (!isMultiSelect) {
                                 selectedList = new ArrayList<>();
                                 isMultiSelect = true;
@@ -311,9 +319,62 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
                 holder.selectedItemIv.setVisibility(View.GONE);
             }
 
+            holder.imageMore.setVisibility(View.VISIBLE);
+
+
+            if(selectedList.size() > 0 || mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("category"))
+            {
+                holder.imageMore.setVisibility(View.GONE);
+            }
+
+
 
 
         }
+    }
+
+    private void showShareDocumentAlert(String message, String object_id, String category_id)
+    {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Alert");
+
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+        txtMessage.setText(message);
+
+        Button okButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+        cancelButton.setText("CANCEL");
+
+        okButton.setText("OK");
+
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+
+                if (context instanceof NavigationSharedActivity) {
+                    ((NavigationSharedActivity) context).shareEndUserDocuments(object_id, category_id );
+                }
+            }
+        });
+
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+            }
+        });
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
     }
 
     private void multi_select(int position)

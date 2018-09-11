@@ -80,30 +80,20 @@ import retrofit.Response;
 import retrofit.Retrofit;
 
 public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapter.ViewHolder> {
-    private ArrayList<String> doc_id = new ArrayList<String>();
-    private Context context;
 
-    ArrayList<String> categoryids = new ArrayList<String>();
+    private Context context;
     public List<GetCategoryDocumentsResponse> mGetCategoryDocumentsResponses;
-    List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses = new ArrayList<>();
     PdfDocumentResponseModel getDocumentPreviewResponses;
     List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList<>();
-    AlertDialog mAlertDialog;
-
-
-
     public List<GetCategoryDocumentsResponse> selectedList = new ArrayList<>();
     private static final int GRID_ITEM = 0;
     private static final int LIST_ITEM = 1;
     String obj = "0";
-    String objectr;
     String categoryr;
-    String parentr;
     String document;
     ArrayList<String>document_id= new ArrayList<>();
     ArrayList <String> document_version_id= new ArrayList<>();
     String version_number;
-    AlertDialog mBackDialog;
     boolean isSwitchView = true;
     boolean isMultiSelect = false;
     String objectId;
@@ -218,7 +208,7 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
                         holder.imageView.setImageResource(R.mipmap.ic_folder);
                     }
                 }
-                holder.moreIcon.setVisibility(View.GONE);
+
 
             } else if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document")) {
                 holder.imageView.setVisibility(View.GONE);
@@ -232,7 +222,7 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
                     holder.thumbnailText.setText(colorCodeModel.getFileType());
                 }
 
-                holder.moreIcon.setVisibility(View.VISIBLE);
+
             }
 
             final String name = mGetCategoryDocumentsResponses.get(position).getName();
@@ -287,7 +277,7 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
 
                     if(mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document"))
                     {
-                        if (!GlobalVariables.isSharedMoveInitiated) {
+                        if (!GlobalVariables.isMoveInitiated) {
                             if (!isMultiSelect) {
                                 selectedList = new ArrayList<>();
                                 isMultiSelect = true;
@@ -328,6 +318,14 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
             else
             {
                 holder.selectedItemIv.setVisibility(View.GONE);
+            }
+
+            holder.moreIcon.setVisibility(View.VISIBLE);
+
+
+            if(selectedList.size() > 0 || mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("category"))
+            {
+                holder.moreIcon.setVisibility(View.GONE);
             }
 
         }

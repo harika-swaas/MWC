@@ -32,6 +32,7 @@ import com.mwc.docportal.API.Model.AccountSettingsResponse;
 import com.mwc.docportal.API.Model.BaseApiResponse;
 import com.mwc.docportal.API.Model.FTLPINResponse;
 import com.mwc.docportal.API.Model.GetAssistancePopupContentResponse;
+import com.mwc.docportal.API.Model.GetCategoryDocumentsResponse;
 import com.mwc.docportal.API.Model.GetTermsPageContentResponse;
 import com.mwc.docportal.API.Model.GetUISettingsResponse;
 import com.mwc.docportal.API.Model.GetUserPreferencesResponse;
@@ -51,8 +52,11 @@ import com.mwc.docportal.API.Service.SendFTLPINService;
 import com.mwc.docportal.API.Service.SendPinService;
 import com.mwc.docportal.API.Service.VerifyFTLPINService;
 import com.mwc.docportal.API.Service.VerifyPinService;
+import com.mwc.docportal.Common.CommonFunctions;
+import com.mwc.docportal.Common.FileDownloadManager;
 import com.mwc.docportal.Components.LinkTextView;
 import com.mwc.docportal.Database.AccountSettings;
+import com.mwc.docportal.Database.OffLine_Files_Repository;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.FTL.FTLPinVerificationActivity;
 import com.mwc.docportal.FTL.FTLRegistrationActivity;
@@ -65,6 +69,7 @@ import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
 import com.mwc.docportal.Utils.Constants;
+import com.mwc.docportal.pdf.PdfViewActivity;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -350,12 +355,8 @@ public class FTLPinVerificationFragment extends Fragment {
 
                                     if (mFTLPINResponse.nextStep != null) {
                                         if (mFTLPINResponse.nextStep.isFtl_required() == true) {
-                                            getUiSettings();
-                                            Intent mIntent = new Intent(mActivity, FTLUserValidationActivity.class);
-                                            mIntent.putExtra(Constants.ACCESSTOKEN, accessToken);
-                                            PreferenceUtils.setDocPortalFTLLoggedObj(mActivity, mFTLPINResponse);
-                                            mActivity.startActivity(mIntent);
-                                            mActivity.finish();
+                                            getFTLUISettings(accessToken, mFTLPINResponse);
+
                                         }
                                     }
                                 }
@@ -449,6 +450,114 @@ public class FTLPinVerificationFragment extends Fragment {
 
     }
 
+    private void getFTLUISettings(String accessToken, FTLPINResponse mFTLPINResponse)
+    {
+        if (NetworkUtils.isNetworkAvailable(mActivity)) {
+
+            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+            final GetUISettingsService getUISettingsService = retrofitAPI.create(GetUISettingsService.class);
+
+            Call call = getUISettingsService.getUISettings(PreferenceUtils.getAccessToken(mActivity));
+
+            call.enqueue(new Callback<BaseApiResponse<GetUISettingsResponse>>() {
+                @Override
+                public void onResponse(Response<BaseApiResponse<GetUISettingsResponse>> response, Retrofit retrofit) {
+                    BaseApiResponse apiResponse = response.body();
+                    if (apiResponse != null) {
+
+                        if (apiResponse.status.getCode() instanceof Boolean) {
+
+                            if (apiResponse.status.getCode() == Boolean.FALSE) {
+                                GetUISettingsResponse mGetUISettingsResponse = response.body().getData();
+
+                                if (mGetUISettingsResponse != null) {
+
+                                    if (mGetUISettingsResponse.ui_properties != null) {
+
+                                        String mobileItemEnableColor = mGetUISettingsResponse.ui_properties.getMobile_item_enable_color();
+                                        String mobileItemDisableColor = mGetUISettingsResponse.ui_properties.getMobile_item_disable_color();
+                                        String splashScreenColor = mGetUISettingsResponse.ui_properties.getMobile_splash_screen_background_color();
+                                        String folderColor = mGetUISettingsResponse.ui_properties.getMobile_folder_color();
+
+                                        AccountSettings accountSettings = new AccountSettings(mActivity);
+                                        WhiteLabelResponse whiteLabelResponse = new WhiteLabelResponse();
+                                        whiteLabelResponse.setItem_Selected_Color(mobileItemEnableColor);
+                                        whiteLabelResponse.setItem_Unselected_Color(mobileItemDisableColor);
+                                        whiteLabelResponse.setSplash_Screen_Color(splashScreenColor);
+                                        whiteLabelResponse.setFolder_Color(folderColor);
+
+                                        accountSettings.InsertWhiteLabelDetails(whiteLabelResponse);
+                                    }
+
+                                    Intent mIntent = new Intent(mActivity, FTLUserValidationActivity.class);
+                                    mIntent.putExtra(Constants.ACCESSTOKEN, accessToken);
+                                    PreferenceUtils.setDocPortalFTLLoggedObj(mActivity, mFTLPINResponse);
+                                    mActivity.startActivity(mIntent);
+                                    mActivity.finish();
+
+
+                                }
+                            } else {
+
+                            }
+                        } else if (apiResponse.status.getCode() instanceof Double) {
+                            String mMessage = apiResponse.status.getMessage().toString();
+                            Object obj = 401.0;
+                            if(obj.equals(401.0)) {
+                                mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        mActivity.startActivity(new Intent(mActivity, LoginActivity.class));
+                                    }
+                                }, false);
+                            }
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    // Toast.makeText(mActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+
+    private void downloadLogoImage(AccountSettingsResponse accountSettingsResponse, String imageUrl)
+    {
+        if (!TextUtils.isEmpty(imageUrl)) {
+            FileDownloadManager fileDownloadManager = new FileDownloadManager(mActivity);
+            GetCategoryDocumentsResponse categoryDocumentsResponse = new GetCategoryDocumentsResponse();
+            categoryDocumentsResponse.setDownloadUrl(imageUrl);
+            categoryDocumentsResponse.setDocument_version_id("12345");
+            categoryDocumentsResponse.setName("Logo");
+
+            fileDownloadManager.setFileTitle("Logo");
+            fileDownloadManager.setDownloadUrl(imageUrl);
+            fileDownloadManager.setDigitalAssets(categoryDocumentsResponse);
+            fileDownloadManager.setmFileDownloadListener(new FileDownloadManager.FileDownloadListener() {
+                @Override
+                public void fileDownloadSuccess(String path) {
+
+                    if(path != null && !path.isEmpty())
+                    {
+                        PreferenceUtils.setLogoImagePath(mActivity, path);
+                    }
+
+                //    Toast.makeText(mActivity, path, Toast.LENGTH_LONG).show();
+                    getTermsConditionsUrlFromService(accountSettingsResponse);
+
+                }
+
+                @Override
+                public void fileDownloadFailure() {
+
+                }
+            });
+            fileDownloadManager.downloadTheFile();
+        }
+    }
+
     private void getUiSettings() {
 
         if (NetworkUtils.isNetworkAvailable(mActivity)) {
@@ -487,6 +596,9 @@ public class FTLPinVerificationFragment extends Fragment {
 
                                         accountSettings.InsertWhiteLabelDetails(whiteLabelResponse);
                                     }
+
+                                    getUserPreferences();
+
                                 }
                             } else {
 
@@ -547,7 +659,7 @@ public class FTLPinVerificationFragment extends Fragment {
                             if (apiResponse.status.getCode() == Boolean.FALSE) {
                                 transparentProgressDialog.dismiss();
                                 getUiSettings();
-                                getUserPreferences();
+
                             } else {
                                 String mMessage = apiResponse.status.getMessage().toString();
                                 mActivity.showMessagebox(mActivity, mMessage, null, false);
@@ -613,8 +725,10 @@ public class FTLPinVerificationFragment extends Fragment {
                                     accountSettingsResponse.setIs_Local_Auth_Enabled("0");
                                     accountSettingsResponse.setIs_Push_Notification_Enabled("0");
 
-
-                                    getTermsConditionsUrlFromService(accountSettingsResponse);
+                                    if(accountSettingsResponse.getCompany_Name() != null && !accountSettingsResponse.getCompany_Name().isEmpty())
+                                    {
+                                        downloadLogoImage(accountSettingsResponse, Constants.LOGO_IMAGE_BASE_URL+Constants.Logo_ImagePath+accountSettingsResponse.getCompany_Name()+Constants.Logo_Image_Name);
+                                    }
 
                                 }
 
@@ -730,6 +844,7 @@ public class FTLPinVerificationFragment extends Fragment {
 
                                     AccountSettings accountSettings = new AccountSettings(mActivity);
                                     accountSettings.InsertAccountSettings(accountSettingsResponse);
+
 
                                 }
 

@@ -80,6 +80,7 @@ import com.mwc.docportal.DMS.MyFolderSharedDocuments;
 import com.mwc.docportal.DMS.MyFoldersDMSActivity;
 import com.mwc.docportal.DMS.MyfolderDeleteActivity;
 import com.mwc.docportal.DMS.NavigationMyFolderActivity;
+import com.mwc.docportal.DMS.NavigationSharedActivity;
 import com.mwc.docportal.DMS.Tab_Activity;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Database.OffLine_Files_Repository;
@@ -418,28 +419,14 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                 holder.selectedItemIv.setVisibility(View.GONE);
             }
 
-            if(selectedList != null && selectedList.size() > 0)
+            holder.moreIcon.setVisibility(View.VISIBLE);
+
+            if(selectedList.size() > 0 || !mGetCategoryDocumentsResponses.get(position).getPermission().isCanViewDocument())
             {
                 holder.moreIcon.setVisibility(View.GONE);
             }
-            else
-            {
-                holder.moreIcon.setVisibility(View.VISIBLE);
-            }
-
-            if(!mGetCategoryDocumentsResponses.get(position).getPermission().isCanViewDocument()) {
-                holder.moreIcon.setVisibility(View.GONE);
-            }
-            else
-            {
-                holder.moreIcon.setVisibility(View.VISIBLE);
-            }
-
         }
-
     }
-
-
 
     public void multi_select(int position)
     {
@@ -623,14 +610,6 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                 context.startActivity(intent);
             }
         });
-      /*  shareView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent mIntent = new Intent(context,MyFolderSharedDocuments.class);
-                mIntent.putExtra(Constants.OBJ, (Serializable) selectedList);
-                context.startActivity(mIntent);
-            }
-        });*/
 
         move.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -715,24 +694,19 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
             {
                 if(buttonView.isPressed() == true) {
-
+                    mBottomSheetDialog.dismiss();
                     if (!isChecked) {
                         switchButton_share.setChecked(true);
                         showWarningMessageAlertForSharingContent(mGetCategoryDocumentsResponses);
-                        mBottomSheetDialog.dismiss();
 
                     } else {
                         switchButton_share.setChecked(false);
-                        List<GetCategoryDocumentsResponse> selectedList = new ArrayList<>();
-                        selectedList.add(mGetCategoryDocumentsResponses);
+                        GlobalVariables.isMoveInitiated = true;
+                        GlobalVariables.selectedActionName =  "share";
+                        Intent intent = new Intent(context, NavigationSharedActivity.class);
+                        intent.putExtra("ObjectId", "0");
+                        context.startActivity(intent);
 
-                        PreferenceUtils.setCategoryId(context, mGetCategoryDocumentsResponses.getCategory_id());
-                        PreferenceUtils.setDocument_Id(context, mGetCategoryDocumentsResponses.getObject_id());
-
-                        Intent mIntent = new Intent(context,MyFolderSharedDocuments.class);
-                        mIntent.putExtra(Constants.OBJ, (Serializable) selectedList);
-                        context.startActivity(mIntent);
-                        mBottomSheetDialog.dismiss();
                     }
 
 

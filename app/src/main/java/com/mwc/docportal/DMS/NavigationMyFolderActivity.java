@@ -205,7 +205,8 @@ public class NavigationMyFolderActivity extends BaseActivity {
 
     boolean isVideo = false;
     boolean isFromSearchData = false;
-
+    List<GetCategoryDocumentsResponse> downloadingItemsList = new ArrayList<>();
+    int downloadIndex = 0;
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -461,117 +462,49 @@ public class NavigationMyFolderActivity extends BaseActivity {
 
                         transparentProgressDialog.dismiss();
 
-                        if (apiResponse.status.getCode() instanceof Boolean) {
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
+                        }
 
-                                pageNumber++;
 
-                                List<GetCategoryDocumentsResponse> filteredArray = new ArrayList<>();
-                                /*List<GetCategoryDocumentsResponse> tempList = new ArrayList<>();
-                                tempList =  response.body().getData();
-
-                                if(GlobalVariables.isMoveInitiated)
-                                {
-                                    for(GetCategoryDocumentsResponse getCategory : tempList)
-                                    {
-                                        if(getCategory.getType().equalsIgnoreCase("category"))
-                                        {
-                                            filteredArray.add(getCategory);
-                                        }
+                        if(CommonFunctions.isApiSuccess(NavigationMyFolderActivity.this, message, apiResponse.status.getCode()))
+                        {
+                            pageNumber++;
+                            List<GetCategoryDocumentsResponse> filteredArray = new ArrayList<>();
+                            filteredArray = response.body().getData();
+                            if(pageNumber == 1)
+                            {
+                                mGetCategoryDocumentsResponses = filteredArray;
+                            }
+                            else
+                            {
+                                listGetCategoryDocuments = filteredArray;
+                                mGetCategoryDocumentsResponses.addAll(filteredArray);
+                            }
+                            totalPages  = Integer.parseInt(response.headers().get("X-Pagination-Page-Count"));
+                            setSortTitle();
+                            toggleEmptyState();
+                            reloadAdapterData();
+                            if(isFromSearchData == true && GlobalVariables.searchKey != null && !GlobalVariables.searchKey.isEmpty())
+                            {
+                                Handler handler = new Handler();
+                                handler.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Intent intent = new Intent(NavigationMyFolderActivity.this, GlobalSearchActivity.class);
+                                        startActivity(intent);
                                     }
-                                }
-                                else
-                                {
-                                    filteredArray = tempList;
-                                }*/
-
-                                filteredArray = response.body().getData();
-
-                                if(pageNumber == 1)
-                                {
-                                    mGetCategoryDocumentsResponses = filteredArray;
-                                }
-                                else
-                                {
-                                    listGetCategoryDocuments = filteredArray;
-                                    mGetCategoryDocumentsResponses.addAll(filteredArray);
-                                }
-
-
-                                totalPages  = Integer.parseInt(response.headers().get("X-Pagination-Page-Count"));
-
-                                setSortTitle();
-                                toggleEmptyState();
-
-                                reloadAdapterData();
-
-
-
-                                if(isFromSearchData == true && GlobalVariables.searchKey != null && !GlobalVariables.searchKey.isEmpty())
-                                {
-                                    Handler handler = new Handler();
-                                    handler.postDelayed(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            Intent intent = new Intent(NavigationMyFolderActivity.this, GlobalSearchActivity.class);
-                                            startActivity(intent);
-                                        }
-                                    }, 1000);
-
-                                }
-
-
-                                if(PreferenceUtils.getMaxSizeUpload(context) == null || PreferenceUtils.getMaxSizeUpload(context).isEmpty())
-                                {
-                                    getMaxUploadSize();
-                                }
-
-
-
+                                }, 1000);
 
                             }
-
-                        } else if (apiResponse.status.getCode() instanceof Double) {
-                            transparentProgressDialog.dismiss();
-                            String mMessage = apiResponse.status.getMessage().toString();
-
-                            Object obj =  apiResponse.status.getCode();
-                            if (obj.equals(401.0)) {
-                                final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                                builder.setView(view);
-                                builder.setCancelable(false);
-
-                                TextView title = (TextView) view.findViewById(R.id.title);
-                                title.setText("Alert");
-
-                                TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                                txtMessage.setText(mMessage);
-
-                                Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                                Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                                cancelButton.setVisibility(View.GONE);
-
-                                sendPinButton.setText("OK");
-
-                                sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        mAlertDialog.dismiss();
-                                        AccountSettings accountSettings = new AccountSettings(context);
-                                        accountSettings.deleteAll();
-                                        startActivity(new Intent(context, LoginActivity.class));
-                                    }
-                                });
-
-                                mAlertDialog = builder.create();
-                                mAlertDialog.show();
+                            if(PreferenceUtils.getMaxSizeUpload(context) == null || PreferenceUtils.getMaxSizeUpload(context).isEmpty())
+                            {
+                                getMaxUploadSize();
                             }
                         }
+
                     }
                 }
 
@@ -2193,6 +2126,8 @@ public class NavigationMyFolderActivity extends BaseActivity {
           menuItemMore = menu.findItem(R.id.action_more);
           menuItemMove = menu.findItem(R.id.action_move);
 
+
+
           String itemSelectedColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
           int selectedColor = Color.parseColor(itemSelectedColor);
 
@@ -2427,13 +2362,11 @@ public class NavigationMyFolderActivity extends BaseActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
             {
                 if(buttonView.isPressed() == true) {
-
+                    mBottomSheetDialog.dismiss();
                     if (!isChecked) {
                         switchButton_share.setChecked(true);
                         ArrayList<String> documentIdslist = new ArrayList<>();
-
-                        for(GetCategoryDocumentsResponse categoryDocumentsResponse : mSelectedDocumentList)
-                        {
+                        for(GetCategoryDocumentsResponse categoryDocumentsResponse : mSelectedDocumentList)                        {
                             documentIdslist.add(categoryDocumentsResponse.getObject_id());
                         }
 
@@ -2442,20 +2375,14 @@ public class NavigationMyFolderActivity extends BaseActivity {
                             showWarningMessageAlertForSharingContent(documentIdslist, mSelectedDocumentList);
                         }
 
-
-                        mBottomSheetDialog.dismiss();
-
                     } else {
                         switchButton_share.setChecked(false);
+                        GlobalVariables.isMoveInitiated = true;
+                        GlobalVariables.selectedActionName =  "share";
+                        Intent intent = new Intent(context, NavigationSharedActivity.class);
+                        intent.putExtra("ObjectId", "0");
+                        startActivity(intent);
 
-                       /* PreferenceUtils.setCategoryId(context, categoryDocumentsResponse.getCategory_id());
-                        PreferenceUtils.setDocument_Id(context, categoryDocumentsResponse.getObject_id());*/
-
-                        Intent mIntent = new Intent(context, MyFolderSharedDocuments.class);
-                        mIntent.putExtra(Constants.OBJ, (Serializable) mSelectedDocumentList);
-                        startActivity(mIntent);
-
-                        mBottomSheetDialog.dismiss();
                     }
 
 
@@ -2623,9 +2550,9 @@ public class NavigationMyFolderActivity extends BaseActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isTouched) {
                     isTouched = false;
+                    mBottomSheetDialog.dismiss();
                     if (isChecked) {
 
-                        mBottomSheetDialog.dismiss();
                         List<GetCategoryDocumentsResponse> downloadedList = new ArrayList<>();
                         if(mSelectedDocumentList != null && mSelectedDocumentList.size() > 0)
                         {
@@ -2641,11 +2568,34 @@ public class NavigationMyFolderActivity extends BaseActivity {
 
                         if(downloadedList != null && downloadedList.size() > 0)
                         {
-                            //  Toast.makeText(context,String.valueOf(downloadedList.size()), Toast.LENGTH_LONG).show();
                             convertingDownloadUrl(downloadedList);
                         }
 
                     }
+                    else
+                    {
+                        if (mSelectedDocumentList != null && mSelectedDocumentList.size() > 0) {
+                            for(GetCategoryDocumentsResponse categoryDocumentsResponse : mSelectedDocumentList)
+                            {
+                                OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(context);
+                                offLine_files_repository.deleteAlreadydownloadedFile(categoryDocumentsResponse.getDocument_version_id());
+                                String filepath = offLine_files_repository.getFilePathFromLocalTable(categoryDocumentsResponse.getDocument_version_id());
+                                if(filepath != null && !filepath.isEmpty())
+                                {
+                                    CommonFunctions.deleteFileFromInternalStorage(filepath);
+                                }
+                            }
+                        }
+
+                        if (isFromList == true) {
+                            mAdapterList.clearAll();
+                        } else {
+                            mAdapter.clearAll();
+                        }
+                        List<GetCategoryDocumentsResponse> dummyList = new ArrayList<>();
+                        updateToolbarMenuItems(dummyList);
+                    }
+
                 }
             }
         });
@@ -3045,114 +2995,6 @@ public class NavigationMyFolderActivity extends BaseActivity {
         accountSettings.getWhiteLabelProperties();
     }
 
-    public void getCategoryDocumentsNext(String obj, String page)
-    {
-
-        if (NetworkUtils.isNetworkAvailable(context)) {
-
-            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
-
-            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
-            transparentProgressDialog.show();
-
-            final GetCategoryDocumentsRequest mGetCategoryDocumentsRequest;
-
-            mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(obj, "list", "category", "1", "0");
-
-            String request = new Gson().toJson(mGetCategoryDocumentsRequest);
-
-            //Here the json data is add to a hash map with key data
-            Map<String, String> params = new HashMap<String, String>();
-            params.put("data", request);
-
-            final GetCategoryDocumentsService mGetCategoryDocumentsService = retrofitAPI.create(GetCategoryDocumentsService.class);
-
-            Call call = mGetCategoryDocumentsService.getCategoryDocumentsV2(params, PreferenceUtils.getAccessToken(context),page);
-
-            call.enqueue(new Callback<ListPinDevicesResponse<GetCategoryDocumentsResponse>>() {
-                @Override
-                public void onResponse(Response<ListPinDevicesResponse<GetCategoryDocumentsResponse>> response, Retrofit retrofit) {
-                    ListPinDevicesResponse apiResponse = response.body();
-                    if (apiResponse != null) {
-
-                        transparentProgressDialog.dismiss();
-
-                        if (apiResponse.status.getCode() instanceof Boolean) {
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
-
-                                listGetCategoryDocuments = response.body().getData();
-                                //mGetCategoryDocumentsResponses = response.body().getData();
-
-                                mGetCategoryDocumentsResponses.addAll(listGetCategoryDocuments);
-                                totalPages   = Integer.parseInt(response.headers().get("X-Pagination-Page-Count"));
-                                pageNumber = Integer.parseInt(response.headers().get("X-Pagination-Current-Page"));
-
-                                if(isFromList == true)
-                                {
-                                    setListAdapterToView(mGetCategoryDocumentsResponses);
-                                }
-                                else
-                                {
-                                    setGridAdapterToView(mGetCategoryDocumentsResponses);
-                                }
-
-
-                            }
-
-                        } else if (apiResponse.status.getCode() instanceof Double) {
-                            transparentProgressDialog.dismiss();
-                            String mMessage = apiResponse.status.getMessage().toString();
-
-                            Object obj = 401.0;
-                            if (obj.equals(401.0)) {
-                                final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                                builder.setView(view);
-                                builder.setCancelable(false);
-
-                                TextView title = (TextView) view.findViewById(R.id.title);
-                                title.setText("Alert");
-
-                                TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                                txtMessage.setText(mMessage);
-
-                                Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                                Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                                cancelButton.setVisibility(View.GONE);
-
-                                sendPinButton.setText("OK");
-
-                                sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        mAlertDialog.dismiss();
-                                        AccountSettings accountSettings = new AccountSettings(context);
-                                        accountSettings.deleteAll();
-                                        startActivity(new Intent(context, LoginActivity.class));
-                                    }
-                                });
-
-                                mAlertDialog = builder.create();
-                                mAlertDialog.show();
-                            }
-                        }
-                    }
-                }
-
-                @Override
-                public void onFailure(Throwable t) {
-                    transparentProgressDialog.dismiss();
-                    Log.d("PinDevice error", t.getMessage());
-                }
-            });
-        }
-    }
-
-
     private void renameCategory(String object_id, String rename, String parent_id)
     {
         if (NetworkUtils.isNetworkAvailable(context)) {
@@ -3428,52 +3270,71 @@ public class NavigationMyFolderActivity extends BaseActivity {
 
     private void getDownloadManagerForDownloading(List<GetCategoryDocumentsResponse> downloadingUrlDataList)
     {
-
+        if (isFromList == true) {
+            mAdapterList.clearAll();
+        } else {
+            mAdapter.clearAll();
+        }
         List<GetCategoryDocumentsResponse> dummyList = new ArrayList<>();
         updateToolbarMenuItems(dummyList);
-
-
         index = 0;
-        for (final GetCategoryDocumentsResponse digitalAsset : downloadingUrlDataList) {
-            if (!TextUtils.isEmpty(digitalAsset.getDownloadUrl())) {
-                FileDownloadManager fileDownloadManager = new FileDownloadManager(NavigationMyFolderActivity.this);
-                fileDownloadManager.setFileTitle(digitalAsset.getName());
-                fileDownloadManager.setDownloadUrl(digitalAsset.getDownloadUrl());
-                fileDownloadManager.setDigitalAssets(digitalAsset);
-                fileDownloadManager.setmFileDownloadListener(new FileDownloadManager.FileDownloadListener() {
-                    @Override
-                    public void fileDownloadSuccess(String path) {
 
-
-                        OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(context);
-                        if (!offLine_files_repository.checkAlreadyDocumentAvailableOrNot(digitalAsset.getDocument_version_id())) {
-                            offLine_files_repository.deleteAlreadydownloadedFile(digitalAsset.getDocument_version_id());
-                            String filepath = offLine_files_repository.getFilePathFromLocalTable(digitalAsset.getDocument_version_id());
-                            if(filepath != null && !filepath.isEmpty())
-                            {
-                                CommonFunctions.deleteFileFromInternalStorage(filepath);
-                            }
-                            insertIntoOffLineFilesTable(digitalAsset, path);
-                        }
-                        else
-                        {
-                            insertIntoOffLineFilesTable(digitalAsset, path);
-                        }
-
-                        //    Toast.makeText(mActivity,path, Toast.LENGTH_LONG).show();
-
-
-                    }
-
-                    @Override
-                    public void fileDownloadFailure() {
-
-                    }
-                });
-                fileDownloadManager.downloadTheFile();
-            }
+        downloadingItemsList = downloadingUrlDataList;
+        if(downloadingItemsList.size() > downloadIndex) {
+            downLoadImageSeparately(downloadingItemsList.get(downloadIndex));
         }
+    }
 
+
+    private void downLoadImageSeparately(GetCategoryDocumentsResponse categoryDocumentsResponse)
+    {
+        if (!TextUtils.isEmpty(categoryDocumentsResponse.getDownloadUrl())) {
+            FileDownloadManager fileDownloadManager = new FileDownloadManager(NavigationMyFolderActivity.this);
+            fileDownloadManager.setFileTitle(categoryDocumentsResponse.getName());
+            fileDownloadManager.setDownloadUrl(categoryDocumentsResponse.getDownloadUrl());
+            fileDownloadManager.setDigitalAssets(categoryDocumentsResponse);
+            fileDownloadManager.setmFileDownloadListener(new FileDownloadManager.FileDownloadListener() {
+                @Override
+                public void fileDownloadSuccess(String path) {
+
+                    OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(context);
+                    if (!offLine_files_repository.checkAlreadyDocumentAvailableOrNot(categoryDocumentsResponse.getDocument_version_id())) {
+                        offLine_files_repository.deleteAlreadydownloadedFile(categoryDocumentsResponse.getDocument_version_id());
+                        String filepath = offLine_files_repository.getFilePathFromLocalTable(categoryDocumentsResponse.getDocument_version_id());
+                        if(filepath != null && !filepath.isEmpty())
+                        {
+                            CommonFunctions.deleteFileFromInternalStorage(filepath);
+                        }
+                        insertIntoOffLineFilesTable(categoryDocumentsResponse, path);
+                    }
+                    else
+                    {
+                        insertIntoOffLineFilesTable(categoryDocumentsResponse, path);
+                    }
+
+
+                    downloadIndex++;
+                    if(downloadingItemsList.size()> downloadIndex) {
+                        downLoadImageSeparately(downloadingItemsList.get(downloadIndex));
+
+                    }
+                    else
+                    {
+                        downloadIndex = 0;
+                    }
+
+
+                }
+
+                @Override
+                public void fileDownloadFailure() {
+
+                    Toast.makeText(context, "Download Failed", Toast.LENGTH_LONG).show();
+
+                }
+            });
+            fileDownloadManager.downloadTheFile();
+        }
     }
 
     private void insertIntoOffLineFilesTable(GetCategoryDocumentsResponse digitalAsset, String path)
@@ -3573,9 +3434,6 @@ public class NavigationMyFolderActivity extends BaseActivity {
                         if (response.body().getStatus().getCode() instanceof Boolean) {
                             if (response.body().getStatus().getCode() == Boolean.FALSE) {
                                 transparentProgressDialog.dismiss();
-
-
-
                             }
 
                         } else if (response.body().getStatus().getCode() instanceof Double) {

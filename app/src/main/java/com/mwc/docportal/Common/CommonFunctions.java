@@ -1,57 +1,25 @@
 package com.mwc.docportal.Common;
 
-
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.gson.Gson;
 import com.mwc.docportal.API.Model.ColorCodeModel;
-import com.mwc.docportal.API.Model.DocumentPropertiesRequest;
-import com.mwc.docportal.API.Model.DocumentPropertiesResponse;
-import com.mwc.docportal.API.Model.EditDocumentPropertiesRequest;
 import com.mwc.docportal.API.Model.GetCategoryDocumentsResponse;
-import com.mwc.docportal.API.Model.ListPinDevicesResponse;
-import com.mwc.docportal.API.Model.LoginResponse;
-import com.mwc.docportal.API.Model.MoveDocumentRequest;
-import com.mwc.docportal.API.Service.DocumentPropertiesService;
-import com.mwc.docportal.API.Service.EditDocumentPropertiesService;
-import com.mwc.docportal.API.Service.MoveDocumentService;
-import com.mwc.docportal.DMS.MyFolderActivity;
-import com.mwc.docportal.DMS.MyFoldersDMSActivity;
 import com.mwc.docportal.Database.AccountSettings;
-import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.Login.LoginActivity;
-import com.mwc.docportal.Network.NetworkUtils;
-import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
-import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.File;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import retrofit.Call;
-import retrofit.Callback;
-import retrofit.Response;
-import retrofit.Retrofit;
 
 public class CommonFunctions
 {
-    AlertDialog mAlertDialog;
+    static AlertDialog mAlertDialog;
    public static ColorCodeModel getColorCodesforFileType(String fileType)
     {
         ColorCodeModel colorCodeModel = new ColorCodeModel();
@@ -146,6 +114,120 @@ public class CommonFunctions
         boolean deleted = file.delete();
     }
 
+
+    public static boolean isApiSuccess(Activity context, String message, Object code)
+    {
+        boolean isSuccess = true;
+
+        if(code instanceof Double)
+        {
+            double status_value = new Double(code.toString());
+            if (status_value == 401.3)
+            {
+                showAlertDialogForAccessDenied(context, message);
+                isSuccess = false;
+            }
+            else if(status_value ==  401 || status_value ==  401.0)
+            {
+                showAlertDialogForSessionExpiry(context, message);
+                isSuccess = false;
+
+            }
+        }
+        else if(code instanceof Integer)
+        {
+            int integerValue = new Integer(code.toString());
+            if(integerValue ==  401)
+            {
+                showAlertDialogForSessionExpiry(context, message);
+                isSuccess = false;
+
+            }
+
+        }
+        else if(code instanceof Boolean)
+        {
+            if (code == Boolean.TRUE)
+            {
+                showAlertDialogForAccessDenied(context, message);
+                isSuccess = false;
+            }
+        }
+
+
+        return isSuccess;
+    }
+
+    private static void showAlertDialogForSessionExpiry(Activity context, String message)
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Alert");
+
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+        txtMessage.setText(message);
+
+        Button okButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+        cancelButton.setVisibility(View.GONE);
+
+        okButton.setText("OK");
+
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+                AccountSettings accountSettings = new AccountSettings(context);
+                accountSettings.LogouData(context);
+                context.startActivity(new Intent(context, LoginActivity.class));
+            }
+        });
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
+    }
+
+    private static void showAlertDialogForAccessDenied(Context context, String message)
+    {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Alert");
+
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+        txtMessage.setText(message);
+
+        Button okButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+        cancelButton.setVisibility(View.GONE);
+
+        okButton.setText("OK");
+
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+
+            }
+        });
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
+    }
 
 
 }

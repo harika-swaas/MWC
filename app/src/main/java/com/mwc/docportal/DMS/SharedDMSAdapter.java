@@ -200,7 +200,7 @@ public class SharedDMSAdapter extends RecyclerView.Adapter<SharedDMSAdapter.View
             final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
             transparentProgressDialog.show();
 
-            final GetEndUserAllowedSharedFoldersRequest mGetEndUserAllowedSharedFoldersRequest = new GetEndUserAllowedSharedFoldersRequest(Integer.parseInt(workspace_id), Integer.parseInt(category_id));
+            final GetEndUserAllowedSharedFoldersRequest mGetEndUserAllowedSharedFoldersRequest = new GetEndUserAllowedSharedFoldersRequest(workspace_id,category_id);
 
             String request = new Gson().toJson(mGetEndUserAllowedSharedFoldersRequest);
 

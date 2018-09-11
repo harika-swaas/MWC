@@ -1,6 +1,7 @@
 package com.mwc.docportal.Login;
 
-import android.Manifest;
+
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.KeyguardManager;
 import android.content.Context;
@@ -8,18 +9,24 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.gson.Gson;
 import com.mwc.docportal.API.Model.AccountSettingsResponse;
-import com.mwc.docportal.DMS.MyFoldersDMSActivity;
+import com.mwc.docportal.API.Model.ConfirmPasswordRequestModel;
+import com.mwc.docportal.API.Model.ConfirmPasswordResponseModel;
+import com.mwc.docportal.API.Service.UploadNewFolderService;
 import com.mwc.docportal.DMS.NavigationMyFolderActivity;
 import com.mwc.docportal.Database.AccountSettings;
-import com.mwc.docportal.Database.PushNotificatoinSettings_Respository;
+import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.Fragments.LoginFragment;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
@@ -29,8 +36,7 @@ import com.mwc.docportal.Utils.SplashScreen;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+
 
 
 /**
@@ -40,17 +46,20 @@ import java.util.TimerTask;
 public class LoginActivity extends RootActivity {
     LoginFragment mLoginFragment;
     KeyguardManager keyguardManager;
-    private static final int CREDENTIALS_RESULT = 4342;
+    public final int CREDENTIALS_RESULT = 12345;
     List<AccountSettingsResponse> mAccountSettingsResponses = new ArrayList<>();
     int backButtonCount;
 
     String documentVersionId = "";
     String notificationType = "";
     Context context = this;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+
 
 
         if(getIntent().getStringExtra("document_version_id") != null)
@@ -78,7 +87,6 @@ public class LoginActivity extends RootActivity {
     protected void onResume() {
         super.onResume();
         checkAppStatus();
-
     }
 
 
@@ -94,7 +102,57 @@ public class LoginActivity extends RootActivity {
             loginStatus = "";
         }
 
+
         if (TextUtils.isEmpty(loginStatus)) {
+
+        }
+        else
+        {
+            if(loginStatus.equalsIgnoreCase(String.valueOf(Constants.All_Settings_Completed)))
+            {
+                gotoSplashScreenPage();
+            }
+            else if(loginStatus.equalsIgnoreCase(String.valueOf(Constants.Login_Completed)))
+            {
+                boolean isTouchIdEnabled = checkTouchIdEnabled();
+                if(isTouchIdEnabled)
+                {
+
+                    checkTouchIdCredentials();
+
+                }
+                else
+                {
+                    Intent intent = new Intent(LoginActivity.this, Notifiy.class);
+                    startActivity(intent);
+                    LoginActivity.this.finish();
+                }
+            }
+            else if(loginStatus.equalsIgnoreCase(String.valueOf(Constants.Local_Auth_Completed)))
+            {
+                Intent intent = new Intent(LoginActivity.this, Notifiy.class);
+                startActivity(intent);
+                LoginActivity.this.finish();
+            }
+            else if(mAccountSettingsResponses.get(0).getIs_Terms_Accepted().equals("0"))
+            {
+                startActivity(new Intent(LoginActivity.this, LoginAgreeTermsAcceptanceActivity.class));
+                LoginActivity.this.finish();
+            }
+            else if(mAccountSettingsResponses.get(0).getIs_Help_Accepted().equals("1"))
+            {
+                startActivity(new Intent(LoginActivity.this, LoginHelpUserGuideActivity.class));
+                LoginActivity.this.finish();
+
+            }
+            else
+            {
+                gotoSplashScreenPage();
+            }
+
+        }
+
+       /* if (TextUtils.isEmpty(loginStatus)) {
         }
         else if(loginStatus.equalsIgnoreCase(String.valueOf(Constants.Login_Completed))) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -124,18 +182,20 @@ public class LoginActivity extends RootActivity {
                 }
             }, timeout);
         }
-
         else {
             checkAppStatusAfterPushNotification(mAccountSettingsResponses);
-        }
+        }*/
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+
+
+
+   /* @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void checkAppStatusAfterPushNotification(final List<AccountSettingsResponse> mAccountSettingsResponses) {
 
         if(mAccountSettingsResponses.get(0).getIs_Terms_Accepted().equals("0")){
             if(mAccountSettingsResponses.get(0).getIs_Local_Auth_Enabled().equalsIgnoreCase("1")) {
-                checkCredentials();
+            //    checkCredentials();
             }
             Intent intent = new Intent(LoginActivity.this, SplashScreen.class);
             startActivity(intent);
@@ -204,7 +264,7 @@ public class LoginActivity extends RootActivity {
                 }
             }, timeout);
         }
-    }
+    }*/
 
     private void getLoggedInStatus() {
 
@@ -242,31 +302,7 @@ public class LoginActivity extends RootActivity {
 
         }
     }
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public void checkCredentials(){
-        keyguardManager = (KeyguardManager) this.getSystemService(Context.KEYGUARD_SERVICE);
-        Intent credentialsIntent = keyguardManager.createConfirmDeviceCredentialIntent("Password required", "please enter your pattern to receive your token");
 
-        if (credentialsIntent != null) {
-            startActivityForResult(credentialsIntent, CREDENTIALS_RESULT);
-        }
-
-    }
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        if (requestCode == CREDENTIALS_RESULT) {
-
-            if (resultCode == RESULT_OK) {
-
-                Toast.makeText(getApplicationContext(), "Success", Toast.LENGTH_SHORT).show();
-            }
-            else{
-                Toast.makeText(LoginActivity.this,"Authentication Failed",Toast.LENGTH_SHORT).show();
-                android.os.Process.killProcess(android.os.Process.myPid());
-                System.exit(1);
-            }
-        }
-    }
 
     @Override
     public void onBackPressed() {
@@ -278,4 +314,58 @@ public class LoginActivity extends RootActivity {
             backButtonCount++;
         }
     }
+
+    private void gotoSplashScreenPage()
+    {
+        Intent intent = new Intent(LoginActivity.this, SplashScreen.class);
+        startActivity(intent);
+        finish();
+    }
+
+
+
+    private boolean checkTouchIdEnabled()
+    {
+        KeyguardManager keyguardManager = (KeyguardManager) this.getSystemService(Context.KEYGUARD_SERVICE);
+        return keyguardManager.isKeyguardSecure();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public void checkTouchIdCredentials()
+    {
+
+        keyguardManager = (KeyguardManager) this.getSystemService(Context.KEYGUARD_SERVICE);
+        Intent credentialsIntent = keyguardManager.createConfirmDeviceCredentialIntent("Password required", "please enter your pattern to receive your token");
+
+        if (credentialsIntent != null) {
+            startActivityForResult(credentialsIntent, CREDENTIALS_RESULT);
+        }
+    }
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == CREDENTIALS_RESULT) {
+
+            if (resultCode == RESULT_OK) {
+                    Intent intent = new Intent(LoginActivity.this, Notifiy.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                    LoginActivity.this.finish();
+
+            } else {
+                Toast.makeText(context, "Authentication Failed", Toast.LENGTH_SHORT).show();
+                finish();
+                moveTaskToBack(true);
+
+            }
+
+        }
+
+    }
+
+
+
+
 }

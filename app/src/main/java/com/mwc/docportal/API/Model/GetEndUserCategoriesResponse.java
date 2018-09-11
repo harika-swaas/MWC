@@ -9,6 +9,15 @@ public class GetEndUserCategoriesResponse {
     String category_id;
     String parent_id;
     String category_name;
+    String workspace_id;
+
+    public String getWorkspace_id() {
+        return workspace_id;
+    }
+
+    public void setWorkspace_id(String workspace_id) {
+        this.workspace_id = workspace_id;
+    }
 
     public String getCategory_name() {
         return category_name;

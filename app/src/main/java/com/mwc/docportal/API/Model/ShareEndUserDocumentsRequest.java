@@ -3,6 +3,8 @@ package com.mwc.docportal.API.Model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
+
 /**
  * Created by harika on 20-07-2018.
  */
@@ -11,7 +13,7 @@ public class ShareEndUserDocumentsRequest {
 
     @SerializedName("document_ids")
     @Expose
-    private String[] document_ids;
+    private ArrayList<String> document_ids;
 
     @SerializedName("workspace_id")
     @Expose
@@ -21,17 +23,17 @@ public class ShareEndUserDocumentsRequest {
     @Expose
     private String category_id;
 
-    public ShareEndUserDocumentsRequest(String[] document_ids,String workspace_id,String category_id){
+    public ShareEndUserDocumentsRequest(ArrayList<String> document_ids,String workspace_id,String category_id){
         this.document_ids = document_ids;
         this.workspace_id = workspace_id;
         this.category_id = category_id;
     }
 
-    public String[] getDocument_ids() {
+    public ArrayList<String> getDocument_ids() {
         return document_ids;
     }
 
-    public void setDocument_ids(String[] document_ids) {
+    public void setDocument_ids(ArrayList<String> document_ids) {
         this.document_ids = document_ids;
     }
 

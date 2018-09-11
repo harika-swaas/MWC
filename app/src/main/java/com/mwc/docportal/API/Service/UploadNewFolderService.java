@@ -1,5 +1,6 @@
 package com.mwc.docportal.API.Service;
 
+import com.mwc.docportal.API.Model.ConfirmPasswordResponseModel;
 import com.mwc.docportal.API.Model.ListPinDevicesResponse;
 import com.mwc.docportal.API.Model.LoginResponse;
 
@@ -22,4 +23,11 @@ public interface UploadNewFolderService {
     @POST("/end-user-insert-category")
     @FormUrlEncoded
     Call<ListPinDevicesResponse<LoginResponse>> getNewFolder(@FieldMap Map<String, String> params, @Header("access-token") String accessToken);
+
+
+    @Headers("content-type: application/x-www-form-urlencoded")
+    @POST("/validate-intermediate-verification")
+    @FormUrlEncoded
+    Call<ConfirmPasswordResponseModel> getConfirmPassword(@FieldMap Map<String, String> params, @Header("access-token") String accessToken);
+
 }

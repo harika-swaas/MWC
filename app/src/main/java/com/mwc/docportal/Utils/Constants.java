@@ -15,6 +15,9 @@ public class Constants {
     // ***************************** Production ********************************************
      // public static final String COMPANY_BASE_URL = ""; // Prod
 
+    public static final String LOGO_IMAGE_BASE_URL = "http://172.16.40.51/";
+
+
     public static final String EMAIL = "email";
     public static final String MOBILE = "mobile";
 
@@ -58,6 +61,8 @@ public class Constants {
 
 
     public static final String SHARED_COMPANY_BASE_URL = "http://172.16.40.40";
+    public static final String Logo_ImagePath = "assets/images/whitelabels/";
+    public static final String Logo_Image_Name = "/mwc-logo.png";
 
 }
 

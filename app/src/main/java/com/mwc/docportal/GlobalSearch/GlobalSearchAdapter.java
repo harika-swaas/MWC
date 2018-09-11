@@ -69,6 +69,7 @@ import com.mwc.docportal.DMS.MyFolderSharedDocuments;
 import com.mwc.docportal.DMS.MyFoldersDMSActivity;
 import com.mwc.docportal.DMS.MyfolderDeleteActivity;
 import com.mwc.docportal.DMS.NavigationMyFolderActivity;
+import com.mwc.docportal.DMS.NavigationSharedActivity;
 import com.mwc.docportal.DMS.Tab_Activity;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Database.OffLine_Files_Repository;
@@ -390,14 +391,10 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(buttonView.isPressed() == true) {
+                    mBottomSheetDialog.dismiss();
                     if (isChecked) {
-
                         switchButton_download.setChecked(true);
-
                         getDownloadurlFromServiceSingleDocument(categoryDocumentsResponse);
-
-                        mBottomSheetDialog.dismiss();
-
                     }
                     else
                     {
@@ -410,7 +407,6 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
                             CommonFunctions.deleteFileFromInternalStorage(filepath);
                         }
                         switchButton_download.setChecked(false);
-                        mBottomSheetDialog.dismiss();
                     }
 
 
@@ -424,24 +420,17 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
             {
                 if(buttonView.isPressed() == true) {
-
+                    mBottomSheetDialog.dismiss();
                     if (!isChecked) {
                         switchButton_share.setChecked(true);
                         showWarningMessageAlertForSharingContent(categoryDocumentsResponse);
-                        mBottomSheetDialog.dismiss();
-
                     } else {
                         switchButton_share.setChecked(false);
-                        List<GetCategoryDocumentsResponse> selectedList = new ArrayList<>();
-                        selectedList.add(categoryDocumentsResponse);
-
-                        PreferenceUtils.setCategoryId(context, categoryDocumentsResponse.getCategory_id());
-                        PreferenceUtils.setDocument_Id(context, categoryDocumentsResponse.getObject_id());
-
-                        Intent mIntent = new Intent(context,MyFolderSharedDocuments.class);
-                        mIntent.putExtra(Constants.OBJ, (Serializable) selectedList);
-                        context.startActivity(mIntent);
-                        mBottomSheetDialog.dismiss();
+                        GlobalVariables.isMoveInitiated = true;
+                        GlobalVariables.selectedActionName =  "share";
+                        Intent intent = new Intent(context, NavigationSharedActivity.class);
+                        intent.putExtra("ObjectId", "0");
+                        context.startActivity(intent);
                     }
 
 
@@ -725,8 +714,6 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
                         if (response.body().getStatus().getCode() instanceof Boolean) {
                             if (response.body().getStatus().getCode() == Boolean.FALSE) {
                                 transparentProgressDialog.dismiss();
-
-
 
                             }
 
