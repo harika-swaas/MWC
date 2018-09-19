@@ -1,14 +1,18 @@
 package com.mwc.docportal.Login;
 
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -53,12 +57,12 @@ public class LoginActivity extends RootActivity {
     String documentVersionId = "";
     String notificationType = "";
     Context context = this;
+    public static final int REQUEST_STORAGE_PERMISSION = 111;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
 
 
 
@@ -76,6 +80,8 @@ public class LoginActivity extends RootActivity {
     }
 
 
+
+
     private void loadFTLFragment() {
 
         getSupportFragmentManager().beginTransaction().replace(R.id.login_fragment, mLoginFragment).
@@ -86,10 +92,24 @@ public class LoginActivity extends RootActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        checkAppStatus();
+        storageAccessPermission();
+
     }
 
 
+    private void storageAccessPermission()
+    {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            int storagePermission = ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            if (storagePermission == PackageManager.PERMISSION_GRANTED) {
+                checkAppStatus();
+            } else {
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_STORAGE_PERMISSION);
+            }
+        } else {
+            checkAppStatus();
+        }
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void checkAppStatus() {
@@ -366,6 +386,22 @@ public class LoginActivity extends RootActivity {
     }
 
 
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_STORAGE_PERMISSION:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    checkAppStatus();
+                } else {
+                    Toast.makeText(context, "Storage access permission denied", Toast.LENGTH_LONG).show();
+                    finish();
+                    moveTaskToBack(true);
+                }
+                break;
+        }
+    }
 
 
 }

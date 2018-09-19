@@ -26,6 +26,8 @@ import com.mwc.docportal.API.Model.UserProfileModel;
 import com.mwc.docportal.API.Service.DocumentPropertiesService;
 import com.mwc.docportal.API.Service.GetTermsPageContentService;
 import com.mwc.docportal.API.Service.GetUserPreferencesService;
+import com.mwc.docportal.Common.CommonFunctions;
+import com.mwc.docportal.DMS.NavigationSharedActivity;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.Login.LoginActivity;
@@ -120,60 +122,22 @@ public class UserProfileActivity extends AppCompatActivity {
                     if (response != null) {
                         transparentProgressDialog.dismiss();
 
-                        if (response.body().getStatus().getCode() instanceof Boolean) {
 
-                            if (response.body().getStatus().getCode() == Boolean.FALSE) {
-                                UserProfileModel.Data userProfileModel = response.body().getData();
-
-                                if(userProfileModel != null)
-                                {
-                                    showUserProfileData(userProfileModel);
-                                }
-
-
-                            }
-
-                        } else if (response.body().getStatus().getCode() instanceof Double) {
-                            transparentProgressDialog.dismiss();
-                            String mMessage = response.body().getStatus().getMessage().toString();
-                            Object obj = 401.0;
-                            if (obj.equals(401.0)) {
-                                final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                                LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                                builder.setView(view);
-                                builder.setCancelable(false);
-
-                                TextView title = (TextView) view.findViewById(R.id.title);
-                                title.setText("Alert");
-
-                                TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                                txtMessage.setText(mMessage);
-
-                                Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                                Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                                cancelButton.setVisibility(View.GONE);
-
-                                sendPinButton.setText("OK");
-
-                                sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        mAlertDialog.dismiss();
-                                        AccountSettings accountSettings = new AccountSettings(context);
-                                        accountSettings.deleteAll();
-                                        startActivity(new Intent(context, LoginActivity.class));
-                                    }
-                                });
-
-                                mAlertDialog = builder.create();
-                                mAlertDialog.show();
-                            }
-
+                        String message = "";
+                        if(response.body().getStatus().getMessage() != null)
+                        {
+                            message = response.body().getStatus().getMessage().toString();
                         }
 
+                        if(CommonFunctions.isApiSuccess(UserProfileActivity.this, message, response.body().getStatus().getCode()))
+                        {
+                            UserProfileModel.Data userProfileModel = response.body().getData();
+
+                            if(userProfileModel != null)
+                            {
+                                showUserProfileData(userProfileModel);
+                            }
+                        }
 
                     }
                 }

@@ -27,6 +27,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -44,6 +45,7 @@ import com.mwc.docportal.API.Model.PushNotificationRequestModel;
 import com.mwc.docportal.API.Model.SharedDocumentResponseModel;
 import com.mwc.docportal.API.Model.WhiteLabelResponse;
 import com.mwc.docportal.API.Service.ShareEndUserDocumentsService;
+import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Database.PushNotificatoinSettings_Respository;
 import com.mwc.docportal.FTL.WebviewLoaderTermsActivity;
@@ -82,9 +84,9 @@ public class NavigationSettingsActivity extends BaseActivity {
     private static final int CREDENTIALS_RESULT = 4342;
     private static final String MWC = "MWC";
     AlertDialog mAlertDialog;
-    String finger_print_settings, push_notificaton_settings;
+    String finger_print_settings;
 
-    boolean push_notificatoin;
+
     int backButtonCount = 0;
     Toolbar toolbar;
     CollapsingToolbarLayout collapsingToolbarLayout;
@@ -127,17 +129,6 @@ public class NavigationSettingsActivity extends BaseActivity {
         }
 
 
-      /*  Uri.Builder builder = new Uri.Builder();
-        builder.scheme("http")
-                .authority("172.16.40.51")
-                .appendPath("assets")
-                .appendPath("images")
-                .appendPath("whitelabels")
-                .appendPath(mCompanyName)
-                .appendPath("mwc-logo.png");
-        String myUrl = builder.build().toString();
-        AQuery aq = new AQuery(context); // intsialze aquery
-        aq.id(LOGO_image).image(myUrl);*/
 
         if(PreferenceUtils.getLogoImagePath(context) != null)
         {
@@ -229,7 +220,6 @@ public class NavigationSettingsActivity extends BaseActivity {
         getAccountSettings();
 
         if (mAccountSettingsResponses != null && mAccountSettingsResponses.size() > 0) {
-            push_notificaton_settings = mAccountSettingsResponses.get(0).getIs_Push_Notification_Enabled();
             finger_print_settings =  mAccountSettingsResponses.get(0).getIs_Local_Auth_Enabled();
         }
 
@@ -248,30 +238,33 @@ public class NavigationSettingsActivity extends BaseActivity {
             }
         }
 
+        PushNotificatoinSettings_Respository pushNotificationSettings = new PushNotificatoinSettings_Respository(context);
 
+        String push_notification_Value = pushNotificationSettings.getPushNotificatonSettingsStatus();
 
-        if(push_notificaton_settings != null && !push_notificaton_settings.isEmpty())
+        boolean push_notification_status = false;
+        if(push_notification_Value != null && !push_notification_Value.isEmpty())
         {
 
-            if(push_notificaton_settings.equals("1"))
+            if(push_notification_Value.equals("1"))
             {
-                push_notificatoin = true;
                 push_notification_Switch.setChecked(true);
+                push_notification_status =true;
 
             }
-            else if(push_notificaton_settings.equals("0"))
+            else if(push_notification_Value.equals("0") || push_notification_Value.equals("2"))
             {
-                push_notificatoin = false;
                 push_notification_Switch.setChecked(false);
+                push_notification_status = false;
             }
         }
 
 
-        String channalId = "my_channel_01";
+      /*  String channalId = "my_channel_01";
         boolean device_status = isNotificationChannelEnabled(NavigationSettingsActivity.this, channalId);
 
 
-        if(push_notificatoin != device_status)
+        if(push_notification_status != device_status)
         {
 
             String register_type = null;
@@ -285,117 +278,15 @@ public class NavigationSettingsActivity extends BaseActivity {
 
             getPushNotificationDocumentService(register_type);
         }
-
-
-    }
-
-
-    private void getPushNotificationDocumentService(final String register_type)
-    {
-        if (NetworkUtils.isNetworkAvailable(context)) {
-
-            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
-
-            PushNotificatoinSettings_Respository pushNotificatoinSettings_respository = new PushNotificatoinSettings_Respository(context);
-            String DeviceTokenId = pushNotificatoinSettings_respository.getDeviceTokenFromTableStatus();
-
-            final PushNotificationRequestModel externalShareResponseModel = new PushNotificationRequestModel(DeviceTokenId, "Android", register_type);
-
-            String request = new Gson().toJson(externalShareResponseModel);
-
-            //Here the json data is add to a hash map with key data
-            Map<String, String> params = new HashMap<String, String>();
-            params.put("data", request);
-
-            final ShareEndUserDocumentsService mGetCategoryDocumentsService = retrofitAPI.create(ShareEndUserDocumentsService.class);
-
-            Call call = mGetCategoryDocumentsService.sendPushNotificatoinStatus(params, PreferenceUtils.getAccessToken(context));
-
-            call.enqueue(new Callback<SharedDocumentResponseModel>() {
-                @Override
-                public void onResponse(Response<SharedDocumentResponseModel> response, Retrofit retrofit) {
-
-                    if (response != null) {
-
-                        if (response.body().getStatus().getCode() instanceof Boolean) {
-                            if (response.body().getStatus().getCode() == Boolean.FALSE) {
-
-
-                                AccountSettings accountSettings = new AccountSettings(context);
-                                accountSettings.UpdatePushNotificatoinSettings(register_type);
-
-                                PushNotificatoinSettings_Respository pushNotificatoinSettings = new PushNotificatoinSettings_Respository(context);
-                                pushNotificatoinSettings.updatePushNotificatoinStatus(register_type);
-
-                                if(register_type.equals("1"))
-                                {
-                                    push_notification_Switch.setChecked(true);
-                                }
-                                else if(register_type.equals("0"))
-                                {
-                                    push_notification_Switch.setChecked(false);
-                                }
-
-
-                            }
-
-                        }
- /*                       else if (response.body().getStatus().getCode() instanceof Double) {
-
-                            String mMessage = response.body().getStatus().getMessage().toString();
-
-                            Object obj = 401.0;
-                            if (obj.equals(401.0)) {
-                                final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-                                LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                                builder.setView(view);
-                                builder.setCancelable(false);
-
-                                TextView title = (TextView) view.findViewById(R.id.title);
-                                title.setText("Alert");
-
-                                TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                                txtMessage.setText(mMessage);
-
-                                Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                                Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                                cancelButton.setVisibility(View.GONE);
-
-                                sendPinButton.setText("OK");
-
-                                sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-
-                                        AccountSettings accountSettings = new AccountSettings(mActivity);
-                                        accountSettings.deleteAll();
-                                        mActivity.startActivity(new Intent(mActivity, LoginActivity.class));
-                                    }
-                                });
-
-
-                            }
-                        }*/
-                    }
-                }
-
-                @Override
-                public void onFailure(Throwable t) {
-                    Log.d("PinDevice error", t.getMessage());
-                }
-            });
-        }
+*/
 
     }
+
 
 
     public boolean isNotificationChannelEnabled(Activity context, String channelId){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if(!TextUtils.isEmpty(channelId)) {
-
                 NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                 if(manager==null) {
                     NotificationChannel channel = manager.getNotificationChannel(channelId);
@@ -440,6 +331,14 @@ public class NavigationSettingsActivity extends BaseActivity {
 
                 Intent intent = new Intent(context, UserProfileActivity.class);
                 startActivity(intent);
+            }
+        });
+
+        push_notification_Switch.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                push_notification_Switch.performClick();
+                return false;
             }
         });
 
@@ -503,9 +402,15 @@ public class NavigationSettingsActivity extends BaseActivity {
             public void onClick(View v) {
 
                 if (mAccountSettingsResponses != null && mAccountSettingsResponses.size() > 0) {
-                    Intent mIntent = new Intent(context, WebviewLoaderTermsActivity.class);
+                   /* Intent mIntent = new Intent(context, WebviewLoaderTermsActivity.class);
                     mIntent.putExtra(Constants.SETASSISTANCEPOPUPCONTENTURL, mAccountSettingsResponses.get(0).getHelp_Guide_URL());
-                    startActivity(mIntent);
+                    mIntent.putExtra("Terms_Title", "Help");
+                    startActivity(mIntent);*/
+
+                    Intent i = new Intent(Intent.ACTION_VIEW);
+                    i.setData(Uri.parse(mAccountSettingsResponses.get(0).getHelp_Guide_URL()));
+                    startActivity(i);
+
                 }
 
             }
@@ -517,9 +422,14 @@ public class NavigationSettingsActivity extends BaseActivity {
             public void onClick(View v) {
 
                 if (mAccountSettingsResponses != null && mAccountSettingsResponses.size() > 0) {
-                    Intent mIntent = new Intent(context, WebviewLoaderTermsActivity.class);
+                   /* Intent mIntent = new Intent(context, WebviewLoaderTermsActivity.class);
                     mIntent.putExtra(Constants.SETTERMSPAGECONTENTURL, mAccountSettingsResponses.get(0).getTerms_URL());
-                    startActivity(mIntent);
+                    mIntent.putExtra("Terms_Title", "Terms & Privacy Policy");
+                    startActivity(mIntent);*/
+
+                    Intent i = new Intent(Intent.ACTION_VIEW);
+                    i.setData(Uri.parse(mAccountSettingsResponses.get(0).getTerms_URL()));
+                    startActivity(i);
                 }
 
             }
@@ -572,7 +482,7 @@ public class NavigationSettingsActivity extends BaseActivity {
                 mAlertDialog.dismiss();
 
                 AccountSettings accountSettings = new AccountSettings(context);
-                accountSettings.LogouData(NavigationSettingsActivity.this);
+                accountSettings.LogouData();
 
             }
         });
@@ -684,70 +594,31 @@ public class NavigationSettingsActivity extends BaseActivity {
 
                     if (response != null) {
 
-                        if (response.body().getStatus().getCode() instanceof Boolean) {
-                            if (response.body().getStatus().getCode() == Boolean.FALSE) {
-
-                                String optValue;
-                                if (opt_value.equalsIgnoreCase("opt-in")) {
-                                    optValue = "opt-out";
-                                    String message = "Secutity settings revoked";
-                                    showWarningAlertForLocalAuthenticationStatus(message, optValue);
-
-
-                                } else {
-                                    optValue = "opt-in";
-                                    String message = "Thank you for enabling protection. From now on every app launch, you will be required to provide your authentication";
-                                    showWarningAlertForLocalAuthenticationStatus(message, optValue);
-
-
-                                }
-
-                                AccountSettings accountSettings = new AccountSettings(context);
-                                accountSettings.UpdateFingerPrintSettings(optValue);
-
-
-                            }
-
+                        String response_message = "";
+                        if(response.body().getStatus().getMessage() != null)
+                        {
+                            response_message = response.body().getStatus().getMessage().toString();
                         }
-                        /*else if (response.body().getStatus().getCode() instanceof Double) {
+                        if(CommonFunctions.isApiSuccess(NavigationSettingsActivity.this, response_message, response.body().getStatus().getCode()))
+                        {
 
-                            String mMessage = response.body().getStatus().getMessage().toString();
-
-                            Object obj = 401.0;
-                            if (obj.equals(401.0)) {
-                                final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-                                LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                                builder.setView(view);
-                                builder.setCancelable(false);
-
-                                TextView title = (TextView) view.findViewById(R.id.title);
-                                title.setText("Alert");
-
-                                TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                                txtMessage.setText(mMessage);
-
-                                Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                                Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                                cancelButton.setVisibility(View.GONE);
-
-                                sendPinButton.setText("OK");
-
-                                sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-
-                                        AccountSettings accountSettings = new AccountSettings(mActivity);
-                                        accountSettings.deleteAll();
-                                        mActivity.startActivity(new Intent(mActivity, LoginActivity.class));
-                                    }
-                                });
+                            String optValue;
+                            if (opt_value.equalsIgnoreCase("opt-in")) {
+                                optValue = "opt-out";
+                                String message = "Secutity settings revoked";
+                                showWarningAlertForLocalAuthenticationStatus(message, optValue);
 
 
+                            } else {
+                                optValue = "opt-in";
+                                String message = "Thank you for enabling protection. From now on every app launch, you will be required to provide your authentication";
+                                showWarningAlertForLocalAuthenticationStatus(message, optValue);
                             }
-                        }*/
+
+                            AccountSettings accountSettings = new AccountSettings(context);
+                            accountSettings.UpdateFingerPrintSettings(optValue);
+                        }
+
                     }
                 }
 

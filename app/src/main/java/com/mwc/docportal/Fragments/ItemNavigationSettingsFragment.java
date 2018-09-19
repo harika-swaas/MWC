@@ -442,6 +442,10 @@ public class ItemNavigationSettingsFragment extends Fragment{
 
                     if (response != null) {
 
+
+
+
+
                         if (response.body().getStatus().getCode() instanceof Boolean) {
                             if (response.body().getStatus().getCode() == Boolean.FALSE) {
 

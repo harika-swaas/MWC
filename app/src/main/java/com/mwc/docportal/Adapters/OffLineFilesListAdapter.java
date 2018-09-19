@@ -1,5 +1,6 @@
 package com.mwc.docportal.Adapters;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -28,6 +29,7 @@ import com.mwc.docportal.API.Model.SharedDocumentResponseModel;
 import com.mwc.docportal.API.Model.WhiteLabelResponse;
 import com.mwc.docportal.API.Service.DocumentPreviewService;
 import com.mwc.docportal.API.Service.ShareEndUserDocumentsService;
+import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.Login.DocumentPreview;
@@ -36,6 +38,7 @@ import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
+import com.mwc.docportal.UserProfileActivity;
 import com.mwc.docportal.pdf.PdfViewActivity;
 
 import java.io.File;
@@ -51,12 +54,12 @@ import retrofit.Retrofit;
 
 public class OffLineFilesListAdapter extends RecyclerView.Adapter<OffLineFilesListAdapter.ViewHolder> {
 
-    final Context context;
+    final Activity context;
     private List<OfflineFiles> offLineFileListData;
     List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList<>();
     AlertDialog mAlertDialog;
 
-    public OffLineFilesListAdapter(List<OfflineFiles> getCategoryDocumentsResponses, Context context) {
+    public OffLineFilesListAdapter(List<OfflineFiles> getCategoryDocumentsResponses, Activity context) {
         this.context = context;
         this.offLineFileListData = getCategoryDocumentsResponses;
 
@@ -374,71 +377,31 @@ public class OffLineFilesListAdapter extends RecyclerView.Adapter<OffLineFilesLi
                     if (response != null) {
 
                         transparentProgressDialog.dismiss();
+                        String message = "";
+                        if(response.body().getStatus().getMessage() != null)
+                        {
+                            message = response.body().getStatus().getMessage().toString();
+                        }
 
-                        if (response.body().getStatus().getCode() instanceof Boolean) {
-                            if (response.body().getStatus().getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
+                        if(CommonFunctions.isApiSuccess(context, message, response.body().getStatus().getCode()))
+                        {
+                            String[] mimetypes = {"image/*", "application/*|text/*"};
 
-                                String[] mimetypes = {"image/*", "application/*|text/*"};
+                            String imagePath = offlineFiles.getFilePath();
 
-                                String imagePath = offlineFiles.getFilePath();
+                            File imageFileToShare = new File(imagePath);
 
-                                File imageFileToShare = new File(imagePath);
+                            Uri uri = Uri.fromFile(imageFileToShare);
 
-                                Uri uri = Uri.fromFile(imageFileToShare);
-
-                                Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
-                                sharingIntent.setType("*/*");
-                                String shareBody = "";
-                                sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, filename);
-                                sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
-                                sharingIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
-                                sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
-                                Intent.createChooser(sharingIntent,"Share via");
-                                context.startActivity(sharingIntent);
-
-
-                            }
-
-                        } else if (response.body().getStatus().getCode() instanceof Double) {
-                            transparentProgressDialog.dismiss();
-                            String mMessage = response.body().getStatus().getMessage().toString();
-
-                            Object obj = 401.0;
-                            if (obj.equals(401.0)) {
-                                final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                                builder.setView(view);
-                                builder.setCancelable(false);
-
-                                TextView title = (TextView) view.findViewById(R.id.title);
-                                title.setText("Alert");
-
-                                TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                                txtMessage.setText(mMessage);
-
-                                Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                                Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                                cancelButton.setVisibility(View.GONE);
-
-                                sendPinButton.setText("OK");
-
-                                sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        mAlertDialog.dismiss();
-                                        AccountSettings accountSettings = new AccountSettings(context);
-                                        accountSettings.deleteAll();
-                                        context.startActivity(new Intent(context, LoginActivity.class));
-                                    }
-                                });
-
-                                mAlertDialog = builder.create();
-                                mAlertDialog.show();
-                            }
+                            Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+                            sharingIntent.setType("*/*");
+                            String shareBody = "";
+                            sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, filename);
+                            sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+                            sharingIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
+                            sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
+                            Intent.createChooser(sharingIntent,"Share via");
+                            context.startActivity(sharingIntent);
                         }
                     }
                 }

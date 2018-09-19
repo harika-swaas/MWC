@@ -3,6 +3,7 @@ package com.mwc.docportal.Fragments;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -26,6 +27,7 @@ import com.mwc.docportal.API.Model.VerifyFTLResponse;
 import com.mwc.docportal.API.Model.WhiteLabelResponse;
 import com.mwc.docportal.API.Service.GetTermsPageContentService;
 import com.mwc.docportal.API.Service.SetTermsAcceptanceService;
+import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.FTL.WebviewLoaderTermsActivity;
@@ -96,31 +98,22 @@ public class LoginAgreeTermsAcceptanceFragment extends Fragment {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
 
-                        if (apiResponse.status.getCode() instanceof Boolean) {
-
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                GetTermsPageContentResponse mGetTermsPageContentResponse = response.body().getData();
-                                if (mGetTermsPageContentResponse != null) {
-                                    mTermsBody = mGetTermsPageContentResponse.getTerms_body();
-                                    mTermsURL = mGetTermsPageContentResponse.getTerms_url();
-
-                                    setTermsBody(mTermsBody, mTermsURL);
-                                }
-                            } else {
-
-                            }
-
-                        } else if (apiResponse.status.getCode() instanceof Integer) {
-
-                            String mMessage = apiResponse.status.getMessage().toString();
-                            mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    startActivity(new Intent(mActivity, LoginActivity.class));
-                                    mActivity.finish();
-                                }
-                            }, false);
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
                         }
+
+                        if(CommonFunctions.isApiSuccess(mActivity, message, apiResponse.status.getCode())) {
+                            GetTermsPageContentResponse mGetTermsPageContentResponse = response.body().getData();
+                            if (mGetTermsPageContentResponse != null) {
+                                mTermsBody = mGetTermsPageContentResponse.getTerms_body();
+                                mTermsURL = mGetTermsPageContentResponse.getTerms_url();
+
+                                setTermsBody(mTermsBody, mTermsURL);
+                            }
+                        }
+
                     }
                 }
 
@@ -144,9 +137,14 @@ public class LoginAgreeTermsAcceptanceFragment extends Fragment {
             @Override
             public void onClick(View textView) {
                 String mUri = mTermsURL;
-                Intent mIntent = new Intent(mActivity, WebviewLoaderTermsActivity.class);
+               /* Intent mIntent = new Intent(mActivity, WebviewLoaderTermsActivity.class);
                 mIntent.putExtra(Constants.SETTERMSPAGECONTENTURL, mUri);
-                startActivity(mIntent);
+                mIntent.putExtra("Terms_Title", "Terms & Privacy Policy");
+                startActivity(mIntent);*/
+
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse(mUri));
+                startActivity(i);
             }
 
             @Override
@@ -281,30 +279,21 @@ public class LoginAgreeTermsAcceptanceFragment extends Fragment {
                     if (apiResponse != null) {
                         transparentProgressDialog.dismiss();
 
-                        if(apiResponse.status.getCode() instanceof Boolean) {
-
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                updateIsTermsAcceptedAndLoggedInStatus();
-                                //update help user guide status
-                                Intent mIntent = new Intent(mActivity, LoginHelpUserGuideActivity.class);
-                                startActivity(mIntent);
-                                mActivity.finish();
-                            } else {
-                                String mMessage = apiResponse.status.getMessage().toString();
-                                mActivity.showMessagebox(mActivity, mMessage, null, false);
-                            }
-
-                        } else if(apiResponse.status.getCode() instanceof Integer) {
-
-                            String mMessage = apiResponse.status.getMessage().toString();
-                            mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    startActivity(new Intent(mActivity, LoginActivity.class));
-                                    mActivity.finish();
-                                }
-                            }, false);
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
                         }
+
+                        if(CommonFunctions.isApiSuccess(mActivity, message, apiResponse.status.getCode())) {
+
+                            updateIsTermsAcceptedAndLoggedInStatus();
+                            //update help user guide status
+                            Intent mIntent = new Intent(mActivity, LoginHelpUserGuideActivity.class);
+                            startActivity(mIntent);
+                            mActivity.finish();
+                        }
+
                     }
                 }
 

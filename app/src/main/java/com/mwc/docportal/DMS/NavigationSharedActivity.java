@@ -214,53 +214,37 @@ public class NavigationSharedActivity extends BaseActivity {
                     if (apiResponse != null) {
 
                         transparentProgressDialog.dismiss();
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
+                        }
 
-                        if (apiResponse.status.getCode() instanceof Boolean) {
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
+                        if(CommonFunctions.isApiSuccess(NavigationSharedActivity.this, message, apiResponse.status.getCode()))
+                        {
+                            List<GetEndUserSharedParentFoldersResponse> sharedParentAllowedList = response.body().getData();
 
-                                List<GetEndUserSharedParentFoldersResponse> sharedParentAllowedList = response.body().getData();
-
-                                if(sharedParentAllowedList != null && sharedParentAllowedList.size() > 0)
+                            if(sharedParentAllowedList != null && sharedParentAllowedList.size() > 0)
+                            {
+                                for(GetEndUserSharedParentFoldersResponse endUserSharedParentFoldersResponse : sharedParentAllowedList)
                                 {
-                                    for(GetEndUserSharedParentFoldersResponse endUserSharedParentFoldersResponse : sharedParentAllowedList)
-                                    {
-                                        GetCategoryDocumentsResponse categoryDocumentsResponse = new GetCategoryDocumentsResponse();
-                                        categoryDocumentsResponse.setObject_id(endUserSharedParentFoldersResponse.getCategory_id());
-                                        categoryDocumentsResponse.setName(endUserSharedParentFoldersResponse.getCategory_name());
-                                        categoryDocumentsResponse.setCreated_date("");
-                                        categoryDocumentsResponse.setShared_date("");
-                                        categoryDocumentsResponse.setCategory_id(endUserSharedParentFoldersResponse.getWorkspace_id());
-                                        categoryDocumentsResponse.setFilesize("0");
-                                        categoryDocumentsResponse.setType("category");
+                                    GetCategoryDocumentsResponse categoryDocumentsResponse = new GetCategoryDocumentsResponse();
+                                    categoryDocumentsResponse.setObject_id(endUserSharedParentFoldersResponse.getCategory_id());
+                                    categoryDocumentsResponse.setName(endUserSharedParentFoldersResponse.getCategory_name());
+                                    categoryDocumentsResponse.setCreated_date("");
+                                    categoryDocumentsResponse.setShared_date("");
+                                    categoryDocumentsResponse.setCategory_id(endUserSharedParentFoldersResponse.getWorkspace_id());
+                                    categoryDocumentsResponse.setFilesize("0");
+                                    categoryDocumentsResponse.setType("category");
 
-                                        documentsCategoryList.add(categoryDocumentsResponse);
+                                    documentsCategoryList.add(categoryDocumentsResponse);
 
-                                    }
                                 }
-
-                                reloadAdapter();
-
                             }
 
+                            reloadAdapter();
                         }
-                        else if (apiResponse.status.getCode() instanceof Integer) {
-                            int status_value = new Integer(apiResponse.status.getCode().toString());
 
-                            if(status_value == 401)
-                            {
-                                String mMessage = apiResponse.status.getMessage().toString();
-                                showSessionExpiryAlert(mMessage);
-                            }
-
-                        }
-                        else if (apiResponse.status.getCode() instanceof Double) {
-                            double status_double_value = new Double(apiResponse.status.getCode().toString());
-                            if(status_double_value == 401.3)
-                            {
-                                String mMessage = apiResponse.status.getMessage().toString();
-                                showAccessDeniedAlert(mMessage);
-                            }
-                        }
                     }
                 }
 
@@ -327,52 +311,38 @@ public class NavigationSharedActivity extends BaseActivity {
                     if (apiResponse != null) {
 
                         transparentProgressDialog.dismiss();
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
+                        }
 
-                        if (apiResponse.status.getCode() instanceof Boolean) {
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
+                        if(CommonFunctions.isApiSuccess(NavigationSharedActivity.this, message, apiResponse.status.getCode()))
+                        {
+                            List<GetEndUserSharedParentFoldersResponse> sharedParentList = response.body().getData();
 
-                                List<GetEndUserSharedParentFoldersResponse> sharedParentList = response.body().getData();
-
-                                if(sharedParentList != null && sharedParentList.size() > 0)
+                            if(sharedParentList != null && sharedParentList.size() > 0)
+                            {
+                                for(GetEndUserSharedParentFoldersResponse endUserSharedParentFoldersResponse : sharedParentList)
                                 {
-                                    for(GetEndUserSharedParentFoldersResponse endUserSharedParentFoldersResponse : sharedParentList)
-                                    {
-                                        GetCategoryDocumentsResponse categoryDocumentsResponse = new GetCategoryDocumentsResponse();
-                                        categoryDocumentsResponse.setObject_id(endUserSharedParentFoldersResponse.getCategory_id());
-                                        categoryDocumentsResponse.setName(endUserSharedParentFoldersResponse.getCategory_name());
-                                        categoryDocumentsResponse.setCreated_date("");
-                                        categoryDocumentsResponse.setShared_date("");
-                                        categoryDocumentsResponse.setCategory_id(endUserSharedParentFoldersResponse.getWorkspace_id());
-                                        categoryDocumentsResponse.setFilesize("0");
-                                        categoryDocumentsResponse.setType("category");
+                                    GetCategoryDocumentsResponse categoryDocumentsResponse = new GetCategoryDocumentsResponse();
+                                    categoryDocumentsResponse.setObject_id(endUserSharedParentFoldersResponse.getCategory_id());
+                                    categoryDocumentsResponse.setName(endUserSharedParentFoldersResponse.getCategory_name());
+                                    categoryDocumentsResponse.setCreated_date("");
+                                    categoryDocumentsResponse.setShared_date("");
+                                    categoryDocumentsResponse.setCategory_id(endUserSharedParentFoldersResponse.getWorkspace_id());
+                                    categoryDocumentsResponse.setFilesize("0");
+                                    categoryDocumentsResponse.setType("category");
 
-                                        documentsCategoryList.add(categoryDocumentsResponse);
+                                    documentsCategoryList.add(categoryDocumentsResponse);
 
-                                    }
                                 }
-
-                                reloadAdapter();
-
                             }
 
-                        } else if (apiResponse.status.getCode() instanceof Integer) {
-                            int status_value = new Integer(apiResponse.status.getCode().toString());
-
-                            if(status_value == 401)
-                            {
-                                String mMessage = apiResponse.status.getMessage().toString();
-                                showSessionExpiryAlert(mMessage);
-                            }
+                            reloadAdapter();
 
                         }
-                        else if (apiResponse.status.getCode() instanceof Double) {
-                            double status_double_value = new Double(apiResponse.status.getCode().toString());
-                            if(status_double_value == 401.3)
-                            {
-                                String mMessage = apiResponse.status.getMessage().toString();
-                                showAccessDeniedAlert(mMessage);
-                            }
-                        }
+
                     }
                 }
 
@@ -509,68 +479,33 @@ public class NavigationSharedActivity extends BaseActivity {
 
                         transparentProgressDialog.dismiss();
 
-                        if (apiResponse.getStatus().getCode() instanceof Boolean) {
-                            if (apiResponse.getStatus().getCode() == Boolean.FALSE) {
-                                List<Object> listOfObjects = apiResponse.getData().getCategories();
-
-                                JSONArray categoryArray = new JSONArray(listOfObjects);
-                                JSONArray documentArray = new JSONArray();
-                                JSONObject obj= new JSONObject();
-                                try {
-                                    obj.put("categories",categoryArray);
-                                    obj.put("documents",documentArray);
-
-                                    getFoldersAndDocs(obj, "0");
-                                    //sorting
-
-
-                                    getSharedDocumentsFromLocal("0");
-
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-
-                        } else if (apiResponse.getStatus().getCode() instanceof Double) {
-
-                            String mMessage = apiResponse.getStatus().getMessage().toString();
-
-                            Object obj =  apiResponse.getStatus().getCode();
-                            if (obj.equals(401.0)) {
-                                final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                                builder.setView(view);
-                                builder.setCancelable(false);
-
-                                TextView title = (TextView) view.findViewById(R.id.title);
-                                title.setText("Alert");
-
-                                TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                                txtMessage.setText(mMessage);
-
-                                Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                                Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                                cancelButton.setVisibility(View.GONE);
-
-                                sendPinButton.setText("OK");
-
-                                sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        mAlertDialog.dismiss();
-                                        AccountSettings accountSettings = new AccountSettings(context);
-                                        accountSettings.deleteAll();
-                                        startActivity(new Intent(context, LoginActivity.class));
-                                    }
-                                });
-
-                                mAlertDialog = builder.create();
-                                mAlertDialog.show();
-                            }
+                        String message = "";
+                        if(apiResponse.getStatus().getMessage() != null)
+                        {
+                            message = apiResponse.getStatus().getMessage().toString();
                         }
+
+                        if(CommonFunctions.isApiSuccess(NavigationSharedActivity.this, message, apiResponse.getStatus().getCode()))
+                        {
+                            List<Object> listOfObjects = apiResponse.getData().getCategories();
+
+                            JSONArray categoryArray = new JSONArray(listOfObjects);
+                            JSONArray documentArray = new JSONArray();
+                            JSONObject obj= new JSONObject();
+                            try {
+                                obj.put("categories",categoryArray);
+                                obj.put("documents",documentArray);
+
+                                getFoldersAndDocs(obj, "0");
+
+                                getSharedDocumentsFromLocal("0");
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+
                     }
                 }
 
@@ -1205,8 +1140,14 @@ public class NavigationSharedActivity extends BaseActivity {
                     ApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
 
-                        if (apiResponse.status.getCode() == Boolean.FALSE) {
-                            transparentProgressDialog.dismiss();
+                        transparentProgressDialog.dismiss();
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
+                        }
+
+                        if(CommonFunctions.isApiSuccess(NavigationSharedActivity.this, message, apiResponse.status.getCode())) {
                             DownloadDocumentResponse downloadDocumentResponse = response.body().getData();
 
                             String downloaded_url = downloadDocumentResponse.getData();
@@ -1247,13 +1188,6 @@ public class NavigationSharedActivity extends BaseActivity {
 
                             }
 
-
-
-                        }
-                        else {
-                            transparentProgressDialog.dismiss();
-                            String mMessage = apiResponse.status.getMessage().toString();
-                            showSessionExpiryAlert(mMessage);
                         }
                     }
                 }
@@ -1420,8 +1354,14 @@ public class NavigationSharedActivity extends BaseActivity {
                     ApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
 
-                        if (apiResponse.status.getCode() == Boolean.FALSE) {
-                            transparentProgressDialog.dismiss();
+                        transparentProgressDialog.dismiss();
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
+                        }
+
+                        if(CommonFunctions.isApiSuccess(NavigationSharedActivity.this, message, apiResponse.status.getCode())) {
                             DownloadDocumentResponse downloadDocumentResponse = response.body().getData();
 
                             String downloaded_url = downloadDocumentResponse.getData();
@@ -1440,14 +1380,8 @@ public class NavigationSharedActivity extends BaseActivity {
                             List<GetCategoryDocumentsResponse> downloadingList = new ArrayList<>();
                             downloadingList.add(documentsResponse);
                             getDownloadManagerForDownloading(downloadingList);
-
-
                         }
-                        else {
-                            transparentProgressDialog.dismiss();
-                            String mMessage = apiResponse.status.getMessage().toString();
-                            showSessionExpiryAlert(mMessage);
-                        }
+
                     }
                 }
 
@@ -1494,37 +1428,33 @@ public class NavigationSharedActivity extends BaseActivity {
                     if (response != null) {
 
                         transparentProgressDialog.dismiss();
-                        if (response.body().getStatus().getCode() instanceof Boolean) {
 
-                            if (response.body().getStatus().getCode() == Boolean.FALSE) {
+                        String message = "";
+                        if(response.body().getStatus().getMessage() != null)
+                        {
+                            message = response.body().getStatus().getMessage().toString();
+                        }
 
-                                List<APIResponseModel.Category> categoryList = response.body().getData().getCategories();
-
-
-                                if (categoryList != null && categoryList.size() > 0) {
-                                    for (APIResponseModel.Category category : categoryList) {
-                                        GetCategoryDocumentsResponse getCategoryDocumentsResponse = new GetCategoryDocumentsResponse();
-                                        getCategoryDocumentsResponse.setObject_id(category.getCategoryId());
-                                        getCategoryDocumentsResponse.setName(category.getCategoryName());
-                                        getCategoryDocumentsResponse.setType(category.getType());
-                                        getCategoryDocumentsResponse.setCreated_date(category.getCreatedDate());
-                                        getCategoryDocumentsResponse.setFilesize("0");
-                                        documentsCategoryList.add(getCategoryDocumentsResponse);
-                                    }
+                        if(CommonFunctions.isApiSuccess(NavigationSharedActivity.this, message, response.body().getStatus().getCode()))
+                        {
+                            List<APIResponseModel.Category> categoryList = response.body().getData().getCategories();
+                            if (categoryList != null && categoryList.size() > 0) {
+                                for (APIResponseModel.Category category : categoryList) {
+                                    GetCategoryDocumentsResponse getCategoryDocumentsResponse = new GetCategoryDocumentsResponse();
+                                    getCategoryDocumentsResponse.setObject_id(category.getCategoryId());
+                                    getCategoryDocumentsResponse.setName(category.getCategoryName());
+                                    getCategoryDocumentsResponse.setType(category.getType());
+                                    getCategoryDocumentsResponse.setCreated_date(category.getCreatedDate());
+                                    getCategoryDocumentsResponse.setFilesize("0");
+                                    documentsCategoryList.add(getCategoryDocumentsResponse);
                                 }
-
-                                doLocalSorting("type");
-                                toggleEmptyState();
-                                reloadAdapter();
-
-
                             }
 
-                        } else {
-
-                            String mMessage = response.body().getStatus().getMessage().toString();
-                            showSessionExpiryAlert(mMessage);
+                            doLocalSorting("type");
+                            toggleEmptyState();
+                            reloadAdapter();
                         }
+
                     }
                 }
 
@@ -1978,43 +1908,26 @@ public class NavigationSharedActivity extends BaseActivity {
 
                         transparentProgressDialog.dismiss();
 
-                        if (apiResponse.status.getCode() instanceof Boolean) {
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                String mMessage = apiResponse.status.getMessage().toString();
-                                Toast.makeText(context,mMessage,Toast.LENGTH_SHORT).show();
-                                GlobalVariables.isMoveInitiated = false;
-                                GlobalVariables.selectedActionName = "";
-                                GlobalVariables.selectedDocumentsList.clear();
-
-                                Intent intent = new Intent(context, NavigationSharedActivity.class);
-                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                intent.putExtra("ObjectId", "0");
-                                startActivity(intent);
-
-                            } else {
-                                String mMessage = apiResponse.status.getMessage().toString();
-                                Toast.makeText(context,mMessage,Toast.LENGTH_SHORT).show();
-                            }
-
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
                         }
-                        else if (apiResponse.status.getCode() instanceof Integer) {
-                            int status_value = new Integer(apiResponse.status.getCode().toString());
 
-                            if(status_value == 401)
-                            {
-                                String mMessage = apiResponse.status.getMessage().toString();
-                                showSessionExpiryAlert(mMessage);
-                            }
+                        if(CommonFunctions.isApiSuccess(NavigationSharedActivity.this, message, apiResponse.status.getCode()))
+                        {
+                            String mMessage = apiResponse.status.getMessage().toString();
+                            Toast.makeText(context,mMessage,Toast.LENGTH_SHORT).show();
+                            GlobalVariables.isMoveInitiated = false;
+                            GlobalVariables.selectedActionName = "";
+                            GlobalVariables.selectedDocumentsList.clear();
 
+                            Intent intent = new Intent(context, NavigationSharedActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            intent.putExtra("ObjectId", "0");
+                            startActivity(intent);
                         }
-                        else if (apiResponse.status.getCode() instanceof Double) {
-                            double status_double_value = new Double(apiResponse.status.getCode().toString());
-                            if(status_double_value == 401.3)
-                            {
-                                String mMessage = apiResponse.status.getMessage().toString();
-                                showAccessDeniedAlert(mMessage);
-                            }
-                        }
+
 
                     }
                 }

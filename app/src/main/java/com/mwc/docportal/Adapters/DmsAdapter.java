@@ -72,30 +72,22 @@ import com.mwc.docportal.API.Service.GetCategoryDocumentsService;
 import com.mwc.docportal.API.Service.GetEndUserParentSHaredFoldersService;
 import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Common.GlobalVariables;
-import com.mwc.docportal.DMS.MyFolderActivity;
 
-import com.mwc.docportal.DMS.MyFolderCategoryActivity;
-import com.mwc.docportal.DMS.MyFolderCopyActivity;
-import com.mwc.docportal.DMS.MyFolderSharedDocuments;
-import com.mwc.docportal.DMS.MyFoldersDMSActivity;
-import com.mwc.docportal.DMS.MyfolderDeleteActivity;
 import com.mwc.docportal.DMS.NavigationMyFolderActivity;
 import com.mwc.docportal.DMS.NavigationSharedActivity;
 import com.mwc.docportal.DMS.Tab_Activity;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Database.OffLine_Files_Repository;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
-import com.mwc.docportal.Fragments.ItemNavigationFolderFragment;
-import com.mwc.docportal.Login.DocumentPreview;
+
 import com.mwc.docportal.Login.LoginActivity;
 import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
-import com.mwc.docportal.Utils.Constants;
 import com.mwc.docportal.pdf.PdfViewActivity;
 
-import java.io.Serializable;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -109,7 +101,7 @@ import retrofit.Retrofit;
 
 public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
     private ArrayList<String> doc_id = new ArrayList<String>();
-    private Context context;
+    private Activity context;
     List<GetCategoryDocumentsResponse> paginationList = new ArrayList<>();
     ArrayList<String> categoryids = new ArrayList<String>();
     public List<GetCategoryDocumentsResponse> mGetCategoryDocumentsResponses;
@@ -494,36 +486,43 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
 
                         transparentProgressDialog.dismiss();
 
-                        if (apiResponse.getStatus().getCode() instanceof Boolean) {
-                            if (apiResponse.getStatus().getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
-                                getDocumentPreviewResponses = response.body();
-                                String document_preview_url = getDocumentPreviewResponses.getData().getDocumentPdfUrl();
-
-
-                                Intent intent = new Intent(context, PdfViewActivity.class);
-                                intent.putExtra("mode",1);
-                                intent.putExtra("url", document_preview_url);
-                                intent.putExtra("documentDetails", categoryDocumentsResponse);
-                                context.startActivity(intent);
-                            }
-
-                        } else if (apiResponse.getStatus().getCode() instanceof Double) {
-                            transparentProgressDialog.dismiss();
-
-                            double status_value = new Double(apiResponse.getStatus().getCode().toString());
-
-                            if (status_value == 400.0)
-                            {
-                                Intent intent = new Intent(context, PdfViewActivity.class);
-                                intent.putExtra("isFrom_Status400",true);
-                                intent.putExtra("documentDetails", categoryDocumentsResponse);
-                                context.startActivity(intent);
-
-                            }
-
-
+                        String message = "";
+                        if(apiResponse.getStatus().getMessage() != null)
+                        {
+                            message = apiResponse.getStatus().getMessage().toString();
                         }
+
+                        if(CommonFunctions.isApiSuccess(context, message, apiResponse.getStatus().getCode())) {
+                            if (apiResponse.getStatus().getCode() instanceof Boolean) {
+                                if (apiResponse.getStatus().getCode() == Boolean.FALSE) {
+                                    transparentProgressDialog.dismiss();
+                                    getDocumentPreviewResponses = response.body();
+                                    String document_preview_url = getDocumentPreviewResponses.getData().getDocumentPdfUrl();
+
+
+                                    Intent intent = new Intent(context, PdfViewActivity.class);
+                                    intent.putExtra("mode",1);
+                                    intent.putExtra("url", document_preview_url);
+                                    intent.putExtra("documentDetails", categoryDocumentsResponse);
+                                    context.startActivity(intent);
+                                }
+
+                            } else if (apiResponse.getStatus().getCode() instanceof Double) {
+                                transparentProgressDialog.dismiss();
+
+                                double status_value = new Double(apiResponse.getStatus().getCode().toString());
+
+                                if (status_value == 400.0)
+                                {
+                                    Intent intent = new Intent(context, PdfViewActivity.class);
+                                    intent.putExtra("isFrom_Status400",true);
+                                    intent.putExtra("documentDetails", categoryDocumentsResponse);
+                                    context.startActivity(intent);
+
+                                }
+                            }
+                        }
+
                     }
                 }
 
@@ -926,54 +925,15 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
 
                         transparentProgressDialog.dismiss();
 
-                        if (response.body().getStatus().getCode() instanceof Boolean) {
-                            if (response.body().getStatus().getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
-
-
-
-                            }
-
-                        } else if (response.body().getStatus().getCode() instanceof Double) {
-                            transparentProgressDialog.dismiss();
-                            String mMessage = response.body().getStatus().getMessage().toString();
-
-                            Object obj = 401.0;
-                            if(obj.equals(401.0)) {
-                                final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                                builder.setView(view);
-                                builder.setCancelable(false);
-
-                                TextView title = (TextView) view.findViewById(R.id.title);
-                                title.setText("Alert");
-
-                                TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                                txtMessage.setText(mMessage);
-
-                                Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                                Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                                cancelButton.setVisibility(View.GONE);
-
-                                sendPinButton.setText("OK");
-
-                                sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        mAlertDialog.dismiss();
-                                        AccountSettings accountSettings = new AccountSettings(context);
-                                        accountSettings.deleteAll();
-                                        context.startActivity(new Intent(context, LoginActivity.class));
-                                    }
-                                });
-
-                                mAlertDialog = builder.create();
-                                mAlertDialog.show();
-                            }
+                        String message = "";
+                        if(response.body().getStatus().getMessage() != null)
+                        {
+                            message = response.body().getStatus().getMessage().toString();
                         }
+
+                       CommonFunctions.isApiSuccess(context, message, response.body().getStatus().getCode());
+
+
                     }
                 }
 
@@ -1189,48 +1149,19 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
 
                         transparentProgressDialog.dismiss();
 
-                        if (apiResponse.status.getCode() instanceof Boolean) {
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
-
-                                if (context instanceof NavigationMyFolderActivity) {
-                                    ((NavigationMyFolderActivity) context).resetPageNumber();
-                                    ((NavigationMyFolderActivity) context).getCategoryDocuments();
-                                }
-                            }
-
-                        } else if (apiResponse.status.getCode() instanceof Integer) {
-                            transparentProgressDialog.dismiss();
-                            String mMessage = apiResponse.status.getMessage().toString();
-
-                            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                            builder.setView(view);
-                            builder.setCancelable(false);
-
-                            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                            txtMessage.setText(mMessage);
-
-                            Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                            cancelButton.setVisibility(View.GONE);
-
-                            sendPinButton.setText("OK");
-
-                            sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    mAlertDialog.dismiss();
-                                    context.startActivity(new Intent(context, LoginActivity.class));
-                                }
-                            });
-
-                            mAlertDialog = builder.create();
-                            mAlertDialog.show();
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
                         }
+
+                        if(CommonFunctions.isApiSuccess(context, message, apiResponse.status.getCode())) {
+                            if (context instanceof NavigationMyFolderActivity) {
+                                ((NavigationMyFolderActivity) context).resetPageNumber();
+                                ((NavigationMyFolderActivity) context).getCategoryDocuments();
+                            }
+                        }
+
                     }
                 }
 
@@ -1272,46 +1203,17 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
 
                         transparentProgressDialog.dismiss();
 
-                        if (apiResponse.status.getCode() instanceof Boolean) {
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
-                                if (context instanceof NavigationMyFolderActivity) {
-                                    ((NavigationMyFolderActivity) context).resetPageNumber();
-                                    ((NavigationMyFolderActivity) context).getCategoryDocuments();
-                                }
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
+                        }
+
+                        if(CommonFunctions.isApiSuccess(context, message, apiResponse.status.getCode())) {
+                            if (context instanceof NavigationMyFolderActivity) {
+                                ((NavigationMyFolderActivity) context).resetPageNumber();
+                                ((NavigationMyFolderActivity) context).getCategoryDocuments();
                             }
-
-                        } else if (apiResponse.status.getCode() instanceof Integer) {
-                            transparentProgressDialog.dismiss();
-                            String mMessage = apiResponse.status.getMessage().toString();
-
-                            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                            builder.setView(view);
-                            builder.setCancelable(false);
-
-                            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                            txtMessage.setText(mMessage);
-
-                            Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                            cancelButton.setVisibility(View.GONE);
-
-                            sendPinButton.setText("OK");
-
-                            sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    mAlertDialog.dismiss();
-                                    context.startActivity(new Intent(context, LoginActivity.class));
-                                }
-                            });
-
-                            mAlertDialog = builder.create();
-                            mAlertDialog.show();
                         }
                     }
                 }

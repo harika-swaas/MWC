@@ -76,7 +76,7 @@ public class OffLine_Files_List extends RootActivity {
         linearLayoutManager = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
         mRecyclerView.setLayoutManager(linearLayoutManager);
         mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(context));
-        offlineAdapter = new OffLineFilesListAdapter(offlineFilesList, context);
+        offlineAdapter = new OffLineFilesListAdapter(offlineFilesList, OffLine_Files_List.this);
         mRecyclerView.setAdapter(offlineAdapter);
 
     }

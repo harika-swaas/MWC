@@ -234,10 +234,13 @@ public class FileDownloadManager extends RootActivity {
                                     .getAbsolutePath() + context.getCacheDir().getAbsolutePath() + File.separator + digitalAssets.getDocument_version_id() + File.separator + fileName);
                         }
 
-                         if (mFileDownloadListener != null) {
-                            mFileDownloadListener.fileDownloadSuccess(digitalAssets.getDownloadUrl());
-                         }
 
+                        String action = intent.getAction();
+                        if (action.equals(DownloadManager.ACTION_DOWNLOAD_COMPLETE)) {
+                            if (mFileDownloadListener != null) {
+                                mFileDownloadListener.fileDownloadSuccess(digitalAssets.getDownloadUrl());
+                            }
+                        }
                     }
                 }
             };

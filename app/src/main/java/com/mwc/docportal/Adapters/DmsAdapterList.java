@@ -92,7 +92,7 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
 
     MyFoldersDMSActivity myFoldersDMSActivity;
     ArrayList<String> doc_id = new ArrayList<String>();
-    final Context context;
+    final Activity context;
     private List<GetCategoryDocumentsResponse> mGetCategoryDocumentsResponses;
     private List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses;
     AlertDialog mAlertDialog;
@@ -415,31 +415,38 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                     if (apiResponse != null) {
 
                         transparentProgressDialog.dismiss();
+                        String message = "";
+                        if(apiResponse.getStatus().getMessage() != null)
+                        {
+                            message = apiResponse.getStatus().getMessage().toString();
+                        }
 
-                        if (apiResponse.getStatus().getCode() instanceof Boolean) {
-                            if (apiResponse.getStatus().getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
-                                getDocumentPreviewResponses = response.body();
-                                String document_preview_url = getDocumentPreviewResponses.getData().getDocumentPdfUrl();
+                        if(CommonFunctions.isApiSuccess(context, message, apiResponse.getStatus().getCode())) {
 
-                                Intent intent = new Intent(context, PdfViewActivity.class);
-                                intent.putExtra("mode",1);
-                                intent.putExtra("url", document_preview_url);
-                                intent.putExtra("documentDetails", categoryDocumentsResponse);
-                                context.startActivity(intent);
-                            }
+                            if (apiResponse.getStatus().getCode() instanceof Boolean) {
+                                if (apiResponse.getStatus().getCode() == Boolean.FALSE) {
+                                    getDocumentPreviewResponses = response.body();
+                                    String document_preview_url = getDocumentPreviewResponses.getData().getDocumentPdfUrl();
 
-                        } else if (apiResponse.getStatus().getCode() instanceof Double) {
-                            transparentProgressDialog.dismiss();
-                            double status_value = new Double(apiResponse.getStatus().getCode().toString());
+                                    Intent intent = new Intent(context, PdfViewActivity.class);
+                                    intent.putExtra("mode",1);
+                                    intent.putExtra("url", document_preview_url);
+                                    intent.putExtra("documentDetails", categoryDocumentsResponse);
+                                    context.startActivity(intent);
 
-                            if (status_value == 400.0)
-                            {
-                                Intent intent = new Intent(context, PdfViewActivity.class);
-                                intent.putExtra("isFrom_Status400",true);
-                                intent.putExtra("documentDetails", categoryDocumentsResponse);
-                                context.startActivity(intent);
+                                }
 
+                            } else if (apiResponse.getStatus().getCode() instanceof Double) {
+                                double status_value = new Double(apiResponse.getStatus().getCode().toString());
+
+                                if (status_value == 400.0)
+                                {
+                                    Intent intent = new Intent(context, PdfViewActivity.class);
+                                    intent.putExtra("isFrom_Status400",true);
+                                    intent.putExtra("documentDetails", categoryDocumentsResponse);
+                                    context.startActivity(intent);
+
+                                }
                             }
                         }
                     }
@@ -862,55 +869,15 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                     if (response != null) {
 
                         transparentProgressDialog.dismiss();
-
-                        if (response.body().getStatus().getCode() instanceof Boolean) {
-                            if (response.body().getStatus().getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
-
-
-
-                            }
-
-                        } else if (response.body().getStatus().getCode() instanceof Double) {
-                            transparentProgressDialog.dismiss();
-                            String mMessage = response.body().getStatus().getMessage().toString();
-
-                            Object obj = 401.0;
-                            if(obj.equals(401.0)) {
-                                final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                                builder.setView(view);
-                                builder.setCancelable(false);
-
-                                TextView title = (TextView) view.findViewById(R.id.title);
-                                title.setText("Alert");
-
-                                TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                                txtMessage.setText(mMessage);
-
-                                Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                                Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                                cancelButton.setVisibility(View.GONE);
-
-                                sendPinButton.setText("OK");
-
-                                sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        mAlertDialog.dismiss();
-                                        AccountSettings accountSettings = new AccountSettings(context);
-                                        accountSettings.deleteAll();
-                                        context.startActivity(new Intent(context, LoginActivity.class));
-                                    }
-                                });
-
-                                mAlertDialog = builder.create();
-                                mAlertDialog.show();
-                            }
+                        String message = "";
+                        if(response.body().getStatus().getMessage() != null)
+                        {
+                            message = response.body().getStatus().getMessage().toString();
                         }
+
+                        CommonFunctions.isApiSuccess(context, message, response.body().getStatus().getCode());
+
+
                     }
                 }
 
@@ -1120,47 +1087,19 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
 
                         transparentProgressDialog.dismiss();
 
-                        if (apiResponse.status.getCode() instanceof Boolean) {
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
-                                if (context instanceof NavigationMyFolderActivity) {
-                                    ((NavigationMyFolderActivity) context).resetPageNumber();
-                                    ((NavigationMyFolderActivity) context).getCategoryDocuments();
-                                }
-                            }
-
-                        } else if (apiResponse.status.getCode() instanceof Integer) {
-                            transparentProgressDialog.dismiss();
-                            String mMessage = apiResponse.status.getMessage().toString();
-
-                            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                            builder.setView(view);
-                            builder.setCancelable(false);
-
-                            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                            txtMessage.setText(mMessage);
-
-                            Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                            cancelButton.setVisibility(View.GONE);
-
-                            sendPinButton.setText("OK");
-
-                            sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    mAlertDialog.dismiss();
-                                    context.startActivity(new Intent(context, LoginActivity.class));
-                                }
-                            });
-
-                            mAlertDialog = builder.create();
-                            mAlertDialog.show();
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
                         }
+
+                        if(CommonFunctions.isApiSuccess(context, message, apiResponse.status.getCode())) {
+                            if (context instanceof NavigationMyFolderActivity) {
+                                ((NavigationMyFolderActivity) context).resetPageNumber();
+                                ((NavigationMyFolderActivity) context).getCategoryDocuments();
+                            }
+                        }
+
                     }
                 }
 
@@ -1204,47 +1143,19 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
 
                         transparentProgressDialog.dismiss();
 
-                        if (apiResponse.status.getCode() instanceof Boolean) {
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
-                                if (context instanceof NavigationMyFolderActivity) {
-                                    ((NavigationMyFolderActivity) context).resetPageNumber();
-                                    ((NavigationMyFolderActivity) context).getCategoryDocuments();
-                                }
-                            }
-
-                        } else if (apiResponse.status.getCode() instanceof Integer) {
-                            transparentProgressDialog.dismiss();
-                            String mMessage = apiResponse.status.getMessage().toString();
-
-                            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                            builder.setView(view);
-                            builder.setCancelable(false);
-
-                            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                            txtMessage.setText(mMessage);
-
-                            Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                            cancelButton.setVisibility(View.GONE);
-
-                            sendPinButton.setText("OK");
-
-                            sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    mAlertDialog.dismiss();
-                                    context.startActivity(new Intent(context, LoginActivity.class));
-                                }
-                            });
-
-                            mAlertDialog = builder.create();
-                            mAlertDialog.show();
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
                         }
+
+                        if(CommonFunctions.isApiSuccess(context, message, apiResponse.status.getCode())) {
+                            if (context instanceof NavigationMyFolderActivity) {
+                                ((NavigationMyFolderActivity) context).resetPageNumber();
+                                ((NavigationMyFolderActivity) context).getCategoryDocuments();
+                            }
+                        }
+
                     }
                 }
 
@@ -1259,98 +1170,7 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
 
 
 
-    public void getSubCategoryDocuments(String object_id,String page) {
 
-        if (NetworkUtils.isNetworkAvailable(context)) {
-
-            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
-
-            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
-            transparentProgressDialog.show();
-
-            final GetCategoryDocumentsRequest mGetCategoryDocumentsRequest = new GetCategoryDocumentsRequest(object_id,"list","category","1","0");
-
-            String request = new Gson().toJson(mGetCategoryDocumentsRequest);
-
-            //Here the json data is add to a hash map with key data
-            Map<String, String> params = new HashMap<String, String>();
-            params.put("data", request);
-
-            final GetCategoryDocumentsService mGetCategoryDocumentsService = retrofitAPI.create(GetCategoryDocumentsService.class);
-            Call call = mGetCategoryDocumentsService.getCategoryDocumentsV2(params, PreferenceUtils.getAccessToken(context),page);
-
-            call.enqueue(new Callback<ListPinDevicesResponse<GetCategoryDocumentsResponse>>() {
-                @Override
-                public void onResponse(Response<ListPinDevicesResponse<GetCategoryDocumentsResponse>> response, Retrofit retrofit) {
-                    ListPinDevicesResponse apiResponse = response.body();
-                    if (apiResponse != null) {
-
-                        transparentProgressDialog.dismiss();
-
-                        if (apiResponse.status.getCode() instanceof Boolean) {
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
-                                getCategoryDocumentsResponses = response.body().getData();
-                                refreshAdapterToView(getCategoryDocumentsResponses);
-
-                                if(response.headers() != null)
-                                {
-                                    String paging =  response.headers().get("X-Pagination-Page-Count");
-                                    pageCount = paging;
-
-
-/*
-                                    getCategoryDocumentsResponses.add(getCategoryDocumentsResponses.size()-1, (GetCategoryDocumentsResponse) mGetCategoryDocumentsResponses);
-*/
-
-
-                                }
-
-                            }
-
-                        } else if (apiResponse.status.getCode() instanceof Integer) {
-                            transparentProgressDialog.dismiss();
-                            String mMessage = apiResponse.status.getMessage().toString();
-
-                            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                            builder.setView(view);
-                            builder.setCancelable(false);
-
-                            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                            txtMessage.setText(mMessage);
-
-                            Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                            cancelButton.setVisibility(View.GONE);
-
-                            sendPinButton.setText("OK");
-
-                            sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    mAlertDialog.dismiss();
-                                    context.startActivity(new Intent(context, LoginActivity.class));
-                                }
-                            });
-
-                            mAlertDialog = builder.create();
-                            mAlertDialog.show();
-                        }
-                    }
-                }
-
-                @Override
-                public void onFailure(Throwable t) {
-                    transparentProgressDialog.dismiss();
-                    Log.d("PinDevice error", t.getMessage());
-                }
-            });
-        }
-    }
 
     @Override
     public int getItemCount() {

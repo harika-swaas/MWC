@@ -33,8 +33,10 @@ import com.mwc.docportal.API.Model.GlobalSearchModel.GlobalSearchDataResponseMod
 import com.mwc.docportal.API.Model.GlobalSearchModel.GlobalSearchRequestModel;
 import com.mwc.docportal.API.Model.GlobalSearchModel.GlobalSearchResponseModel;
 import com.mwc.docportal.API.Service.EndUserGlobalSearchService;
+import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Common.GlobalVariables;
 import com.mwc.docportal.Common.SimpleDividerItemDecoration;
+import com.mwc.docportal.DMS.NavigationMyFolderActivity;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.Login.LoginActivity;
@@ -217,24 +219,18 @@ public class GlobalSearchActivity extends RootActivity implements SearchView.OnQ
 
                         transparentProgressDialog.dismiss();
 
-                        if (apiResponse.getStatus().getCode() instanceof Boolean) {
-                            if (apiResponse.getStatus().getCode() == Boolean.FALSE) {
+                        String message = "";
+                        if(apiResponse.getStatus().getMessage() != null)
+                        {
+                            message = apiResponse.getStatus().getMessage().toString();
+                        }
 
-                                search_id = apiResponse.getData().getSearchId();
-                                sequence_id = "0";
+                        if(CommonFunctions.isApiSuccess(GlobalSearchActivity.this, message, apiResponse.getStatus().getCode()))
+                        {
+                            search_id = apiResponse.getData().getSearchId();
+                            sequence_id = "0";
 
-                                getEndUserGlobalSearchData();
-
-
-
-                            }
-
-                        } else if (apiResponse.getStatus().getCode() instanceof Double) {
-                            double status_value = new Double(apiResponse.getStatus().getCode().toString());
-                            if (status_value == 401.0)                            {
-                                String mMessage = apiResponse.getStatus().getMessage().toString();
-                                showSessionExpiryAlert(mMessage);
-                            }
+                            getEndUserGlobalSearchData();
                         }
                     }
                 }
@@ -290,86 +286,83 @@ public class GlobalSearchActivity extends RootActivity implements SearchView.OnQ
 
                         transparentProgressDialog.dismiss();
 
-                        if (apiResponse.getStatus().getCode() instanceof Boolean) {
-                            if (apiResponse.getStatus().getCode() == Boolean.FALSE) {
+                        String message = "";
+                        if(apiResponse.getStatus().getMessage() != null)
+                        {
+                            message = apiResponse.getStatus().getMessage().toString();
+                        }
+
+                        if(CommonFunctions.isApiSuccess(GlobalSearchActivity.this, message, apiResponse.getStatus().getCode()))
+                        {
+
+                            sequence_id = apiResponse.getData().getSequenceId();
+                            remainingDataStatus = apiResponse.getData().getStatus();
+
+                            if(remainingDataStatus == 1)
+                            {
+                                GlobalVariables.isGlobalSearchCompleted = false;
+                                search_completed_layout.setVisibility(View.GONE);
+                            }
+                            else
+                            {
+                                GlobalVariables.isGlobalSearchCompleted = true;
+                                search_completed_layout.setVisibility(View.VISIBLE);
+                            }
+
+                            List<GlobalSearchDataResponseModel.Result> documentListData = apiResponse.getData().getDataResults().get(0).getResults();
 
 
-                                sequence_id = apiResponse.getData().getSequenceId();
-                                remainingDataStatus = apiResponse.getData().getStatus();
-
-                                if(remainingDataStatus == 1)
+                            if(documentListData != null && documentListData.size() > 0)
+                            {
+                                empty_view.setVisibility(View.GONE);
+                                for(GlobalSearchDataResponseModel.Result resultModel : documentListData)
                                 {
-                                    GlobalVariables.isGlobalSearchCompleted = false;
-                                    search_completed_layout.setVisibility(View.GONE);
+                                    GetCategoryDocumentsResponse categoryDocumentsResponse = new GetCategoryDocumentsResponse();
+                                    categoryDocumentsResponse.setObject_id(resultModel.getDocumentId());
+                                    categoryDocumentsResponse.setDocument_version_id(resultModel.getDocumentVersionId());
+                                    categoryDocumentsResponse.setName(resultModel.getSubject());
+                                    categoryDocumentsResponse.setCreated_date(resultModel.getUploadedDate());
+                                    categoryDocumentsResponse.setFiletype(resultModel.getFiletype());
+                                    categoryDocumentsResponse.setFilesize(resultModel.getDocSize());
+                                    categoryDocumentsResponse.setType("document");
+                                    categoryDocumentsResponse.setVersion_count(resultModel.getDocVersionCount());
+                                    categoryDocumentsResponse.setIs_shared(resultModel.getDocIsShared());
+                                    categoryDocumentsResponse.setCategory_id(resultModel.getDocCategoryId());
+                                    categoryDocumentsResponse.setFile_path(resultModel.getFilePath());
+                                    categoryDocumentsResponse.setDoc_status(resultModel.getDocStatus());
+
+                                    globalSearchDocumentList.add(categoryDocumentsResponse);
+
+                                    GlobalVariables.globalSearchDocumentList = globalSearchDocumentList;
                                 }
-                                else
-                                {
-                                    GlobalVariables.isGlobalSearchCompleted = true;
-                                    search_completed_layout.setVisibility(View.VISIBLE);
-                                }
+                            }
+                            else
+                            {
+                                apiCallInProgress = true;
+                                empty_view.setVisibility(View.VISIBLE);
+                                no_search_results_txt.setText("No search results found.");
+                                handler.removeCallbacksAndMessages(null);
+                            }
 
-                                List<GlobalSearchDataResponseModel.Result> documentListData = apiResponse.getData().getDataResults().get(0).getResults();
+                            loadAdapterData();
 
 
-                                if(documentListData != null && documentListData.size() > 0)
-                                {
-                                    empty_view.setVisibility(View.GONE);
-                                    for(GlobalSearchDataResponseModel.Result resultModel : documentListData)
+                            handler.postDelayed(new Runnable() {
+                                public void run() {
+                                    if(remainingDataStatus == 1 && apiCallInProgress == false)
                                     {
-                                        GetCategoryDocumentsResponse categoryDocumentsResponse = new GetCategoryDocumentsResponse();
-                                        categoryDocumentsResponse.setObject_id(resultModel.getDocumentId());
-                                        categoryDocumentsResponse.setDocument_version_id(resultModel.getDocumentVersionId());
-                                        categoryDocumentsResponse.setName(resultModel.getSubject());
-                                        categoryDocumentsResponse.setCreated_date(resultModel.getUploadedDate());
-                                        categoryDocumentsResponse.setFiletype(resultModel.getFiletype());
-                                        categoryDocumentsResponse.setFilesize(resultModel.getDocSize());
-                                        categoryDocumentsResponse.setType("document");
-                                        categoryDocumentsResponse.setVersion_count(resultModel.getDocVersionCount());
-                                        categoryDocumentsResponse.setIs_shared(resultModel.getDocIsShared());
-                                        categoryDocumentsResponse.setCategory_id(resultModel.getDocCategoryId());
-                                        categoryDocumentsResponse.setFile_path(resultModel.getFilePath());
-                                        categoryDocumentsResponse.setDoc_status(resultModel.getDocStatus());
-
-                                        globalSearchDocumentList.add(categoryDocumentsResponse);
-
-                                        GlobalVariables.globalSearchDocumentList = globalSearchDocumentList;
+                                        getEndUserGlobalSearchData();
                                     }
-                                }
-                                else
-                                {
-                                    apiCallInProgress = true;
-                                    empty_view.setVisibility(View.VISIBLE);
-                                    no_search_results_txt.setText("No search results found.");
-                                    handler.removeCallbacksAndMessages(null);
-                                }
-
-                                loadAdapterData();
-
-
-                                handler.postDelayed(new Runnable() {
-                                    public void run() {
-                                        if(remainingDataStatus == 1 && apiCallInProgress == false)
-                                        {
-                                            getEndUserGlobalSearchData();
-                                        }
-                                        else
-                                        {
-                                            if (remainingDataStatus != 1) {
-                                                handler.removeCallbacksAndMessages(null);
-                                            }
+                                    else
+                                    {
+                                        if (remainingDataStatus != 1) {
+                                            handler.removeCallbacksAndMessages(null);
                                         }
                                     }
-                                }, 5000);   // 5 seconds
+                                }
+                            }, 5000);   // 5 seconds
 
 
-                            }
-
-                        } else if (apiResponse.getStatus().getCode() instanceof Double) {
-                            double status_value = new Double(apiResponse.getStatus().getCode().toString());
-                            if (status_value == 401.0)                            {
-                                String mMessage = apiResponse.getStatus().getMessage().toString();
-                                showSessionExpiryAlert(mMessage);
-                            }
                         }
                     }
                 }

@@ -3,6 +3,7 @@ package com.mwc.docportal.Fragments;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -28,6 +29,7 @@ import com.mwc.docportal.API.Model.UserPreferenceGuideRequest;
 import com.mwc.docportal.API.Model.WhiteLabelResponse;
 import com.mwc.docportal.API.Service.GetAssistancePopupService;
 import com.mwc.docportal.API.Service.SetUserPreferenceGuideService;
+import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.DMS.MyFoldersDMSActivity;
 import com.mwc.docportal.DMS.NavigationMyFolderActivity;
 import com.mwc.docportal.Database.AccountSettings;
@@ -100,30 +102,20 @@ public class LoginHelpUserGuideFragment extends Fragment {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
 
-                        if (apiResponse.status.getCode() instanceof Boolean) {
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                GetAssistancePopupContentResponse mGetAssistancePopupContentResponse = response.body().getData();
-                                if (mGetAssistancePopupContentResponse != null) {
-                                    mAssistancePopupBody = mGetAssistancePopupContentResponse.getAssistance_popup_message();
-                                    mHelpGuideURL = mGetAssistancePopupContentResponse.getHelp_guide_url();
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
+                        }
 
-                                    setAssistancePopupBody(mAssistancePopupBody, mHelpGuideURL);
-                                }
+                        if(CommonFunctions.isApiSuccess(mActivity, message, apiResponse.status.getCode())) {
+                            GetAssistancePopupContentResponse mGetAssistancePopupContentResponse = response.body().getData();
+                            if (mGetAssistancePopupContentResponse != null) {
+                                mAssistancePopupBody = mGetAssistancePopupContentResponse.getAssistance_popup_message();
+                                mHelpGuideURL = mGetAssistancePopupContentResponse.getHelp_guide_url();
 
-                            } else {
-
+                                setAssistancePopupBody(mAssistancePopupBody, mHelpGuideURL);
                             }
-
-                        } else if (apiResponse.status.getCode() instanceof Integer) {
-
-                            String mMessage = apiResponse.status.getMessage().toString();
-                            mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    startActivity(new Intent(mActivity, LoginActivity.class));
-                                    mActivity.finish();
-                                }
-                            }, false);
                         }
                     }
                 }
@@ -213,9 +205,14 @@ public class LoginHelpUserGuideFragment extends Fragment {
             @Override
             public void onClick(View textView) {
                 String mUri = mHelpGuideURL;
-                Intent mIntent = new Intent(mActivity, WebviewLoaderTermsActivity.class);
+                /*Intent mIntent = new Intent(mActivity, WebviewLoaderTermsActivity.class);
                 mIntent.putExtra(Constants.SETASSISTANCEPOPUPCONTENTURL, mUri);
-                startActivity(mIntent);
+                mIntent.putExtra("Terms_Title", "Help");
+                startActivity(mIntent);*/
+
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse(mUri));
+                startActivity(i);
             }
 
             @Override
@@ -294,31 +291,20 @@ public class LoginHelpUserGuideFragment extends Fragment {
                     if (apiResponse != null) {
                         transparentProgressDialog.dismiss();
 
-                        if (apiResponse.status.getCode() instanceof Boolean) {
-
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                if (isAdded() && mActivity != null) {
-
-                                    updateHelpAcceptedAndLoggedInStatus();
-                                } else {
-                                    updateHelpAcceptedAndLoggedInStatus();
-                                }
-                            } else {
-                                String mMessage = apiResponse.status.getMessage().toString();
-                                mActivity.showMessagebox(mActivity, mMessage, null, false);
-                            }
-
-                        } else if (apiResponse.status.getCode() instanceof Integer) {
-
-                            String mMessage = apiResponse.status.getMessage().toString();
-                            mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    startActivity(new Intent(mActivity, LoginActivity.class));
-                                    mActivity.finish();
-                                }
-                            }, false);
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
                         }
+
+                        if(CommonFunctions.isApiSuccess(mActivity, message, apiResponse.status.getCode())) {
+                            if (isAdded() && mActivity != null) {
+                                updateHelpAcceptedAndLoggedInStatus();
+                            } else {
+                                updateHelpAcceptedAndLoggedInStatus();
+                            }
+                        }
+
                     }
                 }
 

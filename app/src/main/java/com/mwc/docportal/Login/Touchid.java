@@ -24,7 +24,10 @@ import com.mwc.docportal.API.Model.FingerPrintRequestModel;
 import com.mwc.docportal.API.Model.SharedDocumentResponseModel;
 import com.mwc.docportal.API.Model.WhiteLabelResponse;
 import com.mwc.docportal.API.Service.ShareEndUserDocumentsService;
+import com.mwc.docportal.Common.CommonFunctions;
+import com.mwc.docportal.DMS.NavigationSettingsActivity;
 import com.mwc.docportal.Database.AccountSettings;
+import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
@@ -99,6 +102,9 @@ public class Touchid extends Activity {
 
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
 
+            LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(Touchid.this);
+            transparentProgressDialog.show();
+
             final FingerPrintRequestModel externalShareResponseModel = new FingerPrintRequestModel("finger_print", "Android", opt_value);
 
             String request = new Gson().toJson(externalShareResponseModel);
@@ -117,59 +123,19 @@ public class Touchid extends Activity {
 
                     if (response != null) {
 
-                        if (response.body().getStatus().getCode() instanceof Boolean) {
-                            if (response.body().getStatus().getCode() == Boolean.FALSE) {
-
-
-                                Intent intent = new Intent(Touchid.this, Notifiy.class);
-                                intent.putExtra(Constants.IS_FROM_FTL,mIsFromFTL);
-                                startActivity(intent);
-                                finish();
-
-
-
-                            }
-
+                        transparentProgressDialog.dismiss();
+                        String response_message = "";
+                        if(response.body().getStatus().getMessage() != null)
+                        {
+                            response_message = response.body().getStatus().getMessage().toString();
                         }
-                      /*  else if (response.body().getStatus().getCode() instanceof Double) {
-
-                            String mMessage = response.body().getStatus().getMessage().toString();
-
-                            Object obj = 401.0;
-                            if (obj.equals(401.0)) {
-                                final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-                                LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                                builder.setView(view);
-                                builder.setCancelable(false);
-
-                                TextView title = (TextView) view.findViewById(R.id.title);
-                                title.setText("Alert");
-
-                                TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                                txtMessage.setText(mMessage);
-
-                                Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                                Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                                cancelButton.setVisibility(View.GONE);
-
-                                sendPinButton.setText("OK");
-
-                                sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-
-                                        AccountSettings accountSettings = new AccountSettings(mActivity);
-                                        accountSettings.deleteAll();
-                                        mActivity.startActivity(new Intent(mActivity, LoginActivity.class));
-                                    }
-                                });
-
-
-                            }
-                        }*/
+                        if(CommonFunctions.isApiSuccess(Touchid.this, response_message, response.body().getStatus().getCode()))
+                        {
+                            Intent intent = new Intent(Touchid.this, Notifiy.class);
+                            intent.putExtra(Constants.IS_FROM_FTL,mIsFromFTL);
+                            startActivity(intent);
+                            finish();
+                        }
                     }
                 }
 

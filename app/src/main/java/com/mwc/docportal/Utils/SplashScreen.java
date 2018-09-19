@@ -33,6 +33,7 @@ import com.mwc.docportal.API.Model.ConfirmPasswordRequestModel;
 import com.mwc.docportal.API.Model.ConfirmPasswordResponseModel;
 import com.mwc.docportal.API.Model.WhiteLabelResponse;
 import com.mwc.docportal.API.Service.UploadNewFolderService;
+import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.DMS.NavigationMyFolderActivity;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
@@ -287,61 +288,54 @@ public class SplashScreen extends RootActivity {
                             if (apiResponse != null) {
 
                                 transparentProgressDialog.dismiss();
+                                mAlertDialog.dismiss();
 
-                                if (apiResponse.getStatus().getCode() instanceof Boolean) {
-                                    if (apiResponse.getStatus().getCode() == Boolean.FALSE) {
-                                        mAlertDialog.dismiss();
+                                String message = "";
+                                if(response.body().getStatus().getMessage() != null)
+                                {
+                                    message = response.body().getStatus().getMessage().toString();
+                                }
+
+                                if(response.body().getStatus().getCode() instanceof Double)
+                                {
+                                    double status_value = new Double(response.body().getStatus().getCode().toString());
+                                    if (status_value == 401.3)
+                                    {
+                                        showAlertDialogForAccessDenied(context, message);
+                                    }
+                                    else if(status_value ==  401 || status_value ==  401.0)
+                                    {
+                                        showAlertDialogForSessionExpiry(context, message);
+                                    }
+                                }
+                                else if(response.body().getStatus().getCode() instanceof Integer)
+                                {
+                                    int integerValue = new Integer(response.body().getStatus().getCode().toString());
+                                    if(integerValue ==  401)
+                                    {
+                                        showAlertDialogForSessionExpiry(context, message);
+                                    }
+                                }
+                                else if(response.body().getStatus().getCode() instanceof Boolean)
+                                {
+                                    if (response.body().getStatus().getCode() == Boolean.TRUE)
+                                    {
+                                        showAlertDialogIncorrectPassword(context, message);
+                                    }
+                                    else {
                                         startActivity(new Intent(context, NavigationMyFolderActivity.class));
                                         finish();
-
                                     }
-                                    else  if (apiResponse.getStatus().getCode() == Boolean.TRUE) {
-                                        String mMessage = apiResponse.getStatus().getMessage().toString();
-
-                                        password_edttxt.getText().clear();
-                                        Toast.makeText(context, mMessage, Toast.LENGTH_LONG).show();
-
-
-                                    }
-
-                                } else if (apiResponse.getStatus().getCode() instanceof Integer) {
-                                    mAlertDialog.dismiss();
-                                    String mMessage = apiResponse.getStatus().getMessage().toString();
-
-                                    final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                                    LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                    View view1 = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                                    builder.setView(view1);
-                                    builder.setCancelable(false);
-
-                                    TextView txtMessage = (TextView) view1.findViewById(R.id.txt_message);
-
-                                    txtMessage.setText(mMessage);
-
-                                    Button sendPinButton = (Button) view1.findViewById(R.id.send_pin_button);
-                                    Button cancelButton = (Button) view1.findViewById(R.id.cancel_button);
-
-                                    cancelButton.setVisibility(View.GONE);
-
-                                    sendPinButton.setText("OK");
-
-                                    sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            mAlertDialog.dismiss();
-                                            context.startActivity(new Intent(context, LoginActivity.class));
-                                        }
-                                    });
-
-                                    mAlertDialog = builder.create();
-                                    mAlertDialog.show();
                                 }
+
+
                             }
                         }
 
                         @Override
                         public void onFailure(Throwable t) {
                             transparentProgressDialog.dismiss();
+                            mAlertDialog.dismiss();
                             Log.d("PinDevice error", t.getMessage());
                         }
                     });
@@ -364,4 +358,111 @@ public class SplashScreen extends RootActivity {
         mAlertDialog.show();
     }
 
+    private void showAlertDialogIncorrectPassword(Context context, String message)
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Error");
+
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+        txtMessage.setText(message);
+
+        Button okButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+        cancelButton.setVisibility(View.GONE);
+
+        okButton.setText("OK");
+
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+                showConfirmPasswordAlert();
+
+            }
+        });
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
+    }
+
+
+    private void showAlertDialogForSessionExpiry(Context context, String message)
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Session Expired");
+
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+        txtMessage.setText(message);
+
+        Button okButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+        cancelButton.setVisibility(View.GONE);
+
+        okButton.setText("OK");
+
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+                AccountSettings accountSettings = new AccountSettings(context);
+                accountSettings.LogouData();
+                context.startActivity(new Intent(context, LoginActivity.class));
+            }
+        });
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
+    }
+
+
+    private void showAlertDialogForAccessDenied(Context context, String message)
+    {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Error");
+
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+        txtMessage.setText(message);
+
+        Button okButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+        cancelButton.setVisibility(View.GONE);
+
+        okButton.setText("OK");
+
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+
+            }
+        });
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
+    }
 }

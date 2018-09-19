@@ -1,16 +1,20 @@
 package com.mwc.docportal.Fragments;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.KeyguardManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,6 +27,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.mwc.docportal.Common.CommonFunctions;
+import com.mwc.docportal.DMS.NavigationMyFolderActivity;
 import com.squareup.okhttp.OkHttpClient;
 import com.mwc.docportal.API.Model.AccountSettingsResponse;
 import com.mwc.docportal.API.Model.ApiResponse;
@@ -81,7 +87,7 @@ public class LoginFragment extends Fragment {
     EditText mUserName, mPassword;
     private LoginResponse mLoggedInObj;
     List<AccountSettingsResponse> mAccountSettingsResponses = new ArrayList<>();
-
+    public static final int REQUEST_STORAGE_PERMISSION = 111;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -137,87 +143,102 @@ public class LoginFragment extends Fragment {
         mSignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String username = mUserName.getText().toString().trim();
-                String password = mPassword.getText().toString().trim();
 
-                if (username.equals("")) {
-                    String message = "Please provide username";
-                    mActivity.showMessagebox(mActivity, message, null, false);
-                } else if (password.equals("")) {
-                    String message = "Please provide password";
-                    mActivity.showMessagebox(mActivity, message, null, false);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    int storagePermission = ContextCompat.checkSelfPermission(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                    if (storagePermission == PackageManager.PERMISSION_GRANTED) {
+                        loginInButtonClick();
+                    } else {
+                        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_STORAGE_PERMISSION);
+                    }
                 } else {
+                    loginInButtonClick();
+                }
 
-                    if (NetworkUtils.isNetworkAvailable(mActivity)) {
+
+            }
+        });
+    }
+
+    private void loginInButtonClick()
+    {
+
+        String username = mUserName.getText().toString().trim();
+        String password = mPassword.getText().toString().trim();
+
+        if (username.equals("")) {
+            String message = "Please provide username";
+            mActivity.showMessagebox(mActivity, message, null, false);
+        } else if (password.equals("")) {
+            String message = "Please provide password";
+            mActivity.showMessagebox(mActivity, message, null, false);
+        } else {
+
+            if (NetworkUtils.isNetworkAvailable(mActivity)) {
                         /*final AlertDialog dialog = new SpotsDialog(mActivity, R.style.Custom);
                         dialog.show();*/
 
-                        final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
-                        transparentProgressDialog.show();
+                final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
+                transparentProgressDialog.show();
 
-                        Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
-                        final LoginService loginService = retrofitAPI.create(LoginService.class);
+                Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+                final LoginService loginService = retrofitAPI.create(LoginService.class);
 
-                        LoginRequest mLoginRequest = new LoginRequest(username, password,true);
-                        //LoginRequest mLoginRequest = new LoginRequest(username, password);
+                LoginRequest mLoginRequest = new LoginRequest(username, password,true);
+                //LoginRequest mLoginRequest = new LoginRequest(username, password);
 
-                        final String request = new Gson().toJson(mLoginRequest);
-                        //Here the json data is add to a hash map with key data
-                        Map<String, String> params = new HashMap<String, String>();
-                        params.put("data", request);
-                        mLoginRequest.setUserName(username);
-                        mLoginRequest.setPassword(password);
+                final String request = new Gson().toJson(mLoginRequest);
+                //Here the json data is add to a hash map with key data
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("data", request);
+                mLoginRequest.setUserName(username);
+                mLoginRequest.setPassword(password);
 
-                        Call call = loginService.getLogin(params);
-                        call.enqueue(new Callback<ApiResponse<LoginResponse>>() {
-                            @Override
-                            public void onResponse(Response<ApiResponse<LoginResponse>> response, Retrofit retrofit) {
-                                ApiResponse apiResponse = response.body();
-                                if (apiResponse != null) {
-                                    if (apiResponse.status.getCode() == false) {
-                                        LoginResponse mLoginResponse = response.body().getData();
+                Call call = loginService.getLogin(params);
+                call.enqueue(new Callback<ApiResponse<LoginResponse>>() {
+                    @Override
+                    public void onResponse(Response<ApiResponse<LoginResponse>> response, Retrofit retrofit) {
+                        ApiResponse apiResponse = response.body();
+                        if (apiResponse != null) {
 
-                                        //setting login response obj to preference utils
-                                        Gson gson = new Gson();
-                                        PreferenceUtils.setDocPortalLoggedInObj(mActivity, mLoginResponse);
+                            transparentProgressDialog.dismiss();
+                            String message = "";
+                            if(apiResponse.status.getMessage() != null)
+                            {
+                                message = apiResponse.status.getMessage().toString();
+                            }
 
-                                        if (mLoginResponse != null) {
+                            if(CommonFunctions.isApiSuccess(mActivity, message, apiResponse.status.getCode()))
+                            {
 
-                                            transparentProgressDialog.dismiss();
-                                            String accessToken = mLoginResponse.getAccessToken();
-                                            PreferenceUtils.setAccessToken(mActivity, accessToken);
+                                if (apiResponse.status.getCode() == false) {
+                                    LoginResponse mLoginResponse = response.body().getData();
 
-                                            updateLoggedInStatus();
-                                            updateHelpAcceptedAndLoggedInStatus();
-                                            getUiSettings();
-                                            getUserPreferences();
-                                            if (mLoginResponse.nextStep != null) {
+                                    //setting login response obj to preference utils
+                                    Gson gson = new Gson();
+                                    PreferenceUtils.setDocPortalLoggedInObj(mActivity, mLoginResponse);
 
-                                                if (mLoginResponse.nextStep.isPin_authentication_required() == true) {
-                                                    Intent intent = new Intent(mActivity, PinVerificationActivity.class);
-                                                    startActivity(intent);
-                                                } else if (mLoginResponse.nextStep.isFtl_required() == true) {
-                                                    Intent intent = new Intent(mActivity, FTLUserValidationActivity.class);
-                                                    startActivity(intent);
-                                                }
-                                            } else {
+                                    if (mLoginResponse != null) {
+                                        String accessToken = mLoginResponse.getAccessToken();
+                                        PreferenceUtils.setAccessToken(mActivity, accessToken);
 
-                                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                                    checkSecurity();
-                                                    updateLoggedInStatus();
-                                                    updateHelpAcceptedAndLoggedInStatus();
-                                                }
+                                        updateLoggedInStatus();
+                                        updateHelpAcceptedAndLoggedInStatus();
+                                        if (mLoginResponse.nextStep != null) {
+
+                                            if (mLoginResponse.nextStep.isPin_authentication_required() == true) {
+                                                Intent intent = new Intent(mActivity, PinVerificationActivity.class);
+                                                startActivity(intent);
+                                            } else if (mLoginResponse.nextStep.isFtl_required() == true) {
+                                                Intent intent = new Intent(mActivity, FTLUserValidationActivity.class);
+                                                startActivity(intent);
                                             }
-
                                         } else {
-                                            transparentProgressDialog.dismiss();
-                                            if(apiResponse.status.getMessage() instanceof String){
-                                                String mMessage = apiResponse.status.getMessage().toString();
-                                                mActivity.showMessagebox(mActivity,mMessage,null,false);
-                                            }
-                                            else if(apiResponse.status.getMessage() instanceof List){
-                                                String mMessage = ((List) apiResponse.status.getMessage()).get(0).toString();
-                                                mActivity.showMessagebox(mActivity,mMessage,null,false);
+
+                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                                checkSecurity();
+                                                updateLoggedInStatus();
+                                                updateHelpAcceptedAndLoggedInStatus();
                                             }
                                         }
 
@@ -232,6 +253,7 @@ public class LoginFragment extends Fragment {
                                             mActivity.showMessagebox(mActivity,mMessage,null,false);
                                         }
                                     }
+
                                 } else {
                                     transparentProgressDialog.dismiss();
                                     if(apiResponse.status.getMessage() instanceof String){
@@ -246,16 +268,18 @@ public class LoginFragment extends Fragment {
 
                             }
 
-                            @Override
-                            public void onFailure(Throwable t) {
-                                Log.e("LoginErr", t.toString());
-                                transparentProgressDialog.dismiss();
-                            }
-                        });
+                        }
+
                     }
-                }
+
+                    @Override
+                    public void onFailure(Throwable t) {
+                        Log.e("LoginErr", t.toString());
+                        transparentProgressDialog.dismiss();
+                    }
+                });
             }
-        });
+        }
     }
 
     private void hideKeyboard(View v) {
@@ -375,45 +399,39 @@ public class LoginFragment extends Fragment {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
 
-                        if (apiResponse.status.getCode() instanceof Boolean) {
 
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                GetUISettingsResponse mGetUISettingsResponse = response.body().getData();
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
+                        }
 
-                                if (mGetUISettingsResponse != null) {
 
-                                    if (mGetUISettingsResponse.ui_properties != null) {
+                        if(CommonFunctions.isApiSuccess(mActivity, message, apiResponse.status.getCode())) {
 
-                                        String mobileItemEnableColor = mGetUISettingsResponse.ui_properties.getMobile_item_enable_color();
-                                        String mobileItemDisableColor = mGetUISettingsResponse.ui_properties.getMobile_item_disable_color();
-                                        String splashScreenColor = mGetUISettingsResponse.ui_properties.getMobile_splash_screen_background_color();
-                                        String folderColor = mGetUISettingsResponse.ui_properties.getMobile_folder_color();
+                            GetUISettingsResponse mGetUISettingsResponse = response.body().getData();
 
-                                        AccountSettings accountSettings = new AccountSettings(mActivity);
-                                        WhiteLabelResponse whiteLabelResponse = new WhiteLabelResponse();
-                                        whiteLabelResponse.setItem_Selected_Color(mobileItemEnableColor);
-                                        whiteLabelResponse.setItem_Unselected_Color(mobileItemDisableColor);
-                                        whiteLabelResponse.setSplash_Screen_Color(splashScreenColor);
-                                        whiteLabelResponse.setFolder_Color(folderColor);
+                            if (mGetUISettingsResponse != null) {
 
-                                        accountSettings.InsertWhiteLabelDetails(whiteLabelResponse);
-                                    }
+                                if (mGetUISettingsResponse.ui_properties != null) {
+
+                                    String mobileItemEnableColor = mGetUISettingsResponse.ui_properties.getMobile_item_enable_color();
+                                    String mobileItemDisableColor = mGetUISettingsResponse.ui_properties.getMobile_item_disable_color();
+                                    String splashScreenColor = mGetUISettingsResponse.ui_properties.getMobile_splash_screen_background_color();
+                                    String folderColor = mGetUISettingsResponse.ui_properties.getMobile_folder_color();
+
+                                    AccountSettings accountSettings = new AccountSettings(mActivity);
+                                    WhiteLabelResponse whiteLabelResponse = new WhiteLabelResponse();
+                                    whiteLabelResponse.setItem_Selected_Color(mobileItemEnableColor);
+                                    whiteLabelResponse.setItem_Unselected_Color(mobileItemDisableColor);
+                                    whiteLabelResponse.setSplash_Screen_Color(splashScreenColor);
+                                    whiteLabelResponse.setFolder_Color(folderColor);
+
+                                    accountSettings.InsertWhiteLabelDetails(whiteLabelResponse);
                                 }
-                            } else {
-
-                            }
-                        } else if (apiResponse.status.getCode() instanceof Double) {
-                            String mMessage = apiResponse.status.getMessage().toString();
-                            Object obj = 401.0;
-                            if(obj.equals(401.0)) {
-                                mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        startActivity(new Intent(mActivity, LoginActivity.class));
-                                    }
-                                }, false);
                             }
                         }
+
                     }
                 }
 
@@ -441,48 +459,39 @@ public class LoginFragment extends Fragment {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
 
-                        if (apiResponse.status.getCode() instanceof Boolean) {
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
+                        }
 
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                GetUserPreferencesResponse mGetUserPreferencesResponse = response.body().getData();
-                                if (mGetUserPreferencesResponse != null) {
-                                    String assistance_popup = mGetUserPreferencesResponse.getAssistance_popup();
-                                    PreferenceUtils.setAssist(mActivity,assistance_popup);
+                        if(CommonFunctions.isApiSuccess(mActivity, message, apiResponse.status.getCode())) {
 
-                                    Gson gson = new Gson();
-                                    mLoggedInObj = gson.fromJson(PreferenceUtils.getDocPortalLoggedInObj(mActivity), LoginResponse.class);
+                            GetUserPreferencesResponse mGetUserPreferencesResponse = response.body().getData();
+                            if (mGetUserPreferencesResponse != null) {
+                                String assistance_popup = mGetUserPreferencesResponse.getAssistance_popup();
+                                PreferenceUtils.setAssist(mActivity,assistance_popup);
 
-                                    AccountSettingsResponse accountSettingsResponse = new AccountSettingsResponse();
-                                    accountSettingsResponse.setUser_Id(mLoggedInObj.getUserId());
-                                    accountSettingsResponse.setUser_Name(mLoggedInObj.getUserName());
-                                    accountSettingsResponse.setAccess_Token(mLoggedInObj.getAccessToken());
-                                    accountSettingsResponse.setCompany_Name(mLoggedInObj.getCompany_name());
-                                    accountSettingsResponse.setIs_Terms_Accepted(mLoggedInObj.getTerms_accept());
-                                    accountSettingsResponse.setIs_Help_Accepted(assistance_popup);
-                                    accountSettingsResponse.setLogin_Complete_Status(String.valueOf(Constants.Login_Completed));
-                                    accountSettingsResponse.setIs_Local_Auth_Enabled("0");
-                                    accountSettingsResponse.setIs_Push_Notification_Enabled("0");
+                                Gson gson = new Gson();
+                                mLoggedInObj = gson.fromJson(PreferenceUtils.getDocPortalLoggedInObj(mActivity), LoginResponse.class);
 
-                                    AccountSettings accountSettings = new AccountSettings(mActivity);
-                                    accountSettings.InsertAccountSettings(accountSettingsResponse);
-                                }
+                                AccountSettingsResponse accountSettingsResponse = new AccountSettingsResponse();
+                                accountSettingsResponse.setUser_Id(mLoggedInObj.getUserId());
+                                accountSettingsResponse.setUser_Name(mLoggedInObj.getUserName());
+                                accountSettingsResponse.setAccess_Token(mLoggedInObj.getAccessToken());
+                                accountSettingsResponse.setCompany_Name(mLoggedInObj.getCompany_name());
+                                accountSettingsResponse.setIs_Terms_Accepted(mLoggedInObj.getTerms_accept());
+                                accountSettingsResponse.setIs_Help_Accepted(assistance_popup);
+                                accountSettingsResponse.setLogin_Complete_Status(String.valueOf(Constants.Login_Completed));
+                                accountSettingsResponse.setIs_Local_Auth_Enabled("0");
+                                accountSettingsResponse.setIs_Push_Notification_Enabled("0");
 
-                            } else {
-
-                            }
-
-                        } else if (apiResponse.status.getCode() instanceof Double) {
-                            String mMessage = apiResponse.status.getMessage().toString();
-                            Object obj = 401.0;
-                            if(obj.equals(401.0)) {
-                                mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        startActivity(new Intent(mActivity, LoginActivity.class));
-                                    }
-                                }, false);
+                                AccountSettings accountSettings = new AccountSettings(mActivity);
+                                accountSettings.InsertAccountSettings(accountSettingsResponse);
                             }
                         }
+
+
 
                       /*  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                             checkSecurity();
@@ -509,6 +518,21 @@ public class LoginFragment extends Fragment {
 
         AccountSettings accountSettings = new AccountSettings(mActivity);
         accountSettings.updateIsHelpAcceptedAndLoggedInStatus(String.valueOf(Constants.Login_Completed), "0");
+    }
+
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_STORAGE_PERMISSION:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    loginInButtonClick();
+                } else {
+                    Toast.makeText(mActivity, "Storage access permission denied", Toast.LENGTH_LONG).show();
+                }
+                break;
+        }
     }
 }
 

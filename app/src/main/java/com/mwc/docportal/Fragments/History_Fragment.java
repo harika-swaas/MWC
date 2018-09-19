@@ -14,6 +14,7 @@ import com.mwc.docportal.API.Model.DocumentHistoryResponse;
 import com.mwc.docportal.API.Model.ListPinDevicesResponse;
 import com.mwc.docportal.API.Service.DocumentHistoryService;
 import com.mwc.docportal.Adapters.HistoryAdapter;
+import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Common.SimpleDividerItemDecoration;
 import com.mwc.docportal.DMS.MyFoldersDMSActivity;
 import com.mwc.docportal.DMS.Tab_Activity;
@@ -92,13 +93,18 @@ public class History_Fragment extends Fragment {
                 public void onResponse(Response<ListPinDevicesResponse<DocumentHistoryResponse>> response, Retrofit retrofit) {
                     ListPinDevicesResponse apiResponse = response.body();
                     if (apiResponse != null) {
+                        transparentProgressDialog.dismiss();
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
+                        }
 
-                        if (apiResponse.status.getCode() == Boolean.FALSE) {
-                            transparentProgressDialog.dismiss();
+                        if(CommonFunctions.isApiSuccess(mActivity, message, apiResponse.status.getCode())) {
                             documentHistoryResponses = response.body().getData();
                             setAdapterToView(documentHistoryResponses);
-                        } else {
                         }
+
                     }
                 }
 

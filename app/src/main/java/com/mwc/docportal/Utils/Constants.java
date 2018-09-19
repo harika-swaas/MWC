@@ -9,13 +9,18 @@ public class Constants {
     // ***************************** Testing ********************************************
      public static final String COMPANY_BASE_URL = "http://172.16.40.50";
 
- //  public static final String COMPANY_BASE_URL = "https://uatapi.mywealthcloud.com";
+    // ***************************** UAT ********************************************
+//   public static final String COMPANY_BASE_URL = "https://uatapi.mywealthcloud.com";
 
 
     // ***************************** Production ********************************************
      // public static final String COMPANY_BASE_URL = ""; // Prod
 
+   // ***************************** Testing ********************************************
     public static final String LOGO_IMAGE_BASE_URL = "http://172.16.40.51/";
+
+    // ***************************** UAT ********************************************
+//    public static final String LOGO_IMAGE_BASE_URL = "http://uatweb.docportal.co.uk/";
 
 
     public static final String EMAIL = "email";

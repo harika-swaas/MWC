@@ -29,6 +29,7 @@ public class Tab_Activity extends RootActivity {
     Toolbar toolbar;
     private final List<Fragment> mFragmentList = new ArrayList<>();
     private final List<String> mFragmentTitleList = new ArrayList<>();
+    public static boolean isFromShared;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,6 +46,8 @@ public class Tab_Activity extends RootActivity {
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(getResources().getDrawable(R.mipmap.ic_back));
         getSupportActionBar().setTitle("Document Info");
+
+        isFromShared = getIntent().getBooleanExtra("IsFromShared", false);
 
     }
 

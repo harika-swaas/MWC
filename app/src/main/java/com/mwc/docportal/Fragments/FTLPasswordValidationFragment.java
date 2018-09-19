@@ -29,6 +29,7 @@ import com.mwc.docportal.API.Model.UpdateFTLStatusRequest;
 import com.mwc.docportal.API.Model.VerifyFTLResponse;
 import com.mwc.docportal.API.Model.WhiteLabelResponse;
 import com.mwc.docportal.API.Service.UpdateFTLStatusService;
+import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.FTL.FTLAgreeTermsAcceptanceActivity;
@@ -569,48 +570,20 @@ public class FTLPasswordValidationFragment extends Fragment {
                         if (apiResponse != null) {
                             transparentProgressDialog.dismiss();
 
-                            if (apiResponse.status.getCode() instanceof Boolean) {
+                            String message = "";
+                            if(apiResponse.status.getMessage() != null)
+                            {
+                                message = apiResponse.status.getMessage().toString();
+                            }
 
-                                if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                    Intent mIntent = new Intent(mActivity, FTLAgreeTermsAcceptanceActivity.class);
-                                    mIntent.putExtra(Constants.USERNAME, mUserName);
-                                    mIntent.putExtra(Constants.PASSWORD, inputPassword.getText().toString().trim());
-                                    mIntent.putExtra(Constants.ACCESSTOKEN, mAccessToken);
-                                    mIntent.putExtra(Constants.SETTERMS, mTerms);
-                                    startActivity(mIntent);
-                                    mActivity.finish();
-                                } else {
-                                    String mMessage = apiResponse.status.getMessage().toString();
-                                    // Showing Alert Dialog
-                                    AlertDialog mDialog = new AlertDialog.Builder(mActivity).create();
-                                    // Setting Dialog Title
-                                    mDialog.setTitle("Alert");
-                                    // Setting Dialog Message
-                                    mDialog.setMessage(mMessage);
-
-                                    // Setting OK Button
-                                    mDialog.setButton("OK", new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            // Write your code here to execute after dialog closed
-                                            startActivity(new Intent(mActivity, FTLUserValidationActivity.class));
-                                        }
-                                    });
-
-                                    // Showing Alert Message
-                                    mDialog.show();
-                                }
-
-                            } else if (apiResponse.status.getCode() instanceof Double) {
-                                String mMessage = apiResponse.status.getMessage().toString();
-                                Object obj = 401.0;
-                                if(obj.equals(401.0)) {
-                                    mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View view) {
-                                            startActivity(new Intent(mActivity, LoginActivity.class));
-                                        }
-                                    }, false);
-                                }
+                            if(CommonFunctions.isApiSuccess(mActivity, message, apiResponse.status.getCode())) {
+                                Intent mIntent = new Intent(mActivity, FTLAgreeTermsAcceptanceActivity.class);
+                                mIntent.putExtra(Constants.USERNAME, mUserName);
+                                mIntent.putExtra(Constants.PASSWORD, inputPassword.getText().toString().trim());
+                                mIntent.putExtra(Constants.ACCESSTOKEN, mAccessToken);
+                                mIntent.putExtra(Constants.SETTERMS, mTerms);
+                                startActivity(mIntent);
+                                mActivity.finish();
                             }
                         }
                     }

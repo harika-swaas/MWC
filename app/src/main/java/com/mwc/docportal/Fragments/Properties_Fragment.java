@@ -43,6 +43,7 @@ import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
+import com.mwc.docportal.pdf.PdfViewActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -57,6 +58,8 @@ import retrofit.Call;
 import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
+
+import static com.mwc.docportal.DMS.Tab_Activity.isFromShared;
 
 public class Properties_Fragment extends Fragment{
     Tab_Activity  mActivity;
@@ -156,56 +159,49 @@ public class Properties_Fragment extends Fragment{
                 public void onResponse(Response<ListPinDevicesResponse<DocumentPropertiesResponse>> response, Retrofit retrofit) {
                     ListPinDevicesResponse apiResponse = response.body();
                     if (apiResponse != null) {
+                        transparentProgressDialog.dismiss();
+                        String message = "";
+                        if(response.body().status.getMessage() != null)
+                        {
+                            message = response.body().status.getMessage().toString();
+                        }
 
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
+                        if(CommonFunctions.isApiSuccess(mActivity, message, response.body().status.getCode())) {
+                            documentPropertiesResponse = response.body().getData();
 
-                                documentPropertiesResponse = response.body().getData();
-
-                                filename.setText(String.valueOf(documentPropertiesResponse.get(0).getFilename()));
-                                name.setText(String.valueOf(documentPropertiesResponse.get(0).getDocument_name()));
-                                author.setText(String.valueOf(documentPropertiesResponse.get(0).getAuthor()));
-                                size.setText(String.valueOf(documentPropertiesResponse.get(0).getFilesize()));
-                                type.setText(String.valueOf(documentPropertiesResponse.get(0).getFiletype()));
-                                uploaded_date.setText(String.valueOf(documentPropertiesResponse.get(0).getUploaded_date()));
-                                version.setText(String.valueOf(documentPropertiesResponse.get(0).getVersion_number()));
-                                created_date.setText(String.valueOf(documentPropertiesResponse.get(0).getCreation_date()));
-
-
-                                StringBuilder sb = new StringBuilder();
-                                try {
-                                    JSONArray jsonObj = new JSONArray(documentPropertiesResponse.get(0).getTag());
-
-                                    String prefix = "";
-                                    for (int i = 0; i < jsonObj.length(); i++) {
-                                        JSONObject objString = jsonObj.getJSONObject(i);
-                                        sb.append(prefix);
-                                        prefix = ", ";
-                                        sb.append(objString.getString("text"));
-                                    }
+                            filename.setText(String.valueOf(documentPropertiesResponse.get(0).getFilename()));
+                            name.setText(String.valueOf(documentPropertiesResponse.get(0).getDocument_name()));
+                            author.setText(String.valueOf(documentPropertiesResponse.get(0).getAuthor()));
+                            size.setText(String.valueOf(documentPropertiesResponse.get(0).getFilesize()));
+                            type.setText(String.valueOf(documentPropertiesResponse.get(0).getFiletype()));
+                            uploaded_date.setText(String.valueOf(documentPropertiesResponse.get(0).getUploaded_date()));
+                            version.setText(String.valueOf(documentPropertiesResponse.get(0).getVersion_number()));
+                            created_date.setText(String.valueOf(documentPropertiesResponse.get(0).getCreation_date()));
 
 
+                            StringBuilder sb = new StringBuilder();
+                            try {
+                                JSONArray jsonObj = new JSONArray(documentPropertiesResponse.get(0).getTag());
 
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
+                                String prefix = "";
+                                for (int i = 0; i < jsonObj.length(); i++) {
+                                    JSONObject objString = jsonObj.getJSONObject(i);
+                                    sb.append(prefix);
+                                    prefix = ", ";
+                                    sb.append(objString.getString("text"));
                                 }
 
 
 
-                                search_tags.setText(sb.toString());
-
-                            } else if (apiResponse.status.getCode() instanceof Double) {
-                                String mMessage = apiResponse.status.getMessage().toString();
-                                Object obj = 401.0;
-                                if(obj.equals(401.0)) {
-                                    mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View view) {
-                                            startActivity(new Intent(mActivity, LoginActivity.class));
-                                        }
-                                    }, false);
-                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
                             }
+
+
+
+                            search_tags.setText(sb.toString());
+                        }
+
                     }
                 }
 
@@ -229,7 +225,14 @@ public class Properties_Fragment extends Fragment{
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.edit_property, menu);
+
         editButton = menu.findItem(R.id.edit_item);
+        if(isFromShared)
+        {
+            editButton.setVisible(false);
+        }
+
+
 
         super.onCreateOptionsMenu(menu,inflater);
     }
@@ -327,45 +330,16 @@ public class Properties_Fragment extends Fragment{
 
                         transparentProgressDialog.dismiss();
 
-                        if (apiResponse.status.getCode() instanceof Boolean) {
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                getdocumentdetails();
-
-                            }
-
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
                         }
-                        else if (apiResponse.status.getCode() instanceof Integer) {
-                            transparentProgressDialog.dismiss();
-                            String mMessage = apiResponse.status.getMessage().toString();
 
-                            final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-                            LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                            builder.setView(view);
-                            builder.setCancelable(false);
-
-                            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                            txtMessage.setText(mMessage);
-
-                            Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                            cancelButton.setVisibility(View.GONE);
-
-                            sendPinButton.setText("OK");
-
-                            sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    mAlertDialog.dismiss();
-                                    startActivity(new Intent(mActivity, LoginActivity.class));
-                                }
-                            });
-
-                            mAlertDialog = builder.create();
-                            mAlertDialog.show();
+                        if(CommonFunctions.isApiSuccess(mActivity, message, apiResponse.status.getCode())) {
+                            getdocumentdetails();
                         }
+
                     }
                 }
 

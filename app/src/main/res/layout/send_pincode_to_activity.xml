@@ -10,6 +10,8 @@
     android:layout_marginRight="16dp"
     android:layout_marginTop="16dp">
 
+
+
     <FrameLayout
         android:id="@+id/frame1"
         android:layout_width="match_parent"
@@ -50,7 +52,8 @@
             android:layout_marginTop="16dp"
             android:gravity="center"
             android:text="@string/login_verification_text"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:layout_marginBottom="20dp"/>
 
     </FrameLayout>
 
@@ -60,12 +63,18 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        app:layout_heightPercent="55%">
+        app:layout_heightPercent="55%"
+        >
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+           >
+
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:layout_marginTop="-20dp"
+            android:layout_height="wrap_content"
 
             >
 
@@ -75,7 +84,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_centerHorizontal="true"
-                android:layout_marginTop="15dp"
+                android:layout_marginTop="10dp"
                 android:orientation="vertical">
 
                 <TextView
@@ -107,13 +116,14 @@
                     android:layout_marginEnd="10dp"
                     android:layout_marginLeft="10dp"
                     android:layout_marginStart="10dp"
-                    android:layout_marginTop="50dp" />
+                    android:layout_marginTop="45dp" />
 
                 <Button
                     android:id="@+id/next_button"
                     android:layout_width="248dp"
                     android:layout_height="40dp"
-                    android:layout_marginBottom="34dp"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="30dp"
                     android:layout_marginLeft="15dp"
                     android:layout_marginStart="0dp"
                     android:layout_marginTop="30dp"
@@ -121,14 +131,16 @@
                     android:text="@string/next"
                     android:textAllCaps="false"
                     android:textColor="@color/white"
-                    android:textSize="16sp"
-                    android:layout_gravity="center"/>
+                    android:textSize="16sp" />
 
             </LinearLayout>
 
 
         </RelativeLayout>
+        </ScrollView>
 
     </FrameLayout>
+
+
 
 </android.support.percent.PercentRelativeLayout>

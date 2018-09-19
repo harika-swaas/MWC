@@ -1,15 +1,18 @@
 package com.mwc.docportal.Fragments;
 
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
@@ -17,6 +20,7 @@ import android.support.v4.content.ContextCompat;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextPaint;
+import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.util.Log;
@@ -33,6 +37,7 @@ import com.mwc.docportal.API.Model.AccountSettingsResponse;
 import com.mwc.docportal.API.Model.AddFTLDetailsRequest;
 import com.mwc.docportal.API.Model.BaseApiResponse;
 import com.mwc.docportal.API.Model.FTLPINResponse;
+import com.mwc.docportal.API.Model.GetCategoryDocumentsResponse;
 import com.mwc.docportal.API.Model.GetUserPreferencesResponse;
 import com.mwc.docportal.API.Model.SetTermsAcceptanceRequest;
 import com.mwc.docportal.API.Model.VerifyFTLResponse;
@@ -40,6 +45,8 @@ import com.mwc.docportal.API.Model.WhiteLabelResponse;
 import com.mwc.docportal.API.Service.FTLProcessService;
 import com.mwc.docportal.API.Service.GetUserPreferencesService;
 import com.mwc.docportal.API.Service.SetTermsAcceptanceService;
+import com.mwc.docportal.Common.CommonFunctions;
+import com.mwc.docportal.Common.FileDownloadManager;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.FTL.FTLAgreeTermsAcceptanceActivity;
@@ -78,7 +85,10 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
     ImageView mBackIv;
     List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList<>();
     FTLPINResponse mLoggedInObj;
+    List<AccountSettingsResponse> mAccountSettingsResponses = new ArrayList<>();
+    public static final int REQUEST_STORAGE_PERMISSION = 111;
 
+    String company_name;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -121,9 +131,17 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
             @Override
             public void onClick(View textView) {
                 String mUri = PreferenceUtils.getTermsURL(mActivity);
-                Intent mIntent = new Intent(mActivity, WebviewLoaderTermsActivity.class);
+               /* Intent mIntent = new Intent(mActivity, WebviewLoaderTermsActivity.class);
                 mIntent.putExtra(Constants.SETTERMS, mUri);
-                startActivity(mIntent);
+                mIntent.putExtra("Terms_Title", "Terms & Privacy Policy");
+                startActivity(mIntent);*/
+
+
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse(mUri));
+                startActivity(i);
+
+
                 // Intent mIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(mUri));
             }
 
@@ -229,7 +247,11 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
         letsStartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 addFTLDetails();
+
+
+
             }
         });
 
@@ -239,6 +261,86 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
                 mActivity.onBackPressed();
             }
         });
+    }
+
+    private void getAccountSettings()
+    {
+        AccountSettings accountSettings = new AccountSettings(mActivity);
+        accountSettings.SetLoggedInCB(new AccountSettings.GetLoggedInCB() {
+            @Override
+            public void getLoggedInSuccessCB(List<AccountSettingsResponse> accountSettingsResponse) {
+                if (accountSettingsResponse != null && accountSettingsResponse.size() > 0) {
+                    mAccountSettingsResponses = accountSettingsResponse;
+                }
+            }
+
+            @Override
+            public void getLoggedInFailureCB(String message) {
+
+            }
+        });
+
+        accountSettings.getLoggedInStatusDetails();
+    }
+
+    private void getStoragePermissionForLogoDownload(String company_name)
+    {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            int storagePermission = ContextCompat.checkSelfPermission(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            if (storagePermission == PackageManager.PERMISSION_GRANTED) {
+                downloadLogoImage(Constants.LOGO_IMAGE_BASE_URL+Constants.Logo_ImagePath+company_name+Constants.Logo_Image_Name);
+            } else {
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_STORAGE_PERMISSION);
+            }
+        } else {
+            downloadLogoImage(Constants.LOGO_IMAGE_BASE_URL+Constants.Logo_ImagePath+company_name+Constants.Logo_Image_Name);
+        }
+    }
+
+    private void downloadLogoImage(String imageUrl)
+    {
+        if (!TextUtils.isEmpty(imageUrl)) {
+            FileDownloadManager fileDownloadManager = new FileDownloadManager(mActivity);
+            GetCategoryDocumentsResponse categoryDocumentsResponse = new GetCategoryDocumentsResponse();
+            categoryDocumentsResponse.setDownloadUrl(imageUrl);
+            categoryDocumentsResponse.setDocument_version_id("12345");
+            categoryDocumentsResponse.setName("Logo");
+
+            fileDownloadManager.setFileTitle("Logo");
+            fileDownloadManager.setDownloadUrl(imageUrl);
+            fileDownloadManager.setDigitalAssets(categoryDocumentsResponse);
+            fileDownloadManager.setmFileDownloadListener(new FileDownloadManager.FileDownloadListener() {
+                @Override
+                public void fileDownloadSuccess(String path) {
+
+                    if(path != null && !path.isEmpty())
+                    {
+                        PreferenceUtils.setLogoImagePath(mActivity, path);
+                    }
+
+                    KeyguardManager keyguardManager = (KeyguardManager) mActivity.getSystemService(Context.KEYGUARD_SERVICE);
+                    if (keyguardManager.isKeyguardSecure() == true) {
+                        Intent intent = new Intent(mActivity, Touchid.class);
+                        intent.putExtra(Constants.IS_FROM_FTL, true);
+                        startActivity(intent);
+                        mActivity.finish();
+                    } else {
+                        Intent intent = new Intent(mActivity, Notifiy.class);
+                        intent.putExtra(Constants.IS_FROM_FTL, true);
+                        startActivity(intent);
+                        mActivity.finish();
+                    }
+
+                }
+
+                @Override
+                public void fileDownloadFailure() {
+
+                }
+            });
+            fileDownloadManager.downloadTheFile();
+        }
+
     }
 
     private void addFTLDetails() {
@@ -267,26 +369,18 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
                 public void onResponse(Response<BaseApiResponse<VerifyFTLResponse>> response, Retrofit retrofit) {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
-                        if (apiResponse.status.getCode() instanceof Boolean) {
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                setTermsAcceptance(transparentProgressDialog);
-                            } else {
-                                transparentProgressDialog.dismiss();
-                                String mMessage = apiResponse.status.getMessage().toString();
-                                mActivity.showMessagebox(mActivity, mMessage, null, false);
-                            }
-                        } else if (apiResponse.status.getCode() instanceof Double) {
-                            String mMessage = apiResponse.status.getMessage().toString();
-                            Object obj = 401.0;
-                            if(obj.equals(401.0)) {
-                                mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        startActivity(new Intent(mActivity, LoginActivity.class));
-                                    }
-                                }, false);
-                            }
+
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
                         }
+
+                        if(CommonFunctions.isApiSuccess(mActivity, message, apiResponse.status.getCode())) {
+                            setTermsAcceptance(transparentProgressDialog);
+                        }
+
+
                     }
                 }
 
@@ -321,39 +415,17 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
                         dialog.dismiss();
-                        if (apiResponse.status.getCode() instanceof Boolean) {
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                insertAccountSettings();
 
-                                    KeyguardManager keyguardManager = (KeyguardManager) mActivity.getSystemService(Context.KEYGUARD_SERVICE);
-                                    if (keyguardManager.isKeyguardSecure() == true) {
-                                        Intent intent = new Intent(mActivity, Touchid.class);
-                                        intent.putExtra(Constants.IS_FROM_FTL, true);
-                                        startActivity(intent);
-                                        mActivity.finish();
-                                    } else {
-                                        Intent intent = new Intent(mActivity, Notifiy.class);
-                                        intent.putExtra(Constants.IS_FROM_FTL, true);
-                                        startActivity(intent);
-                                        mActivity.finish();
-                                    }
-
-                            } else {
-                                String mMessage = apiResponse.status.getMessage().toString();
-                                mActivity.showMessagebox(mActivity, mMessage, null, false);
-                            }
-                        } else if (apiResponse.status.getCode() instanceof Double) {
-                            String mMessage = apiResponse.status.getMessage().toString();
-                            Object obj = 401.0;
-                            if(obj.equals(401.0)) {
-                                mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        startActivity(new Intent(mActivity, LoginActivity.class));
-                                    }
-                                }, false);
-                            }
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
                         }
+
+                        if(CommonFunctions.isApiSuccess(mActivity, message, apiResponse.status.getCode())) {
+                            insertAccountSettings();
+                        }
+
                     }
                 }
 
@@ -384,51 +456,44 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
                 public void onResponse(Response<BaseApiResponse<GetUserPreferencesResponse>> response, Retrofit retrofit) {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
-                        String assistance_popup = "";
 
-                        if (apiResponse.status.getCode() instanceof Boolean) {
 
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                GetUserPreferencesResponse mGetUserPreferencesResponse = response.body().getData();
-                                if (mGetUserPreferencesResponse != null) {
-                                    assistance_popup = mGetUserPreferencesResponse.getAssistance_popup();
-                                    PreferenceUtils.setAssist(mActivity,assistance_popup);
-                                }
-
-                            } else {
-
-                            }
-
-                        } else if (apiResponse.status.getCode() instanceof Double) {
-                            String mMessage = apiResponse.status.getMessage().toString();
-                            Object obj = 401.0;
-                            if(obj.equals(401.0)) {
-                                mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        startActivity(new Intent(mActivity, LoginActivity.class));
-                                    }
-                                }, false);
-                            }
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
                         }
 
-                        Gson gson = new Gson();
-                        mLoggedInObj = gson.fromJson(PreferenceUtils.getDocPortalFTLLoggedObj(mActivity), FTLPINResponse.class);
+                        if(CommonFunctions.isApiSuccess(mActivity, message, apiResponse.status.getCode())) {
+                            String assistance_popup = "";
+                            GetUserPreferencesResponse mGetUserPreferencesResponse = response.body().getData();
+                            if (mGetUserPreferencesResponse != null) {
+                                assistance_popup = mGetUserPreferencesResponse.getAssistance_popup();
+                                PreferenceUtils.setAssist(mActivity,assistance_popup);
 
-                        AccountSettingsResponse accountSettingsResponse = new AccountSettingsResponse();
-                        accountSettingsResponse.setUser_Id(mLoggedInObj.getUserId());
-                        accountSettingsResponse.setUser_Name(mLoggedInObj.getUserName());
-                        accountSettingsResponse.setAccess_Token(mLoggedInObj.getAccessToken());
-                        accountSettingsResponse.setCompany_Name(mLoggedInObj.getCompany_name());
-                        accountSettingsResponse.setIs_Terms_Accepted("1");
-                        accountSettingsResponse.setIs_Help_Accepted(assistance_popup);
-                        accountSettingsResponse.setTerms_URL(PreferenceUtils.getTermsURL(mActivity));
-                        accountSettingsResponse.setLogin_Complete_Status(String.valueOf(Constants.Login_Completed));
-                        accountSettingsResponse.setIs_Local_Auth_Enabled("0");
-                        accountSettingsResponse.setIs_Push_Notification_Enabled("0");
+                                Gson gson = new Gson();
+                                mLoggedInObj = gson.fromJson(PreferenceUtils.getDocPortalFTLLoggedObj(mActivity), FTLPINResponse.class);
 
-                        AccountSettings accountSettings = new AccountSettings(mActivity);
-                        accountSettings.InsertAccountSettings(accountSettingsResponse);
+                                AccountSettingsResponse accountSettingsResponse = new AccountSettingsResponse();
+                                accountSettingsResponse.setUser_Id(mLoggedInObj.getUserId());
+                                accountSettingsResponse.setUser_Name(mLoggedInObj.getUserName());
+                                accountSettingsResponse.setAccess_Token(mLoggedInObj.getAccessToken());
+                                accountSettingsResponse.setCompany_Name(mLoggedInObj.getCompany_name());
+                                accountSettingsResponse.setIs_Terms_Accepted("1");
+                                accountSettingsResponse.setIs_Help_Accepted(assistance_popup);
+                                accountSettingsResponse.setTerms_URL(PreferenceUtils.getTermsURL(mActivity));
+                                accountSettingsResponse.setLogin_Complete_Status(String.valueOf(Constants.Login_Completed));
+                                accountSettingsResponse.setIs_Local_Auth_Enabled("0");
+                                accountSettingsResponse.setIs_Push_Notification_Enabled("0");
+
+                                AccountSettings accountSettings = new AccountSettings(mActivity);
+                                accountSettings.InsertAccountSettings(accountSettingsResponse);
+
+                                company_name = mLoggedInObj.getCompany_name();
+                                getStoragePermissionForLogoDownload(mLoggedInObj.getCompany_name());
+
+                            }
+                        }
                     }
                 }
 
@@ -444,5 +509,18 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
     public void onResume() {
         super.onResume();
         setButtonBackgroundColor();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_STORAGE_PERMISSION:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    getStoragePermissionForLogoDownload(company_name);
+                } else {
+                    getStoragePermissionForLogoDownload(company_name);
+                }
+                break;
+        }
     }
 }

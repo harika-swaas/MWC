@@ -451,6 +451,10 @@ public class AccountSettings {
             database.delete(TABLE_ACCOUNT_SETTINGS,null,null);
             database.delete(TABLE_WHITE_LABEL,null,null);
             database.delete("tbl_Offline_Files", null, null);
+            SharedPreferences share_settings = mContext.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = share_settings.edit();
+            editor.clear();
+            editor.commit();
         } catch (Exception e){
             e.printStackTrace();
         } finally {
@@ -459,10 +463,10 @@ public class AccountSettings {
     }
 
 
-    public void LogouData(Activity context)
+    public void LogouData()
     {
         deleteAllTables();
-        SharedPreferences share_settings = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        SharedPreferences share_settings = mContext.getSharedPreferences(MWC, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = share_settings.edit();
         editor.clear();
         editor.commit();
@@ -473,11 +477,11 @@ public class AccountSettings {
         //  File dir = new File(Environment.getExternalStorageDirectory() + "/HiDoctor");
         //  deleteRecursive(dir);
 
-        Intent intent = new Intent(context, LoginActivity.class);
+        Intent intent = new Intent(mContext, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-        context.startActivity(intent);
-        context.finish();
+        mContext.startActivity(intent);
+
     }
 
 

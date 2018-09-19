@@ -28,6 +28,7 @@ import com.mwc.docportal.API.Model.BaseApiResponse;
 import com.mwc.docportal.API.Model.FTLProcessResponse;
 import com.mwc.docportal.API.Model.WhiteLabelResponse;
 import com.mwc.docportal.API.Service.FTLProcessService;
+import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.FTL.FTLPasswordValidationActivity;
 import com.mwc.docportal.FTL.FTLPinVerificationActivity;
@@ -453,34 +454,26 @@ public class FTLUserValidationFragment extends Fragment {
 
                     if (apiResponse != null) {
 
-                        if (apiResponse.status.getCode() instanceof Boolean) {
-
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                FTLProcessResponse mFTLProcessResponse = response.body().getData();
-                                if (mFTLProcessResponse.user_details != null) {
-                                    mUserName = mFTLProcessResponse.user_details.getUsername();
-                                    mEmail = mFTLProcessResponse.user_details.getEmail();
-                                    mWelcomeMsg = mFTLProcessResponse.user_details.getEu_ftl_welcome_msg();
-                                    mTerms = mFTLProcessResponse.user_details.getDefault_terms_url();
-                                    PreferenceUtils.setTermsURL(mActivity, mTerms);
-                                    setUserName();
-                                }
-                            } else {
-
-                            }
-
-                        } else if (apiResponse.status.getCode() instanceof Double) {
-                            String mMessage = apiResponse.status.getMessage().toString();
-                            Object obj = 401.0;
-                            if(obj.equals(401.0)) {
-                                mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        startActivity(new Intent(mActivity, LoginActivity.class));
-                                    }
-                                }, false);
-                            }
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
                         }
+
+                        if(CommonFunctions.isApiSuccess(mActivity, message, apiResponse.status.getCode())) {
+
+                            FTLProcessResponse mFTLProcessResponse = response.body().getData();
+                            if (mFTLProcessResponse.user_details != null) {
+                                mUserName = mFTLProcessResponse.user_details.getUsername();
+                                mEmail = mFTLProcessResponse.user_details.getEmail();
+                                mWelcomeMsg = mFTLProcessResponse.user_details.getEu_ftl_welcome_msg();
+                                mTerms = mFTLProcessResponse.user_details.getDefault_terms_url();
+                                PreferenceUtils.setTermsURL(mActivity, mTerms);
+                                setUserName();
+                            }
+
+                        }
+
                     }
                 }
 

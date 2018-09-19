@@ -12,7 +12,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
-import android.support.v4.app.NotificationManagerCompat;
+
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,10 +27,12 @@ import com.mwc.docportal.API.Model.PushNotificationRequestModel;
 import com.mwc.docportal.API.Model.SharedDocumentResponseModel;
 import com.mwc.docportal.API.Model.WhiteLabelResponse;
 import com.mwc.docportal.API.Service.ShareEndUserDocumentsService;
+import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.DMS.MyFoldersDMSActivity;
 import com.mwc.docportal.DMS.NavigationMyFolderActivity;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Database.PushNotificatoinSettings_Respository;
+import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
@@ -110,7 +112,7 @@ public class Notifiy extends RootActivity {
                         updateLoggedInStatus();
 
                        String register_type = "0";
-                        getPushNotificationDocumentService(register_type);
+                       getPushNotificationDocumentService(register_type);
 
 
                         /*if (mIsFromFTL) {
@@ -167,11 +169,14 @@ public class Notifiy extends RootActivity {
         });
     }
 
-    private void getPushNotificationDocumentService(String register_type)
+    private void getPushNotificationDocumentService(final String register_type)
     {
         if (NetworkUtils.isNetworkAvailable(context)) {
 
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+
+            LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(Notifiy.this);
+            transparentProgressDialog.show();
 
             PushNotificatoinSettings_Respository pushNotificatoinSettings_respository = new PushNotificatoinSettings_Respository(context);
             String DeviceTokenId = pushNotificatoinSettings_respository.getDeviceTokenFromTableStatus();
@@ -194,83 +199,59 @@ public class Notifiy extends RootActivity {
 
                     if (response != null) {
 
-                            if (response.body().getStatus().getCode() == Boolean.FALSE) {
+                        transparentProgressDialog.dismiss();
+                        String message = "";
+                        if(response.body().getStatus().getMessage() != null)
+                        {
+                            message = response.body().getStatus().getMessage().toString();
+                        }
+
+                        if(CommonFunctions.isApiSuccess(mActivity, message, response.body().getStatus().getCode())) {
+
+                            AccountSettings accountSettings = new AccountSettings(context);
+                            accountSettings.UpdatePushNotificatoinSettings(register_type);
+
+                            PushNotificatoinSettings_Respository pushNotificatoinSettings = new PushNotificatoinSettings_Respository(context);
+
+                            String original_register_type = "";
+                            if(register_type.equals("0"))
+                            {
+                                original_register_type = "2";
+                            }
+                            else
+                            {
+                                original_register_type  ="1";
+                            }
+                            pushNotificatoinSettings.updatePushNotificatoinStatus(original_register_type);
 
 
-                                AccountSettings accountSettings = new AccountSettings(context);
-                                accountSettings.UpdatePushNotificatoinSettings(register_type);
+                            getAccountSettings();
 
-                                PushNotificatoinSettings_Respository pushNotificatoinSettings = new PushNotificatoinSettings_Respository(context);
-                                pushNotificatoinSettings.updatePushNotificatoinStatus(register_type);
-
-                                getAccountSettings();
-
-                                if (mIsFromFTL) {
-                                    Intent intent = new Intent(Notifiy.this, LoginHelpUserGuideActivity.class);
-                                    startActivity(intent);
-                                    finish();
-                                } else {
-                                    if(mAccountSettingsResponses != null && mAccountSettingsResponses.size() > 0){
-                                        if(mAccountSettingsResponses.get(0).getIs_Terms_Accepted().equals("0")){
-                                            Intent intent = new Intent(Notifiy.this, LoginAgreeTermsAcceptanceActivity.class);
-                                            startActivity(intent);
-                                            finish();
-                                        } else if(mAccountSettingsResponses.get(0).getIs_Help_Accepted().equals("1")){
-                                            Intent intent = new Intent(Notifiy.this, LoginHelpUserGuideActivity.class);
-                                            startActivity(intent);
-                                            finish();
-                                        }
-                                        else{
-                                            Intent intent = new Intent(Notifiy.this, NavigationMyFolderActivity.class);
-                                            startActivity(intent);
-                                            finish();
-                                        }
+                            if (mIsFromFTL) {
+                                Intent intent = new Intent(Notifiy.this, LoginHelpUserGuideActivity.class);
+                                startActivity(intent);
+                                finish();
+                            } else {
+                                if(mAccountSettingsResponses != null && mAccountSettingsResponses.size() > 0){
+                                    if(mAccountSettingsResponses.get(0).getIs_Terms_Accepted().equals("0")){
+                                        Intent intent = new Intent(Notifiy.this, LoginAgreeTermsAcceptanceActivity.class);
+                                        startActivity(intent);
+                                        finish();
+                                    } else if(mAccountSettingsResponses.get(0).getIs_Help_Accepted().equals("1")){
+                                        Intent intent = new Intent(Notifiy.this, LoginHelpUserGuideActivity.class);
+                                        startActivity(intent);
+                                        finish();
+                                    }
+                                    else{
+                                        Intent intent = new Intent(Notifiy.this, NavigationMyFolderActivity.class);
+                                        startActivity(intent);
+                                        finish();
                                     }
                                 }
-
-
                             }
 
-
-                        else if (response.body().getStatus().getCode() instanceof Double) {
-
-                            String mMessage = response.body().getStatus().getMessage().toString();
-
-                            Object obj = 401.0;
-                            if (obj.equals(401.0)) {
-                                final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-                                LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                                builder.setView(view);
-                                builder.setCancelable(false);
-
-                                TextView title = (TextView) view.findViewById(R.id.title);
-                                title.setText("Alert");
-
-                                TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                                txtMessage.setText(mMessage);
-
-                                Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                                Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                                cancelButton.setVisibility(View.GONE);
-
-                                sendPinButton.setText("OK");
-
-                                sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-
-                                        AccountSettings accountSettings = new AccountSettings(mActivity);
-                                        accountSettings.deleteAll();
-                                        mActivity.startActivity(new Intent(mActivity, LoginActivity.class));
-                                    }
-                                });
-
-
-                            }
                         }
+
                     }
                 }
 

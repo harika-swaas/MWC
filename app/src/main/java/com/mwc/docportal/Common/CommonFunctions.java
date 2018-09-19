@@ -115,9 +115,11 @@ public class CommonFunctions
     }
 
 
-    public static boolean isApiSuccess(Activity context, String message, Object code)
+    public static boolean isApiSuccess(Activity mcontext, String message, Object code)
     {
         boolean isSuccess = true;
+
+        Context context = mcontext;
 
         if(code instanceof Double)
         {
@@ -158,7 +160,7 @@ public class CommonFunctions
         return isSuccess;
     }
 
-    private static void showAlertDialogForSessionExpiry(Activity context, String message)
+    private static void showAlertDialogForSessionExpiry(Context context, String message)
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -167,7 +169,7 @@ public class CommonFunctions
         builder.setCancelable(false);
 
         TextView title = (TextView) view.findViewById(R.id.title);
-        title.setText("Alert");
+        title.setText("Session Expired");
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 
@@ -185,7 +187,7 @@ public class CommonFunctions
             public void onClick(View v) {
                 mAlertDialog.dismiss();
                 AccountSettings accountSettings = new AccountSettings(context);
-                accountSettings.LogouData(context);
+                accountSettings.LogouData();
                 context.startActivity(new Intent(context, LoginActivity.class));
             }
         });
@@ -204,7 +206,7 @@ public class CommonFunctions
         builder.setCancelable(false);
 
         TextView title = (TextView) view.findViewById(R.id.title);
-        title.setText("Alert");
+        title.setText("Error");
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 

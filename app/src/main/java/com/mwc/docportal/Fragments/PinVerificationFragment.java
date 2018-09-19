@@ -1,9 +1,14 @@
 package com.mwc.docportal.Fragments;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -12,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.mwc.docportal.API.Model.ApiResponse;
@@ -23,6 +29,7 @@ import com.mwc.docportal.API.Model.SendPinRequest;
 import com.mwc.docportal.API.Service.ListPinDevicesService;
 import com.mwc.docportal.API.Service.SendPinService;
 import com.mwc.docportal.Adapters.PinDeviceAdapter;
+import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.FTL.FTLPinVerificationActivity;
 import com.mwc.docportal.Login.LoginActivity;
@@ -55,7 +62,7 @@ public class  PinVerificationFragment extends Fragment {
     Button next;
     ImageView mBackIv;
     List<ListPinDevices> mListPinDevices;
-
+    public static final int REQUEST_STORAGE_PERMISSION = 111;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,8 +93,17 @@ public class  PinVerificationFragment extends Fragment {
         next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    int storagePermission = ContextCompat.checkSelfPermission(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                    if (storagePermission == PackageManager.PERMISSION_GRANTED) {
+                        sendPin();
+                    } else {
+                        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_STORAGE_PERMISSION);
+                    }
+                } else {
+                    sendPin();
+                }
 
-                sendPin();
             }
         });
 
@@ -114,23 +130,16 @@ public class  PinVerificationFragment extends Fragment {
                     if (apiResponse != null) {
 
                         loadingProgressDialog.dismiss();
-                        if (apiResponse.status.getCode() instanceof Boolean) {
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                mListPinDevices = response.body().getData();
-                                setAdapter(mListPinDevices);
-                            }
 
-                        } else if (apiResponse.status.getCode() instanceof Double) {
-                            String mMessage = apiResponse.status.getMessage().toString();
-                            Object obj = 401.0;
-                            if(obj.equals(401.0)) {
-                                mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        startActivity(new Intent(mActivity, LoginActivity.class));
-                                    }
-                                }, false);
-                            }
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
+                        }
+
+                        if(CommonFunctions.isApiSuccess(mActivity, message, apiResponse.status.getCode())) {
+                            mListPinDevices = response.body().getData();
+                            setAdapter(mListPinDevices);
                         }
                     }
                 }
@@ -176,28 +185,19 @@ public class  PinVerificationFragment extends Fragment {
                 public void onResponse(Response<BaseApiResponse> response, Retrofit retrofit) {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
-
-                        if (apiResponse.status.getCode() instanceof Boolean) {
-
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
-                                Intent intent = new Intent(mActivity, FTLPinVerificationActivity.class);
-                                intent.putExtra(Constants.IS_FROM_LOGIN, true);
-                                startActivity(intent);
-                            }
-
-                        } else if (apiResponse.status.getCode() instanceof Double) {
-                            String mMessage = apiResponse.status.getMessage().toString();
-                            Object obj = 401.0;
-                            if(obj.equals(401.0)) {
-                                mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        startActivity(new Intent(mActivity, LoginActivity.class));
-                                    }
-                                }, false);
-                            }
+                        transparentProgressDialog.dismiss();
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
                         }
+
+                        if(CommonFunctions.isApiSuccess(mActivity, message, apiResponse.status.getCode())) {
+                            Intent intent = new Intent(mActivity, FTLPinVerificationActivity.class);
+                            intent.putExtra(Constants.IS_FROM_LOGIN, true);
+                            startActivity(intent);
+                        }
+
                     }
                 }
 
@@ -206,6 +206,19 @@ public class  PinVerificationFragment extends Fragment {
                     transparentProgressDialog.dismiss();
                 }
             });
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_STORAGE_PERMISSION:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    sendPin();
+                } else {
+                    Toast.makeText(mActivity, "Storage access permission denied", Toast.LENGTH_LONG).show();
+                }
+                break;
         }
     }
 

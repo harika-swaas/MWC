@@ -4,8 +4,11 @@ import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -30,7 +33,7 @@ public class WebviewLoaderTermsActivity extends AppCompatActivity {
     ProgressBar mProgressBar;
     private AVLoadingIndicatorView mAviLoadingIndicatorView;
     String mUrl, mTermsPageContentUrl, mAssistanceHelpGuideUrl, mDocumentPDFUrl;
-
+    Toolbar toolbar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,25 +106,59 @@ public class WebviewLoaderTermsActivity extends AppCompatActivity {
         mAviLoadingIndicatorView = (AVLoadingIndicatorView) findViewById(R.id.avi);
         mHelpWebview = (WebView) findViewById(R.id.HelpWebview);
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(getResources().getDrawable(R.mipmap.ic_back));
+      //  getSupportActionBar().setTitle("Offline");
     }
 
     private void getIntentData() {
         if(getIntent() != null){
 
-
-
             mUrl = getIntent().getStringExtra(Constants.SETTERMS);
             mTermsPageContentUrl = getIntent().getStringExtra(Constants.SETTERMSPAGECONTENTURL);
             mAssistanceHelpGuideUrl = getIntent().getStringExtra(Constants.SETASSISTANCEPOPUPCONTENTURL);
             mDocumentPDFUrl = getIntent().getStringExtra(Constants.DOCUMENTPDFURL);
+
+            if(getIntent().getStringExtra("Terms_Title") != null)
+            {
+                getSupportActionBar().setTitle(getIntent().getStringExtra("Terms_Title"));
+            }
+
+
+           /* String urlDataString = null;
+
+            if (!TextUtils.isEmpty(mUrl)){
+                mUrl.replace("\\s+", "%20");
+                urlDataString = mUrl;
+            }
+
+            if(!TextUtils.isEmpty(mTermsPageContentUrl))
+            {
+              mTermsPageContentUrl=mTermsPageContentUrl.replaceAll("\\s+","%20");
+                urlDataString = mTermsPageContentUrl;
+            }
+            if(!TextUtils.isEmpty(mAssistanceHelpGuideUrl))
+            {
+                mAssistanceHelpGuideUrl.replaceAll("\\s+", "%20");
+                urlDataString = mAssistanceHelpGuideUrl;
+            }
+
+
+            if(!TextUtils.isEmpty(mDocumentPDFUrl))
+            {
+                mDocumentPDFUrl.replaceAll("\\s+", "%20");
+                urlDataString = mDocumentPDFUrl;
+            }
+
+            mHelpWebview.loadUrl("http://drive.google.com/viewerng/viewer?embedded=true&url=" + urlDataString);
+*/
+
         }
     }
 
-    private class Callback extends WebViewClient {
-        @Override
-        public boolean shouldOverrideUrlLoading(
-                WebView view, String url) {
-            return(false);
-        }
-    }
+
+
 }

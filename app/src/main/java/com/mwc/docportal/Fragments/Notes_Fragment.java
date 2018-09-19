@@ -17,7 +17,9 @@ import com.mwc.docportal.API.Model.ListPinDevicesResponse;
 import com.mwc.docportal.API.Service.DocumentNotesService;
 import com.mwc.docportal.API.Service.GetUserNotesDetailsService;
 import com.mwc.docportal.Adapters.NotesAdapter;
+import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Common.SimpleDividerItemDecoration;
+import com.mwc.docportal.DMS.NavigationMyFolderActivity;
 import com.mwc.docportal.DMS.Tab_Activity;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.Network.NetworkUtils;
@@ -25,6 +27,7 @@ import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +47,7 @@ public class Notes_Fragment extends android.support.v4.app.Fragment {
     NotesAdapter notesAdapter;
     int position = 0,listItem = 1;
     Tab_Activity mActivity;
+    List<DocumentNotesResponse> documentIdList =  new ArrayList<>();
     public static Notes_Fragment newInstance() {
         Notes_Fragment fragment = new Notes_Fragment();
         return fragment;
@@ -90,14 +94,16 @@ public class Notes_Fragment extends android.support.v4.app.Fragment {
                     ListPinDevicesResponse apiResponse = response.body();
                     if (apiResponse != null) {
 
-                        if (apiResponse.status.getCode() == Boolean.FALSE) {
-                            transparentProgressDialog.dismiss();
+                        transparentProgressDialog.dismiss();
+                        String message = "";
+                        if(response.body().status.getMessage() != null)
+                        {
+                            message = response.body().status.getMessage().toString();
+                        }
+
+                        if(CommonFunctions.isApiSuccess(mActivity, message, response.body().status.getCode())) {
                             documentNotesResponse = response.body().getData();
-                           // getUserNotesDetails();
                             setAdapterToView();
-
-                        } else {
-
                         }
                     }
                 }
@@ -131,17 +137,35 @@ public class Notes_Fragment extends android.support.v4.app.Fragment {
                 public void onResponse(Response<BaseApiResponse<GetUserNotesDetailsResponse>> response, Retrofit retrofit) {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
-                        if (apiResponse.status.getCode() == Boolean.FALSE) {
-                            if(documentNotesResponse.size() > position ){
-                                documentNotesResponse.get(position).setMessage(response.body().getData().getMessage());
-                                position++;
-                                getUserNotesDetails(documentNotesResponse.get(position-1).getNotes_id());
-                               // listItem++;
-                            }else{
-                                notesAdapter = new NotesAdapter(documentNotesResponse, getActivity());
-                                recyclerView.setAdapter(notesAdapter);
-                            }
+
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
                         }
+
+
+
+                        if(CommonFunctions.isApiSuccess(mActivity, message, apiResponse.status.getCode())) {
+
+                            documentIdList.get(position).setMessage(response.body().getData().getMessage());
+
+                            position++;
+
+                            if(documentIdList.size()> position) {
+                                getUserNotesDetails(documentIdList.get(position).getNotes_id());
+
+                            }
+                            else
+                            {
+                                notesAdapter = new NotesAdapter(documentIdList, getActivity());
+                                recyclerView.setAdapter(notesAdapter);
+                                position = 0;
+                            }
+
+                        }
+
+
                     }
                 }
 
@@ -158,9 +182,11 @@ public class Notes_Fragment extends android.support.v4.app.Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity().getApplicationContext()));
 
-        for(DocumentNotesResponse response : documentNotesResponse){
-            getUserNotesDetails(response.getNotes_id());
-            break;
+        documentIdList = documentNotesResponse;
+
+        if(documentIdList.size() > position)
+        {
+            getUserNotesDetails(documentIdList.get(position).getNotes_id());
         }
 
     }

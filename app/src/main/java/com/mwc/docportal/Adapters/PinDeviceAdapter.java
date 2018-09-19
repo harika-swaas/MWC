@@ -39,7 +39,7 @@ public class PinDeviceAdapter extends RecyclerView.Adapter<PinDeviceAdapter.PinD
 
     @Override
     public void onBindViewHolder(final PinDeviceViewHolder holder, final int position) {
-        holder.name.setText(mListPinDevices.get(position).getDevice_type());
+        holder.name.setText(mListPinDevices.get(position).getDevice_name());
 
         if (mListPinDevices.get(position).getDevice_type().equalsIgnoreCase(context.getResources().getString(R.string.Mobile))) {
             holder.icon.setImageResource(R.mipmap.ic_mobile);

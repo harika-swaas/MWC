@@ -86,6 +86,7 @@ import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
 import com.mwc.docportal.Utils.Constants;
 import com.mwc.docportal.Utils.DateHelper;
+import com.mwc.docportal.Utils.SplashScreen;
 import com.mwc.docportal.pdf.listener.OnLoadCompleteListener;
 import com.mwc.docportal.pdf.listener.OnPageChangeListener;
 import com.mwc.docportal.pdf.listener.OnSingleTapTouchListener;
@@ -276,6 +277,10 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                 PreferenceUtils.setDocumentVersionId(context,categoryDocumentsResponse.getDocument_version_id());
                 PreferenceUtils.setDocument_Id(context, categoryDocumentsResponse.getObject_id());
                 Intent intent = new Intent(context,Tab_Activity.class);
+                if(isFromDocumentShare)
+                {
+                    intent.putExtra("IsFromShared", true);
+                }
                 startActivity(intent);
 
             }
@@ -400,74 +405,33 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                     if (response != null) {
 
                         transparentProgressDialog.dismiss();
-
-                        if (response.body().getStatus().getCode() instanceof Boolean) {
-                            if (response.body().getStatus().getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
-
-
-                                String[] mimetypes = {"image/*", "application/*|text/*"};
-
-                                String imagePath =filepath;
-
-                                File imageFileToShare = new File(imagePath);
-
-                                Uri uri = Uri.fromFile(imageFileToShare);
-
-                                Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
-                                sharingIntent.setType("*/*");
-                                String shareBody = "";
-                                sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, name);
-                                sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
-                                sharingIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
-                                sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
-                                Intent.createChooser(sharingIntent,"Share via");
-                                context.startActivity(sharingIntent);
-
-
-
-                            }
-
-                        } else if (response.body().getStatus().getCode() instanceof Double) {
-                            transparentProgressDialog.dismiss();
-                            String mMessage = response.body().getStatus().getMessage().toString();
-
-                            Object obj = 401.0;
-                            if (obj.equals(401.0)) {
-                                final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                                builder.setView(view);
-                                builder.setCancelable(false);
-
-                                TextView title = (TextView) view.findViewById(R.id.title);
-                                title.setText("Alert");
-
-                                TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                                txtMessage.setText(mMessage);
-
-                                Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                                Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                                cancelButton.setVisibility(View.GONE);
-
-                                sendPinButton.setText("OK");
-
-                                sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        mAlertDialog.dismiss();
-                                        AccountSettings accountSettings = new AccountSettings(context);
-                                        accountSettings.deleteAll();
-                                        context.startActivity(new Intent(context, LoginActivity.class));
-                                    }
-                                });
-
-                                mAlertDialog = builder.create();
-                                mAlertDialog.show();
-                            }
+                        String message = "";
+                        if(response.body().getStatus().getMessage() != null)
+                        {
+                            message = response.body().getStatus().getMessage().toString();
                         }
+
+                        if(CommonFunctions.isApiSuccess(PdfViewActivity.this, message, response.body().getStatus().getCode()))
+                        {
+                            String[] mimetypes = {"image/*", "application/*|text/*"};
+
+                            String imagePath =filepath;
+
+                            File imageFileToShare = new File(imagePath);
+
+                            Uri uri = Uri.fromFile(imageFileToShare);
+
+                            Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+                            sharingIntent.setType("*/*");
+                            String shareBody = "";
+                            sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, name);
+                            sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+                            sharingIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
+                            sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
+                            Intent.createChooser(sharingIntent,"Share via");
+                            startActivity(sharingIntent);
+                        }
+
                     }
                 }
 
@@ -1068,48 +1032,18 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                                     if (apiResponse != null) {
 
                                         transparentProgressDialog.dismiss();
-
-                                        if (apiResponse.getStatus().getCode() instanceof Boolean) {
-                                            if (apiResponse.getStatus().getCode() == Boolean.FALSE) {
-                                                mBackDialog.dismiss();
-                                                GlobalVariables.refreshDMS = true;
-                                                finish();
-
-                                            }
-
-                                        } else if (apiResponse.getStatus().getCode() instanceof Integer) {
-                                            transparentProgressDialog.dismiss();
-                                            mBackDialog.dismiss();
-                                            String mMessage = apiResponse.getStatus().getMessage().toString();
-
-                                            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                                            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                                            builder.setView(view);
-                                            builder.setCancelable(false);
-
-                                            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                                            txtMessage.setText(mMessage);
-
-                                            Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                                            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                                            cancelButton.setVisibility(View.GONE);
-
-                                            sendPinButton.setText("OK");
-
-                                            sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View v) {
-                                                    mAlertDialog.dismiss();
-                                                    context.startActivity(new Intent(context, LoginActivity.class));
-                                                }
-                                            });
-
-                                            mAlertDialog = builder.create();
-                                            mAlertDialog.show();
+                                        mBackDialog.dismiss();
+                                        String message = "";
+                                        if(apiResponse.getStatus().getMessage() != null)
+                                        {
+                                            message = apiResponse.getStatus().getMessage().toString();
                                         }
+
+                                        if(CommonFunctions.isApiSuccess(PdfViewActivity.this, message, apiResponse.getStatus().getCode())) {
+                                            GlobalVariables.refreshDMS = true;
+                                            finish();
+                                        }
+
                                     }
                                 }
 
@@ -1167,49 +1101,17 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                                     if (apiResponse != null) {
 
                                         transparentProgressDialog.dismiss();
+                                        mBackDialog.dismiss();
+                                        String message = "";
+                                        if(apiResponse.getStatus().getMessage() != null)
+                                        {
+                                            message = apiResponse.getStatus().getMessage().toString();
+                                        }
 
-                                        if (apiResponse.getStatus().getCode() instanceof Boolean) {
-                                            if (apiResponse.getStatus().getCode() == Boolean.FALSE) {
-                                                mBackDialog.dismiss();
-                                                GlobalVariables.refreshDMS = true;
-                                                finish();
+                                        if(CommonFunctions.isApiSuccess(PdfViewActivity.this, message, apiResponse.getStatus().getCode())) {
+                                            GlobalVariables.refreshDMS = true;
+                                            finish();
 
-
-
-                                            }
-
-                                        } else if (apiResponse.getStatus().getCode() instanceof Integer) {
-                                            transparentProgressDialog.dismiss();
-                                            mBackDialog.dismiss();
-                                            String mMessage = apiResponse.getStatus().getMessage().toString();
-
-                                            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                                            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                                            builder.setView(view);
-                                            builder.setCancelable(false);
-
-                                            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                                            txtMessage.setText(mMessage);
-
-                                            Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                                            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                                            cancelButton.setVisibility(View.GONE);
-
-                                            sendPinButton.setText("OK");
-
-                                            sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View v) {
-                                                    mAlertDialog.dismiss();
-                                                    context.startActivity(new Intent(context, LoginActivity.class));
-                                                }
-                                            });
-
-                                            mAlertDialog = builder.create();
-                                            mAlertDialog.show();
                                         }
                                     }
                                 }
@@ -1267,50 +1169,18 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                                     if (apiResponse != null) {
 
                                         transparentProgressDialog.dismiss();
-
-                                        if (apiResponse.getStatus().getCode() instanceof Boolean) {
-                                            if (apiResponse.getStatus().getCode() == Boolean.FALSE) {
-                                                mBackDialog.dismiss();
-                                                GlobalVariables.refreshDMS = true;
-                                                finish();
-
-
-
-                                            }
-
-                                        } else if (apiResponse.getStatus().getCode() instanceof Integer) {
-                                            transparentProgressDialog.dismiss();
-                                            mBackDialog.dismiss();
-                                            String mMessage = apiResponse.getStatus().getMessage().toString();
-
-                                            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                                            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                                            builder.setView(view);
-                                            builder.setCancelable(false);
-
-                                            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                                            txtMessage.setText(mMessage);
-
-                                            Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                                            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                                            cancelButton.setVisibility(View.GONE);
-
-                                            sendPinButton.setText("OK");
-
-                                            sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View v) {
-                                                    mAlertDialog.dismiss();
-                                                    context.startActivity(new Intent(context, LoginActivity.class));
-                                                }
-                                            });
-
-                                            mAlertDialog = builder.create();
-                                            mAlertDialog.show();
+                                        mBackDialog.dismiss();
+                                        String message = "";
+                                        if(apiResponse.getStatus().getMessage() != null)
+                                        {
+                                            message = apiResponse.getStatus().getMessage().toString();
                                         }
+
+                                        if(CommonFunctions.isApiSuccess(PdfViewActivity.this, message, apiResponse.getStatus().getCode())) {
+                                            GlobalVariables.refreshDMS = true;
+                                            finish();
+                                        }
+
                                     }
                                 }
 
@@ -1523,8 +1393,15 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                     ApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
 
-                        if (apiResponse.status.getCode() == Boolean.FALSE) {
-                            transparentProgressDialog.dismiss();
+                        transparentProgressDialog.dismiss();
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
+                        }
+
+                        if(CommonFunctions.isApiSuccess(PdfViewActivity.this, message, apiResponse.status.getCode())) {
+
                             DownloadDocumentResponse downloadDocumentResponse = response.body().getData();
 
                             String downloaded_url = downloadDocumentResponse.getData();
@@ -1542,47 +1419,8 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
                             categoryDocumentsResponse.setDownloadUrl(downloaded_url+"&token="+base64AccessToken);
                             getDownloadManagerForDownloading(categoryDocumentsResponse, isFromshare);
-
                         }
-                        else {
-                            transparentProgressDialog.dismiss();
-                            String mMessage = apiResponse.status.getMessage().toString();
-                            Object obj = 401.0;
-                            if(obj.equals(401.0)) {
-                                final AlertDialog.Builder builder = new AlertDialog.Builder(PdfViewActivity.this);
-                                LayoutInflater inflater = (LayoutInflater) PdfViewActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                                builder.setView(view);
-                                builder.setCancelable(false);
 
-                                TextView title = (TextView) view.findViewById(R.id.title);
-                                title.setText("Alert");
-
-                                TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                                txtMessage.setText(mMessage);
-
-                                Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                                Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                                cancelButton.setVisibility(View.GONE);
-
-                                sendPinButton.setText("OK");
-
-                                sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        mAlertDialog.dismiss();
-                                        AccountSettings accountSettings = new AccountSettings(PdfViewActivity.this);
-                                        accountSettings.deleteAll();
-                                        startActivity(new Intent(PdfViewActivity.this, LoginActivity.class));
-                                    }
-                                });
-
-                                mAlertDialog = builder.create();
-                                mAlertDialog.show();
-                            }
-                        }
                     }
                 }
 
@@ -1745,54 +1583,18 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
                         transparentProgressDialog.dismiss();
 
-                        if (response.body().getStatus().getCode() instanceof Boolean) {
-                            if (response.body().getStatus().getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
 
-                                categoryDocumentsResponse.setIs_shared("0");
-
-                            }
-
-                        } else if (response.body().getStatus().getCode() instanceof Double) {
-                            transparentProgressDialog.dismiss();
-                            String mMessage = response.body().getStatus().getMessage().toString();
-
-                            Object obj = 401.0;
-                            if(obj.equals(401.0)) {
-                                final AlertDialog.Builder builder = new AlertDialog.Builder(PdfViewActivity.this);
-                                LayoutInflater inflater = (LayoutInflater) PdfViewActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                                builder.setView(view);
-                                builder.setCancelable(false);
-
-                                TextView title = (TextView) view.findViewById(R.id.title);
-                                title.setText("Alert");
-
-                                TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                                txtMessage.setText(mMessage);
-
-                                Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                                Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                                cancelButton.setVisibility(View.GONE);
-
-                                sendPinButton.setText("OK");
-
-                                sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        mAlertDialog.dismiss();
-                                        AccountSettings accountSettings = new AccountSettings(PdfViewActivity.this);
-                                        accountSettings.deleteAll();
-                                        startActivity(new Intent(PdfViewActivity.this, LoginActivity.class));
-                                    }
-                                });
-
-                                mAlertDialog = builder.create();
-                                mAlertDialog.show();
-                            }
+                        String message = "";
+                        if(response.body().getStatus().getMessage() != null)
+                        {
+                            message = response.body().getStatus().getMessage().toString();
                         }
+
+                        if(CommonFunctions.isApiSuccess(PdfViewActivity.this, message, response.body().getStatus().getCode()))
+                        {
+                            categoryDocumentsResponse.setIs_shared("0");
+                        }
+
                     }
                 }
 
@@ -1836,45 +1638,17 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
                         transparentProgressDialog.dismiss();
 
-                        if (apiResponse.status.getCode() instanceof Boolean) {
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
-                                categoryDocumentsResponse.setName(name);
-                                getSupportActionBar().setTitle(name);
-                            }
-
-                        } else if (apiResponse.status.getCode() instanceof Integer) {
-                            transparentProgressDialog.dismiss();
-                            String mMessage = apiResponse.status.getMessage().toString();
-
-                            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                            builder.setView(view);
-                            builder.setCancelable(false);
-
-                            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                            txtMessage.setText(mMessage);
-
-                            Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                            cancelButton.setVisibility(View.GONE);
-
-                            sendPinButton.setText("OK");
-
-                            sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    mAlertDialog.dismiss();
-                                    context.startActivity(new Intent(context, LoginActivity.class));
-                                }
-                            });
-
-                            mAlertDialog = builder.create();
-                            mAlertDialog.show();
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
                         }
+
+                        if(CommonFunctions.isApiSuccess(PdfViewActivity.this, message, apiResponse.status.getCode())) {
+                            categoryDocumentsResponse.setName(name);
+                            getSupportActionBar().setTitle(name);
+                        }
+
                     }
                 }
 
@@ -1941,24 +1715,21 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                     ListPinDevicesResponse apiResponse = response.body();
                     if (apiResponse != null) {
                         transparentProgressDialog.dismiss();
-                        if (apiResponse.status.getCode() == Boolean.FALSE) {
 
+
+                        String message = "";
+                        if(response.body().status.getMessage() != null)
+                        {
+                            message = response.body().status.getMessage().toString();
+                        }
+
+                        if(CommonFunctions.isApiSuccess(PdfViewActivity.this, message, response.body().status.getCode())) {
                             documentPropertiesResponse = response.body().getData();
-
                             getDocumentViewUrl(documentPropertiesResponse, pushNotificationDocumentVersionId, documentShareType);
 
-
-                        } else if (apiResponse.status.getCode() instanceof Integer) {
-
-                            int status_value = new Integer(apiResponse.status.getCode().toString());
-                            if(status_value == 401)
-                            {
-                                String mMessage = apiResponse.status.getMessage().toString();
-                                showSessionExpiryAlert(mMessage);
-
-                            }
-
                         }
+
+
                     }
                 }
 
@@ -1998,86 +1769,84 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                     if (apiResponse != null) {
 
                         transparentProgressDialog.dismiss();
+                        String message = "";
+                        if(apiResponse.getStatus().getMessage() != null)
+                        {
+                            message = apiResponse.getStatus().getMessage().toString();
+                        }
 
-                        if (apiResponse.getStatus().getCode() instanceof Boolean) {
-                            if (apiResponse.getStatus().getCode() == Boolean.FALSE) {
+                        if(CommonFunctions.isApiSuccess(PdfViewActivity.this, message, apiResponse.getStatus().getCode())) {
+
+                            if (apiResponse.getStatus().getCode() instanceof Boolean) {
+                                if (apiResponse.getStatus().getCode() == Boolean.FALSE) {
+                                    PdfDocumentResponseModel getDocumentPreviewResponses = response.body();
+                                    playmode = 1;
+                                    String document_preview_url = getDocumentPreviewResponses.getData().getDocumentPdfUrl();
+
+                                    GetCategoryDocumentsResponse  categoryDocumentsResponse = new GetCategoryDocumentsResponse();
+                                    categoryDocumentsResponse.setObject_id(documentPropertiesResponse.get(0).getDocument_id());
+                                    categoryDocumentsResponse.setDocument_version_id(pushNotificationDocumentVersionId);
+                                    categoryDocumentsResponse.setName(documentPropertiesResponse.get(0).getDocument_name());
+                                    categoryDocumentsResponse.setFiletype(documentPropertiesResponse.get(0).getFiletype());
+                                    categoryDocumentsResponse.setFilesize(documentPropertiesResponse.get(0).getFilesize());
+                                    categoryDocumentsResponse.setCreated_date(documentPropertiesResponse.get(0).getCreation_date());
+                                    categoryDocumentsResponse.setCategory_id(documentPropertiesResponse.get(0).getCategory_id());
+                                    categoryDocumentsResponse.setVersion_number(documentPropertiesResponse.get(0).getVersion_number());
+                                    categoryDocumentsResponse.setIs_shared(documentPropertiesResponse.get(0).getIs_shared());
+                                    categoryDocumentsResponse.setVersion_count(documentPropertiesResponse.get(0).getVersion_count());
+
+                                    boolean isFromShare = false;
+                                    if(documentShare.equalsIgnoreCase("document_share"))
+                                    {
+                                        isFromShare = true;
+                                    }
+
+
+
+                                    Intent intent = new Intent(context, PdfViewActivity.class);
+                                    intent.putExtra("mode",1);
+                                    intent.putExtra("url", document_preview_url);
+                                    intent.putExtra("documentDetails", categoryDocumentsResponse);
+                                    intent.putExtra("IsFromShare", isFromShare);
+                                    context.startActivity(intent);
+                                    finish();
+                                }
+
+                            } else if (apiResponse.getStatus().getCode() instanceof Double) {
                                 transparentProgressDialog.dismiss();
-                                PdfDocumentResponseModel getDocumentPreviewResponses = response.body();
 
+                                double status_value = new Double(apiResponse.getStatus().getCode().toString());
 
-
-                                playmode = 1;
-                                String document_preview_url = getDocumentPreviewResponses.getData().getDocumentPdfUrl();
-
-                                GetCategoryDocumentsResponse  categoryDocumentsResponse = new GetCategoryDocumentsResponse();
-                                categoryDocumentsResponse.setObject_id(documentPropertiesResponse.get(0).getDocument_id());
-                                categoryDocumentsResponse.setDocument_version_id(pushNotificationDocumentVersionId);
-                                categoryDocumentsResponse.setName(documentPropertiesResponse.get(0).getDocument_name());
-                                categoryDocumentsResponse.setFiletype(documentPropertiesResponse.get(0).getFiletype());
-                                categoryDocumentsResponse.setFilesize(documentPropertiesResponse.get(0).getFilesize());
-                                categoryDocumentsResponse.setCreated_date(documentPropertiesResponse.get(0).getCreation_date());
-                                categoryDocumentsResponse.setCategory_id(documentPropertiesResponse.get(0).getCategory_id());
-                                categoryDocumentsResponse.setVersion_number(documentPropertiesResponse.get(0).getVersion_number());
-                                categoryDocumentsResponse.setIs_shared(documentPropertiesResponse.get(0).getIs_shared());
-                                categoryDocumentsResponse.setVersion_count(documentPropertiesResponse.get(0).getVersion_count());
-
-                                boolean isFromShare = false;
-                                if(documentShare.equalsIgnoreCase("document_share"))
+                                if (status_value == 400.0)
                                 {
-                                    isFromShare = true;
+                                    boolean isFromShare = false;
+                                    if(documentShare.equalsIgnoreCase("document_share"))
+                                    {
+                                        isFromShare = true;
+                                    }
+
+                                    isFromStatus400 = true;
+                                    GetCategoryDocumentsResponse categoryDocumentsResponse = new GetCategoryDocumentsResponse();
+                                    categoryDocumentsResponse.setObject_id(documentPropertiesResponse.get(0).getDocument_id());
+                                    categoryDocumentsResponse.setDocument_version_id(pushNotificationDocumentVersionId);
+                                    categoryDocumentsResponse.setName(documentPropertiesResponse.get(0).getDocument_name());
+                                    categoryDocumentsResponse.setFiletype(documentPropertiesResponse.get(0).getFiletype());
+                                    categoryDocumentsResponse.setFilesize(documentPropertiesResponse.get(0).getFilesize());
+                                    categoryDocumentsResponse.setCreated_date(documentPropertiesResponse.get(0).getCreation_date());
+                                    categoryDocumentsResponse.setCategory_id(documentPropertiesResponse.get(0).getCategory_id());
+                                    categoryDocumentsResponse.setVersion_number(documentPropertiesResponse.get(0).getVersion_number());
+                                    categoryDocumentsResponse.setIs_shared(documentPropertiesResponse.get(0).getIs_shared());
+                                    categoryDocumentsResponse.setVersion_count(documentPropertiesResponse.get(0).getVersion_count());
+
+
+                                    Intent intent = new Intent(context, PdfViewActivity.class);
+                                    intent.putExtra("isFrom_Status400",true);
+                                    intent.putExtra("documentDetails", categoryDocumentsResponse);
+                                    intent.putExtra("IsFromShare", isFromShare);
+                                    context.startActivity(intent);
+                                    finish();
+
                                 }
-
-
-
-                                Intent intent = new Intent(context, PdfViewActivity.class);
-                                intent.putExtra("mode",1);
-                                intent.putExtra("url", document_preview_url);
-                                intent.putExtra("documentDetails", categoryDocumentsResponse);
-                                intent.putExtra("IsFromShare", isFromShare);
-                                context.startActivity(intent);
-                                finish();
-                            }
-
-                        } else if (apiResponse.getStatus().getCode() instanceof Double) {
-                            transparentProgressDialog.dismiss();
-
-                            double status_value = new Double(apiResponse.getStatus().getCode().toString());
-
-                            if (status_value == 400.0)
-                            {
-                                boolean isFromShare = false;
-                                if(documentShare.equalsIgnoreCase("document_share"))
-                                {
-                                    isFromShare = true;
-                                }
-
-                                isFromStatus400 = true;
-                                GetCategoryDocumentsResponse categoryDocumentsResponse = new GetCategoryDocumentsResponse();
-                                categoryDocumentsResponse.setObject_id(documentPropertiesResponse.get(0).getDocument_id());
-                                categoryDocumentsResponse.setDocument_version_id(pushNotificationDocumentVersionId);
-                                categoryDocumentsResponse.setName(documentPropertiesResponse.get(0).getDocument_name());
-                                categoryDocumentsResponse.setFiletype(documentPropertiesResponse.get(0).getFiletype());
-                                categoryDocumentsResponse.setFilesize(documentPropertiesResponse.get(0).getFilesize());
-                                categoryDocumentsResponse.setCreated_date(documentPropertiesResponse.get(0).getCreation_date());
-                                categoryDocumentsResponse.setCategory_id(documentPropertiesResponse.get(0).getCategory_id());
-                                categoryDocumentsResponse.setVersion_number(documentPropertiesResponse.get(0).getVersion_number());
-                                categoryDocumentsResponse.setIs_shared(documentPropertiesResponse.get(0).getIs_shared());
-                                categoryDocumentsResponse.setVersion_count(documentPropertiesResponse.get(0).getVersion_count());
-
-
-                                Intent intent = new Intent(context, PdfViewActivity.class);
-                                intent.putExtra("isFrom_Status400",true);
-                                intent.putExtra("documentDetails", categoryDocumentsResponse);
-                                intent.putExtra("IsFromShare", isFromShare);
-                                context.startActivity(intent);
-                                finish();
-
-                            }
-                            else if (status_value == 401.0 ) {
-
-                                String mMessage = apiResponse.getStatus().getMessage().toString();
-                                showSessionExpiryAlert(mMessage);
-
                             }
 
                         }

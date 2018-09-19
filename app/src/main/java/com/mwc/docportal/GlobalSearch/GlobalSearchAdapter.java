@@ -271,32 +271,41 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
 
                         transparentProgressDialog.dismiss();
 
-                        if (apiResponse.getStatus().getCode() instanceof Boolean) {
-                            if (apiResponse.getStatus().getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
-                                getDocumentPreviewResponses = response.body();
-                                String document_preview_url = getDocumentPreviewResponses.getData().getDocumentPdfUrl();
-
-                                Intent intent = new Intent(context, PdfViewActivity.class);
-                                intent.putExtra("mode",1);
-                                intent.putExtra("url", document_preview_url);
-                                intent.putExtra("documentDetails", categoryDocumentsResponse);
-                                context.startActivity(intent);
-                            }
-
-                        } else if (apiResponse.getStatus().getCode() instanceof Double) {
-                            transparentProgressDialog.dismiss();
-                            double status_value = new Double(apiResponse.getStatus().getCode().toString());
-
-                            if (status_value == 400.0)
-                            {
-                                Intent intent = new Intent(context, PdfViewActivity.class);
-                                intent.putExtra("isFrom_Status400",true);
-                                intent.putExtra("documentDetails", categoryDocumentsResponse);
-                                context.startActivity(intent);
-
-                            }
+                        String message = "";
+                        if(apiResponse.getStatus().getMessage() != null)
+                        {
+                            message = apiResponse.getStatus().getMessage().toString();
                         }
+
+                        if(CommonFunctions.isApiSuccess(context, message, apiResponse.getStatus().getCode())) {
+
+                            if (apiResponse.getStatus().getCode() instanceof Boolean) {
+                                if (apiResponse.getStatus().getCode() == Boolean.FALSE) {
+                                    getDocumentPreviewResponses = response.body();
+                                    String document_preview_url = getDocumentPreviewResponses.getData().getDocumentPdfUrl();
+
+                                    Intent intent = new Intent(context, PdfViewActivity.class);
+                                    intent.putExtra("mode",1);
+                                    intent.putExtra("url", document_preview_url);
+                                    intent.putExtra("documentDetails", categoryDocumentsResponse);
+                                    context.startActivity(intent);
+                                }
+
+                            } else if (apiResponse.getStatus().getCode() instanceof Double) {
+                                double status_value = new Double(apiResponse.getStatus().getCode().toString());
+
+                                if (status_value == 400.0)
+                                {
+                                    Intent intent = new Intent(context, PdfViewActivity.class);
+                                    intent.putExtra("isFrom_Status400",true);
+                                    intent.putExtra("documentDetails", categoryDocumentsResponse);
+                                    context.startActivity(intent);
+
+                                }
+                            }
+
+                        }
+
                     }
                 }
 
@@ -472,6 +481,10 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
                 PreferenceUtils.setDocumentVersionId(context,categoryDocumentsResponse.getDocument_version_id());
                 PreferenceUtils.setDocument_Id(context, categoryDocumentsResponse.getObject_id());
                 Intent intent = new Intent (context,Tab_Activity.class);
+                if(categoryDocumentsResponse.getDoc_status().equalsIgnoreCase("shared"))
+                {
+                    intent.putExtra("IsFromShared", true);
+                }
                 context.startActivity(intent);
             }
         });
@@ -711,52 +724,14 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
 
                         transparentProgressDialog.dismiss();
 
-                        if (response.body().getStatus().getCode() instanceof Boolean) {
-                            if (response.body().getStatus().getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
-
-                            }
-
-                        } else if (response.body().getStatus().getCode() instanceof Double) {
-                            transparentProgressDialog.dismiss();
-                            String mMessage = response.body().getStatus().getMessage().toString();
-
-                            Object obj = 401.0;
-                            if(obj.equals(401.0)) {
-                                final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                                builder.setView(view);
-                                builder.setCancelable(false);
-
-                                TextView title = (TextView) view.findViewById(R.id.title);
-                                title.setText("Alert");
-
-                                TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                                txtMessage.setText(mMessage);
-
-                                Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                                Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                                cancelButton.setVisibility(View.GONE);
-
-                                sendPinButton.setText("OK");
-
-                                sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        mAlertDialog.dismiss();
-                                        AccountSettings accountSettings = new AccountSettings(context);
-                                        accountSettings.deleteAll();
-                                        context.startActivity(new Intent(context, LoginActivity.class));
-                                    }
-                                });
-
-                                mAlertDialog = builder.create();
-                                mAlertDialog.show();
-                            }
+                        String message = "";
+                        if(response.body().getStatus().getMessage() != null)
+                        {
+                            message = response.body().getStatus().getMessage().toString();
                         }
+
+                        CommonFunctions.isApiSuccess(context, message, response.body().getStatus().getCode());
+
                     }
                 }
 
@@ -801,44 +776,16 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
 
                         transparentProgressDialog.dismiss();
 
-                        if (apiResponse.status.getCode() instanceof Boolean) {
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-
-                               Toast.makeText(context, "Document renamed successfully", Toast.LENGTH_SHORT).show();
-                            }
-
-                        } else if (apiResponse.status.getCode() instanceof Integer) {
-                            transparentProgressDialog.dismiss();
-                            String mMessage = apiResponse.status.getMessage().toString();
-
-                            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                            builder.setView(view);
-                            builder.setCancelable(false);
-
-                            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                            txtMessage.setText(mMessage);
-
-                            Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                            cancelButton.setVisibility(View.GONE);
-
-                            sendPinButton.setText("OK");
-
-                            sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    mAlertDialog.dismiss();
-                                    context.startActivity(new Intent(context, LoginActivity.class));
-                                }
-                            });
-
-                            mAlertDialog = builder.create();
-                            mAlertDialog.show();
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
                         }
+
+                        if(CommonFunctions.isApiSuccess(context, message, apiResponse.status.getCode())) {
+                            Toast.makeText(context, "Document renamed successfully", Toast.LENGTH_SHORT).show();
+                        }
+
                     }
                 }
 
@@ -887,8 +834,14 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
                     ApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
 
-                        if (apiResponse.status.getCode() == Boolean.FALSE) {
-                            transparentProgressDialog.dismiss();
+                        transparentProgressDialog.dismiss();
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
+                        }
+
+                        if(CommonFunctions.isApiSuccess(context, message, apiResponse.status.getCode())) {
                             DownloadDocumentResponse downloadDocumentResponse = response.body().getData();
 
                             String downloaded_url = downloadDocumentResponse.getData();
@@ -908,13 +861,8 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
                             downloadingList.add(documentsResponse);
                             getDownloadManagerForDownloading(downloadingList);
 
+                        }
 
-                        }
-                        else {
-                            transparentProgressDialog.dismiss();
-                            String mMessage = apiResponse.status.getMessage().toString();
-                            showSessionExpiryAlert(mMessage);
-                        }
                     }
                 }
 
@@ -1078,45 +1026,16 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
 
                         transparentProgressDialog.dismiss();
 
-                        if (apiResponse.getStatus().getCode() instanceof Boolean) {
-                            if (apiResponse.getStatus().getCode() == Boolean.FALSE) {
-
-                                Toast.makeText(context, "Document deleted successfully", Toast.LENGTH_SHORT).show();
-                            }
-
-                        } else if (apiResponse.getStatus().getCode() instanceof Integer) {
-                            transparentProgressDialog.dismiss();
-
-                            String mMessage = apiResponse.getStatus().getMessage().toString();
-
-                            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                            builder.setView(view);
-                            builder.setCancelable(false);
-
-                            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                            txtMessage.setText(mMessage);
-
-                            Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                            cancelButton.setVisibility(View.GONE);
-
-                            sendPinButton.setText("OK");
-
-                            sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    mAlertDialog.dismiss();
-                                    context.startActivity(new Intent(context, LoginActivity.class));
-                                }
-                            });
-
-                            mAlertDialog = builder.create();
-                            mAlertDialog.show();
+                        String message = "";
+                        if(apiResponse.getStatus().getMessage() != null)
+                        {
+                            message = apiResponse.getStatus().getMessage().toString();
                         }
+
+                        if(CommonFunctions.isApiSuccess(context, message, apiResponse.getStatus().getCode())) {
+                            Toast.makeText(context, "Document deleted successfully", Toast.LENGTH_SHORT).show();
+                        }
+
                     }
                 }
 

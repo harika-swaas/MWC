@@ -81,7 +81,7 @@ import retrofit.Retrofit;
 
 public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapter.ViewHolder> {
 
-    private Context context;
+    private Activity context;
     public List<GetCategoryDocumentsResponse> mGetCategoryDocumentsResponses;
     PdfDocumentResponseModel getDocumentPreviewResponses;
     List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList<>();
@@ -258,6 +258,7 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
                             }
                             intent.putExtra("ObjectId", mGetCategoryDocumentsResponses.get(position).getObject_id());
                             intent.putExtra("CategoryName", mGetCategoryDocumentsResponses.get(position).getName());
+                            intent.putExtra("WorkSpaceId", mGetCategoryDocumentsResponses.get(position).getCategory_id());
 
                             context.startActivity(intent);
 
@@ -400,38 +401,40 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
 
                         transparentProgressDialog.dismiss();
 
-                        if (apiResponse.getStatus().getCode() instanceof Boolean) {
-                            if (apiResponse.getStatus().getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
-                                getDocumentPreviewResponses = response.body();
-                                String document_preview_url = getDocumentPreviewResponses.getData().getDocumentPdfUrl();
-
-
-                                Intent intent = new Intent(context, PdfViewActivity.class);
-                                intent.putExtra("mode",1);
-                                intent.putExtra("url", document_preview_url);
-                                intent.putExtra("documentDetails", categoryDocumentsResponse);
-                                intent.putExtra("IsFromShare", true);
-                                context.startActivity(intent);
-                            }
-
-                        } else if (apiResponse.getStatus().getCode() instanceof Double) {
-                            transparentProgressDialog.dismiss();
-
-                            double status_value = new Double(apiResponse.getStatus().getCode().toString());
-
-                            if (status_value == 400.0)
-                            {
-                                Intent intent = new Intent(context, PdfViewActivity.class);
-                                intent.putExtra("isFrom_Status400",true);
-                                intent.putExtra("documentDetails", categoryDocumentsResponse);
-                                intent.putExtra("IsFromShare", true);
-                                context.startActivity(intent);
-
-                            }
-
-
+                        String message = "";
+                        if(apiResponse.getStatus().getMessage() != null)
+                        {
+                            message = apiResponse.getStatus().getMessage().toString();
                         }
+
+                        if(CommonFunctions.isApiSuccess(context, message, apiResponse.getStatus().getCode())) {
+
+                            if (apiResponse.getStatus().getCode() instanceof Boolean) {
+                                if (apiResponse.getStatus().getCode() == Boolean.FALSE) {
+                                    getDocumentPreviewResponses = response.body();
+                                    String document_preview_url = getDocumentPreviewResponses.getData().getDocumentPdfUrl();
+                                    Intent intent = new Intent(context, PdfViewActivity.class);
+                                    intent.putExtra("mode",1);
+                                    intent.putExtra("url", document_preview_url);
+                                    intent.putExtra("documentDetails", categoryDocumentsResponse);
+                                    intent.putExtra("IsFromShare", true);
+                                    context.startActivity(intent);
+                                }
+
+                            } else if (apiResponse.getStatus().getCode() instanceof Double) {
+                                double status_value = new Double(apiResponse.getStatus().getCode().toString());
+                                if (status_value == 400.0)
+                                {
+                                    Intent intent = new Intent(context, PdfViewActivity.class);
+                                    intent.putExtra("isFrom_Status400",true);
+                                    intent.putExtra("documentDetails", categoryDocumentsResponse);
+                                    intent.putExtra("IsFromShare", true);
+                                    context.startActivity(intent);
+
+                                }
+                            }
+                        }
+
                     }
                 }
 
@@ -519,6 +522,7 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
                 PreferenceUtils.setDocument_Id(context, mGetCategoryDocumentsResponses.getObject_id());
 
                 Intent intent = new Intent (context,Tab_Activity.class);
+                intent.putExtra("IsFromShared", true);
                 context.startActivity(intent);
             }
         });

@@ -14,6 +14,7 @@ import com.mwc.docportal.API.Model.DocumentNotesResponse;
 import com.mwc.docportal.API.Model.GetUserNotesDetailsRequest;
 import com.mwc.docportal.API.Model.GetUserNotesDetailsResponse;
 import com.mwc.docportal.API.Service.GetUserNotesDetailsService;
+import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
@@ -37,7 +38,7 @@ import retrofit.Retrofit;
 public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHolder> {
 
     List<DocumentNotesResponse> responseList = new ArrayList<>();
-    Context context;
+    Activity context;
     String message;
 
     public NotesAdapter(List<DocumentNotesResponse> responseList, Activity context) {
@@ -90,14 +91,17 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHol
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
 
-                        if (apiResponse.status.getCode() == Boolean.FALSE) {
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
+                        }
 
+                        if(CommonFunctions.isApiSuccess(context, message, apiResponse.status.getCode())) {
                             GetUserNotesDetailsResponse userNotesDetailsResponse = response.body().getData();
                             message = userNotesDetailsResponse.getMessage();
-
-                        } else {
-
                         }
+
                     }
                 }
 

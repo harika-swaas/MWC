@@ -1,17 +1,21 @@
 package com.mwc.docportal.Fragments;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -55,6 +59,7 @@ import com.mwc.docportal.API.Service.VerifyPinService;
 import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Common.FileDownloadManager;
 import com.mwc.docportal.Components.LinkTextView;
+import com.mwc.docportal.DMS.NavigationMyFolderActivity;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Database.OffLine_Files_Repository;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
@@ -99,7 +104,8 @@ public class FTLPinVerificationFragment extends Fragment {
     private LoginResponse mLoggedInObj;
     String message;
     static String Otp;
-
+    public static final int REQUEST_STORAGE_PERMISSION = 111;
+    AccountSettingsResponse accountSettingsList = new AccountSettingsResponse();
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -325,9 +331,9 @@ public class FTLPinVerificationFragment extends Fragment {
             VerifyFTLPINRequest mVerifyFTLPINRequest = null;
 
             if (!TextUtils.isEmpty(mMobile)) {
-                mVerifyFTLPINRequest = new VerifyFTLPINRequest(mEmail, mMobile, Integer.parseInt(pinNo));
+                mVerifyFTLPINRequest = new VerifyFTLPINRequest(mEmail, mMobile, Long.parseLong(pinNo));
             } else {
-                mVerifyFTLPINRequest = new VerifyFTLPINRequest(mEmail, null, Integer.parseInt(pinNo));
+                mVerifyFTLPINRequest = new VerifyFTLPINRequest(mEmail, null, Long.parseLong(pinNo));
             }
 
             String request = new Gson().toJson(mVerifyFTLPINRequest);
@@ -344,98 +350,89 @@ public class FTLPinVerificationFragment extends Fragment {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
 
-                        if (apiResponse.status.getCode() instanceof Boolean) {
+                        transparentProgressDialog.dismiss();
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
+                        }
 
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
-                                FTLPINResponse mFTLPINResponse = response.body().getData();
-                                if (mFTLPINResponse != null) {
-                                    String accessToken = mFTLPINResponse.getAccessToken();
-                                    PreferenceUtils.setAccessToken(mActivity, accessToken);
+                        if(CommonFunctions.isApiSuccess(mActivity, message, apiResponse.status.getCode()))
+                        {
+                            FTLPINResponse mFTLPINResponse = response.body().getData();
+                            if (mFTLPINResponse != null) {
+                                String accessToken = mFTLPINResponse.getAccessToken();
+                                PreferenceUtils.setAccessToken(mActivity, accessToken);
 
-                                    if (mFTLPINResponse.nextStep != null) {
-                                        if (mFTLPINResponse.nextStep.isFtl_required() == true) {
-                                            getFTLUISettings(accessToken, mFTLPINResponse);
+                                if (mFTLPINResponse.nextStep != null) {
+                                    if (mFTLPINResponse.nextStep.isFtl_required() == true) {
+                                        getFTLUISettings(accessToken, mFTLPINResponse);
 
-                                        }
                                     }
-                                }
-                            } else {
-                                transparentProgressDialog.dismiss();
-                                String mMessage = apiResponse.status.getMessage().toString();
-
-                                FTLPINResponse mFTLPINResponse = response.body().getData();
-                                if (mFTLPINResponse != null) {
-                                    if (mFTLPINResponse.isRequest_pin() == true) {
-
-                                        final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-                                        LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                                        builder.setView(view);
-                                        builder.setCancelable(false);
-
-                                        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                                        txtMessage.setText(mMessage);
-
-                                        Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                                        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                                        sendPinButton.setText("SEND PIN AGAIN");
-
-                                        sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                mAlertDialog.dismiss();
-                                                sendFTLPin();
-                                            }
-                                        });
-
-                                        cancelButton.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                mAlertDialog.dismiss();
-                                            }
-                                        });
-
-                                        mAlertDialog = builder.create();
-                                        mAlertDialog.show();
-
-                                    } else if (mFTLPINResponse.isFtl_complete() == true) {
-                                        // Showing Alert Dialog
-                                        AlertDialog mDialog = new AlertDialog.Builder(mActivity).create();
-                                        // Setting Dialog Title
-                                        mDialog.setTitle("Alert");
-                                        // Setting Dialog Message
-                                        mDialog.setMessage(mMessage);
-
-                                        // Setting OK Button
-                                        mDialog.setButton("OK", new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                // Write your code here to execute after dialog closed
-                                                mActivity.startActivity(new Intent(mActivity, LoginActivity.class));
-                                            }
-                                        });
-
-                                        // Showing Alert Message
-                                        mDialog.show();
-                                    }
-                                } else {
-                                    mActivity.showMessagebox(mActivity, mMessage, null, false);
-                                    //  Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
                                 }
                             }
-
-                        } else if (apiResponse.status.getCode() instanceof Double) {
+                        }
+                        else
+                        {
                             String mMessage = apiResponse.status.getMessage().toString();
-                            Object obj = 401.0;
-                            if(obj.equals(401.0)) {
-                                mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        mActivity.startActivity(new Intent(mActivity, LoginActivity.class));
-                                    }
-                                }, false);
+
+                            FTLPINResponse mFTLPINResponse = response.body().getData();
+                            if (mFTLPINResponse != null) {
+                                if (mFTLPINResponse.isRequest_pin() == true) {
+
+                                    final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+                                    LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                    View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+                                    builder.setView(view);
+                                    builder.setCancelable(false);
+
+                                    TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+                                    txtMessage.setText(mMessage);
+
+                                    Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+                                    Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+                                    sendPinButton.setText("SEND PIN AGAIN");
+
+                                    sendPinButton.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            mAlertDialog.dismiss();
+                                            sendFTLPin();
+                                        }
+                                    });
+
+                                    cancelButton.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            mAlertDialog.dismiss();
+                                        }
+                                    });
+
+                                    mAlertDialog = builder.create();
+                                    mAlertDialog.show();
+
+                                } else if (mFTLPINResponse.isFtl_complete() == true) {
+                                    // Showing Alert Dialog
+                                    AlertDialog mDialog = new AlertDialog.Builder(mActivity).create();
+                                    // Setting Dialog Title
+                                    mDialog.setTitle("Alert");
+                                    // Setting Dialog Message
+                                    mDialog.setMessage(mMessage);
+
+                                    // Setting OK Button
+                                    mDialog.setButton("OK", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            // Write your code here to execute after dialog closed
+                                            mActivity.startActivity(new Intent(mActivity, LoginActivity.class));
+                                        }
+                                    });
+
+                                    mDialog.show();
+                                }
+                            } else {
+                                mActivity.showMessagebox(mActivity, mMessage, null, false);
                             }
                         }
                     }
@@ -465,53 +462,46 @@ public class FTLPinVerificationFragment extends Fragment {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
 
-                        if (apiResponse.status.getCode() instanceof Boolean) {
-
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                GetUISettingsResponse mGetUISettingsResponse = response.body().getData();
-
-                                if (mGetUISettingsResponse != null) {
-
-                                    if (mGetUISettingsResponse.ui_properties != null) {
-
-                                        String mobileItemEnableColor = mGetUISettingsResponse.ui_properties.getMobile_item_enable_color();
-                                        String mobileItemDisableColor = mGetUISettingsResponse.ui_properties.getMobile_item_disable_color();
-                                        String splashScreenColor = mGetUISettingsResponse.ui_properties.getMobile_splash_screen_background_color();
-                                        String folderColor = mGetUISettingsResponse.ui_properties.getMobile_folder_color();
-
-                                        AccountSettings accountSettings = new AccountSettings(mActivity);
-                                        WhiteLabelResponse whiteLabelResponse = new WhiteLabelResponse();
-                                        whiteLabelResponse.setItem_Selected_Color(mobileItemEnableColor);
-                                        whiteLabelResponse.setItem_Unselected_Color(mobileItemDisableColor);
-                                        whiteLabelResponse.setSplash_Screen_Color(splashScreenColor);
-                                        whiteLabelResponse.setFolder_Color(folderColor);
-
-                                        accountSettings.InsertWhiteLabelDetails(whiteLabelResponse);
-                                    }
-
-                                    Intent mIntent = new Intent(mActivity, FTLUserValidationActivity.class);
-                                    mIntent.putExtra(Constants.ACCESSTOKEN, accessToken);
-                                    PreferenceUtils.setDocPortalFTLLoggedObj(mActivity, mFTLPINResponse);
-                                    mActivity.startActivity(mIntent);
-                                    mActivity.finish();
-
-
-                                }
-                            } else {
-
-                            }
-                        } else if (apiResponse.status.getCode() instanceof Double) {
-                            String mMessage = apiResponse.status.getMessage().toString();
-                            Object obj = 401.0;
-                            if(obj.equals(401.0)) {
-                                mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        mActivity.startActivity(new Intent(mActivity, LoginActivity.class));
-                                    }
-                                }, false);
-                            }
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
                         }
+
+                        if(CommonFunctions.isApiSuccess(mActivity, message, apiResponse.status.getCode())) {
+
+                            GetUISettingsResponse mGetUISettingsResponse = response.body().getData();
+
+                            if (mGetUISettingsResponse != null) {
+
+                                if (mGetUISettingsResponse.ui_properties != null) {
+
+                                    String mobileItemEnableColor = mGetUISettingsResponse.ui_properties.getMobile_item_enable_color();
+                                    String mobileItemDisableColor = mGetUISettingsResponse.ui_properties.getMobile_item_disable_color();
+                                    String splashScreenColor = mGetUISettingsResponse.ui_properties.getMobile_splash_screen_background_color();
+                                    String folderColor = mGetUISettingsResponse.ui_properties.getMobile_folder_color();
+
+                                    AccountSettings accountSettings = new AccountSettings(mActivity);
+                                    WhiteLabelResponse whiteLabelResponse = new WhiteLabelResponse();
+                                    whiteLabelResponse.setItem_Selected_Color(mobileItemEnableColor);
+                                    whiteLabelResponse.setItem_Unselected_Color(mobileItemDisableColor);
+                                    whiteLabelResponse.setSplash_Screen_Color(splashScreenColor);
+                                    whiteLabelResponse.setFolder_Color(folderColor);
+
+                                    accountSettings.InsertWhiteLabelDetails(whiteLabelResponse);
+                                }
+
+                                Intent mIntent = new Intent(mActivity, FTLUserValidationActivity.class);
+                                mIntent.putExtra(Constants.ACCESSTOKEN, accessToken);
+                                PreferenceUtils.setDocPortalFTLLoggedObj(mActivity, mFTLPINResponse);
+                                mActivity.startActivity(mIntent);
+                                mActivity.finish();
+
+
+                            }
+
+                        }
+
                     }
                 }
 
@@ -544,7 +534,7 @@ public class FTLPinVerificationFragment extends Fragment {
                         PreferenceUtils.setLogoImagePath(mActivity, path);
                     }
 
-                //    Toast.makeText(mActivity, path, Toast.LENGTH_LONG).show();
+
                     getTermsConditionsUrlFromService(accountSettingsResponse);
 
                 }
@@ -573,46 +563,37 @@ public class FTLPinVerificationFragment extends Fragment {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
 
-                        if (apiResponse.status.getCode() instanceof Boolean) {
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
+                        }
 
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                GetUISettingsResponse mGetUISettingsResponse = response.body().getData();
+                        if(CommonFunctions.isApiSuccess(mActivity, message, apiResponse.status.getCode())) {
 
-                                if (mGetUISettingsResponse != null) {
+                            GetUISettingsResponse mGetUISettingsResponse = response.body().getData();
 
-                                    if (mGetUISettingsResponse.ui_properties != null) {
+                            if (mGetUISettingsResponse != null) {
 
-                                        String mobileItemEnableColor = mGetUISettingsResponse.ui_properties.getMobile_item_enable_color();
-                                        String mobileItemDisableColor = mGetUISettingsResponse.ui_properties.getMobile_item_disable_color();
-                                        String splashScreenColor = mGetUISettingsResponse.ui_properties.getMobile_splash_screen_background_color();
-                                        String folderColor = mGetUISettingsResponse.ui_properties.getMobile_folder_color();
+                                if (mGetUISettingsResponse.ui_properties != null) {
 
-                                        AccountSettings accountSettings = new AccountSettings(mActivity);
-                                        WhiteLabelResponse whiteLabelResponse = new WhiteLabelResponse();
-                                        whiteLabelResponse.setItem_Selected_Color(mobileItemEnableColor);
-                                        whiteLabelResponse.setItem_Unselected_Color(mobileItemDisableColor);
-                                        whiteLabelResponse.setSplash_Screen_Color(splashScreenColor);
-                                        whiteLabelResponse.setFolder_Color(folderColor);
+                                    String mobileItemEnableColor = mGetUISettingsResponse.ui_properties.getMobile_item_enable_color();
+                                    String mobileItemDisableColor = mGetUISettingsResponse.ui_properties.getMobile_item_disable_color();
+                                    String splashScreenColor = mGetUISettingsResponse.ui_properties.getMobile_splash_screen_background_color();
+                                    String folderColor = mGetUISettingsResponse.ui_properties.getMobile_folder_color();
 
-                                        accountSettings.InsertWhiteLabelDetails(whiteLabelResponse);
-                                    }
+                                    AccountSettings accountSettings = new AccountSettings(mActivity);
+                                    WhiteLabelResponse whiteLabelResponse = new WhiteLabelResponse();
+                                    whiteLabelResponse.setItem_Selected_Color(mobileItemEnableColor);
+                                    whiteLabelResponse.setItem_Unselected_Color(mobileItemDisableColor);
+                                    whiteLabelResponse.setSplash_Screen_Color(splashScreenColor);
+                                    whiteLabelResponse.setFolder_Color(folderColor);
 
-                                    getUserPreferences();
-
+                                    accountSettings.InsertWhiteLabelDetails(whiteLabelResponse);
                                 }
-                            } else {
 
-                            }
-                        } else if (apiResponse.status.getCode() instanceof Double) {
-                            String mMessage = apiResponse.status.getMessage().toString();
-                            Object obj = 401.0;
-                            if(obj.equals(401.0)) {
-                                mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        mActivity.startActivity(new Intent(mActivity, LoginActivity.class));
-                                    }
-                                }, false);
+                                getUserPreferences();
+
                             }
                         }
                     }
@@ -655,29 +636,17 @@ public class FTLPinVerificationFragment extends Fragment {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
 
-                        if (apiResponse.status.getCode() instanceof Boolean) {
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
-                                getUiSettings();
-
-                            } else {
-                                String mMessage = apiResponse.status.getMessage().toString();
-                                mActivity.showMessagebox(mActivity, mMessage, null, false);
-                                transparentProgressDialog.dismiss();
-                            }
-
-                        } else if (apiResponse.status.getCode() instanceof Double) {
-                            String mMessage = apiResponse.status.getMessage().toString();
-                            Object obj = 401.0;
-                            if(obj.equals(401.0)) {
-                                mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        mActivity.startActivity(new Intent(mActivity, LoginActivity.class));
-                                    }
-                                }, false);
-                            }
+                        transparentProgressDialog.dismiss();
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
                         }
+
+                        if(CommonFunctions.isApiSuccess(mActivity, message, apiResponse.status.getCode())) {
+                            getUiSettings();
+                        }
+
                     }
                 }
 
@@ -704,49 +673,41 @@ public class FTLPinVerificationFragment extends Fragment {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
 
-                        if (apiResponse.status.getCode() instanceof Boolean) {
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
+                        }
 
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                GetUserPreferencesResponse mGetUserPreferencesResponse = response.body().getData();
-                                if (mGetUserPreferencesResponse != null) {
-                                    String assistance_popup = mGetUserPreferencesResponse.getAssistance_popup();
 
-                                    Gson gson = new Gson();
-                                    mLoggedInObj = gson.fromJson(PreferenceUtils.getDocPortalLoggedInObj(mActivity), LoginResponse.class);
+                        if(CommonFunctions.isApiSuccess(mActivity, message, apiResponse.status.getCode())) {
+                            GetUserPreferencesResponse mGetUserPreferencesResponse = response.body().getData();
+                            if (mGetUserPreferencesResponse != null) {
+                                String assistance_popup = mGetUserPreferencesResponse.getAssistance_popup();
 
-                                    AccountSettingsResponse accountSettingsResponse = new AccountSettingsResponse();
-                                    accountSettingsResponse.setUser_Id(mLoggedInObj.getUserId());
-                                    accountSettingsResponse.setUser_Name(mLoggedInObj.getUserName());
-                                    accountSettingsResponse.setAccess_Token(mLoggedInObj.getAccessToken());
-                                    accountSettingsResponse.setCompany_Name(mLoggedInObj.getCompany_name());
-                                    accountSettingsResponse.setIs_Terms_Accepted(mLoggedInObj.getTerms_accept());
-                                    accountSettingsResponse.setIs_Help_Accepted(assistance_popup);
-                                    accountSettingsResponse.setLogin_Complete_Status(String.valueOf(Constants.Login_Completed));
-                                    accountSettingsResponse.setIs_Local_Auth_Enabled("0");
-                                    accountSettingsResponse.setIs_Push_Notification_Enabled("0");
+                                Gson gson = new Gson();
+                                mLoggedInObj = gson.fromJson(PreferenceUtils.getDocPortalLoggedInObj(mActivity), LoginResponse.class);
 
-                                    if(accountSettingsResponse.getCompany_Name() != null && !accountSettingsResponse.getCompany_Name().isEmpty())
-                                    {
-                                        downloadLogoImage(accountSettingsResponse, Constants.LOGO_IMAGE_BASE_URL+Constants.Logo_ImagePath+accountSettingsResponse.getCompany_Name()+Constants.Logo_Image_Name);
-                                    }
+                                AccountSettingsResponse accountSettingsResponse = new AccountSettingsResponse();
+                                accountSettingsResponse.setUser_Id(mLoggedInObj.getUserId());
+                                accountSettingsResponse.setUser_Name(mLoggedInObj.getUserName());
+                                accountSettingsResponse.setAccess_Token(mLoggedInObj.getAccessToken());
+                                accountSettingsResponse.setCompany_Name(mLoggedInObj.getCompany_name());
+                                accountSettingsResponse.setIs_Terms_Accepted(mLoggedInObj.getTerms_accept());
+                                accountSettingsResponse.setIs_Help_Accepted(assistance_popup);
+                                accountSettingsResponse.setLogin_Complete_Status(String.valueOf(Constants.Login_Completed));
+                                accountSettingsResponse.setIs_Local_Auth_Enabled("0");
+                                accountSettingsResponse.setIs_Push_Notification_Enabled("0");
+
+                                if(accountSettingsResponse.getCompany_Name() != null && !accountSettingsResponse.getCompany_Name().isEmpty())
+                                {
+                                    accountSettingsList = accountSettingsResponse;
+                                    getPermissionForExternalStorage(accountSettingsResponse);
 
                                 }
 
-                            } else {
-
                             }
 
-                        } else if (apiResponse.status.getCode() instanceof Double) {
-                            String mMessage = apiResponse.status.getMessage().toString();
-                            Object obj = 401.0;
-                            if(obj.equals(401.0)) {
-                                mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        mActivity.startActivity(new Intent(mActivity, LoginActivity.class));
-                                    }
-                                }, false);
-                            }
                         }
 
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -760,6 +721,20 @@ public class FTLPinVerificationFragment extends Fragment {
                     Log.d("PINVerErr", t.getMessage());
                 }
             });
+        }
+    }
+
+    private void getPermissionForExternalStorage(AccountSettingsResponse accountSettingsResponse)
+    {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            int storagePermission = ContextCompat.checkSelfPermission(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            if (storagePermission == PackageManager.PERMISSION_GRANTED) {
+                downloadLogoImage(accountSettingsResponse, Constants.LOGO_IMAGE_BASE_URL+Constants.Logo_ImagePath+accountSettingsResponse.getCompany_Name()+Constants.Logo_Image_Name);
+            } else {
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_STORAGE_PERMISSION);
+            }
+        } else {
+            downloadLogoImage(accountSettingsResponse, Constants.LOGO_IMAGE_BASE_URL+Constants.Logo_ImagePath+accountSettingsResponse.getCompany_Name()+Constants.Logo_Image_Name);
         }
     }
 
@@ -779,34 +754,25 @@ public class FTLPinVerificationFragment extends Fragment {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
 
-                        if (apiResponse.status.getCode() instanceof Boolean) {
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
+                        }
 
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                GetTermsPageContentResponse mGetTermsPageContentResponse = response.body().getData();
-                                if (mGetTermsPageContentResponse != null) {
+                        if(CommonFunctions.isApiSuccess(mActivity, message, apiResponse.status.getCode())) {
+                            GetTermsPageContentResponse mGetTermsPageContentResponse = response.body().getData();
+                            if (mGetTermsPageContentResponse != null) {
 
-                                   String mTermsURL = mGetTermsPageContentResponse.getTerms_url();
+                                String mTermsURL = mGetTermsPageContentResponse.getTerms_url();
 
-                                    accountSettingsResponse.setTerms_URL(mTermsURL);
+                                accountSettingsResponse.setTerms_URL(mTermsURL);
 
-                                    getHelpGuideUrl(accountSettingsResponse);
-
-                                }
-                            } else {
+                                getHelpGuideUrl(accountSettingsResponse);
 
                             }
-
-                        } else if (apiResponse.status.getCode() instanceof Integer) {
-
-                            String mMessage = apiResponse.status.getMessage().toString();
-                            mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    mActivity.startActivity(new Intent(mActivity, LoginActivity.class));
-                                    mActivity.finish();
-                                }
-                            }, false);
                         }
+
                     }
                 }
 
@@ -833,35 +799,25 @@ public class FTLPinVerificationFragment extends Fragment {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
 
-                        if (apiResponse.status.getCode() instanceof Boolean) {
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                GetAssistancePopupContentResponse mGetAssistancePopupContentResponse = response.body().getData();
-                                if (mGetAssistancePopupContentResponse != null) {
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
+                        }
 
-                                    String mHelpGuideURL = mGetAssistancePopupContentResponse.getHelp_guide_url();
+                        if(CommonFunctions.isApiSuccess(mActivity, message, apiResponse.status.getCode())) {
+                            GetAssistancePopupContentResponse mGetAssistancePopupContentResponse = response.body().getData();
+                            if (mGetAssistancePopupContentResponse != null) {
 
-                                    accountSettingsResponse.setHelp_Guide_URL(mHelpGuideURL);
+                                String mHelpGuideURL = mGetAssistancePopupContentResponse.getHelp_guide_url();
 
-                                    AccountSettings accountSettings = new AccountSettings(mActivity);
-                                    accountSettings.InsertAccountSettings(accountSettingsResponse);
+                                accountSettingsResponse.setHelp_Guide_URL(mHelpGuideURL);
 
+                                AccountSettings accountSettings = new AccountSettings(mActivity);
+                                accountSettings.InsertAccountSettings(accountSettingsResponse);
 
-                                }
-
-                            } else {
 
                             }
-
-                        } else if (apiResponse.status.getCode() instanceof Integer) {
-
-                            String mMessage = apiResponse.status.getMessage().toString();
-                            mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    mActivity.startActivity(new Intent(mActivity, LoginActivity.class));
-                                    mActivity.finish();
-                                }
-                            }, false);
                         }
                     }
                 }
@@ -902,32 +858,18 @@ public class FTLPinVerificationFragment extends Fragment {
                 public void onResponse(Response<BaseApiResponse<VerifyFTLResponse>> response, Retrofit retrofit) {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
-
-                        if (apiResponse.status.getCode() instanceof Boolean) {
-
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
-                                String mMessage = apiResponse.status.getMessage().toString();
-                                mActivity.showMessagebox(mActivity, "Pin sent successfully", null, false);
-                            } else {
-                                transparentProgressDialog.dismiss();
-                                String mMessage = apiResponse.status.getMessage().toString();
-                                mActivity.showMessagebox(mActivity, "Pin sent successfully", null, false);
-                                // Toast.makeText(mActivity, mMessage, Toast.LENGTH_SHORT).show();
-                            }
-
-                        } else if (apiResponse.status.getCode() instanceof Double) {
-                            String mMessage = apiResponse.status.getMessage().toString();
-                            Object obj = 401.0;
-                            if(obj.equals(401.0)) {
-                                mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        mActivity.startActivity(new Intent(mActivity, LoginActivity.class));
-                                    }
-                                }, false);
-                            }
+                        transparentProgressDialog.dismiss();
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
                         }
+
+                        if(CommonFunctions.isApiSuccess(mActivity, message, apiResponse.status.getCode()))
+                        {
+                            mActivity.showMessagebox(mActivity, "Pin sent successfully", null, false);
+                        }
+
                     }
                 }
 
@@ -964,26 +906,17 @@ public class FTLPinVerificationFragment extends Fragment {
                 public void onResponse(Response<BaseApiResponse> response, Retrofit retrofit) {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
-
-                        if (apiResponse.status.getCode() instanceof Boolean) {
-
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
-                                Toast.makeText(mActivity, "Pin Resent Successfully", Toast.LENGTH_SHORT).show();
-                            }
-
-                        } else if (apiResponse.status.getCode() instanceof Double) {
-                            String mMessage = apiResponse.status.getMessage().toString();
-                            Object obj = 401.0;
-                            if(obj.equals(401.0)) {
-                                mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        mActivity.startActivity(new Intent(mActivity, LoginActivity.class));
-                                    }
-                                }, false);
-                            }
+                        transparentProgressDialog.dismiss();
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
                         }
+
+                        if(CommonFunctions.isApiSuccess(mActivity, message, apiResponse.status.getCode())) {
+                            Toast.makeText(mActivity, "Pin Resent Successfully", Toast.LENGTH_SHORT).show();
+                        }
+
                     }
                 }
 
@@ -1009,4 +942,19 @@ public class FTLPinVerificationFragment extends Fragment {
             mActivity.finish();
         }
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_STORAGE_PERMISSION:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    getPermissionForExternalStorage(accountSettingsList);
+                } else {
+                    Toast.makeText(mActivity, "Storage access permission denied", Toast.LENGTH_LONG).show();
+                    getPermissionForExternalStorage(accountSettingsList);
+                }
+                break;
+        }
+    }
+
 }

@@ -123,6 +123,7 @@ import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
 import com.mwc.docportal.Utils.Constants;
 import com.mwc.docportal.Utils.DateHelper;
+import com.mwc.docportal.Utils.SplashScreen;
 import com.mwc.docportal.pdf.PdfViewActivity;
 
 
@@ -224,6 +225,8 @@ public class NavigationMyFolderActivity extends BaseActivity {
         OnClickListeners();
         getWhiteLabelProperities();
         no_documents_txt.setText("");
+
+       // ItemSelelctedColorChanged();
 
 
         mRecyclerView.setNestedScrollingEnabled(false);
@@ -424,6 +427,9 @@ public class NavigationMyFolderActivity extends BaseActivity {
         return R.id.navigation_folder;
     }
 
+
+
+
     public void getCategoryDocuments() {
 
         if (NetworkUtils.isNetworkAvailable(context)) {
@@ -533,8 +539,14 @@ public class NavigationMyFolderActivity extends BaseActivity {
                     MaxDocumentUploadSizeResponse apiResponse = response.body();
                     if (apiResponse != null) {
 
-                        if (apiResponse.getStatus().getCode() == Boolean.FALSE) {
+                        String message = "";
+                        if(apiResponse.getStatus().getMessage() != null)
+                        {
+                            message = apiResponse.getStatus().getMessage().toString();
+                        }
 
+                        if(CommonFunctions.isApiSuccess(NavigationMyFolderActivity.this, message, apiResponse.getStatus().getCode()))
+                        {
                             String size = apiResponse.getData().getMaxDocumentUploadSize();
                             int last =size.length();
                             String maxSize = size.substring(0,last-1);
@@ -544,14 +556,6 @@ public class NavigationMyFolderActivity extends BaseActivity {
                             {
                                 getFileFormats();
                             }
-
-
-                        }
-
-                        else  {
-                            String mMessage = apiResponse.getStatus().getMessage().toString();
-                            Toast.makeText(context,mMessage,Toast.LENGTH_SHORT).show();
-
                         }
                     }
                 }
@@ -581,19 +585,16 @@ public class NavigationMyFolderActivity extends BaseActivity {
                     FileFormatResponse apiResponse = response.body();
                     if (apiResponse != null) {
 
+                        String message = "";
+                        if(response.body().getStatus().getMessage() != null)
+                        {
+                            message = response.body().getStatus().getMessage().toString();
+                        }
 
-                        if (apiResponse.getStatus().getCode() instanceof Boolean) {
-                            if (apiResponse.getStatus().getCode() == Boolean.FALSE) {
-
-                                List fileformat;
-                                fileformat = apiResponse.getData();
-                                PreferenceUtils.setFileFormats(context, (ArrayList<String>) fileformat,"key");
-                            }
-
-                        } else  {
-                            String mMessage = apiResponse.getStatus().getMessage().toString();
-                            Toast.makeText(context,mMessage,Toast.LENGTH_SHORT).show();
-
+                        if(CommonFunctions.isApiSuccess(NavigationMyFolderActivity.this, message, apiResponse.getStatus().getCode())) {
+                            List fileformat;
+                            fileformat = apiResponse.getData();
+                            PreferenceUtils.setFileFormats(context, (ArrayList<String>) fileformat,"key");
                         }
                     }
                 }
@@ -805,53 +806,17 @@ public class NavigationMyFolderActivity extends BaseActivity {
                                 if (apiResponse != null) {
 
                                     transparentProgressDialog.dismiss();
-
-                                    if (apiResponse.status.getCode() instanceof Boolean) {
-                                        if (apiResponse.status.getCode() == Boolean.FALSE) {
-
-                                            resetPageNumber();
-                                            getCategoryDocuments();
-
-                                        }
-                                        else  if (apiResponse.status.getCode() == Boolean.TRUE) {
-                                            String mMessage = apiResponse.status.getMessage().toString();
-
-                                            showWarningAlertAlreadyFolderExist(mMessage);
-
-                                        }
-
-                                    } else if (apiResponse.status.getCode() instanceof Integer) {
-
-                                        String mMessage = apiResponse.status.getMessage().toString();
-
-                                        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                                        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                        View view1 = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                                        builder.setView(view1);
-                                        builder.setCancelable(false);
-
-                                        TextView txtMessage = (TextView) view1.findViewById(R.id.txt_message);
-
-                                        txtMessage.setText(mMessage);
-
-                                        Button sendPinButton = (Button) view1.findViewById(R.id.send_pin_button);
-                                        Button cancelButton = (Button) view1.findViewById(R.id.cancel_button);
-
-                                        cancelButton.setVisibility(View.GONE);
-
-                                        sendPinButton.setText("OK");
-
-                                        sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                mAlertDialog.dismiss();
-                                                context.startActivity(new Intent(context, LoginActivity.class));
-                                            }
-                                        });
-
-                                        mAlertDialog = builder.create();
-                                        mAlertDialog.show();
+                                    String message = "";
+                                    if(apiResponse.status.getMessage() != null)
+                                    {
+                                        message = apiResponse.status.getMessage().toString();
                                     }
+
+                                    if(CommonFunctions.isApiSuccess(NavigationMyFolderActivity.this, message, apiResponse.status.getCode())) {
+                                        resetPageNumber();
+                                        getCategoryDocuments();
+                                    }
+
                                 }
                             }
 
@@ -1122,51 +1087,18 @@ public class NavigationMyFolderActivity extends BaseActivity {
                         GlobalVariables.isMoveInitiated = false;
 
 
-                        if (apiResponse.status.getCode() == Boolean.FALSE) {
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
+                        }
+
+                        if(CommonFunctions.isApiSuccess(NavigationMyFolderActivity.this, message, apiResponse.status.getCode())) {
                             hideBottomView();
                             resetPageNumber();
                             getCategoryDocuments();
                         }
-                        else {
-                            transparentProgressDialog.dismiss();
-                            String mMessage = apiResponse.status.getMessage().toString();
 
-                            Object obj = 401.0;
-                            if(obj.equals(401.0)) {
-                                final AlertDialog.Builder builder = new AlertDialog.Builder(NavigationMyFolderActivity.this);
-                                LayoutInflater inflater = (LayoutInflater)NavigationMyFolderActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                                builder.setView(view);
-                                builder.setCancelable(false);
-
-                                TextView title = (TextView) view.findViewById(R.id.title);
-                                title.setText("Alert");
-
-                                TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                                txtMessage.setText(mMessage);
-
-                                Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                                Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                                cancelButton.setVisibility(View.GONE);
-
-                                sendPinButton.setText("OK");
-
-                                sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        mAlertDialog.dismiss();
-                                        AccountSettings accountSettings = new AccountSettings(NavigationMyFolderActivity.this);
-                                        accountSettings.deleteAll();
-                                        startActivity(new Intent(NavigationMyFolderActivity.this, LoginActivity.class));
-                                    }
-                                });
-
-                                mAlertDialog = builder.create();
-                                mAlertDialog.show();
-                            }
-                        }
                     }
                 }
 
@@ -1217,42 +1149,18 @@ public class NavigationMyFolderActivity extends BaseActivity {
                         transparentProgressDialog.dismiss();
                         GlobalVariables.isMoveInitiated = false;
 
-                        if (apiResponse.status.getCode() == Boolean.FALSE) {
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
+                        }
+
+                        if(CommonFunctions.isApiSuccess(NavigationMyFolderActivity.this, message, apiResponse.status.getCode())) {
                             hideBottomView();
                             resetPageNumber();
                             getCategoryDocuments();
                         }
-                        else  {
-                            String mMessage = apiResponse.status.getMessage().toString();
 
-                            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                            builder.setView(view);
-                            builder.setCancelable(false);
-
-                            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                            txtMessage.setText(mMessage);
-
-                            Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                            cancelButton.setVisibility(View.GONE);
-
-                            sendPinButton.setText("OK");
-
-                            sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    mAlertDialog.dismiss();
-                                    context.startActivity(new Intent(context, LoginActivity.class));
-                                }
-                            });
-
-                            mAlertDialog = builder.create();
-                            mAlertDialog.show();
-                        }
                     }
                 }
 
@@ -1304,59 +1212,20 @@ public class NavigationMyFolderActivity extends BaseActivity {
                         GlobalVariables.isMoveInitiated = false;
 
 
-
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
-                                String mMessage = apiResponse.status.getMessage().toString();
-                                //    Toast.makeText(NavigationMyFolderActivity.this,mMessage,Toast.LENGTH_SHORT).show();
-                                hideBottomView();
-                                resetPageNumber();
-                                isFromSearchData = true;
-                                getCategoryDocuments();
-
-
-                            }
-
-                            else {
-                            transparentProgressDialog.dismiss();
-                            String mMessage = apiResponse.status.getMessage().toString();
-
-                            Object obj = 401.0;
-                            if(obj.equals(401.0)) {
-                                final AlertDialog.Builder builder = new AlertDialog.Builder(NavigationMyFolderActivity.this);
-                                LayoutInflater inflater = (LayoutInflater)NavigationMyFolderActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                                builder.setView(view);
-                                builder.setCancelable(false);
-
-                                TextView title = (TextView) view.findViewById(R.id.title);
-                                title.setText("Alert");
-
-                                TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                                txtMessage.setText(mMessage);
-
-                                Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                                Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                                cancelButton.setVisibility(View.GONE);
-
-                                sendPinButton.setText("OK");
-
-                                sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        mAlertDialog.dismiss();
-                                        AccountSettings accountSettings = new AccountSettings(NavigationMyFolderActivity.this);
-                                        accountSettings.deleteAll();
-                                        startActivity(new Intent(NavigationMyFolderActivity.this, LoginActivity.class));
-                                    }
-                                });
-
-                                mAlertDialog = builder.create();
-                                mAlertDialog.show();
-                            }
+                        String message = "";
+                        if(response.body().status.getMessage() != null)
+                        {
+                            message = response.body().status.getMessage().toString();
                         }
+
+
+                        if(CommonFunctions.isApiSuccess(NavigationMyFolderActivity.this, message, response.body().status.getCode())) {
+                            hideBottomView();
+                            resetPageNumber();
+                            isFromSearchData = true;
+                            getCategoryDocuments();
+                        }
+
                     }
                 }
 
@@ -1418,62 +1287,19 @@ public class NavigationMyFolderActivity extends BaseActivity {
                         GlobalVariables.isMoveInitiated = false;
 
 
-                        if (apiResponse.status.getCode() instanceof Boolean) {
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
-                                String mMessage = apiResponse.status.getMessage().toString();
-                                hideBottomView();
-                                resetPageNumber();
-                                isFromSearchData = true;
-                                getCategoryDocuments();
-
-
-
-                            } else {
-                                String mMessage = apiResponse.status.getMessage().toString();
-                                Toast.makeText(NavigationMyFolderActivity.this,mMessage,Toast.LENGTH_SHORT).show();
-                            }
-
-                        } else if (apiResponse.status.getCode() instanceof Double) {
-                            transparentProgressDialog.dismiss();
-                            String mMessage = apiResponse.status.getMessage().toString();
-
-                            Object obj = 401.0;
-                            if(obj.equals(401.0)) {
-                                final AlertDialog.Builder builder = new AlertDialog.Builder(NavigationMyFolderActivity.this);
-                                LayoutInflater inflater = (LayoutInflater)NavigationMyFolderActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                                builder.setView(view);
-                                builder.setCancelable(false);
-
-                                TextView title = (TextView) view.findViewById(R.id.title);
-                                title.setText("Alert");
-
-                                TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                                txtMessage.setText(mMessage);
-
-                                Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                                Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                                cancelButton.setVisibility(View.GONE);
-
-                                sendPinButton.setText("OK");
-
-                                sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        mAlertDialog.dismiss();
-                                        AccountSettings accountSettings = new AccountSettings(NavigationMyFolderActivity.this);
-                                        accountSettings.deleteAll();
-                                        startActivity(new Intent(NavigationMyFolderActivity.this, LoginActivity.class));
-                                    }
-                                });
-
-                                mAlertDialog = builder.create();
-                                mAlertDialog.show();
-                            }
+                        String message = "";
+                        if(response.body().status.getMessage() != null)
+                        {
+                            message = response.body().status.getMessage().toString();
                         }
+
+                        if(CommonFunctions.isApiSuccess(NavigationMyFolderActivity.this, message, response.body().status.getCode())) {
+                            hideBottomView();
+                            resetPageNumber();
+                            isFromSearchData = true;
+                            getCategoryDocuments();
+                        }
+
                     }
                 }
 
@@ -2190,16 +2016,25 @@ public class NavigationMyFolderActivity extends BaseActivity {
                   {
                       showDeleteAlertDialogForDocuments();
                   }
-
-
-
                   break;
               case R.id.action_move:
 
                   CommonFunctions.setSelectedItems(mSelectedDocumentList);
                   initiateMoveAction("move");
 
-                      break;
+                   break;
+
+              case R.id.action_share:
+                  CommonFunctions.setSelectedItems(mSelectedDocumentList);
+
+                  GlobalVariables.isMoveInitiated = true;
+                  GlobalVariables.selectedActionName =  "share";
+                  Intent intent = new Intent(context, NavigationSharedActivity.class);
+                  intent.putExtra("ObjectId", "0");
+                  startActivity(intent);
+
+                  break;
+
           }
           return super.onOptionsItemSelected(item);
       }
@@ -3024,46 +2859,17 @@ public class NavigationMyFolderActivity extends BaseActivity {
 
                         transparentProgressDialog.dismiss();
 
-                        if (apiResponse.status.getCode() instanceof Boolean) {
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
-                                resetPageNumber();
-                                getCategoryDocuments();
-
-                            }
-
-                        } else if (apiResponse.status.getCode() instanceof Integer) {
-                            transparentProgressDialog.dismiss();
-                            String mMessage = apiResponse.status.getMessage().toString();
-
-                            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                            builder.setView(view);
-                            builder.setCancelable(false);
-
-                            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                            txtMessage.setText(mMessage);
-
-                            Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                            cancelButton.setVisibility(View.GONE);
-
-                            sendPinButton.setText("OK");
-
-                            sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    mAlertDialog.dismiss();
-                                    startActivity(new Intent(context, LoginActivity.class));
-                                }
-                            });
-
-                            mAlertDialog = builder.create();
-                            mAlertDialog.show();
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
                         }
+
+                        if(CommonFunctions.isApiSuccess(NavigationMyFolderActivity.this, message, apiResponse.status.getCode())) {
+                            resetPageNumber();
+                            getCategoryDocuments();
+                        }
+
                     }
                 }
 
@@ -3106,45 +2912,18 @@ public class NavigationMyFolderActivity extends BaseActivity {
 
                         transparentProgressDialog.dismiss();
 
-                        if (apiResponse.status.getCode() instanceof Boolean) {
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
-                                resetPageNumber();
-                                getCategoryDocuments();
-                            }
 
-                        } else if (apiResponse.status.getCode() instanceof Integer) {
-                            transparentProgressDialog.dismiss();
-                            String mMessage = apiResponse.status.getMessage().toString();
-
-                            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                            builder.setView(view);
-                            builder.setCancelable(false);
-
-                            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                            txtMessage.setText(mMessage);
-
-                            Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                            cancelButton.setVisibility(View.GONE);
-
-                            sendPinButton.setText("OK");
-
-                            sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    mAlertDialog.dismiss();
-                                    startActivity(new Intent(context, LoginActivity.class));
-                                }
-                            });
-
-                            mAlertDialog = builder.create();
-                            mAlertDialog.show();
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
                         }
+
+                        if(CommonFunctions.isApiSuccess(NavigationMyFolderActivity.this, message, apiResponse.status.getCode())) {
+                            resetPageNumber();
+                            getCategoryDocuments();
+                        }
+
                     }
                 }
 
@@ -3196,9 +2975,15 @@ public class NavigationMyFolderActivity extends BaseActivity {
                 public void onResponse(Response<ApiResponse<DownloadDocumentResponse>> response, Retrofit retrofit) {
                     ApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
+                        transparentProgressDialog.dismiss();
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
+                        }
 
-                        if (apiResponse.status.getCode() == Boolean.FALSE) {
-                            transparentProgressDialog.dismiss();
+                        if(CommonFunctions.isApiSuccess(NavigationMyFolderActivity.this, message, apiResponse.status.getCode())) {
+
                             DownloadDocumentResponse downloadDocumentResponse = response.body().getData();
 
                             String downloaded_url = downloadDocumentResponse.getData();
@@ -3239,22 +3024,8 @@ public class NavigationMyFolderActivity extends BaseActivity {
 
                             }
 
-
-
                         }
-                        else {
-                            transparentProgressDialog.dismiss();
-                            String mMessage = apiResponse.status.getMessage().toString();
-                           /*// mActivity.showMessagebox(mActivity, mMessage, new View.OnClickListener()
-                                {
-                                @Override
-                                public void onClick(View view) {
-                                    startActivity(new Intent(mActivity, LoginActivity.class));
-                                    mActivity.finish();
-                                }
-                            }, false);
-                        */
-                        }
+
                     }
                 }
 
@@ -3431,51 +3202,15 @@ public class NavigationMyFolderActivity extends BaseActivity {
 
                         transparentProgressDialog.dismiss();
 
-                        if (response.body().getStatus().getCode() instanceof Boolean) {
-                            if (response.body().getStatus().getCode() == Boolean.FALSE) {
-                                transparentProgressDialog.dismiss();
-                            }
-
-                        } else if (response.body().getStatus().getCode() instanceof Double) {
-                            transparentProgressDialog.dismiss();
-                            String mMessage = response.body().getStatus().getMessage().toString();
-
-                            Object obj = 401.0;
-                            if(obj.equals(401.0)) {
-                                final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                                builder.setView(view);
-                                builder.setCancelable(false);
-
-                                TextView title = (TextView) view.findViewById(R.id.title);
-                                title.setText("Alert");
-
-                                TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                                txtMessage.setText(mMessage);
-
-                                Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                                Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                                cancelButton.setVisibility(View.GONE);
-
-                                sendPinButton.setText("OK");
-
-                                sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        mAlertDialog.dismiss();
-                                        AccountSettings accountSettings = new AccountSettings(context);
-                                        accountSettings.deleteAll();
-                                        startActivity(new Intent(context, LoginActivity.class));
-                                    }
-                                });
-
-                                mAlertDialog = builder.create();
-                                mAlertDialog.show();
-                            }
+                        String message = "";
+                        if(response.body().getStatus().getMessage() != null)
+                        {
+                            message = response.body().getStatus().getMessage().toString();
                         }
+
+                        CommonFunctions.isApiSuccess(NavigationMyFolderActivity.this, message, response.body().getStatus().getCode());
+
+
                     }
                 }
 
@@ -3516,8 +3251,14 @@ public class NavigationMyFolderActivity extends BaseActivity {
                     ApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
 
-                        if (apiResponse.status.getCode() == Boolean.FALSE) {
-                            transparentProgressDialog.dismiss();
+                        transparentProgressDialog.dismiss();
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
+                        }
+
+                        if(CommonFunctions.isApiSuccess(NavigationMyFolderActivity.this, message, apiResponse.status.getCode())) {
                             DownloadDocumentResponse downloadDocumentResponse = response.body().getData();
 
                             String downloaded_url = downloadDocumentResponse.getData();
@@ -3536,14 +3277,8 @@ public class NavigationMyFolderActivity extends BaseActivity {
                             List<GetCategoryDocumentsResponse> downloadingList = new ArrayList<>();
                             downloadingList.add(documentsResponse);
                             getDownloadManagerForDownloading(downloadingList);
-
-
                         }
-                        else {
-                            transparentProgressDialog.dismiss();
-                            String mMessage = apiResponse.status.getMessage().toString();
-                            showSessionExpiryAlert(mMessage);
-                        }
+
                     }
                 }
 
@@ -3653,8 +3388,6 @@ public class NavigationMyFolderActivity extends BaseActivity {
 
 
 
-
-
             final DeleteDocumentRequest.DeleteDocRequest deleteDocRequest = new DeleteDocumentRequest.DeleteDocRequest(docsList);
 
             String request = new Gson().toJson(deleteDocRequest);
@@ -3674,46 +3407,17 @@ public class NavigationMyFolderActivity extends BaseActivity {
                     if (apiResponse != null) {
 
                         transparentProgressDialog.dismiss();
-
-                        if (apiResponse.getStatus().getCode() instanceof Boolean) {
-                            if (apiResponse.getStatus().getCode() == Boolean.FALSE) {
-                                resetPageNumber();
-                                getCategoryDocuments();
-                            }
-
-                        } else if (apiResponse.getStatus().getCode() instanceof Integer) {
-                            transparentProgressDialog.dismiss();
-
-                            String mMessage = apiResponse.getStatus().getMessage().toString();
-
-                            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                            builder.setView(view);
-                            builder.setCancelable(false);
-
-                            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                            txtMessage.setText(mMessage);
-
-                            Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                            cancelButton.setVisibility(View.GONE);
-
-                            sendPinButton.setText("OK");
-
-                            sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    mAlertDialog.dismiss();
-                                    context.startActivity(new Intent(context, LoginActivity.class));
-                                }
-                            });
-
-                            mAlertDialog = builder.create();
-                            mAlertDialog.show();
+                        String message = "";
+                        if(apiResponse.getStatus().getMessage() != null)
+                        {
+                            message = apiResponse.getStatus().getMessage().toString();
                         }
+
+                        if(CommonFunctions.isApiSuccess(NavigationMyFolderActivity.this, message, apiResponse.getStatus().getCode())) {
+                            resetPageNumber();
+                            getCategoryDocuments();
+                        }
+
                     }
                 }
 
@@ -3915,6 +3619,21 @@ public class NavigationMyFolderActivity extends BaseActivity {
 
         mAlertDialog = builder.create();
         mAlertDialog.show();
+    }
+
+
+    public void ItemSelelctedColorChanged()
+    {
+        String itemSelectedColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
+        int selectedColor = Color.parseColor(itemSelectedColor);
+        MenuItem navigationFolder = bottomNavigationLayout.getMenu().findItem(R.id.navigation_folder);
+        menuIconColor(navigationFolder,selectedColor);
+        String itemUnSelectedColor = mWhiteLabelResponses.get(0).getItem_Unselected_Color();
+        int UnselectedColor = Color.parseColor(itemUnSelectedColor);
+        MenuItem navigationShared = bottomNavigationLayout.getMenu().findItem(R.id.navigation_shared);
+        menuIconColor(navigationShared,UnselectedColor);
+        MenuItem navigationSettings = bottomNavigationLayout.getMenu().findItem(R.id.navigation_settings);
+        menuIconColor(navigationSettings,UnselectedColor);
     }
 
 
