@@ -2688,7 +2688,7 @@ public class ItemNavigationFolderFragment extends Fragment {
         offlineFilesModel.setFilePath(path);
         offlineFilesModel.setFiletype(digitalAsset.getFiletype());
         offlineFilesModel.setFileSize(digitalAsset.getFilesize());
-        offlineFilesModel.setFileSize(digitalAsset.getVersion_number());
+        offlineFilesModel.setVersionNumber(digitalAsset.getVersion_number());
         offlineFilesModel.setSource("Private");
 
         offLine_files_repository.InsertOfflineFilesData(offlineFilesModel);

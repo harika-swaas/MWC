@@ -38,6 +38,7 @@ import com.mwc.docportal.FTL.WebviewLoaderTermsActivity;
 import com.mwc.docportal.Login.LoginActivity;
 import com.mwc.docportal.Login.LoginHelpUserGuideActivity;
 import com.mwc.docportal.Network.NetworkUtils;
+import com.mwc.docportal.Online_PdfView_Activity;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
@@ -210,9 +211,30 @@ public class LoginHelpUserGuideFragment extends Fragment {
                 mIntent.putExtra("Terms_Title", "Help");
                 startActivity(mIntent);*/
 
-                Intent i = new Intent(Intent.ACTION_VIEW);
-                i.setData(Uri.parse(mUri));
-                startActivity(i);
+                String extension = "";
+                if(mUri != null && !mUri.isEmpty())
+                {
+                    extension = mUri.substring(mUri.lastIndexOf(".")+1);
+
+                }
+
+                if(extension.equalsIgnoreCase("pdf"))
+                {
+                    Intent intent = new Intent(mActivity, Online_PdfView_Activity.class);
+                    intent.putExtra("mode",1);
+                    intent.putExtra("url", mUri);
+                    intent.putExtra("Terms_Title", "Help");
+                    mActivity.startActivity(intent);
+                }
+                else {
+                    Intent mIntent = new Intent(mActivity, WebviewLoaderTermsActivity.class);
+                    mIntent.putExtra(Constants.SETASSISTANCEPOPUPCONTENTURL, mUri);
+                    mIntent.putExtra("Terms_Title", "Help");
+                    startActivity(mIntent);
+                }
+
+
+
             }
 
             @Override

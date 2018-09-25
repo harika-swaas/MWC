@@ -52,11 +52,13 @@ import com.mwc.docportal.FTL.WebviewLoaderTermsActivity;
 import com.mwc.docportal.Login.LoginActivity;
 import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.OffLine_Files_List;
+import com.mwc.docportal.Online_PdfView_Activity;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
 import com.mwc.docportal.UserProfileActivity;
 import com.mwc.docportal.Utils.Constants;
+import com.mwc.docportal.pdf.PdfViewActivity;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -402,16 +404,30 @@ public class NavigationSettingsActivity extends BaseActivity {
             public void onClick(View v) {
 
                 if (mAccountSettingsResponses != null && mAccountSettingsResponses.size() > 0) {
-                   /* Intent mIntent = new Intent(context, WebviewLoaderTermsActivity.class);
-                    mIntent.putExtra(Constants.SETASSISTANCEPOPUPCONTENTURL, mAccountSettingsResponses.get(0).getHelp_Guide_URL());
-                    mIntent.putExtra("Terms_Title", "Help");
-                    startActivity(mIntent);*/
 
-                    Intent i = new Intent(Intent.ACTION_VIEW);
-                    i.setData(Uri.parse(mAccountSettingsResponses.get(0).getHelp_Guide_URL()));
-                    startActivity(i);
+                    String extension = "";
+                    if(mAccountSettingsResponses.get(0).getHelp_Guide_URL() != null && !mAccountSettingsResponses.get(0).getHelp_Guide_URL().isEmpty())
+                    {
+                        extension = mAccountSettingsResponses.get(0).getHelp_Guide_URL().substring(mAccountSettingsResponses.get(0).getHelp_Guide_URL().lastIndexOf(".")+1);
 
+                    }
+
+                    if(extension.equalsIgnoreCase("pdf"))
+                    {
+                        Intent intent = new Intent(context, Online_PdfView_Activity.class);
+                        intent.putExtra("mode",1);
+                        intent.putExtra("url", mAccountSettingsResponses.get(0).getHelp_Guide_URL());
+                        intent.putExtra("Terms_Title", "Help");
+                        context.startActivity(intent);
+                    }
+                    else {
+                        Intent mIntent = new Intent(context, WebviewLoaderTermsActivity.class);
+                        mIntent.putExtra(Constants.SETASSISTANCEPOPUPCONTENTURL, mAccountSettingsResponses.get(0).getHelp_Guide_URL());
+                        mIntent.putExtra("Terms_Title", "Help");
+                        startActivity(mIntent);
+                    }
                 }
+
 
             }
         });
@@ -422,14 +438,27 @@ public class NavigationSettingsActivity extends BaseActivity {
             public void onClick(View v) {
 
                 if (mAccountSettingsResponses != null && mAccountSettingsResponses.size() > 0) {
-                   /* Intent mIntent = new Intent(context, WebviewLoaderTermsActivity.class);
-                    mIntent.putExtra(Constants.SETTERMSPAGECONTENTURL, mAccountSettingsResponses.get(0).getTerms_URL());
-                    mIntent.putExtra("Terms_Title", "Terms & Privacy Policy");
-                    startActivity(mIntent);*/
+                    String extension = "";
+                    if(mAccountSettingsResponses.get(0).getTerms_URL() != null && !mAccountSettingsResponses.get(0).getTerms_URL().isEmpty())
+                    {
+                        extension = mAccountSettingsResponses.get(0).getTerms_URL().substring(mAccountSettingsResponses.get(0).getTerms_URL().lastIndexOf(".")+1);
 
-                    Intent i = new Intent(Intent.ACTION_VIEW);
-                    i.setData(Uri.parse(mAccountSettingsResponses.get(0).getTerms_URL()));
-                    startActivity(i);
+                    }
+
+                    if(extension.equalsIgnoreCase("pdf"))
+                    {
+                        Intent intent = new Intent(context, Online_PdfView_Activity.class);
+                        intent.putExtra("mode",1);
+                        intent.putExtra("url", mAccountSettingsResponses.get(0).getTerms_URL());
+                        intent.putExtra("Terms_Title", "Terms & Privacy Policy");
+                        context.startActivity(intent);
+                    }
+                    else {
+                        Intent mIntent = new Intent(context, WebviewLoaderTermsActivity.class);
+                        mIntent.putExtra(Constants.SETASSISTANCEPOPUPCONTENTURL, mAccountSettingsResponses.get(0).getTerms_URL());
+                        mIntent.putExtra("Terms_Title", "Terms & Privacy Policy");
+                        startActivity(mIntent);
+                    }
                 }
 
             }

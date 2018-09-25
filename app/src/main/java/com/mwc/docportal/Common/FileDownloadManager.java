@@ -35,6 +35,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -160,7 +161,7 @@ public class FileDownloadManager extends RootActivity {
             request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "DocPortal" + MimeTypeMap.getFileExtensionFromUrl(getFileName()));
         }
 
-        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN);
         downloadId = downloadmanager.enqueue(request);
     }
 
@@ -188,12 +189,29 @@ public class FileDownloadManager extends RootActivity {
         request.setMimeType(GetFileExtension());
         request.setDescription(getFileDescription());
         if (getFileTile() != null) {
-            final File file = new File(context.getCacheDir().getAbsolutePath() + File.separator + digitalAssets.getDocument_version_id());
-            file.mkdirs();
+
+            File dir = new File(new File(Environment.getExternalStorageDirectory(), Constants.Folder_Name), "");
+            if (!dir.exists()){
+                dir.mkdir();
+            }
+
+           /* final File file = new File(context.getCacheDir().getAbsolutePath() + File.separator + digitalAssets.getDocument_version_id());
+            file.mkdirs();*/
             String[] array = getDownloadUrl().split("/");
           //  final String fileName = array[array.length - 1];
-            final String fileName = digitalAssets.getName();
-            request.setDestinationInExternalPublicDir(file.getAbsolutePath(), fileName);
+            final String fileName = digitalAssets.getName()+digitalAssets.getDocument_version_id();
+
+
+            File FILE = new File(new File(Environment.getExternalStorageDirectory(), Constants.Folder_Name), fileName);
+            //File FILE = new File(Environment.getExternalStorageDirectory().toString()+"/"+Constants.Foldername+"/"+fileName);
+
+            if (FILE.exists()){
+                FILE.delete();
+                FILE = new File(new File(Environment.getExternalStorageDirectory(), Constants.Folder_Name), fileName);
+            }
+
+
+            request.setDestinationInExternalPublicDir("/"+Constants.Folder_Name, fileName);
             BroadcastReceiver onComplete = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent)
@@ -202,15 +220,20 @@ public class FileDownloadManager extends RootActivity {
                     if (getDownloadUrl().endsWith("zip")) {
 
                         if(unpackZip(Environment.getExternalStorageDirectory()
-                                .getAbsolutePath() + context.getCacheDir().getAbsolutePath() + File.separator + digitalAssets.getDocument_version_id() + File.separator, fileName)){
+                                .getAbsolutePath() + Constants.Folder_Name, fileName)){
 
                             digitalAssets.setIs_Downloaded(1);
                             if (!getDownloadUrl().endsWith("zip")) {
-                                digitalAssets.setDownloadUrl(Environment.getExternalStorageDirectory()
-                                        .getAbsolutePath() + context.getCacheDir().getAbsolutePath() + File.separator + digitalAssets.getDocument_version_id() + File.separator + fileName);
+                               /* try {
+                                    OutputStream output = new FileOutputStream(new File(new File(Environment.getExternalStorageDirectory(), Constants.Folder_Name ), fileName));
+                                } catch (FileNotFoundException e) {
+                                    e.printStackTrace();
+                                }*/
+                               // outputfilepath = Environment.getExternalStorageDirectory()+"/"+Constants.Folder_Name+"/"+fileName;
+
+                                digitalAssets.setDownloadUrl(Environment.getExternalStorageDirectory()+"/"+Constants.Folder_Name+"/"+fileName);
                             } else {
-                                digitalAssets.setDownloadUrl(Environment.getExternalStorageDirectory()
-                                        .getAbsolutePath() + context.getCacheDir().getAbsolutePath() + File.separator + digitalAssets.getDocument_version_id() + File.separator + fileName);
+                                digitalAssets.setDownloadUrl(Environment.getExternalStorageDirectory()+"/"+Constants.Folder_Name+"/"+fileName);
                             }
 
                             if (mFileDownloadListener != null) {
@@ -227,11 +250,9 @@ public class FileDownloadManager extends RootActivity {
 
                         digitalAssets.setIs_Downloaded(1);
                         if (!getDownloadUrl().endsWith("zip")) {
-                            digitalAssets.setDownloadUrl(Environment.getExternalStorageDirectory()
-                                    .getAbsolutePath() + context.getCacheDir().getAbsolutePath() + File.separator + digitalAssets.getDocument_version_id() + File.separator + fileName);
+                            digitalAssets.setDownloadUrl(Environment.getExternalStorageDirectory()+"/"+Constants.Folder_Name+"/"+fileName);
                         } else {
-                            digitalAssets.setDownloadUrl(Environment.getExternalStorageDirectory()
-                                    .getAbsolutePath() + context.getCacheDir().getAbsolutePath() + File.separator + digitalAssets.getDocument_version_id() + File.separator + fileName);
+                            digitalAssets.setDownloadUrl(Environment.getExternalStorageDirectory()+"/"+Constants.Folder_Name+"/"+fileName);
                         }
 
 
@@ -250,7 +271,7 @@ public class FileDownloadManager extends RootActivity {
             request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "DocPortal" + MimeTypeMap.getFileExtensionFromUrl(getFileName()));
         }
 
-        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN);
         digitalAssets.setDownload_Id(downloadmanager.enqueue(request));
     }
 

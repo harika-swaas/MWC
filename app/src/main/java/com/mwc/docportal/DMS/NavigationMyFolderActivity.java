@@ -208,6 +208,7 @@ public class NavigationMyFolderActivity extends BaseActivity {
     boolean isFromSearchData = false;
     List<GetCategoryDocumentsResponse> downloadingItemsList = new ArrayList<>();
     int downloadIndex = 0;
+    LoadingProgressDialog transparentProgressDialog;
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -221,13 +222,13 @@ public class NavigationMyFolderActivity extends BaseActivity {
         }
 
 
+
         intiaizeViews();
         OnClickListeners();
         getWhiteLabelProperities();
         no_documents_txt.setText("");
 
-       // ItemSelelctedColorChanged();
-
+        transparentProgressDialog = new LoadingProgressDialog(context);
 
         mRecyclerView.setNestedScrollingEnabled(false);
 
@@ -279,11 +280,19 @@ public class NavigationMyFolderActivity extends BaseActivity {
 
         if (GlobalVariables.selectedActionName.equalsIgnoreCase("move") || GlobalVariables.selectedActionName.equalsIgnoreCase("delete"))
         {
-            move_textview.setText("MOVE");
+            if(!objectId.equals("0"))
+            {
+                move_textview.setText("MOVE");
+            }
+
         }
         else if(GlobalVariables.selectedActionName.equalsIgnoreCase("copy"))
         {
-            move_textview.setText("COPY");
+            if(!objectId.equals("0"))
+            {
+                move_textview.setText("COPY");
+            }
+
         }
     }
 
@@ -1952,12 +1961,15 @@ public class NavigationMyFolderActivity extends BaseActivity {
           menuItemMore = menu.findItem(R.id.action_more);
           menuItemMove = menu.findItem(R.id.action_move);
 
+          if(mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0)
+          {
+              String itemSelectedColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
+              int selectedColor = Color.parseColor(itemSelectedColor);
+
+              menuIconColor(menuItemSearch,selectedColor);
+          }
 
 
-          String itemSelectedColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
-          int selectedColor = Color.parseColor(itemSelectedColor);
-
-          menuIconColor(menuItemSearch,selectedColor);
 
           menuItemSearch.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
               @Override
@@ -2413,12 +2425,13 @@ public class NavigationMyFolderActivity extends BaseActivity {
                             for(GetCategoryDocumentsResponse categoryDocumentsResponse : mSelectedDocumentList)
                             {
                                 OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(context);
-                                offLine_files_repository.deleteAlreadydownloadedFile(categoryDocumentsResponse.getDocument_version_id());
                                 String filepath = offLine_files_repository.getFilePathFromLocalTable(categoryDocumentsResponse.getDocument_version_id());
                                 if(filepath != null && !filepath.isEmpty())
                                 {
                                     CommonFunctions.deleteFileFromInternalStorage(filepath);
                                 }
+                                offLine_files_repository.deleteAlreadydownloadedFile(categoryDocumentsResponse.getDocument_version_id());
+
                             }
                         }
 
@@ -3050,6 +3063,8 @@ public class NavigationMyFolderActivity extends BaseActivity {
         updateToolbarMenuItems(dummyList);
         index = 0;
 
+        transparentProgressDialog.show();
+
         downloadingItemsList = downloadingUrlDataList;
         if(downloadingItemsList.size() > downloadIndex) {
             downLoadImageSeparately(downloadingItemsList.get(downloadIndex));
@@ -3070,12 +3085,13 @@ public class NavigationMyFolderActivity extends BaseActivity {
 
                     OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(context);
                     if (!offLine_files_repository.checkAlreadyDocumentAvailableOrNot(categoryDocumentsResponse.getDocument_version_id())) {
-                        offLine_files_repository.deleteAlreadydownloadedFile(categoryDocumentsResponse.getDocument_version_id());
+
                         String filepath = offLine_files_repository.getFilePathFromLocalTable(categoryDocumentsResponse.getDocument_version_id());
                         if(filepath != null && !filepath.isEmpty())
                         {
                             CommonFunctions.deleteFileFromInternalStorage(filepath);
                         }
+                        offLine_files_repository.deleteAlreadydownloadedFile(categoryDocumentsResponse.getDocument_version_id());
                         insertIntoOffLineFilesTable(categoryDocumentsResponse, path);
                     }
                     else
@@ -3092,6 +3108,7 @@ public class NavigationMyFolderActivity extends BaseActivity {
                     else
                     {
                         downloadIndex = 0;
+                        transparentProgressDialog.dismiss();
                     }
 
 
@@ -3101,6 +3118,7 @@ public class NavigationMyFolderActivity extends BaseActivity {
                 public void fileDownloadFailure() {
 
                     Toast.makeText(context, "Download Failed", Toast.LENGTH_LONG).show();
+                    transparentProgressDialog.dismiss();
 
                 }
             });
@@ -3120,7 +3138,7 @@ public class NavigationMyFolderActivity extends BaseActivity {
         offlineFilesModel.setFilePath(path);
         offlineFilesModel.setFiletype(digitalAsset.getFiletype());
         offlineFilesModel.setFileSize(digitalAsset.getFilesize());
-        offlineFilesModel.setFileSize(digitalAsset.getVersion_number());
+        offlineFilesModel.setVersionNumber(digitalAsset.getVersion_number());
         offlineFilesModel.setSource("Private");
 
         offLine_files_repository.InsertOfflineFilesData(offlineFilesModel);
@@ -3416,8 +3434,78 @@ public class NavigationMyFolderActivity extends BaseActivity {
                         if(CommonFunctions.isApiSuccess(NavigationMyFolderActivity.this, message, apiResponse.getStatus().getCode())) {
                             resetPageNumber();
                             getCategoryDocuments();
-                        }
 
+                            if(deleteMode.equals("0"))
+                            {
+                                for(GetCategoryDocumentsResponse category : GlobalVariables.selectedDocumentsList)
+                                {
+                                    if (category.getType().equalsIgnoreCase("document"))
+                                    {
+                                        OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(context);
+                                        String filepath = offLine_files_repository.getFilePathFromLocalTable(category.getDocument_version_id());
+                                        if(filepath != null && !filepath.isEmpty())
+                                        {
+                                            CommonFunctions.deleteFileFromInternalStorage(filepath);
+                                        }
+
+                                        offLine_files_repository.deleteAlreadydownloadedFile(category.getDocument_version_id());
+
+                                    }
+
+                                }
+                            }
+                            else if(deleteMode.equals("1"))
+                            {
+                                for(GetCategoryDocumentsResponse category : GlobalVariables.selectedDocumentsList)
+                                {
+                                    if (category.getType().equalsIgnoreCase("document"))
+                                    {
+                                        OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(context);
+
+                                        List<OfflineFiles> offlineFileList = offLine_files_repository.getFilePathFromLocalTableBasedUponCondition(category.getDocument_version_id(),
+                                                category.getObject_id());
+
+                                        if(offlineFileList != null && offlineFileList.size() > 0)
+                                        {
+                                            for(OfflineFiles offlineFilesModel : offlineFileList)
+                                            {
+                                                CommonFunctions.deleteFileFromInternalStorage(offlineFilesModel.getFilePath());
+                                            }
+
+                                        }
+
+                                        offLine_files_repository.deleteAlreadydownloadedFileBasedUPonCondition(category.getDocument_version_id(), category.getObject_id());
+
+                                    }
+
+                                }
+                            }
+                            else if(deleteMode.equals("2"))
+                            {
+                                for(GetCategoryDocumentsResponse category : GlobalVariables.selectedDocumentsList)
+                                {
+                                    if (category.getType().equalsIgnoreCase("document"))
+                                    {
+                                        OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(context);
+
+                                        List<OfflineFiles> offlineFileList = offLine_files_repository.getFilePathFromLocalTableBasedOnVersionId(category.getObject_id());
+
+                                        if(offlineFileList != null && offlineFileList.size() > 0)
+                                        {
+                                            for(OfflineFiles offlineFilesModel : offlineFileList)
+                                            {
+                                                CommonFunctions.deleteFileFromInternalStorage(offlineFilesModel.getFilePath());
+                                            }
+
+                                        }
+
+                                        offLine_files_repository.deleteAlreadydownloadedFileBasedOnVersionId(category.getObject_id());
+
+                                    }
+                                }
+                            }
+
+                        }
                     }
                 }
 
@@ -3557,10 +3645,10 @@ public class NavigationMyFolderActivity extends BaseActivity {
                     }
                 } else {
                     if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
+                        showVideoOrCameraAccess();
                     } else {
                         floatingActionMenu.close(true);
-                        Toast.makeText(context, "Permission denied", Toast.LENGTH_LONG).show();
+                        Toast.makeText(context, "Camera Permission denied", Toast.LENGTH_LONG).show();
                     }
                 }
                 break;

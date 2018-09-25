@@ -2492,61 +2492,6 @@ public class MyFoldersDMSActivity extends RootActivity {
         }
     }
 
-    private void uploadGalleryImage(File file, ArrayList<String> filePathList) {
-
-        if (NetworkUtils.isNetworkAvailable(this)) {
-
-            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
-
-            final UploadEndUserDocumentsRequest mUploadEndUserDocumentsRequest = new UploadEndUserDocumentsRequest(PreferenceUtils.getObjectId(MyFoldersDMSActivity.this),
-                    file.getName(), "", "", "");
-
-            String request = new Gson().toJson(mUploadEndUserDocumentsRequest);
-
-            Map<String, String> params = new HashMap<String, String>();
-            params.put("data", request);
-
-            //RequestBody converted Json string data request to API Call
-            RequestBody dataRequest = RequestBody.create(MediaType.parse("text/plain"), request);
-
-            Map<String, RequestBody> requestBodyMap = new HashMap<>();
-
-            for (int i = 0; i < filePathList.size(); i++) {
-                File mFile = new File(filePathList.get(i));
-                //RequestBody filename to API Call
-                RequestBody reqBody = RequestBody.create(MediaType.parse("image/*"), mFile);
-                requestBodyMap.put("file\"; filename=\"" + mFile.getName(), reqBody);
-            }
-
-            final UploadEndUsersDocumentService mUploadEndUsersDocumentService = retrofitAPI.create(UploadEndUsersDocumentService.class);
-
-            Call call = mUploadEndUsersDocumentService.getUploadEndUsersDocument(dataRequest, requestBodyMap, PreferenceUtils.getAccessToken(this));
-
-            call.enqueue(new Callback<ListPinDevicesResponse<UploadEndUsersDocumentResponse>>() {
-                @Override
-                public void onResponse(Response<ListPinDevicesResponse<UploadEndUsersDocumentResponse>> response, Retrofit retrofit) {
-                    ListPinDevicesResponse apiResponse = response.body();
-                    if (apiResponse != null) {
-                        //  transparentProgressDialog.dismiss();
-                        if (apiResponse.status.getCode() instanceof Boolean) {
-                            if (apiResponse.status.getCode() == Boolean.FALSE) {
-
-                                String mMessage = apiResponse.status.getMessage().toString();
-                                Toast.makeText(MyFoldersDMSActivity.this, mMessage, Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    }
-                }
-
-                @Override
-                public void onFailure(Throwable t) {
-                    // transparentProgressDialog.dismiss();
-                    Log.d("PinDevice error", t.getMessage());
-                }
-            });
-        }
-    }
-
     public Uri getImageUri(Context inContext, Bitmap inImage) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);

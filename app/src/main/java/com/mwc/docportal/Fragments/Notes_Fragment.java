@@ -6,6 +6,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.mwc.docportal.API.Model.BaseApiResponse;
@@ -47,6 +49,8 @@ public class Notes_Fragment extends android.support.v4.app.Fragment {
     NotesAdapter notesAdapter;
     int position = 0,listItem = 1;
     Tab_Activity mActivity;
+    LinearLayout empty_view;
+    TextView notes_empty_txt;
     List<DocumentNotesResponse> documentIdList =  new ArrayList<>();
     public static Notes_Fragment newInstance() {
         Notes_Fragment fragment = new Notes_Fragment();
@@ -66,6 +70,8 @@ public class Notes_Fragment extends android.support.v4.app.Fragment {
                              Bundle savedInstanceState) {
         View mView = inflater.inflate(R.layout.tab_fragment_2, container, false);
         recyclerView = (RecyclerView) mView.findViewById(R.id.notes_view);
+        empty_view = (LinearLayout) mView.findViewById(R.id.empty_view);
+        notes_empty_txt = (TextView) mView.findViewById(R.id.notes_empty_txt);
         getNotes();
         setHasOptionsMenu(true);
 
@@ -103,7 +109,18 @@ public class Notes_Fragment extends android.support.v4.app.Fragment {
 
                         if(CommonFunctions.isApiSuccess(mActivity, message, response.body().status.getCode())) {
                             documentNotesResponse = response.body().getData();
-                            setAdapterToView();
+                            if(documentNotesResponse != null && documentNotesResponse.size() > 0)
+                            {
+                                empty_view.setVisibility(View.GONE);
+                                setAdapterToView();
+                            }
+                            else
+                            {
+                                notes_empty_txt.setText("No document notes found");
+                                empty_view.setVisibility(View.VISIBLE);
+                            }
+
+
                         }
                     }
                 }

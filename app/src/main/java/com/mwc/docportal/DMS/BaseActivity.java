@@ -1,6 +1,7 @@
 package com.mwc.docportal.DMS;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -32,6 +33,13 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
         navigationView.setOnNavigationItemSelectedListener(this);
 
         getWhiteLabelProperities();
+        if(mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0)
+        {
+            String itemSelectedColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
+            int selectedColor = Color.parseColor(itemSelectedColor);
+            setNavMenuItemThemeColors(selectedColor);
+        }
+
 
     }
 
@@ -55,63 +63,73 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
 
             int itemId = item.getItemId();
             if (itemId == R.id.navigation_folder) {
-
                 startActivity(new Intent(this, NavigationMyFolderActivity.class));
             } else if (itemId == R.id.navigation_shared) {
-             //   changeIconColor(itemId);
                 Intent intent = new Intent(this, NavigationSharedActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
             } else if (itemId == R.id.navigation_settings) {
-              //  changeIconColor(itemId);
                 startActivity(new Intent(this, NavigationSettingsActivity.class));
             }
             finish();
         return true;
     }
 
-    private void changeIconColor(int itemid)
+    private void setNavMenuItemThemeColors(int selectedColor)
     {
-        if(itemid == R.id.navigation_folder)
+        //Setting default colors for menu item Text and Icon
+
+        int navDefaultIconColor = 0;
+        if(mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0)
         {
-           /* String itemSelectedColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
-            int selectedColor = Color.parseColor(itemSelectedColor);
-            MenuItem navigationFolder = navigationView.getMenu().findItem(itemid);
-            menuIconColor(navigationFolder,selectedColor);
             String itemUnSelectedColor = mWhiteLabelResponses.get(0).getItem_Unselected_Color();
-            int UnselectedColor = Color.parseColor(itemUnSelectedColor);
-            MenuItem navigationShared = navigationView.getMenu().findItem(R.id.navigation_shared);
-            menuIconColor(navigationShared,UnselectedColor);
-            MenuItem navigationSettings = navigationView.getMenu().findItem(R.id.navigation_settings);
-            menuIconColor(navigationSettings,UnselectedColor);*/
+            int unSelectedColor = Color.parseColor(itemUnSelectedColor);
+        //    int navDefaultTextColor = Color.parseColor("#000000");
+            navDefaultIconColor = Color.parseColor(itemUnSelectedColor);
+
         }
-        else if(itemid == R.id.navigation_shared)
-        {
-            String itemSelectedColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
-            int selectedColor = Color.parseColor(itemSelectedColor);
-            MenuItem navigationFolder = navigationView.getMenu().findItem(itemid);
-            menuIconColor(navigationFolder,selectedColor);
-            String itemUnSelectedColor = mWhiteLabelResponses.get(0).getItem_Unselected_Color();
-            int UnselectedColor = Color.parseColor(itemUnSelectedColor);
-            MenuItem navigationShared = navigationView.getMenu().findItem(R.id.navigation_folder);
-            menuIconColor(navigationShared,UnselectedColor);
-            MenuItem navigationSettings = navigationView.getMenu().findItem(R.id.navigation_settings);
-            menuIconColor(navigationSettings,UnselectedColor);
-        }
-        else if(itemid == R.id.navigation_settings)
-        {
-            String itemSelectedColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
-            int selectedColor = Color.parseColor(itemSelectedColor);
-            MenuItem navigationFolder = navigationView.getMenu().findItem(itemid);
-            menuIconColor(navigationFolder,selectedColor);
-            String itemUnSelectedColor = mWhiteLabelResponses.get(0).getItem_Unselected_Color();
-            int UnselectedColor = Color.parseColor(itemUnSelectedColor);
-            MenuItem navigationShared = navigationView.getMenu().findItem(R.id.navigation_folder);
-            menuIconColor(navigationShared,UnselectedColor);
-            MenuItem navigationSettings = navigationView.getMenu().findItem(R.id.navigation_shared);
-            menuIconColor(navigationSettings,UnselectedColor);
-        }
+
+
+        //Defining ColorStateList for menu item Text
+    /*    ColorStateList navMenuTextList = new ColorStateList(
+                new int[][]{
+                        new int[]{android.R.attr.state_checked},
+                        new int[]{android.R.attr.state_enabled},
+                        new int[]{android.R.attr.state_pressed},
+                        new int[]{android.R.attr.state_focused},
+                        new int[]{android.R.attr.state_pressed}
+                },
+                new int[] {
+                        selectedColor,
+                        navDefaultTextColor,
+                        navDefaultTextColor,
+                        navDefaultTextColor,
+                        navDefaultTextColor
+                }
+        );*/
+
+        //Defining ColorStateList for menu item Icon
+        ColorStateList navMenuIconList = new ColorStateList(
+                new int[][]{
+                        new int[]{android.R.attr.state_checked},
+                        new int[]{android.R.attr.state_enabled},
+                        new int[]{android.R.attr.state_pressed},
+                        new int[]{android.R.attr.state_focused},
+                        new int[]{android.R.attr.state_pressed}
+                },
+                new int[] {
+                        selectedColor,
+                        navDefaultIconColor,
+                        navDefaultIconColor,
+                        navDefaultIconColor,
+                        navDefaultIconColor
+                }
+        );
+
+     //   navigationView.setItemTextColor(navMenuTextList);
+        navigationView.setItemIconTintList(navMenuIconList);
     }
+
 
     private void getWhiteLabelProperities()
     {
@@ -149,13 +167,6 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
 
     abstract int getNavigationMenuItemId();
 
-    public static void menuIconColor(MenuItem menuItem, int color) {
-        Drawable drawable = menuItem.getIcon();
-        if (drawable != null) {
-            drawable.mutate();
-            drawable.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        }
-    }
 
 
 }

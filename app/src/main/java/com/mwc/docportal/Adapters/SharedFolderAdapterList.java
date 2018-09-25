@@ -573,13 +573,14 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
                     else
                     {
                         OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(context);
-                        offLine_files_repository.deleteAlreadydownloadedFile(categoryDocumentsResponse.getDocument_version_id());
+
                         String filepath = offLine_files_repository.getFilePathFromLocalTable(categoryDocumentsResponse.getDocument_version_id());
 
                         if(filepath != null && !filepath.isEmpty())
                         {
                             CommonFunctions.deleteFileFromInternalStorage(filepath);
                         }
+                        offLine_files_repository.deleteAlreadydownloadedFile(categoryDocumentsResponse.getDocument_version_id());
                         switchButton_download.setChecked(false);
                         mBottomSheetDialog.dismiss();
                     }

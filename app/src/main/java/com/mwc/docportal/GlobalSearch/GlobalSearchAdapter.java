@@ -408,13 +408,14 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
                     else
                     {
                         OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(context);
-                        offLine_files_repository.deleteAlreadydownloadedFile(categoryDocumentsResponse.getDocument_version_id());
                         String filepath = offLine_files_repository.getFilePathFromLocalTable(categoryDocumentsResponse.getDocument_version_id());
 
                         if(filepath != null && !filepath.isEmpty())
                         {
                             CommonFunctions.deleteFileFromInternalStorage(filepath);
                         }
+                        offLine_files_repository.deleteAlreadydownloadedFile(categoryDocumentsResponse.getDocument_version_id());
+
                         switchButton_download.setChecked(false);
                     }
 
@@ -917,6 +918,8 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
 
     private void getDownloadManagerForDownloading(List<GetCategoryDocumentsResponse> downloadingUrlDataList)
     {
+        LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
+        transparentProgressDialog.show();
         for (final GetCategoryDocumentsResponse digitalAsset : downloadingUrlDataList) {
             if (!TextUtils.isEmpty(digitalAsset.getDownloadUrl())) {
                 FileDownloadManager fileDownloadManager = new FileDownloadManager(context);
@@ -929,18 +932,20 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
 
                         OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(context);
                         if (!offLine_files_repository.checkAlreadyDocumentAvailableOrNot(digitalAsset.getDocument_version_id())) {
-                            offLine_files_repository.deleteAlreadydownloadedFile(digitalAsset.getDocument_version_id());
                             String filepath = offLine_files_repository.getFilePathFromLocalTable(digitalAsset.getDocument_version_id());
                             if(filepath != null && !filepath.isEmpty())
                             {
                                 CommonFunctions.deleteFileFromInternalStorage(filepath);
                             }
+                            offLine_files_repository.deleteAlreadydownloadedFile(digitalAsset.getDocument_version_id());
                             insertIntoOffLineFilesTable(digitalAsset, path);
                         }
                         else
                         {
                             insertIntoOffLineFilesTable(digitalAsset, path);
                         }
+
+                        transparentProgressDialog.dismiss();
 
                     }
 
@@ -968,7 +973,7 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
         offlineFilesModel.setFilePath(path);
         offlineFilesModel.setFiletype(digitalAsset.getFiletype());
         offlineFilesModel.setFileSize(digitalAsset.getFilesize());
-        offlineFilesModel.setFileSize(digitalAsset.getVersion_number());
+        offlineFilesModel.setVersionNumber(digitalAsset.getVersion_number());
         offlineFilesModel.setSource(digitalAsset.getDoc_status());
 
         offLine_files_repository.InsertOfflineFilesData(offlineFilesModel);
@@ -1034,6 +1039,75 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
 
                         if(CommonFunctions.isApiSuccess(context, message, apiResponse.getStatus().getCode())) {
                             Toast.makeText(context, "Document deleted successfully", Toast.LENGTH_SHORT).show();
+
+                            if(deleteMode.equals("0"))
+                            {
+                                for(GetCategoryDocumentsResponse category : GlobalVariables.selectedDocumentsList)
+                                {
+                                    if (category.getType().equalsIgnoreCase("document"))
+                                    {
+                                        OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(context);
+                                        String filepath = offLine_files_repository.getFilePathFromLocalTable(category.getDocument_version_id());
+                                        if(filepath != null && !filepath.isEmpty())
+                                        {
+                                            CommonFunctions.deleteFileFromInternalStorage(filepath);
+                                        }
+
+                                        offLine_files_repository.deleteAlreadydownloadedFile(category.getDocument_version_id());
+
+                                    }
+
+                                }
+                            }
+                            else if(deleteMode.equals("1"))
+                            {
+                                for(GetCategoryDocumentsResponse category : GlobalVariables.selectedDocumentsList)
+                                {
+                                    if (category.getType().equalsIgnoreCase("document"))
+                                    {
+                                        OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(context);
+                                        List<OfflineFiles> offlineFileList = offLine_files_repository.getFilePathFromLocalTableBasedUponCondition(category.getDocument_version_id(),
+                                                category.getObject_id());
+
+                                        if(offlineFileList != null && offlineFileList.size() > 0)
+                                        {
+                                            for(OfflineFiles offlineFilesModel : offlineFileList)
+                                            {
+                                                CommonFunctions.deleteFileFromInternalStorage(offlineFilesModel.getFilePath());
+                                            }
+
+                                        }
+
+                                        offLine_files_repository.deleteAlreadydownloadedFileBasedUPonCondition(category.getDocument_version_id(), category.getObject_id());
+
+                                    }
+
+                                }
+                            }
+                            else if(deleteMode.equals("2"))
+                            {
+                                for(GetCategoryDocumentsResponse category : GlobalVariables.selectedDocumentsList)
+                                {
+                                    if (category.getType().equalsIgnoreCase("document"))
+                                    {
+                                        OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(context);
+
+                                        List<OfflineFiles> offlineFileList = offLine_files_repository.getFilePathFromLocalTableBasedOnVersionId(category.getObject_id());
+
+                                        if(offlineFileList != null && offlineFileList.size() > 0)
+                                        {
+                                            for(OfflineFiles offlineFilesModel : offlineFileList)
+                                            {
+                                                CommonFunctions.deleteFileFromInternalStorage(offlineFilesModel.getFilePath());
+                                            }
+
+                                        }
+
+                                        offLine_files_repository.deleteAlreadydownloadedFileBasedOnVersionId(category.getObject_id());
+
+                                    }
+                                }
+                            }
                         }
 
                     }

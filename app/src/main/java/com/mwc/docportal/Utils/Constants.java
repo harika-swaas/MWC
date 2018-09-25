@@ -69,6 +69,8 @@ public class Constants {
     public static final String Logo_ImagePath = "assets/images/whitelabels/";
     public static final String Logo_Image_Name = "/mwc-logo.png";
 
+    public static final String Folder_Name = "Doc_Portal";
+
 }
 
 

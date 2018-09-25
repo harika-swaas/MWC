@@ -12,6 +12,7 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 
 import com.mwc.docportal.API.Model.ListPinDevices;
+import com.mwc.docportal.Fragments.PinVerificationFragment;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
 
@@ -62,6 +63,16 @@ public class PinDeviceAdapter extends RecyclerView.Adapter<PinDeviceAdapter.PinD
 
                     String mUserPinDeviceId = mListPinDevices.get(position).getUser_pin_device_id();
                     PreferenceUtils.setUserPinDeviceId(context,mUserPinDeviceId);
+
+                    if(mListPinDevices.get(position).getDevice_type().equalsIgnoreCase(context.getResources().getString(R.string.Mobile)))
+                    {
+                        PinVerificationFragment.deviceType = "mobile";
+                    }
+                    else
+                    {
+                        PinVerificationFragment.deviceType = "";
+                    }
+
                 }
             }
         });

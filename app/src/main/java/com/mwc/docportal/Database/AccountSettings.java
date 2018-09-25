@@ -7,13 +7,17 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Environment;
 import android.util.Log;
 
 import com.mwc.docportal.API.Model.AccountSettingsResponse;
 import com.mwc.docportal.API.Model.WhiteLabelResponse;
+import com.mwc.docportal.Common.GlobalVariables;
 import com.mwc.docportal.LogTracer;
 import com.mwc.docportal.Login.LoginActivity;
+import com.mwc.docportal.Utils.Constants;
 
+import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -471,11 +475,25 @@ public class AccountSettings {
         editor.clear();
         editor.commit();
 
-        //   deleteCacheData(mActivity);
-        //    clearApplicationData();
+          File dir = new File(Environment.getExternalStorageDirectory() + "/"+Constants.Folder_Name);
+          deleteRecursive(dir);
 
-        //  File dir = new File(Environment.getExternalStorageDirectory() + "/HiDoctor");
-        //  deleteRecursive(dir);
+        // clear Global variables Data
+
+        GlobalVariables.isTileView = true;
+        GlobalVariables.sortType = "type";
+        GlobalVariables.isAscending = true;
+        GlobalVariables.isMoveInitiated = false;
+        GlobalVariables.selectedActionName = "";
+        GlobalVariables.selectedDocumentsList.clear();
+        GlobalVariables.refreshDMS = false;
+        GlobalVariables.searchKey = "";
+        GlobalVariables.globalSearchDocumentList.clear();
+        GlobalVariables.isGlobalSearchCompleted = false;
+        GlobalVariables.sharedDocumentList.clear();
+        GlobalVariables.isSharedTileView = true;
+        GlobalVariables.sharedDocsSortType = "type";
+        GlobalVariables.sharedDocsIsAscending = true;
 
         Intent intent = new Intent(mContext, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -484,5 +502,22 @@ public class AccountSettings {
 
     }
 
+    public void deleteRecursive(File dir) {
+
+        if (dir.isDirectory()) {
+            if (dir.listFiles() != null && dir.listFiles().length > 0) {
+                for (File child : dir.listFiles()) {
+                    if (child != null) {
+                        deleteRecursive(child);
+                    }
+
+                }
+            }
+
+        }
+        // if(dir.isFile())
+        dir.delete();
+
+    }
 
 }

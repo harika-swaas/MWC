@@ -148,7 +148,7 @@ public class UploadListActivity extends RootActivity{
 
                 File file = new File(path);
 
-                Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+                Retrofit retrofitAPI = RetrofitAPIBuilder.getUploadInstance();
 
                 final UploadEndUserDocumentsRequest mUploadEndUserDocumentsRequest = new UploadEndUserDocumentsRequest(PreferenceUtils.getObjectId(UploadListActivity.this),
                         file.getName(), "", "", "");
@@ -180,7 +180,10 @@ public class UploadListActivity extends RootActivity{
 
                             if (apiResponse.getStatus().getCode() == true)
                             {
-                                showAlertMessage(apiResponse.getStatus().getMessage(), false, "");
+                                if(!((Activity) context ).isFinishing())
+                                {
+                                    showAlertMessage(apiResponse.getStatus().getMessage(), false, "");
+                                }
                                 uploadFailedList.add(UploadList.get(i));
                                 PreferenceUtils.setupload(context, uploadFailedList, "key");
                             }
@@ -205,7 +208,9 @@ public class UploadListActivity extends RootActivity{
 
             if (uploadFailedList.size() == 0)
             {
-                showAlertMessage("All documents uploaded successfully", true, "");
+                if(!((Activity) context ).isFinishing()) {
+                    showAlertMessage("All documents uploaded successfully", true, "");
+                }
                 empty_view.setVisibility(View.VISIBLE);
             }
             else
@@ -651,7 +656,7 @@ public class UploadListActivity extends RootActivity{
         text.setText("Some of the files are not yet uploaded. Do you want to cancel all the uploads?");
 
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+    //    getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
         BtnAllow.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -696,7 +701,7 @@ public class UploadListActivity extends RootActivity{
         text.setText(message);
 
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+     //   getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         BtnCancel.setVisibility(View.GONE);
         BtnAllow.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -711,7 +716,7 @@ public class UploadListActivity extends RootActivity{
                 if(buttonEnabled == true)
                 {
                     menuItemAdd.setVisible(true);
-                    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                //    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
                 }
 
             }
@@ -809,11 +814,13 @@ public class UploadListActivity extends RootActivity{
             int choosenFilesCount = PreferenceUtils.getupload(UploadListActivity.this, "key").size();
             menuItemAdd.setVisible(false);
             menuItemUpload.setVisible(false);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+         //   getSupportActionBar().setDisplayHomeAsUpEnabled(false);
             Boolean isError = false;
 
             if (choosenFilesCount > 10) {
-                showAlertMessage("Please select less then 10 documents", false, "");
+                if(!((Activity) context ).isFinishing()) {
+                    showAlertMessage("Please select less then 10 documents", false, "");
+                }
                 isError = true;
             } else {
                 for (int i = 0; i < choosenFilesCount; i++) {
@@ -823,7 +830,9 @@ public class UploadListActivity extends RootActivity{
                     float sizeAPI = Float.parseFloat(size);
 
                     if (file_size > sizeAPI) {
-                        showAlertMessage(UploadList.get(i) + "exceeds" + PreferenceUtils.getMaxSizeUpload(UploadListActivity.this) + "MB", false, "");
+                        if(!((Activity) context ).isFinishing()) {
+                            showAlertMessage(UploadList.get(i) + "exceeds" + PreferenceUtils.getMaxSizeUpload(UploadListActivity.this) + "MB", false, "");
+                        }
                         isError = true;
                         break;
                     } else {
@@ -841,7 +850,9 @@ public class UploadListActivity extends RootActivity{
                         if (!validFormat) {
 
                             menuItemUpload.setVisible(false);
-                            showAlertMessage(UploadList.get(i) + " " + fileExtension + " is unsupported", false, "unsupported");
+                            if(!((Activity) context ).isFinishing()) {
+                                showAlertMessage(UploadList.get(i) + " " + fileExtension + " is unsupported", false, "unsupported");
+                            }
                             isError = true;
                             break;
                         }

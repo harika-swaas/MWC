@@ -172,7 +172,7 @@ public class Properties_Fragment extends Fragment{
                             filename.setText(String.valueOf(documentPropertiesResponse.get(0).getFilename()));
                             name.setText(String.valueOf(documentPropertiesResponse.get(0).getDocument_name()));
                             author.setText(String.valueOf(documentPropertiesResponse.get(0).getAuthor()));
-                            size.setText(String.valueOf(documentPropertiesResponse.get(0).getFilesize()));
+                            size.setText(String.valueOf(documentPropertiesResponse.get(0).getFilesize())+" MB");
                             type.setText(String.valueOf(documentPropertiesResponse.get(0).getFiletype()));
                             uploaded_date.setText(String.valueOf(documentPropertiesResponse.get(0).getUploaded_date()));
                             version.setText(String.valueOf(documentPropertiesResponse.get(0).getVersion_number()));

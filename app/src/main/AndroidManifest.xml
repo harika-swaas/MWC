@@ -23,6 +23,8 @@
     <uses-permission
         android:name="android.permission.CAPTURE_VIDEO_OUTPUT"
         tools:ignore="ProtectedPermissions" />
+    <uses-permission
+        android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
 
     <application
         android:name=".MWCApplication"
@@ -124,7 +126,8 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
-        <!--<meta-data
+        <!--
+        <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/notification_bg_low" />
         &lt;!&ndash;
@@ -133,8 +136,8 @@
         &ndash;&gt;
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
-            android:resource="@color/colorAccent" />-->
-
+            android:resource="@color/colorAccent" />
+        -->
 
         <meta-data
             android:name="io.fabric.ApiKey"
@@ -158,7 +161,9 @@
         <activity android:name=".DMS.NavigationMyFolderActivity" />
         <activity android:name=".DMS.NavigationSharedActivity" />
         <activity android:name=".DMS.NavigationSettingsActivity" />
-        <activity android:name=".GlobalSearch.GlobalSearchActivity"></activity>
+        <activity android:name=".GlobalSearch.GlobalSearchActivity" />
+        <activity android:name=".Online_PdfView_Activity"
+            ></activity>
     </application>
 
 </manifest>

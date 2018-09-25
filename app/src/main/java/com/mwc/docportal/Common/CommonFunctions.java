@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -14,6 +15,8 @@ import com.mwc.docportal.API.Model.GetCategoryDocumentsResponse;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Login.LoginActivity;
 import com.mwc.docportal.R;
+import com.mwc.docportal.Utils.Constants;
+
 import java.io.File;
 import java.util.List;
 
@@ -112,6 +115,8 @@ public class CommonFunctions
     {
         File file = new File(selectedFilePath);
         boolean deleted = file.delete();
+
+
     }
 
 

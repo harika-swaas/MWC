@@ -140,6 +140,7 @@ public class NavigationSharedActivity extends BaseActivity {
     int downloadIndex = 0;
     boolean isSecondLevel = false;
     List<GetCategoryDocumentsResponse> downloadingItemsList = new ArrayList<>();
+    LoadingProgressDialog transparentProgressDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -149,6 +150,8 @@ public class NavigationSharedActivity extends BaseActivity {
         getWhiteLabelProperities();
         no_documents_txt.setText("");
         mRecyclerView.setNestedScrollingEnabled(false);
+
+        transparentProgressDialog = new LoadingProgressDialog(context);
 
         getIntentData();
         getDocuments();
@@ -498,6 +501,8 @@ public class NavigationSharedActivity extends BaseActivity {
 
                                 getFoldersAndDocs(obj, "0");
 
+                             /*   GlobalVariables.sortType = "type";
+                                GlobalVariables.sharedDocsIsAscending = false;*/
                                 getSharedDocumentsFromLocal("0");
 
                             } catch (JSONException e) {
@@ -611,8 +616,7 @@ public class NavigationSharedActivity extends BaseActivity {
         }
 
         Log.d("List After Filter", DateHelper.getCurrentTime());
-
-        doLocalSorting("type");
+        doLocalSorting(GlobalVariables.sharedDocsSortType);
         toggleEmptyState();
         reloadAdapter();
     }
@@ -721,6 +725,7 @@ public class NavigationSharedActivity extends BaseActivity {
         {
             collapsingToolbarLayout.setTitle(categoryName);
         }
+        doLocalSorting(GlobalVariables.sharedDocsSortType);
 
     }
 
@@ -1023,13 +1028,13 @@ public class NavigationSharedActivity extends BaseActivity {
                                 for(GetCategoryDocumentsResponse categoryDocumentsResponse : mSelectedDocumentList)
                                 {
                                     OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(context);
-                                    offLine_files_repository.deleteAlreadydownloadedFile(categoryDocumentsResponse.getDocument_version_id());
                                     String filepath = offLine_files_repository.getFilePathFromLocalTable(categoryDocumentsResponse.getDocument_version_id());
 
                                     if(filepath != null && !filepath.isEmpty())
                                     {
                                         CommonFunctions.deleteFileFromInternalStorage(filepath);
                                     }
+                                    offLine_files_repository.deleteAlreadydownloadedFile(categoryDocumentsResponse.getDocument_version_id());
                                 }
                             }
 
@@ -1248,6 +1253,7 @@ public class NavigationSharedActivity extends BaseActivity {
         List<GetCategoryDocumentsResponse> dummyList = new ArrayList<>();
         updateToolbarMenuItems(dummyList);
         index = 0;
+        transparentProgressDialog.show();
 
         downloadingItemsList = downloadingUrlDataList;
         if(downloadingItemsList.size() > downloadIndex) {
@@ -1270,12 +1276,12 @@ public class NavigationSharedActivity extends BaseActivity {
 
                     OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(context);
                     if (!offLine_files_repository.checkAlreadyDocumentAvailableOrNot(categoryDocumentsResponse.getDocument_version_id())) {
-                        offLine_files_repository.deleteAlreadydownloadedFile(categoryDocumentsResponse.getDocument_version_id());
                         String filepath = offLine_files_repository.getFilePathFromLocalTable(categoryDocumentsResponse.getDocument_version_id());
                         if(filepath != null && !filepath.isEmpty())
                         {
                             CommonFunctions.deleteFileFromInternalStorage(filepath);
                         }
+                        offLine_files_repository.deleteAlreadydownloadedFile(categoryDocumentsResponse.getDocument_version_id());
                         insertIntoOffLineFilesTable(categoryDocumentsResponse, path);
                     }
                     else
@@ -1292,6 +1298,7 @@ public class NavigationSharedActivity extends BaseActivity {
                     else
                     {
                         downloadIndex = 0;
+                        transparentProgressDialog.dismiss();
                     }
 
 
@@ -1320,7 +1327,7 @@ public class NavigationSharedActivity extends BaseActivity {
         offlineFilesModel.setFilePath(path);
         offlineFilesModel.setFiletype(digitalAsset.getFiletype());
         offlineFilesModel.setFileSize(digitalAsset.getFilesize());
-        offlineFilesModel.setFileSize(digitalAsset.getVersion_number());
+        offlineFilesModel.setVersionNumber(digitalAsset.getVersion_number());
         offlineFilesModel.setSource("Shared");
 
         offLine_files_repository.InsertOfflineFilesData(offlineFilesModel);
@@ -1450,7 +1457,9 @@ public class NavigationSharedActivity extends BaseActivity {
                                 }
                             }
 
-                            doLocalSorting("type");
+                            GlobalVariables.sharedDocsIsAscending = true;
+                        //    GlobalVariables.sharedDocsSortType = "type";
+                            doLocalSorting(GlobalVariables.sharedDocsSortType);
                             toggleEmptyState();
                             reloadAdapter();
                         }
@@ -1592,6 +1601,15 @@ public class NavigationSharedActivity extends BaseActivity {
                 sortSizeDoneImage.setVisibility(View.INVISIBLE);
                 sortDateDoneImage.setVisibility(View.INVISIBLE);
 
+                if(GlobalVariables.sharedDocsSortType.equalsIgnoreCase("name"))
+                {
+                    GlobalVariables.sharedDocsIsAscending = !GlobalVariables.sharedDocsIsAscending;
+                }
+                else
+                {
+                    GlobalVariables.sharedDocsIsAscending = true;
+                }
+
                 doLocalSorting("name");
 
 
@@ -1605,6 +1623,16 @@ public class NavigationSharedActivity extends BaseActivity {
                 sortByName = false;
                 sortBySize = false;
                 sortByDate = false;
+
+                if(GlobalVariables.sharedDocsSortType.equalsIgnoreCase("type"))
+                {
+                    GlobalVariables.sharedDocsIsAscending = !GlobalVariables.sharedDocsIsAscending;
+                }
+                else
+                {
+                    GlobalVariables.sharedDocsIsAscending = true;
+                }
+
                 doLocalSorting("type");
                 mBottomSheetDialog.dismiss();
                 sortNameImage.setVisibility(View.INVISIBLE);
@@ -1625,6 +1653,16 @@ public class NavigationSharedActivity extends BaseActivity {
                 sortByNewest = false;
                 sortByName = false;
                 sortByDate = false;
+
+                if(GlobalVariables.sharedDocsSortType.equalsIgnoreCase("filesize"))
+                {
+                    GlobalVariables.sharedDocsIsAscending = !GlobalVariables.sharedDocsIsAscending;
+                }
+                else
+                {
+                    GlobalVariables.sharedDocsIsAscending = true;
+                }
+
                 doLocalSorting("filesize");
                 mBottomSheetDialog.dismiss();
                 sortNameImage.setVisibility(View.INVISIBLE);
@@ -1645,6 +1683,15 @@ public class NavigationSharedActivity extends BaseActivity {
                 sortBySize = false;
                 sortByNewest = false;
                 sortByName = false;
+
+                if(GlobalVariables.sharedDocsSortType.equalsIgnoreCase("unix_date"))
+                {
+                    GlobalVariables.sharedDocsIsAscending = !GlobalVariables.sharedDocsIsAscending;
+                }
+                else
+                {
+                    GlobalVariables.sharedDocsIsAscending = true;
+                }
                 doLocalSorting("unix_date");
                 mBottomSheetDialog.dismiss();
                 sortNameImage.setVisibility(View.INVISIBLE);
@@ -1665,7 +1712,7 @@ public class NavigationSharedActivity extends BaseActivity {
     private  void doLocalSorting(String sortType)
     {
         GlobalVariables.sharedDocsSortType = sortType;
-        GlobalVariables.sharedDocsIsAscending = !GlobalVariables.sharedDocsIsAscending;
+     //   GlobalVariables.sharedDocsIsAscending = !GlobalVariables.sharedDocsIsAscending;
 
         if(GlobalVariables.sharedDocsSortType.equalsIgnoreCase("name"))
         {

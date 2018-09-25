@@ -55,6 +55,7 @@ import com.mwc.docportal.Login.LoginActivity;
 import com.mwc.docportal.Login.Notifiy;
 import com.mwc.docportal.Login.Touchid;
 import com.mwc.docportal.Network.NetworkUtils;
+import com.mwc.docportal.Online_PdfView_Activity;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
@@ -136,13 +137,29 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
                 mIntent.putExtra("Terms_Title", "Terms & Privacy Policy");
                 startActivity(mIntent);*/
 
+                String extension = "";
+                if(mUri != null && !mUri.isEmpty())
+                {
+                    extension = mUri.substring(mUri.lastIndexOf(".")+1);
 
-                Intent i = new Intent(Intent.ACTION_VIEW);
-                i.setData(Uri.parse(mUri));
-                startActivity(i);
+                }
+
+                if(extension.equalsIgnoreCase("pdf"))
+                {
+                    Intent intent = new Intent(mActivity, Online_PdfView_Activity.class);
+                    intent.putExtra("mode",1);
+                    intent.putExtra("url", mUri);
+                    intent.putExtra("Terms_Title", "Terms & Privacy Policy");
+                    mActivity.startActivity(intent);
+                }
+                else {
+                    Intent mIntent = new Intent(mActivity, WebviewLoaderTermsActivity.class);
+                    mIntent.putExtra(Constants.SETASSISTANCEPOPUPCONTENTURL, mUri);
+                    mIntent.putExtra("Terms_Title", "Terms & Privacy Policy");
+                    startActivity(mIntent);
+                }
 
 
-                // Intent mIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(mUri));
             }
 
             @Override

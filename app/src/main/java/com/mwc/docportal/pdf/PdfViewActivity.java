@@ -109,7 +109,7 @@ import retrofit.Response;
 import retrofit.Retrofit;
 
 /**
- * Created by Hariharan on 24/5/17.
+ * Created by jayaram on 03/08/18.
  */
 
 public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload, OnPageChangeListener, OnLoadCompleteListener, OnSingleTapTouchListener, PdfSwipeUpDownListener {
@@ -1040,6 +1040,16 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                                         }
 
                                         if(CommonFunctions.isApiSuccess(PdfViewActivity.this, message, apiResponse.getStatus().getCode())) {
+
+                                                    OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(context);
+                                                    String filepath = offLine_files_repository.getFilePathFromLocalTable(categoryDocumentsResponse.getDocument_version_id());
+                                                    if(filepath != null && !filepath.isEmpty())
+                                                    {
+                                                        CommonFunctions.deleteFileFromInternalStorage(filepath);
+                                                    }
+
+                                                    offLine_files_repository.deleteAlreadydownloadedFile(categoryDocumentsResponse.getDocument_version_id());
+
                                             GlobalVariables.refreshDMS = true;
                                             finish();
                                         }
@@ -1109,6 +1119,25 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                                         }
 
                                         if(CommonFunctions.isApiSuccess(PdfViewActivity.this, message, apiResponse.getStatus().getCode())) {
+
+                                            OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(context);
+
+                                            List<OfflineFiles> offlineFileList = offLine_files_repository.getFilePathFromLocalTableBasedUponCondition(categoryDocumentsResponse.getDocument_version_id(),
+                                                    categoryDocumentsResponse.getObject_id());
+
+                                            if(offlineFileList != null && offlineFileList.size() > 0)
+                                            {
+                                                for(OfflineFiles offlineFilesModel : offlineFileList)
+                                                {
+                                                    CommonFunctions.deleteFileFromInternalStorage(offlineFilesModel.getFilePath());
+                                                }
+
+                                            }
+
+
+                                            offLine_files_repository.deleteAlreadydownloadedFileBasedUPonCondition(categoryDocumentsResponse.getDocument_version_id(),
+                                                    categoryDocumentsResponse.getObject_id());
+
                                             GlobalVariables.refreshDMS = true;
                                             finish();
 
@@ -1177,6 +1206,19 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                                         }
 
                                         if(CommonFunctions.isApiSuccess(PdfViewActivity.this, message, apiResponse.getStatus().getCode())) {
+                                            List<OfflineFiles> offlineFileList = offLine_files_repository.getFilePathFromLocalTableBasedOnVersionId(categoryDocumentsResponse.getObject_id());
+
+                                            if(offlineFileList != null && offlineFileList.size() > 0)
+                                            {
+                                                for(OfflineFiles offlineFilesModel : offlineFileList)
+                                                {
+                                                    CommonFunctions.deleteFileFromInternalStorage(offlineFilesModel.getFilePath());
+                                                }
+
+                                            }
+
+                                            offLine_files_repository.deleteAlreadydownloadedFileBasedOnVersionId(categoryDocumentsResponse.getObject_id());
+
                                             GlobalVariables.refreshDMS = true;
                                             finish();
                                         }
@@ -1233,12 +1275,12 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                     else
                     {
                         OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(context);
-                        offLine_files_repository.deleteAlreadydownloadedFile(PdfViewActivity.this.categoryDocumentsResponse.getDocument_version_id());
                         String filepath = offLine_files_repository.getFilePathFromLocalTable(PdfViewActivity.this.categoryDocumentsResponse.getDocument_version_id());
                         if(filepath != null && !filepath.isEmpty())
                         {
                             CommonFunctions.deleteFileFromInternalStorage(filepath);
                         }
+                        offLine_files_repository.deleteAlreadydownloadedFile(PdfViewActivity.this.categoryDocumentsResponse.getDocument_version_id());
                         switchButton_download.setChecked(false);
                         mBottomSheetDialog.dismiss();
                     }
@@ -1434,7 +1476,8 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
     private void getDownloadManagerForDownloading(final GetCategoryDocumentsResponse digitalAsset, boolean isFromshare)
     {
-
+        LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
+        transparentProgressDialog.show();
             if (!TextUtils.isEmpty(digitalAsset.getDownloadUrl())) {
                 FileDownloadManager fileDownloadManager = new FileDownloadManager(PdfViewActivity.this);
                 fileDownloadManager.setFileTitle(digitalAsset.getName());
@@ -1458,12 +1501,12 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
                         OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(PdfViewActivity.this);
                         if (!offLine_files_repository.checkAlreadyDocumentAvailableOrNot(digitalAsset.getDocument_version_id())) {
-                            offLine_files_repository.deleteAlreadydownloadedFile(digitalAsset.getDocument_version_id());
                             String filepath = offLine_files_repository.getFilePathFromLocalTable(digitalAsset.getDocument_version_id());
                             if(filepath != null && !filepath.isEmpty())
                             {
                                 CommonFunctions.deleteFileFromInternalStorage(filepath);
                             }
+                            offLine_files_repository.deleteAlreadydownloadedFile(digitalAsset.getDocument_version_id());
                             insertIntoOffLineFilesTable(digitalAsset, path);
                         }
                         else
@@ -1471,6 +1514,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                             insertIntoOffLineFilesTable(digitalAsset, path);
                         }
 
+                        transparentProgressDialog.dismiss();
 
                     }
 
@@ -1498,7 +1542,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
         offlineFilesModel.setFilePath(path);
         offlineFilesModel.setFiletype(digitalAsset.getFiletype());
         offlineFilesModel.setFileSize(digitalAsset.getFilesize());
-        offlineFilesModel.setFileSize(digitalAsset.getVersion_number());
+        offlineFilesModel.setVersionNumber(digitalAsset.getVersion_number());
         offlineFilesModel.setSource("Private");
 
         offLine_files_repository.InsertOfflineFilesData(offlineFilesModel);
