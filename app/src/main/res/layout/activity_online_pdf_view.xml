@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/pdf_fragment"
+    android:background="@color/white">
+
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?android:attr/actionBarSize"
+            android:background="@color/white"
+            app:titleTextColor="@color/black"
+            app:popupTheme="@style/AppTheme.PopupOverlay" >
+
+        </android.support.v7.widget.Toolbar>
+    </android.support.design.widget.AppBarLayout>
+
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:textSize="16sp"
+        android:textColor="@color/black"
+        android:id="@+id/progress_text"
+        android:text="Please wait"/>
+
+    <com.mwc.docportal.pdf.PDFView
+        android:id="@+id/asset_pdf_player"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </com.mwc.docportal.pdf.PDFView>
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_centerInParent="true"
+        android:id="@+id/page_holder"
+        android:visibility="gone"
+        android:padding="10dp"
+        android:orientation="vertical"
+        android:background="@drawable/default_scroll_handle_left"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:layout_gravity="center_horizontal"
+            android:textSize="16sp"
+            android:id="@+id/currentpage_number"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:id="@+id/total_pagenumber"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            />
+
+
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:id="@+id/menu_holder"
+        android:padding="20dp"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:background="@drawable/default_scroll_handle_top"
+        android:layout_centerInParent="true"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:textColor="#000000"
+            android:textSize="16sp"
+            android:id="@+id/singlepageChanger"
+            android:text="Singlepage"/>
+
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:padding="20dp"
+            android:textColor="#000000"
+            android:layout_marginRight="10dp"
+            android:textSize="16sp"
+            android:id="@+id/ContinousPageChanger"
+            android:text="Continous"/>
+
+
+    </LinearLayout>
+
+
+
+</RelativeLayout>
