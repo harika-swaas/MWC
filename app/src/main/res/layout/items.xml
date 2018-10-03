@@ -12,29 +12,41 @@
         android:layout_width="25dp"
         android:layout_height="25dp"
         android:layout_marginTop="10dp"
+        android:layout_gravity="center"
          />
 
     <TextView
         android:id="@+id/user_pin_device_type"
-        android:layout_width="94dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="3dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="10dp"
+        android:layout_gravity="center"
         android:text="@string/email"
         android:textColor="@color/black_semi_transparent"
         android:textSize="14dp" />
 
-    <RadioButton
-        android:id="@+id/user_pin_device_radio_type"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_marginStart="80dp"
-        android:layout_marginRight="5dp"
-        android:checked="false"
-        android:layout_marginLeft="120dp" />
+        android:gravity="right"
+        android:layout_gravity="right"
+        >
+
+        <RadioButton
+            android:id="@+id/user_pin_device_radio_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="5dp"
+            android:checked="false"
+           />
+
+    </LinearLayout>
+
+
 
 </LinearLayout>
 

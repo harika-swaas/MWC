@@ -13,6 +13,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
+import android.text.InputFilter;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
@@ -185,7 +186,11 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
                 }
 
                 final String createdDate = mGetCategoryDocumentsResponses.get(position).getCreated_date();
-                holder.folder_date.setText("Uploaded on "+createdDate);
+                if(createdDate != null && !createdDate.isEmpty())
+                {
+                    holder.folder_date.setText("Uploaded on "+createdDate);
+                }
+
                 holder.folder_path.setText(mGetCategoryDocumentsResponses.get(position).getDoc_status() + mGetCategoryDocumentsResponses.get(position).getFile_path());
 
             }
@@ -288,6 +293,10 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
                                     intent.putExtra("mode",1);
                                     intent.putExtra("url", document_preview_url);
                                     intent.putExtra("documentDetails", categoryDocumentsResponse);
+                                    if(categoryDocumentsResponse.getDoc_status().equalsIgnoreCase("shared"))
+                                    {
+                                        intent.putExtra("IsFromShare", true);
+                                    }
                                     context.startActivity(intent);
                                 }
 
@@ -299,6 +308,10 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
                                     Intent intent = new Intent(context, PdfViewActivity.class);
                                     intent.putExtra("isFrom_Status400",true);
                                     intent.putExtra("documentDetails", categoryDocumentsResponse);
+                                    if(categoryDocumentsResponse.getDoc_status().equalsIgnoreCase("shared"))
+                                    {
+                                        intent.putExtra("IsFromShare", true);
+                                    }
                                     context.startActivity(intent);
 
                                 }
@@ -312,6 +325,7 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });
@@ -368,6 +382,22 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
         List<GetCategoryDocumentsResponse> categoryDocumentlist = new ArrayList<>();
         categoryDocumentlist.add(categoryDocumentsResponse);
         CommonFunctions.setSelectedItems(categoryDocumentlist);
+
+
+        if(!categoryDocumentsResponse.getDoc_status().equalsIgnoreCase("private"))
+        {
+            shareView.setVisibility(View.GONE);
+            rename_layout.setVisibility(View.GONE);
+            move.setVisibility(View.GONE);
+            delete.setVisibility(View.GONE);
+        }
+        else
+        {
+            shareView.setVisibility(View.VISIBLE);
+            rename_layout.setVisibility(View.VISIBLE);
+            move.setVisibility(View.VISIBLE);
+            delete.setVisibility(View.VISIBLE);
+        }
 
 
         final Dialog mBottomSheetDialog = new Dialog(context, R.style.MaterialDialogSheet);
@@ -588,6 +618,11 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
                 Button cancel = (Button) view.findViewById(R.id.cancel_b);
                 Button allow = (Button) view.findViewById(R.id.allow);
                 final EditText namer = (EditText) view.findViewById(R.id.edit_username1);
+
+                InputFilter[] FilterArray = new InputFilter[1];
+                FilterArray[0] = new InputFilter.LengthFilter(45);
+                namer.setFilters(FilterArray);
+
                 allow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -739,6 +774,7 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });
@@ -872,6 +908,7 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                 }
             });
         }
@@ -946,6 +983,7 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
                         }
 
                         transparentProgressDialog.dismiss();
+                        CommonFunctions.showSuccessfullyDownloaded(context);
 
                     }
 
@@ -1116,7 +1154,7 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-
+                    CommonFunctions.showTimeoutAlert(context);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });

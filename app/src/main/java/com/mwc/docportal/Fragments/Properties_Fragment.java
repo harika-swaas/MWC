@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.InputFilter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -100,6 +101,10 @@ public class Properties_Fragment extends Fragment{
             created_date= (TextView) mView.findViewById(R.id.creation_date);
             search_tags= (TextView) mView.findViewById(R.id.tags);
             name_edtText = (EditText) mView.findViewById(R.id.name_edtText);
+
+            InputFilter[] FilterArray = new InputFilter[1];
+            FilterArray[0] = new InputFilter.LengthFilter(45);
+            name_edtText.setFilters(FilterArray);
 
             name_edtText.setImeOptions(EditorInfo.IME_ACTION_DONE);
             getdocumentdetails();
@@ -208,6 +213,7 @@ public class Properties_Fragment extends Fragment{
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(mActivity);
                 }
             });
         }
@@ -346,6 +352,7 @@ public class Properties_Fragment extends Fragment{
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(mActivity);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });

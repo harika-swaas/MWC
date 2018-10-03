@@ -654,6 +654,7 @@ public class NavigationSettingsActivity extends BaseActivity {
                 @Override
                 public void onFailure(Throwable t) {
                     Log.d("PinDevice error", t.getMessage());
+                    CommonFunctions.showTimeoutAlert(context);
                 }
             });
         }

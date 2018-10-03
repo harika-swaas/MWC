@@ -333,6 +333,7 @@ public class FTLRegistrationFragment extends Fragment {
                     @Override
                     public void onFailure(Throwable t) {
                         transparentProgressDialog.dismiss();
+                        CommonFunctions.showTimeoutAlert(mActivity);
                     }
                 });
             }
@@ -343,6 +344,8 @@ public class FTLRegistrationFragment extends Fragment {
 
         final String email = inputEmail.getText().toString().trim();
         final String mobile = inputMobile.getText().toString().trim();
+
+        inputEmail.setEnabled(false);
 
         if (validateEmail() && validateMobile()) {
             if (NetworkUtils.isNetworkAvailable(mActivity)) {
@@ -456,6 +459,7 @@ public class FTLRegistrationFragment extends Fragment {
                     @Override
                     public void onFailure(Throwable t) {
                         transparentProgressDialog.dismiss();
+                        CommonFunctions.showTimeoutAlert(mActivity);
                     }
                 });
             }
@@ -511,6 +515,7 @@ public class FTLRegistrationFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(mActivity);
                 }
             });
         }
@@ -561,6 +566,7 @@ public class FTLRegistrationFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(mActivity);
                 }
             });
         }

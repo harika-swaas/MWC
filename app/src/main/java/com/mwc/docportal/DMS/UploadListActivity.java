@@ -5,17 +5,25 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.icu.lang.UProperty;
+import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -42,8 +50,12 @@ import com.github.angads25.filepicker.model.DialogConfigs;
 import com.github.angads25.filepicker.model.DialogProperties;
 import com.github.angads25.filepicker.view.FilePickerDialog;
 import com.google.gson.Gson;
+
 import com.mwc.docportal.Common.CommonFunctions;
+import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.GlobalSearch.GlobalSearchActivity;
+import com.mwc.docportal.Login.LoginActivity;
+import com.mwc.docportal.MWCApplication;
 import com.mwc.docportal.RootActivity;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.RequestBody;
@@ -74,12 +86,12 @@ import static com.mwc.docportal.Common.CameraUtils.getOutputMediaFile;
  * Created by barath on 8/8/2018.
  */
 
-public class UploadListActivity extends RootActivity{
+public class UploadListActivity extends RootActivity {
 
     RecyclerView upload_list;
     Uri fileUri;
     TextView camera,video,browse,cancel;
-    ArrayList<String> UploadList;
+    ArrayList<String> UploadList = new ArrayList<>();
     ArrayList<String> uploadFailedList = new ArrayList<>();
     private  String imageStoragePath;
     String path;
@@ -101,10 +113,13 @@ public class UploadListActivity extends RootActivity{
     Toolbar toolbar;
     MenuItem menuItemUpload, menuItemAdd;
     LinearLayout empty_view;
+    ArrayList<String> filteredUploadList = new ArrayList<>();
+    private boolean firstConnect = true;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.upload_list);
+
 
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -118,7 +133,28 @@ public class UploadListActivity extends RootActivity{
 
         upload_list = (RecyclerView) findViewById(R.id.list_upload);
         upload_list.setLayoutManager(new LinearLayoutManager(this));
+
+        filteredUploadList = PreferenceUtils.getupload(UploadListActivity.this, "key");
+
+
+        if(filteredUploadList != null && filteredUploadList.size() > 0)
+        {
+            ArrayList<String> filteredDataList = new ArrayList<>();
+            for(String fileName : filteredUploadList)
+            {
+                String pathName = fileName.substring(fileName.lastIndexOf(".")+1);
+                if(pathName != null && !pathName.equalsIgnoreCase(fileName))
+                {
+                    filteredDataList.add(fileName);
+
+                }
+                PreferenceUtils.setupload(context, filteredDataList, "key");
+            }
+        }
+
         UploadList = PreferenceUtils.getupload(UploadListActivity.this, "key");
+
+
         customAdapter = new UploadListAdapter(UploadListActivity.this, UploadList);
         upload_list.setAdapter(customAdapter);
 
@@ -130,6 +166,7 @@ public class UploadListActivity extends RootActivity{
         {
             empty_view.setVisibility(View.VISIBLE);
         }
+
 
     }
 
@@ -178,7 +215,52 @@ public class UploadListActivity extends RootActivity{
                         {
                             Log.d("Upload status", apiResponse.toString());
 
-                            if (apiResponse.getStatus().getCode() == true)
+                            String message = "";
+                            if(apiResponse.getStatus().getMessage() != null)
+                            {
+                                message = apiResponse.getStatus().getMessage().toString();
+                            }
+
+                            if(apiResponse.getStatus().getCode() instanceof Double)
+                            {
+                                double status_value = new Double(response.body().getStatus().getCode().toString());
+                                if (status_value == 401.3)
+                                {
+                                    showAlertDialogForAccessDenied(context, message);
+                                }
+                                else if(status_value ==  401 || status_value ==  401.0)
+                                {
+                                    showAlertDialogForSessionExpiry(context, message);
+                                }
+                            }
+                            else if(response.body().getStatus().getCode() instanceof Integer)
+                            {
+                                int integerValue = new Integer(response.body().getStatus().getCode().toString());
+                                if(integerValue ==  401)
+                                {
+                                    showAlertDialogForSessionExpiry(context, message);
+                                }
+                            }
+                            else if(response.body().getStatus().getCode() instanceof Boolean)
+                            {
+                                if (response.body().getStatus().getCode() == Boolean.TRUE)
+                                {
+                                    if(!((Activity) context ).isFinishing())
+                                    {
+                                        showAlertMessage(apiResponse.getStatus().getMessage(), false, "");
+                                    }
+                                    uploadFailedList.add(UploadList.get(i));
+                                    PreferenceUtils.setupload(context, uploadFailedList, "key");
+                                }
+
+                                UploadList.remove(i);
+                                PreferenceUtils.setupload(UploadListActivity.this, UploadList, "key");
+                                upload(0);
+
+                            }
+
+
+                           /* if (apiResponse.getStatus().getCode() == true)
                             {
                                 if(!((Activity) context ).isFinishing())
                                 {
@@ -190,13 +272,19 @@ public class UploadListActivity extends RootActivity{
 
                             UploadList.remove(i);
                             PreferenceUtils.setupload(UploadListActivity.this, UploadList, "key");
-                            upload(0);
+                            upload(0);*/
                         }
                     }
 
                     @Override
                     public void onFailure(Throwable t) {
                         Log.d("PinDevice error", t.getMessage());
+                        if(!((Activity) context ).isFinishing())
+                        {
+                            getDialog(context).show();
+                        }
+
+
                     }
                 });
             }
@@ -209,7 +297,7 @@ public class UploadListActivity extends RootActivity{
             if (uploadFailedList.size() == 0)
             {
                 if(!((Activity) context ).isFinishing()) {
-                    showAlertMessage("All documents uploaded successfully", true, "");
+                    showAlertMessage("Your file(s) are being uploaded. You will receive a notification when they are ready to view.", true, "");
                 }
                 empty_view.setVisibility(View.VISIBLE);
             }
@@ -629,11 +717,12 @@ public class UploadListActivity extends RootActivity{
                showUploadWarningMessage();
            }
            else
-          {
-              Intent intent= new Intent(UploadListActivity.this,NavigationMyFolderActivity.class);
-              intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+           {
+              Intent intent=new Intent(UploadListActivity.this,NavigationMyFolderActivity.class);
+              intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
               startActivity(intent);
-          }
+              finish();
+           }
 
 
     }
@@ -655,9 +744,6 @@ public class UploadListActivity extends RootActivity{
         TextView text = (TextView) view.findViewById(R.id.message);
         text.setText("Some of the files are not yet uploaded. Do you want to cancel all the uploads?");
 
-
-    //    getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-
         BtnAllow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -671,9 +757,11 @@ public class UploadListActivity extends RootActivity{
             public void onClick(View v) {
                 ArrayList<String> uploadlist = new ArrayList<>();
                 PreferenceUtils.setupload(context, uploadlist, "key");
-                Intent intent= new Intent(UploadListActivity.this,NavigationMyFolderActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                Intent intent=new Intent(UploadListActivity.this,NavigationMyFolderActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);
+                finish();
+
             }
         });
 
@@ -716,7 +804,10 @@ public class UploadListActivity extends RootActivity{
                 if(buttonEnabled == true)
                 {
                     menuItemAdd.setVisible(true);
-                //    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                    Intent intent=new Intent(UploadListActivity.this,NavigationMyFolderActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    startActivity(intent);
+                    finish();
                 }
 
             }
@@ -734,9 +825,7 @@ public class UploadListActivity extends RootActivity{
             case REQUEST_CAMERA_PERMISSION:
                 if (grantResults.length > 1) {
                     if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-
                         showVideoOrCameraAccess();
-
                     } else {
                         if (grantResults[0] != PackageManager.PERMISSION_GRANTED && grantResults[1] != PackageManager.PERMISSION_GRANTED) {
                             Toast.makeText(context, "Camera and storage access permission denied", Toast.LENGTH_LONG).show();
@@ -748,9 +837,9 @@ public class UploadListActivity extends RootActivity{
                     }
                 } else {
                     if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
+                        showVideoOrCameraAccess();
                     } else {
-                        Toast.makeText(context, "Permission denied", Toast.LENGTH_LONG).show();
+                        Toast.makeText(context, "Camera access permission denied", Toast.LENGTH_LONG).show();
                     }
                 }
                 break;
@@ -814,7 +903,6 @@ public class UploadListActivity extends RootActivity{
             int choosenFilesCount = PreferenceUtils.getupload(UploadListActivity.this, "key").size();
             menuItemAdd.setVisible(false);
             menuItemUpload.setVisible(false);
-         //   getSupportActionBar().setDisplayHomeAsUpEnabled(false);
             Boolean isError = false;
 
             if (choosenFilesCount > 10) {
@@ -876,10 +964,176 @@ public class UploadListActivity extends RootActivity{
     @Override
     public void onDestroy() {
         super.onDestroy();
+        unregisterReceiver(networkReceiver);
         if (mCustomAlertDialog != null) {
             mCustomAlertDialog.dismiss();
             mCustomAlertDialog = null;
         }
     }
+    private void showAlertDialogForAccessDenied(Context context, String message)
+    {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Error");
+
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+        txtMessage.setText(message);
+
+        Button okButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+        cancelButton.setVisibility(View.GONE);
+
+        okButton.setText("OK");
+
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+
+            }
+        });
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
+    }
+
+    private void showAlertDialogForSessionExpiry(Context context, String message)
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Session Expired");
+
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+        txtMessage.setText(message);
+
+        Button okButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+        cancelButton.setVisibility(View.GONE);
+
+        okButton.setText("OK");
+
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+                AccountSettings accountSettings = new AccountSettings(context);
+                accountSettings.LogouData();
+                context.startActivity(new Intent(context, LoginActivity.class));
+            }
+        });
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
+    }
+
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+      //  firstConnect = true;
+        this.registerReceiver(this.networkReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+    }
+
+
+    private BroadcastReceiver networkReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(firstConnect)
+            {
+                if (intent.getAction() != null && intent.getAction().matches(ConnectivityManager.CONNECTIVITY_ACTION)) {
+                    isNetworkAvailable();
+                    firstConnect = false;
+
+                }
+            }
+            else
+            {
+                firstConnect= true;
+            }
+
+        }
+    };
+
+    public void isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager)context
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        if ((connectivityManager
+                .getNetworkInfo(ConnectivityManager.TYPE_MOBILE) != null && connectivityManager
+                .getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED)
+                || (connectivityManager
+                .getNetworkInfo(ConnectivityManager.TYPE_WIFI) != null && connectivityManager
+                .getNetworkInfo(ConnectivityManager.TYPE_WIFI)
+                .getState() == NetworkInfo.State.CONNECTED)) {
+
+        } else {
+            getDialog(context).show();
+
+        }
+    }
+
+    public AlertDialog getDialog(Context context) {
+        return new AlertDialog.Builder(context)
+                .setMessage("Network is disabled in your device. Would you like to enable it?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        upload_list.setLayoutManager(new LinearLayoutManager(context));
+                        UploadList = PreferenceUtils.getupload(UploadListActivity.this, "key");
+                        customAdapter = new UploadListAdapter(UploadListActivity.this, UploadList);
+                        upload_list.setAdapter(customAdapter);
+                        menuItemAdd.setVisible(true);
+                        menuItemUpload.setVisible(true);
+
+                        if(UploadList != null && UploadList.size() > 0)
+                        {
+                            empty_view.setVisibility(View.GONE);
+                        }
+                        else
+                        {
+                            empty_view.setVisibility(View.VISIBLE);
+                        }
+                        context.startActivity(new Intent(android.provider.Settings.ACTION_SETTINGS));
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        upload_list.setLayoutManager(new LinearLayoutManager(context));
+                        UploadList = PreferenceUtils.getupload(UploadListActivity.this, "key");
+                        customAdapter = new UploadListAdapter(UploadListActivity.this, UploadList);
+                        upload_list.setAdapter(customAdapter);
+                        menuItemAdd.setVisible(true);
+                        menuItemUpload.setVisible(true);
+
+                        if(UploadList != null && UploadList.size() > 0)
+                        {
+                            empty_view.setVisibility(View.GONE);
+                        }
+                        else
+                        {
+                            empty_view.setVisibility(View.VISIBLE);
+                        }
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert).create();
+    }
+
 
 }

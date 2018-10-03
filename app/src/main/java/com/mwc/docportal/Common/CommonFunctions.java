@@ -3,8 +3,10 @@ package com.mwc.docportal.Common;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Environment;
+import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -12,8 +14,11 @@ import android.widget.TextView;
 
 import com.mwc.docportal.API.Model.ColorCodeModel;
 import com.mwc.docportal.API.Model.GetCategoryDocumentsResponse;
+import com.mwc.docportal.DMS.UploadListActivity;
+import com.mwc.docportal.DMS.UploadListAdapter;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Login.LoginActivity;
+import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
 import com.mwc.docportal.Utils.Constants;
 
@@ -131,12 +136,17 @@ public class CommonFunctions
             double status_value = new Double(code.toString());
             if (status_value == 401.3)
             {
-                showAlertDialogForAccessDenied(context, message);
+                if (!((Activity) context).isFinishing()) {
+                    showAlertDialogForAccessDenied(context, message);
+                }
                 isSuccess = false;
             }
             else if(status_value ==  401 || status_value ==  401.0)
             {
-                showAlertDialogForSessionExpiry(context, message);
+                if (!((Activity) context).isFinishing()) {
+                    showAlertDialogForSessionExpiry(context, message);
+                }
+
                 isSuccess = false;
 
             }
@@ -146,7 +156,9 @@ public class CommonFunctions
             int integerValue = new Integer(code.toString());
             if(integerValue ==  401)
             {
-                showAlertDialogForSessionExpiry(context, message);
+                if (!((Activity) context).isFinishing()) {
+                    showAlertDialogForSessionExpiry(context, message);
+                }
                 isSuccess = false;
 
             }
@@ -156,7 +168,9 @@ public class CommonFunctions
         {
             if (code == Boolean.TRUE)
             {
-                showAlertDialogForAccessDenied(context, message);
+                if (!((Activity) context).isFinishing()) {
+                    showAlertDialogForAccessDenied(context, message);
+                }
                 isSuccess = false;
             }
         }
@@ -236,5 +250,71 @@ public class CommonFunctions
         mAlertDialog.show();
     }
 
+
+    public static void showSuccessfullyDownloaded(Context context)
+    {
+        if (!((Activity) context).isFinishing()) {
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+            builder.setView(view);
+            builder.setCancelable(false);
+
+            TextView title = (TextView) view.findViewById(R.id.title);
+            title.setText("Alert");
+
+            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+            txtMessage.setText("Download is completed. You can check the downloaded files through View Offline Files option available in settings menu");
+
+            Button okButton = (Button) view.findViewById(R.id.send_pin_button);
+            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+            cancelButton.setVisibility(View.GONE);
+
+            okButton.setText("OK");
+
+            okButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mAlertDialog.dismiss();
+
+                }
+            });
+
+            mAlertDialog = builder.create();
+            mAlertDialog.show();
+        }
+    }
+
+
+    public static void showTimeoutAlert(Context context)
+    {
+        if (!((Activity) context).isFinishing())
+        {
+            getDialog(context).show();
+        }
+
+    }
+
+
+    public static AlertDialog getDialog(Context context) {
+        return new AlertDialog.Builder(context)
+                .setMessage("Network is disabled in your device. Would you like to enable it?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        context.startActivity(new Intent(android.provider.Settings.ACTION_SETTINGS));
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert).create();
+    }
 
 }

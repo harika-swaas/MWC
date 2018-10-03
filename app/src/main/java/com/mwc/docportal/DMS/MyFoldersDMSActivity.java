@@ -57,6 +57,7 @@ import com.github.clans.fab.FloatingActionMenu;
 import com.google.gson.Gson;
 
 import com.mwc.docportal.Common.CameraUtils;
+import com.mwc.docportal.Common.CommonFunctions;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.RequestBody;
 import com.mwc.docportal.API.Model.BaseApiResponse;
@@ -2144,6 +2145,7 @@ public class MyFoldersDMSActivity extends RootActivity {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                 }
             });
         }

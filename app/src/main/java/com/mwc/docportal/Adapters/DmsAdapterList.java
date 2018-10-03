@@ -12,6 +12,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
+import android.text.InputFilter;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -455,6 +456,7 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });
@@ -737,6 +739,11 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                 Button cancel = (Button) view.findViewById(R.id.cancel_b);
                 Button allow = (Button) view.findViewById(R.id.allow);
                 final EditText namer = (EditText) view.findViewById(R.id.edit_username1);
+
+                InputFilter[] FilterArray = new InputFilter[1];
+                FilterArray[0] = new InputFilter.LengthFilter(45);
+                namer.setFilters(FilterArray);
+
                 allow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -878,6 +885,10 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
 
                         CommonFunctions.isApiSuccess(context, message, response.body().getStatus().getCode());
 
+                        if (context instanceof NavigationMyFolderActivity) {
+                            ((NavigationMyFolderActivity) context).resetPageNumber();
+                            ((NavigationMyFolderActivity) context).getCategoryDocuments();
+                        }
 
                     }
                 }
@@ -885,6 +896,7 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });
@@ -961,6 +973,11 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                 Button cancel = (Button) view.findViewById(R.id.cancel_b);
                 Button allow = (Button) view.findViewById(R.id.allow);
                 final EditText namer = (EditText) view.findViewById(R.id.edit_username1);
+
+                InputFilter[] FilterArray = new InputFilter[1];
+                FilterArray[0] = new InputFilter.LengthFilter(45);
+                namer.setFilters(FilterArray);
+
                 allow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -1107,6 +1124,7 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });
@@ -1163,6 +1181,7 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });

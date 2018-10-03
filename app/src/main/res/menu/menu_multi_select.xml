@@ -18,7 +18,7 @@
 
     <item
         android:id="@+id/action_share"
-        android:icon="@mipmap/ic_share"
+        android:icon="@mipmap/ic_copy"
         android:title="@string/menu_item_share"
         android:visible="false"
         app:showAsAction="always" />

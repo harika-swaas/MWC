@@ -155,13 +155,13 @@ public class OffLine_Files_Repository
     {
 
         List<OfflineFiles> offlineFilesList = new ArrayList<>();
-        String selectQuery = "SELECT filePath FROM tbl_Offline_Files WHERE documentId = '"+objectid+"' AND documentVersionId <> '"+document_version_id+"'";
+        String selectQuery = "SELECT * FROM tbl_Offline_Files WHERE documentId = '"+objectid+"' AND documentVersionId <> '"+document_version_id+"'";
 
         try {
             DBConnectionOpen();
-            Cursor cursor = database.rawQuery(selectQuery, null);
-            offlineFilesList = GetOfflinefilesPathFromCursor(cursor);
-            cursor.close();
+            Cursor mcursor = database.rawQuery(selectQuery, null);
+            offlineFilesList = GetOfflinefilesPathFromCursor(mcursor);
+            mcursor.close();
 
         } finally {
             DBConnectionClose();
@@ -169,29 +169,28 @@ public class OffLine_Files_Repository
         return offlineFilesList;
     }
 
-    private List<OfflineFiles> GetOfflinefilesPathFromCursor(Cursor cursor)
+    private List<OfflineFiles> GetOfflinefilesPathFromCursor(Cursor mcursor)
     {
         List<OfflineFiles> offlineFilesList = new ArrayList<>();
 
-        if (cursor != null && cursor.getCount() > 0) {
-            cursor.moveToFirst();
+        if (mcursor != null && mcursor.getCount() > 0) {
+            mcursor.moveToFirst();
 
-            int filepath = cursor.getColumnIndex(FILEPATH);
-            int documentId = cursor.getColumnIndex(DOCUMENTID);
-            int documentVersionId = cursor.getColumnIndex(DOCUMENTVERSIONID);
-            int documentName = cursor.getColumnIndex(DOCUMENTNAME);
+            int filepath = mcursor.getColumnIndex(FILEPATH);
+            int documentId = mcursor.getColumnIndex(DOCUMENTID);
+            int documentVersionId = mcursor.getColumnIndex(DOCUMENTVERSIONID);
+            int documentName = mcursor.getColumnIndex(DOCUMENTNAME);
 
 
             do {
                 OfflineFiles offlineFilesModel = new OfflineFiles();
-
-                offlineFilesModel.setFilePath(cursor.getString(filepath));
-                offlineFilesModel.setDocumentId(cursor.getString(documentId));
-                offlineFilesModel.setDocumentVersionId(cursor.getString(documentVersionId));
-                offlineFilesModel.setDocumentName(cursor.getString(documentName));
+                offlineFilesModel.setFilePath(mcursor.getString(filepath));
+                offlineFilesModel.setDocumentId(mcursor.getString(documentId));
+                offlineFilesModel.setDocumentVersionId(mcursor.getString(documentVersionId));
+                offlineFilesModel.setDocumentName(mcursor.getString(documentName));
                 offlineFilesList.add(offlineFilesModel);
 
-            } while (cursor.moveToNext());
+            } while (mcursor.moveToNext());
 
         }
         return offlineFilesList;
@@ -202,13 +201,13 @@ public class OffLine_Files_Repository
     {
 
         List<OfflineFiles> offlineFilesList = new ArrayList<>();
-        String selectQuery = "SELECT filePath FROM tbl_Offline_Files WHERE documentId = '"+objectId+"'";
+        String selectQuery = "SELECT * FROM tbl_Offline_Files WHERE documentId = '"+objectId+"'";
         try {
             DBConnectionOpen();
 
-            Cursor cursor = database.rawQuery(selectQuery, null);
-            offlineFilesList = GetOfflinefilesPathFromCursor(cursor);
-            cursor.close();
+            Cursor mcursor = database.rawQuery(selectQuery, null);
+            offlineFilesList = GetOfflinefilesPathFromCursor(mcursor);
+            mcursor.close();
         } finally {
             DBConnectionClose();
         }

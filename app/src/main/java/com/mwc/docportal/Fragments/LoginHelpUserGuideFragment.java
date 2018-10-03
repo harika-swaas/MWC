@@ -123,6 +123,7 @@ public class LoginHelpUserGuideFragment extends Fragment {
 
                 @Override
                 public void onFailure(Throwable t) {
+                    CommonFunctions.showTimeoutAlert(mActivity);
                 }
             });
         }
@@ -333,7 +334,7 @@ public class LoginHelpUserGuideFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    Toast.makeText(mActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
+                    CommonFunctions.showTimeoutAlert(mActivity);
                 }
             });
         }

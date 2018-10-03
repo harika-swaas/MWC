@@ -69,6 +69,8 @@ public class MWCApplication extends MultiDexApplication implements Application.A
 
     }
 
+
+
     @Override
     public void onActivityStarted(Activity activity) {
         if (++activityReferences == 1 && !isActivityChangingConfigurations) {
@@ -141,6 +143,7 @@ public class MWCApplication extends MultiDexApplication implements Application.A
                     @Override
                     public void onFailure(Throwable t) {
                         Log.d("PinDevice error", t.getMessage());
+                        CommonFunctions.showTimeoutAlert(activity);
                     }
                 });
             }
@@ -195,6 +198,7 @@ public class MWCApplication extends MultiDexApplication implements Application.A
             return areNotificationsEnabled;
     //    }
     }
+
 
 
 }

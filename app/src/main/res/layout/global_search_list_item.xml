@@ -11,92 +11,90 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-
-        <LinearLayout
-            android:id="@+id/list_click"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/nameIndicatorParentView"
-            android:orientation="horizontal"
-            android:padding="6dp">
-
             <RelativeLayout
                 android:id="@+id/list_item_click"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
                 <RelativeLayout
-                    android:id="@+id/folder_layout"
+                    android:id="@+id/fileorfolder"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_centerVertical="true"
-                    android:visibility="visible">
+                    android:layout_height="wrap_content">
 
-                    <ImageView
-                        android:id="@+id/folder"
-                        android:layout_width="60dp"
-                        android:layout_height="60dp"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginStart="10dp"
-                        android:src="@mipmap/ic_folder"
-                        android:layout_centerVertical="true"/>
-
-                </RelativeLayout>
-
-                <RelativeLayout
-                    android:id="@+id/thumbnail_layout"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:visibility="visible">
-
-                    <ImageView
-                        android:id="@+id/thumbnail_image"
-                        android:layout_width="60dp"
-                        android:layout_height="60dp"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginRight="10dp"
-                        android:src="@mipmap/ic_thumbnail" />
-
-                    <ImageView
-                        android:id="@+id/thumbnail_corner_image"
-                        android:layout_width="60dp"
-                        android:layout_height="60dp"
-                        android:layout_alignTop="@+id/thumbnail_image"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginRight="10dp"
-                        android:src="@mipmap/ic_thumbnail_corner"
-                        android:visibility="invisible"/>
-
-                    <TextView
-                        android:id="@+id/thumbnail_text"
+                    <RelativeLayout
+                        android:id="@+id/folder_layout"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_centerInParent="true"
-                        android:text="pdf"
-                        android:textAllCaps="true"
-                        android:textColor="@color/white"
-                        android:textSize="12sp" />
+                        android:layout_alignParentLeft="true"
+                        android:layout_centerVertical="true"
+                        android:visibility="visible">
+
+                        <ImageView
+                            android:id="@+id/folder"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginStart="10dp"
+                            android:src="@mipmap/ic_folder"
+                            android:layout_centerVertical="true"/>
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:id="@+id/thumbnail_layout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:visibility="visible">
+
+                        <ImageView
+                            android:id="@+id/thumbnail_image"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginRight="10dp"
+                            android:src="@mipmap/ic_thumbnail" />
+
+                        <ImageView
+                            android:id="@+id/thumbnail_corner_image"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_alignTop="@+id/thumbnail_image"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginRight="10dp"
+                            android:src="@mipmap/ic_thumbnail_corner"
+                            android:visibility="invisible"/>
+
+                        <TextView
+                            android:id="@+id/thumbnail_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:text="pdf"
+                            android:textAllCaps="true"
+                            android:textColor="@color/white"
+                            android:textSize="12sp" />
+
+                    </RelativeLayout>
 
                 </RelativeLayout>
-
 
                 <RelativeLayout
                     android:id="@+id/folder_rl_2"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
+                    android:layout_toRightOf="@+id/fileorfolder"
+                    android:layout_toLeftOf="@+id/moreactions"
                     android:layout_centerVertical="true"
-                    android:layout_marginLeft="20dp">
+                    android:layout_marginLeft="0dp">
 
                     <LinearLayout
-                        android:layout_width="200dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_alignParentStart="true"
                         android:orientation="vertical"
                         android:layout_alignParentLeft="true"
-                        android:layout_marginLeft="50dp">
+                        android:layout_marginLeft="10dp">
 
                         <TextView
                             android:id="@+id/folder_name"
@@ -118,7 +116,7 @@
                             android:layout_below="@+id/folder_name"
                             android:layout_centerVertical="true"
                             android:alpha="0.87"
-                            android:text="Date Created"
+                            android:text=""
                             android:textColor="@color/black"
                             android:textSize="14sp"/>
 
@@ -142,31 +140,30 @@
                 </RelativeLayout>
 
                 <RelativeLayout
+                    android:id="@+id/moreactions"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
-                    android:layout_toRightOf="@+id/folder_rl_2">
+                    android:layout_marginRight="5dp">
 
                     <LinearLayout
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:weightSum="2">
 
                         <ImageView
                             android:id="@+id/offline_download"
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:visibility="invisible"
                             android:background="@mipmap/ic_download" />
 
                         <ImageView
                             android:id="@+id/more"
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:background="@mipmap/ic_more" />
 
@@ -177,8 +174,6 @@
                 </RelativeLayout>
 
             </RelativeLayout>
-
-        </LinearLayout>
 
     </RelativeLayout>
 

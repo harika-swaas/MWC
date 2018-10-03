@@ -120,6 +120,7 @@ public class LoginAgreeTermsAcceptanceFragment extends Fragment {
 
                 @Override
                 public void onFailure(Throwable t) {
+                    CommonFunctions.showTimeoutAlert(mActivity);
                 }
             });
         }
@@ -316,6 +317,7 @@ public class LoginAgreeTermsAcceptanceFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(mActivity);
                 }
             });
         }

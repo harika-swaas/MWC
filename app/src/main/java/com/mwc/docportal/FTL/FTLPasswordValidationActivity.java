@@ -2,6 +2,7 @@ package com.mwc.docportal.FTL;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
@@ -30,6 +31,10 @@ public class FTLPasswordValidationActivity extends RootActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.ftl_password_validation_activity);
 
+        if(getResources().getBoolean(R.bool.portrait_only)){
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
+
         mFTLPasswordValidationFragment = new FTLPasswordValidationFragment();
         loadFTLFragment();
     }
@@ -51,7 +56,9 @@ public class FTLPasswordValidationActivity extends RootActivity {
     public void onBackPressed() {
         if(getVisibleFragment() != null) {
             if (getVisibleFragment() instanceof FTLPasswordValidationFragment) {
-                startActivity(new Intent(FTLPasswordValidationActivity.this, FTLUserValidationActivity.class));
+                Intent intent = new Intent(FTLPasswordValidationActivity.this, FTLUserValidationActivity.class);
+                intent.putExtra(Constants.ACCESSTOKEN, getIntent().getStringExtra(Constants.ACCESSTOKEN));
+                startActivity(intent);
                 finish();
             }else{
 

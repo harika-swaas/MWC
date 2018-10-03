@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.StrictMode;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -20,6 +21,7 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.mwc.docportal.API.Model.BaseApiResponse;
+import com.mwc.docportal.API.Model.ColorCodeModel;
 import com.mwc.docportal.API.Model.DocumentPreviewRequest;
 import com.mwc.docportal.API.Model.DocumentPreviewResponse;
 import com.mwc.docportal.API.Model.ExternalShareResponseModel;
@@ -136,79 +138,15 @@ public class OffLineFilesListAdapter extends RecyclerView.Adapter<OffLineFilesLi
             if (offLineFileListData.get(position).getFiletype() != null) {
                 holder.folderView.setVisibility(View.GONE);
                 holder.thumbnailView.setVisibility(View.VISIBLE);
-                if (offLineFileListData.get(position).getFiletype().equalsIgnoreCase("pdf")) {
-                    //holder.imageView.setImageResource(R.mipmap.ic_pdf);
-                    holder.thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_pdf_color));
-                    holder.thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_pdf_corner_color));
-                    holder.thumbnailText.setText(offLineFileListData.get(position).getFiletype());
-                } else if (offLineFileListData.get(position).getFiletype().equalsIgnoreCase("xlsx") ||
-                        offLineFileListData.get(position).getFiletype().equalsIgnoreCase("xls") || offLineFileListData.get(position).getFiletype().equalsIgnoreCase("xlsm")
-                        || offLineFileListData.get(position).getFiletype().equalsIgnoreCase("csv")) {
-                    holder.thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_xls_color));
-                    holder.thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_xls_corner_color));
-                    holder.thumbnailText.setText(offLineFileListData.get(position).getFiletype());
-                } else if (offLineFileListData.get(position).getFiletype().equalsIgnoreCase("doc") ||
-                        offLineFileListData.get(position).getFiletype().equalsIgnoreCase("docx") || offLineFileListData.get(position).getFiletype().equalsIgnoreCase("docm")
-                        || offLineFileListData.get(position).getFiletype().equalsIgnoreCase("gdoc") || offLineFileListData.get(position).getFiletype().equalsIgnoreCase("keynote")) {
-                    holder.thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_doc_color));
-                    holder.thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_doc_corner_color));
-                    holder.thumbnailText.setText(offLineFileListData.get(position).getFiletype());
-                } else if (offLineFileListData.get(position).getFiletype().equalsIgnoreCase("ppt") ||
-                        offLineFileListData.get(position).getFiletype().equalsIgnoreCase("pptx") || offLineFileListData.get(position).getFiletype().equalsIgnoreCase("pps")
-                        || offLineFileListData.get(position).getFiletype().equalsIgnoreCase("ai")){
-                    holder.thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_ppt_color));
-                    holder.thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_ppt_corner_color));
-                    holder.thumbnailText.setText(offLineFileListData.get(position).getFiletype());
-                } else if (offLineFileListData.get(position).getFiletype().equalsIgnoreCase("xml") ||
-                        offLineFileListData.get(position).getFiletype().equalsIgnoreCase("log") || offLineFileListData.get(position).getFiletype().equalsIgnoreCase("zip")
-                        || offLineFileListData.get(position).getFiletype().equalsIgnoreCase("rar") || offLineFileListData.get(position).getFiletype().equalsIgnoreCase("zipx")
-                        || offLineFileListData.get(position).getFiletype().equalsIgnoreCase("mht")){
-                    holder.thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_xml_color));
-                    holder.thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_xml_corner_color));
-                    holder.thumbnailText.setText(offLineFileListData.get(position).getFiletype());
-                } else if (offLineFileListData.get(position).getFiletype().equalsIgnoreCase("xml") ||
-                        offLineFileListData.get(position).getFiletype().equalsIgnoreCase("log") || offLineFileListData.get(position).getFiletype().equalsIgnoreCase("rtf") ||
-                        offLineFileListData.get(position).getFiletype().equalsIgnoreCase("txt") || offLineFileListData.get(position).getFiletype().equalsIgnoreCase("epub")){
-                    holder.thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_xml_color));
-                    holder.thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_xml_corner_color));
-                    holder.thumbnailText.setText(offLineFileListData.get(position).getFiletype());
-                } else if (offLineFileListData.get(position).getFiletype().equalsIgnoreCase("msg") || offLineFileListData.get(position).getFiletype().equalsIgnoreCase("dot") || offLineFileListData.get(position).getFiletype().equalsIgnoreCase("odt")
-                        || offLineFileListData.get(position).getFiletype().equalsIgnoreCase("ott")){
-                    holder.thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_msg_color));
-                    holder.thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_msg_corner_color));
-                    holder.thumbnailText.setText(offLineFileListData.get(position).getFiletype());
-                } else if (offLineFileListData.get(position).getFiletype().equalsIgnoreCase("pages")){
-                    holder.thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_pages_color));
-                    holder.thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_pages_corner_color));
-                    holder.thumbnailText.setText(offLineFileListData.get(position).getFiletype());
-                } else if (offLineFileListData.get(position).getFiletype().equalsIgnoreCase("pub") || offLineFileListData.get(position).getFiletype().equalsIgnoreCase("ods")){
-                    holder.thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_pub_color));
-                    holder.thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_pub_corner_color));
-                    holder.thumbnailText.setText(offLineFileListData.get(position).getFiletype());
-                } else if (offLineFileListData.get(position).getFiletype().equalsIgnoreCase("gif") || offLineFileListData.get(position).getFiletype().equalsIgnoreCase("jpeg")
-                        || offLineFileListData.get(position).getFiletype().equalsIgnoreCase("jpg") || offLineFileListData.get(position).getFiletype().equalsIgnoreCase("png") || offLineFileListData.get(position).getFiletype().equalsIgnoreCase("bmp")
-                        || offLineFileListData.get(position).getFiletype().equalsIgnoreCase("tif") || offLineFileListData.get(position).getFiletype().equalsIgnoreCase("tiff") || offLineFileListData.get(position).getFiletype().equalsIgnoreCase("eps")
-                        || offLineFileListData.get(position).getFiletype().equalsIgnoreCase("svg") || (offLineFileListData.get(position).getFiletype().equalsIgnoreCase("odp")
-                        || offLineFileListData.get(position).getFiletype().equalsIgnoreCase("otp"))){
-                    holder.thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_gif_color));
-                    holder.thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_gif_corner_color));
-                    holder.thumbnailText.setText(offLineFileListData.get(position).getFiletype());
-                } else if (offLineFileListData.get(position).getFiletype().equalsIgnoreCase("avi")
-                        || offLineFileListData.get(position).getFiletype().equalsIgnoreCase("flv") || offLineFileListData.get(position).getFiletype().equalsIgnoreCase("mpeg") ||
-                        offLineFileListData.get(position).getFiletype().equalsIgnoreCase("mpg") || offLineFileListData.get(position).getFiletype().equalsIgnoreCase("swf") || offLineFileListData.get(position).getFiletype().equalsIgnoreCase("wmv")){
-                    holder.thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_avi_color));
-                    holder.thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_avi_corner_color));
-                    holder.thumbnailText.setText(offLineFileListData.get(position).getFiletype());
-                }  else if (offLineFileListData.get(position).getFiletype().equalsIgnoreCase("mp3")
-                        || offLineFileListData.get(position).getFiletype().equalsIgnoreCase("wav") || offLineFileListData.get(position).getFiletype().equalsIgnoreCase("wma")){
-                    holder.thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_mp3_color));
-                    holder.thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_mp3_corner_color));
-                    holder.thumbnailText.setText(offLineFileListData.get(position).getFiletype());
-                } else {
-                    holder.thumbnailIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_default_color));
-                    holder.thumbnailCornerIcon.setColorFilter(ContextCompat.getColor(context, R.color.thumbnail_default_corner_color));
-                    holder.thumbnailText.setText(offLineFileListData.get(position).getFiletype());
+
+                ColorCodeModel colorCodeModel = CommonFunctions.getColorCodesforFileType(offLineFileListData.get(position).getFiletype());
+                if(colorCodeModel != null)
+                {
+                    holder.thumbnailIcon.setColorFilter(context.getResources().getColor(colorCodeModel.getPrimaryColor()));
+                    holder.thumbnailCornerIcon.setColorFilter(context.getResources().getColor(colorCodeModel.getSecondaryColor()));
+                    holder.thumbnailText.setText(colorCodeModel.getFileType());
                 }
+
             }
 
             final String name = offLineFileListData.get(position).getFilename();
@@ -233,37 +171,8 @@ public class OffLineFilesListAdapter extends RecyclerView.Adapter<OffLineFilesLi
                 holder.indicatorTextValue.setText(String.valueOf(offLineFileListData.get(position).getFilename().charAt(0)));
             }
 
-            /*if (!TextUtils.isEmpty(mGetCategoryDocumentsResponses.get(position).getName())) {
-                holder.indicatorParentView.setVisibility(View.VISIBLE);
-                holder.indicatorTextValue.setText(String.valueOf(mGetCategoryDocumentsResponses.get(position).getName().charAt(0)));
-            }
-            else {
-                holder.indicatorParentView.setVisibility(View.GONE);
-            }*/
-
-
-
-          /*  holder.thumbnailView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    getDocumentPreviews(mGetCategoryDocumentsResponses.get(position).getDocument_version_id());
-                }
-            });*/
 
             holder.imageMore.setVisibility(View.GONE);
-            /*holder.imageMore.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("category")) {
-                        openBottomSheetForCategory(mGetCategoryDocumentsResponses.get(position).getName());
-                        objectr = mGetCategoryDocumentsResponses.get(position).getParent_id();
-                        categoryr = mGetCategoryDocumentsResponses.get(position).getObject_id();
-                    } else if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document")) {
-                        openBottomSheetForDocument(mGetCategoryDocumentsResponses.get(position).getType(), mGetCategoryDocumentsResponses.get(position).getFiletype(), mGetCategoryDocumentsResponses.get(position).getName());
-                    }
-                }
-            });
-*/
 
 
             holder.itemClick.setOnClickListener(new View.OnClickListener() {
@@ -291,7 +200,25 @@ public class OffLineFilesListAdapter extends RecyclerView.Adapter<OffLineFilesLi
                     {
                         if(offLineFileListData.get(position).getDocumentVersionId() != null && !offLineFileListData.get(position).getDocumentVersionId().isEmpty())
                         {
-                            showWarningAlertForSharingContent(offLineFileListData.get(position), offLineFileListData.get(position).getFilename(), offLineFileListData.get(position).getDocumentVersionId());
+                         //   showWarningAlertForSharingContent(offLineFileListData.get(position), offLineFileListData.get(position).getFilename(), offLineFileListData.get(position).getDocumentVersionId());
+
+                            String[] mimetypes = {"image/*", "application/*|text/*"};
+
+                            String imagePath = offLineFileListData.get(position).getFilePath();
+
+                            File imageFileToShare = new File(imagePath);
+
+                            Uri uri = Uri.fromFile(imageFileToShare);
+
+                            Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+                            sharingIntent.setType("*/*");
+                            String shareBody = "";
+                            sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, offLineFileListData.get(position).getFilename());
+                            sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+                            sharingIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
+                            sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
+                            Intent.createChooser(sharingIntent,"Share via");
+                            context.startActivity(sharingIntent);
                         }
 
                     }
@@ -335,9 +262,33 @@ public class OffLineFilesListAdapter extends RecyclerView.Adapter<OffLineFilesLi
             public void onClick(View v) {
                 mAlertDialog.dismiss();
 
-                getExternalSharingContentAPI(offlineFiles, filename, documentVersionId);
+                StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+                StrictMode.setVmPolicy(builder.build());
 
+                if (NetworkUtils.checkIfNetworkAvailable(context))
+                {
+                    getExternalSharingContentAPI(offlineFiles, filename, documentVersionId);
+                }
+                else
+                {
+                    String[] mimetypes = {"image/*", "application/*|text/*"};
 
+                    String imagePath = offlineFiles.getFilePath();
+
+                    File imageFileToShare = new File(imagePath);
+
+                    Uri uri = Uri.fromFile(imageFileToShare);
+
+                    Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+                    sharingIntent.setType("*/*");
+                    String shareBody = "";
+                    sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, filename);
+                    sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+                    sharingIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
+                    sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
+                    Intent.createChooser(sharingIntent,"Share via");
+                    context.startActivity(sharingIntent);
+                }
 
             }
         });
@@ -409,6 +360,7 @@ public class OffLineFilesListAdapter extends RecyclerView.Adapter<OffLineFilesLi
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });

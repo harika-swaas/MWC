@@ -6,10 +6,12 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.StrictMode;
+import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
@@ -72,6 +74,7 @@ import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Database.OffLine_Files_Repository;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.GlobalSearch.GlobalSearchActivity;
+import com.mwc.docportal.GridAutofitLayoutManager;
 import com.mwc.docportal.Login.LoginActivity;
 import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.Preference.PreferenceUtils;
@@ -141,6 +144,9 @@ public class NavigationSharedActivity extends BaseActivity {
     boolean isSecondLevel = false;
     List<GetCategoryDocumentsResponse> downloadingItemsList = new ArrayList<>();
     LoadingProgressDialog transparentProgressDialog;
+    RelativeLayout move_layout;
+    BottomNavigationView bottomNavigationLayout;
+    TextView cancel_textview;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -153,10 +159,36 @@ public class NavigationSharedActivity extends BaseActivity {
 
         transparentProgressDialog = new LoadingProgressDialog(context);
 
+        if (!GlobalVariables.isMoveInitiated) {
+            hideBottomView();
+        }
+        else{
+            showBottomView();
+        }
+
         getIntentData();
         getDocuments();
         toggleAddAndBackButton();
+
+
     }
+
+    private void hideBottomView()
+    {
+        bottomNavigationLayout.setVisibility(View.VISIBLE);
+        sorting_layout.setVisibility(View.VISIBLE);
+        move_layout.setVisibility(View.GONE);
+
+    }
+
+    private void showBottomView()
+    {
+        bottomNavigationLayout.setVisibility(View.GONE);
+        sorting_layout.setVisibility(View.GONE);
+        move_layout.setVisibility(View.VISIBLE);
+        GlobalVariables.sharedDocsSortType = "type";
+    }
+
 
     private void getDocuments()
     {
@@ -254,6 +286,7 @@ public class NavigationSharedActivity extends BaseActivity {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });
@@ -352,6 +385,7 @@ public class NavigationSharedActivity extends BaseActivity {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });
@@ -408,6 +442,23 @@ public class NavigationSharedActivity extends BaseActivity {
             }
         });
 
+        cancel_textview.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                GlobalVariables.isMoveInitiated = false;
+                GlobalVariables.selectedActionName = "";
+                GlobalVariables.selectedDocumentsList.clear();
+
+                Intent intent = new Intent(context, NavigationMyFolderActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
+                finish();
+
+
+            }
+        });
+
     }
 
     private void initializeViews()
@@ -422,7 +473,9 @@ public class NavigationSharedActivity extends BaseActivity {
         empty_view = (LinearLayout)findViewById(R.id.empty_view);
         no_documents_txt = (TextView)findViewById(R.id.no_documents_txt);
         sorting_layout = (LinearLayout) findViewById(R.id.sorting_layout);
-
+        move_layout = (RelativeLayout) findViewById(R.id.move_layout);
+        bottomNavigationLayout = (BottomNavigationView) findViewById(R.id.navigation);
+        cancel_textview = (TextView) findViewById(R.id.cancel_textview);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(false);
@@ -517,6 +570,7 @@ public class NavigationSharedActivity extends BaseActivity {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });
@@ -660,13 +714,24 @@ public class NavigationSharedActivity extends BaseActivity {
     private void setGridAdapterToView(List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses) {
 
         toggle.setImageResource(R.mipmap.ic_grid);
-        mRecyclerView.setLayoutManager(new GridLayoutManager(context,3));
+        int mNoOfColumns = GridAutofitLayoutManager.calculateNoOfColumns(getApplicationContext());
+        mRecyclerView.setLayoutManager(new GridLayoutManager(context, mNoOfColumns));
         mAdapter = new SharedFolderAdapter(getCategoryDocumentsResponses, NavigationSharedActivity.this, ObjectId);
         mRecyclerView.setAdapter(mAdapter);
         Log.d("After Adapter Reload", DateHelper.getCurrentTime());
 
     }
 
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if (GlobalVariables.isSharedTileView && !GlobalVariables.isMoveInitiated)
+        {
+            int mNoOfColumns = GridAutofitLayoutManager.calculateNoOfColumns(getApplicationContext());
+            mRecyclerView.setLayoutManager(new GridLayoutManager(context, mNoOfColumns));
+        }
+
+    }
 
     public void setListAdapterToView(final List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses) {
 
@@ -1200,6 +1265,7 @@ public class NavigationSharedActivity extends BaseActivity {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                 }
             });
         }
@@ -1299,6 +1365,7 @@ public class NavigationSharedActivity extends BaseActivity {
                     {
                         downloadIndex = 0;
                         transparentProgressDialog.dismiss();
+                        CommonFunctions.showSuccessfullyDownloaded(context);
                     }
 
 
@@ -1395,6 +1462,7 @@ public class NavigationSharedActivity extends BaseActivity {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                 }
             });
         }
@@ -1470,6 +1538,7 @@ public class NavigationSharedActivity extends BaseActivity {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });
@@ -1495,6 +1564,8 @@ public class NavigationSharedActivity extends BaseActivity {
         final ImageView sortNewestDoneImage = (ImageView) view.findViewById(R.id.done_sort_newest_image);
         final ImageView sortSizeDoneImage = (ImageView) view.findViewById(R.id.done_sort_size_image);
         final ImageView sortDateDoneImage = (ImageView) view.findViewById(R.id.done_sort_date_image);
+        RelativeLayout sortBy_date_layout = (RelativeLayout) view.findViewById(R.id.sortBy_date_layout);
+        sortBy_date_layout.setVisibility(View.GONE);
 
         final Dialog mBottomSheetDialog = new Dialog(context, R.style.MaterialDialogSheet);
         mBottomSheetDialog.setContentView(view);
@@ -1982,6 +2053,7 @@ public class NavigationSharedActivity extends BaseActivity {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });

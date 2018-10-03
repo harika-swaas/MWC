@@ -173,6 +173,7 @@ public class  PinVerificationFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     loadingProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(mActivity);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });
@@ -231,6 +232,7 @@ public class  PinVerificationFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(mActivity);
                 }
             });
         }

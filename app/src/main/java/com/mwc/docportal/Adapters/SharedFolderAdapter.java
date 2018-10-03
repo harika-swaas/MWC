@@ -441,6 +441,7 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });

@@ -199,7 +199,17 @@ public class FileDownloadManager extends RootActivity {
             file.mkdirs();*/
             String[] array = getDownloadUrl().split("/");
           //  final String fileName = array[array.length - 1];
-            final String fileName = digitalAssets.getName()+digitalAssets.getDocument_version_id();
+            String fileName = "";
+            if(digitalAssets.getFilename() != null && !digitalAssets.getFilename().isEmpty())
+            {
+                fileName = digitalAssets.getDocument_version_id()+"-"+digitalAssets.getFilename();
+            }
+            else
+            {
+                fileName = digitalAssets.getDocument_version_id()+"-"+digitalAssets.getName();
+            }
+
+
 
 
             File FILE = new File(new File(Environment.getExternalStorageDirectory(), Constants.Folder_Name), fileName);
@@ -212,6 +222,7 @@ public class FileDownloadManager extends RootActivity {
 
 
             request.setDestinationInExternalPublicDir("/"+Constants.Folder_Name, fileName);
+            String finalFileName = fileName;
             BroadcastReceiver onComplete = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent)
@@ -220,7 +231,7 @@ public class FileDownloadManager extends RootActivity {
                     if (getDownloadUrl().endsWith("zip")) {
 
                         if(unpackZip(Environment.getExternalStorageDirectory()
-                                .getAbsolutePath() + Constants.Folder_Name, fileName)){
+                                .getAbsolutePath() + Constants.Folder_Name, finalFileName)){
 
                             digitalAssets.setIs_Downloaded(1);
                             if (!getDownloadUrl().endsWith("zip")) {
@@ -231,9 +242,9 @@ public class FileDownloadManager extends RootActivity {
                                 }*/
                                // outputfilepath = Environment.getExternalStorageDirectory()+"/"+Constants.Folder_Name+"/"+fileName;
 
-                                digitalAssets.setDownloadUrl(Environment.getExternalStorageDirectory()+"/"+Constants.Folder_Name+"/"+fileName);
+                                digitalAssets.setDownloadUrl(Environment.getExternalStorageDirectory()+"/"+Constants.Folder_Name+"/"+ finalFileName);
                             } else {
-                                digitalAssets.setDownloadUrl(Environment.getExternalStorageDirectory()+"/"+Constants.Folder_Name+"/"+fileName);
+                                digitalAssets.setDownloadUrl(Environment.getExternalStorageDirectory()+"/"+Constants.Folder_Name+"/"+ finalFileName);
                             }
 
                             if (mFileDownloadListener != null) {
@@ -250,9 +261,9 @@ public class FileDownloadManager extends RootActivity {
 
                         digitalAssets.setIs_Downloaded(1);
                         if (!getDownloadUrl().endsWith("zip")) {
-                            digitalAssets.setDownloadUrl(Environment.getExternalStorageDirectory()+"/"+Constants.Folder_Name+"/"+fileName);
+                            digitalAssets.setDownloadUrl(Environment.getExternalStorageDirectory()+"/"+Constants.Folder_Name+"/"+ finalFileName);
                         } else {
-                            digitalAssets.setDownloadUrl(Environment.getExternalStorageDirectory()+"/"+Constants.Folder_Name+"/"+fileName);
+                            digitalAssets.setDownloadUrl(Environment.getExternalStorageDirectory()+"/"+Constants.Folder_Name+"/"+ finalFileName);
                         }
 
 

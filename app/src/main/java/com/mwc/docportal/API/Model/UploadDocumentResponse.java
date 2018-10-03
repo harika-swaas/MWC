@@ -51,16 +51,16 @@ public class UploadDocumentResponse {
 
         @SerializedName("code")
         @Expose
-        private Boolean code;
+        private Object code;
         @SerializedName("message")
         @Expose
         private String message;
 
-        public Boolean getCode() {
+        public Object getCode() {
             return code;
         }
 
-        public void setCode(Boolean code) {
+        public void setCode(Object code) {
             this.code = code;
         }
 

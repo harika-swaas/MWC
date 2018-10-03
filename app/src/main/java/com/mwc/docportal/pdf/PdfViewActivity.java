@@ -6,6 +6,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -20,6 +21,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
+import android.text.InputFilter;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
@@ -163,6 +165,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
         setContentView(R.layout.fragment_pdf_viewer);
 
 
+
         mPdfview = (PDFView) findViewById(R.id.asset_pdf_player);
         mSinglePageChanger = (TextView) findViewById(R.id.singlepageChanger);
         mContinousPageCahnger = (TextView) findViewById(R.id.ContinousPageChanger);
@@ -227,24 +230,35 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
                 if(filepath != null && !filepath.isEmpty())
                 {
-                    external_share_imgage.setVisibility(View.VISIBLE);
+                    if(isFromDocumentShare)
+                    {
+                        external_share_imgage.setVisibility(View.GONE);
+                    }
+                    else
+                    {
+                        external_share_imgage.setVisibility(View.VISIBLE);
+                    }
                     download_button.setText("View");
                 }
 
             }
             else
             {
+                if(isFromDocumentShare)
+                {
+                    external_share_imgage.setVisibility(View.GONE);
+                }
+                else
+                {
+                    external_share_imgage.setVisibility(View.VISIBLE);
+                }
+
+
+
                 document_preview_linearlayout.setVisibility(View.GONE);
                 mProgressText.setVisibility(View.VISIBLE);
 
             }
-
-
-
-
-
-
-
 
 
             if (playmode == 0){
@@ -415,7 +429,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                         {
                             String[] mimetypes = {"image/*", "application/*|text/*"};
 
-                            String imagePath =filepath;
+                            String imagePath = filepath;
 
                             File imageFileToShare = new File(imagePath);
 
@@ -423,7 +437,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
                             Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
                             sharingIntent.setType("*/*");
-                            String shareBody = "";
+                            String shareBody = "Attach file";
                             sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, name);
                             sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
                             sharingIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
@@ -438,6 +452,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });
@@ -1061,6 +1076,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                                 public void onFailure(Throwable t) {
                                     transparentProgressDialog.dismiss();
                                     mBackDialog.dismiss();
+                                    CommonFunctions.showTimeoutAlert(context);
                                     Log.d("PinDevice error", t.getMessage());
                                 }
                             });
@@ -1149,6 +1165,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                                 public void onFailure(Throwable t) {
                                     transparentProgressDialog.dismiss();
                                     mBackDialog.dismiss();
+                                    CommonFunctions.showTimeoutAlert(context);
                                     Log.d("PinDevice error", t.getMessage());
                                 }
                             });
@@ -1230,6 +1247,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                                 public void onFailure(Throwable t) {
                                     transparentProgressDialog.dismiss();
                                     mBackDialog.dismiss();
+                                    CommonFunctions.showTimeoutAlert(context);
                                     Log.d("PinDevice error", t.getMessage());
                                 }
                             });
@@ -1326,20 +1344,18 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
             @Override
             public void onClick(View v) {
                 mBottomSheetDialog.dismiss();
-                PreferenceUtils.setDocumentVersionId(context, PdfViewActivity.this.categoryDocumentsResponse.getDocument_version_id());
-                PreferenceUtils.setDocument_Id(context, PdfViewActivity.this.categoryDocumentsResponse.getObject_id());
-                Intent intent = new Intent(context, Tab_Activity.class);
+                PreferenceUtils.setDocumentVersionId(context,categoryDocumentsResponse.getDocument_version_id());
+                PreferenceUtils.setDocument_Id(context, categoryDocumentsResponse.getObject_id());
+                Intent intent = new Intent(context,Tab_Activity.class);
+                if(isFromDocumentShare)
+                {
+                    intent.putExtra("IsFromShared", true);
+                }
                 startActivity(intent);
-            }
-        });
-      /*  shareView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
 
             }
         });
-*/
+
         move.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1371,6 +1387,11 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                 Button cancel = (Button) view.findViewById(R.id.cancel_b);
                 Button allow = (Button) view.findViewById(R.id.allow);
                 final EditText namer = (EditText) view.findViewById(R.id.edit_username1);
+
+                InputFilter[] FilterArray = new InputFilter[1];
+                FilterArray[0] = new InputFilter.LengthFilter(45);
+                namer.setFilters(FilterArray);
+
                 allow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -1469,6 +1490,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                 }
             });
         }
@@ -1489,7 +1511,15 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
                         if(isFromStatus400)
                         {
-                            external_share_imgage.setVisibility(View.VISIBLE);
+                            if(isFromDocumentShare)
+                            {
+                                external_share_imgage.setVisibility(View.GONE);
+                            }
+                            else
+                            {
+                                external_share_imgage.setVisibility(View.VISIBLE);
+                            }
+
                             menuItemMore.setVisible(true);
                             download_button.setText("View");
                             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -1515,6 +1545,12 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                         }
 
                         transparentProgressDialog.dismiss();
+
+                        if(!isFromshare)
+                        {
+                            CommonFunctions.showSuccessfullyDownloaded(context);
+                        }
+
 
                     }
 
@@ -1543,7 +1579,15 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
         offlineFilesModel.setFiletype(digitalAsset.getFiletype());
         offlineFilesModel.setFileSize(digitalAsset.getFilesize());
         offlineFilesModel.setVersionNumber(digitalAsset.getVersion_number());
-        offlineFilesModel.setSource("Private");
+
+        if(isFromDocumentShare)
+        {
+            offlineFilesModel.setSource("Shared");
+        }
+        else
+        {
+            offlineFilesModel.setSource("Private");
+        }
 
         offLine_files_repository.InsertOfflineFilesData(offlineFilesModel);
     }
@@ -1645,6 +1689,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });
@@ -1699,6 +1744,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });
@@ -1780,6 +1826,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                 }
             });
         }
@@ -1900,6 +1947,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });

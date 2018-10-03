@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
@@ -68,6 +69,11 @@ public class Touchid extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.enable_touch_id);
+
+        if(getResources().getBoolean(R.bool.portrait_only)){
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
+
         skip1 = (TextView) findViewById(R.id.skip_button);
         button2 = (Button) findViewById(R.id.enable_touch_button);
 
@@ -142,6 +148,7 @@ public class Touchid extends Activity {
                 @Override
                 public void onFailure(Throwable t) {
                     Log.d("PinDevice error", t.getMessage());
+                    CommonFunctions.showTimeoutAlert(Touchid.this);
                 }
             });
         }

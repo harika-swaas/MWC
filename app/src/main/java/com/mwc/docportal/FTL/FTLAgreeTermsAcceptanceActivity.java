@@ -1,6 +1,7 @@
 package com.mwc.docportal.FTL;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
@@ -11,6 +12,7 @@ import com.mwc.docportal.Fragments.FTLPasswordValidationFragment;
 import com.mwc.docportal.Login.LoginActivity;
 import com.mwc.docportal.R;
 import com.mwc.docportal.RootActivity;
+import com.mwc.docportal.Utils.Constants;
 
 import java.util.List;
 
@@ -26,6 +28,10 @@ public class FTLAgreeTermsAcceptanceActivity extends RootActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.ftl_agree_terms_acceptance_activity);
+
+        if(getResources().getBoolean(R.bool.portrait_only)){
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
 
         mFTLAgreeTermsAcceptanceFragment = new FTLAgreeTermsAcceptanceFragment();
         loadFTLAgreeTermsAcceptanceFragment();
@@ -48,7 +54,13 @@ public class FTLAgreeTermsAcceptanceActivity extends RootActivity {
     public void onBackPressed() {
         if(getVisibleFragment() != null) {
             if (getVisibleFragment() instanceof FTLAgreeTermsAcceptanceFragment) {
-                startActivity(new Intent(FTLAgreeTermsAcceptanceActivity.this, FTLPasswordValidationActivity.class));
+                Intent intent = new Intent(FTLAgreeTermsAcceptanceActivity.this, FTLPasswordValidationActivity.class);
+                intent.putExtra(Constants.USERNAME,getIntent().getStringExtra(Constants.USERNAME));
+                intent.putExtra(Constants.WELCOME_MSG, getIntent().getStringExtra(Constants.WELCOME_MSG));
+                intent.putExtra(Constants.ACCESSTOKEN, getIntent().getStringExtra(Constants.ACCESSTOKEN));
+                intent.putExtra(Constants.SETTERMS, getIntent().getStringExtra(Constants.SETTERMS));
+                startActivity(intent);
+             //   startActivity(new Intent(FTLAgreeTermsAcceptanceActivity.this, FTLPasswordValidationActivity.class));
                 finish();
             }else{
 

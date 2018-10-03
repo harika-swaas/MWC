@@ -20,6 +20,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
+import android.text.InputFilter;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
@@ -529,6 +530,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });
@@ -694,11 +696,11 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                 if(buttonView.isPressed() == true) {
                     mBottomSheetDialog.dismiss();
                     if (!isChecked) {
-                        switchButton_share.setChecked(true);
-                        showWarningMessageAlertForSharingContent(mGetCategoryDocumentsResponses);
+
+                        showWarningMessageAlertForSharingContent(mGetCategoryDocumentsResponses, switchButton_share);
 
                     } else {
-                        switchButton_share.setChecked(false);
+                        switchButton_share.setChecked(true);
                         GlobalVariables.isMoveInitiated = true;
                         GlobalVariables.selectedActionName =  "share";
                         Intent intent = new Intent(context, NavigationSharedActivity.class);
@@ -813,6 +815,10 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                 Button cancel = (Button) view.findViewById(R.id.cancel_b);
                 Button allow = (Button) view.findViewById(R.id.allow);
                 final EditText namer = (EditText) view.findViewById(R.id.edit_username1);
+
+                InputFilter[] FilterArray = new InputFilter[1];
+                FilterArray[0] = new InputFilter.LengthFilter(45);
+                namer.setFilters(FilterArray);
                 allow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -849,7 +855,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         });
     }
 
-    private void showWarningMessageAlertForSharingContent(final GetCategoryDocumentsResponse mGetCategoryDocumentsResponses)
+    private void showWarningMessageAlertForSharingContent(final GetCategoryDocumentsResponse mGetCategoryDocumentsResponses, SwitchCompat switchButton_share)
     {
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -885,7 +891,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
 
                 ArrayList<String> documentIdslist = new ArrayList<>();
                 documentIdslist.add(mGetCategoryDocumentsResponses.getObject_id());
-                getInternalStoppingSharingContentAPI(documentIdslist, mGetCategoryDocumentsResponses.getCategory_id());
+                getInternalStoppingSharingContentAPI(documentIdslist, mGetCategoryDocumentsResponses.getCategory_id(), switchButton_share);
 
 
             }
@@ -895,7 +901,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         mAlertDialog.show();
     }
 
-    private void getInternalStoppingSharingContentAPI(ArrayList<String> documentIdslist, String category_id)
+    private void getInternalStoppingSharingContentAPI(ArrayList<String> documentIdslist, String category_id, SwitchCompat switchButton_share)
     {
         if (NetworkUtils.isNetworkAvailable(context)) {
 
@@ -933,6 +939,13 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
 
                        CommonFunctions.isApiSuccess(context, message, response.body().getStatus().getCode());
 
+                        switchButton_share.setChecked(false);
+
+                        if (context instanceof NavigationMyFolderActivity) {
+                            ((NavigationMyFolderActivity) context).resetPageNumber();
+                            ((NavigationMyFolderActivity) context).getCategoryDocuments();
+                        }
+
 
                     }
                 }
@@ -940,6 +953,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });
@@ -1018,6 +1032,12 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                 Button cancel = (Button) view.findViewById(R.id.cancel_b);
                 Button allow = (Button) view.findViewById(R.id.allow);
                 final EditText namer = (EditText) view.findViewById(R.id.edit_username1);
+
+                InputFilter[] FilterArray = new InputFilter[1];
+                FilterArray[0] = new InputFilter.LengthFilter(45);
+                namer.setFilters(FilterArray);
+
+
                 allow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -1168,6 +1188,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });
@@ -1221,6 +1242,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });

@@ -7,6 +7,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
@@ -70,6 +71,12 @@ public class Notifiy extends RootActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.enable_notification);
+
+        if(getResources().getBoolean(R.bool.portrait_only)){
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
+
+
         skip = (TextView) findViewById(R.id.skip_button_1);
         button5 = (Button) findViewById(R.id.enable_touch_button);
 
@@ -258,6 +265,7 @@ public class Notifiy extends RootActivity {
                 @Override
                 public void onFailure(Throwable t) {
                     Log.d("PinDevice error", t.getMessage());
+                    CommonFunctions.showTimeoutAlert(mActivity);
                 }
             });
         }

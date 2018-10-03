@@ -276,6 +276,7 @@ public class LoginFragment extends Fragment {
                     public void onFailure(Throwable t) {
                         Log.e("LoginErr", t.toString());
                         transparentProgressDialog.dismiss();
+                        CommonFunctions.showTimeoutAlert(mActivity);
                     }
                 });
             }
@@ -437,6 +438,7 @@ public class LoginFragment extends Fragment {
 
                 @Override
                 public void onFailure(Throwable t) {
+                    CommonFunctions.showTimeoutAlert(mActivity);
                     // Toast.makeText(mActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
@@ -502,6 +504,7 @@ public class LoginFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     Log.d("PINVerErr", t.getMessage());
+                    CommonFunctions.showTimeoutAlert(mActivity);
                 }
             });
         }

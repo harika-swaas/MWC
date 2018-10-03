@@ -46,12 +46,21 @@ public class GetCategoryDocumentsResponse implements Serializable{
 
     private String file_path;
     private String doc_status;
+    private String filename;
 
 
     @SerializedName("permission")
     @Expose
     private Permission permission;
 
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
 
     public Permission getPermission() {
         return permission;

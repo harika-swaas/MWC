@@ -9,6 +9,8 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
+import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -25,6 +27,7 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.NestedScrollView;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
@@ -33,7 +36,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
+import android.text.InputFilter;
 import android.text.TextUtils;
+import android.util.AttributeSet;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
@@ -56,6 +61,7 @@ import android.widget.Toast;
 import com.github.angads25.filepicker.controller.DialogSelectionListener;
 import com.github.angads25.filepicker.model.DialogConfigs;
 import com.github.angads25.filepicker.model.DialogProperties;
+import com.github.angads25.filepicker.utils.Utility;
 import com.github.angads25.filepicker.view.FilePickerDialog;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
@@ -116,14 +122,13 @@ import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Database.OffLine_Files_Repository;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.GlobalSearch.GlobalSearchActivity;
+import com.mwc.docportal.GridAutofitLayoutManager;
 import com.mwc.docportal.Login.LoginActivity;
 import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
-import com.mwc.docportal.Utils.Constants;
 import com.mwc.docportal.Utils.DateHelper;
-import com.mwc.docportal.Utils.SplashScreen;
 import com.mwc.docportal.pdf.PdfViewActivity;
 
 
@@ -144,7 +149,7 @@ import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
 
-public class NavigationMyFolderActivity extends BaseActivity {
+public class NavigationMyFolderActivity extends BaseActivity implements SwipeRefreshLayout.OnRefreshListener {
 
     DmsAdapter mAdapter;
     DmsAdapterList mAdapterList;
@@ -209,10 +214,14 @@ public class NavigationMyFolderActivity extends BaseActivity {
     List<GetCategoryDocumentsResponse> downloadingItemsList = new ArrayList<>();
     int downloadIndex = 0;
     LoadingProgressDialog transparentProgressDialog;
+    private SwipeRefreshLayout mRefreshLayout;
+
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
 
 
         if(PreferenceUtils.getPushNotificationDocumentVersionId(context) != null && !PreferenceUtils.getPushNotificationDocumentVersionId(context).isEmpty())
@@ -266,6 +275,7 @@ public class NavigationMyFolderActivity extends BaseActivity {
         }
 
 
+        mRefreshLayout.setOnRefreshListener(this);
     }
 
 
@@ -526,6 +536,7 @@ public class NavigationMyFolderActivity extends BaseActivity {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });
@@ -572,6 +583,7 @@ public class NavigationMyFolderActivity extends BaseActivity {
                 @Override
                 public void onFailure(Throwable t) {
                     Log.d("PinDevice error", t.getMessage());
+                    CommonFunctions.showTimeoutAlert(context);
                 }
             });
         }
@@ -611,6 +623,7 @@ public class NavigationMyFolderActivity extends BaseActivity {
                 @Override
                 public void onFailure(Throwable t) {
                     Log.d("PinDevice error", t.getMessage());
+                    CommonFunctions.showTimeoutAlert(context);
                 }
             });
         }
@@ -776,6 +789,9 @@ public class NavigationMyFolderActivity extends BaseActivity {
             Button cancel = (Button) view1.findViewById(R.id.cancel_b);
             Button allow = (Button) view1.findViewById(R.id.allow);
             final EditText namer = (EditText) view1.findViewById(R.id.edit_username1);
+            InputFilter[] FilterArray = new InputFilter[1];
+            FilterArray[0] = new InputFilter.LengthFilter(45);
+            namer.setFilters(FilterArray);
             allow.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -832,6 +848,7 @@ public class NavigationMyFolderActivity extends BaseActivity {
                             @Override
                             public void onFailure(Throwable t) {
                                 transparentProgressDialog.dismiss();
+                                CommonFunctions.showTimeoutAlert(context);
                                 Log.d("PinDevice error", t.getMessage());
                             }
                         });
@@ -1018,45 +1035,6 @@ public class NavigationMyFolderActivity extends BaseActivity {
     }*/
 
 
-    private void showAlertDialogPermissionCheck()
-    {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.custom_dialog, null);
-        builder.setView(view);
-        builder.setCancelable(false);
-
-        Button BtnAllow = (Button) view.findViewById(R.id.allow_button);
-        BtnAllow.setText("OK");
-        final Button BtnCancel = (Button) view.findViewById(R.id.cancel_button);
-        BtnCancel.setText("CANCEL");
-
-        TextView textView =(TextView) view.findViewById(R.id.txt_message);
-        textView.setVisibility(View.GONE);
-        TextView text = (TextView) view.findViewById(R.id.message);
-        text.setText("Camera and Storage access permission is denied. Please enable access");
-
-        BtnAllow.setOnClickListener(new View.OnClickListener() {
-            @RequiresApi(api = Build.VERSION_CODES.M)
-            @Override
-            public void onClick(View v) {
-                mCustomAlertDialog.dismiss();
-                //requestForPermissionGrant();
-
-            }
-        });
-
-        BtnCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mCustomAlertDialog.dismiss();
-            }
-        });
-
-        mCustomAlertDialog = builder.create();
-        mCustomAlertDialog.show();
-
-    }
 
     public void delete_Folder_DeleteDocuments() {
 
@@ -1114,6 +1092,7 @@ public class NavigationMyFolderActivity extends BaseActivity {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });
@@ -1176,6 +1155,7 @@ public class NavigationMyFolderActivity extends BaseActivity {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });
@@ -1241,6 +1221,7 @@ public class NavigationMyFolderActivity extends BaseActivity {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });
@@ -1315,6 +1296,7 @@ public class NavigationMyFolderActivity extends BaseActivity {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });
@@ -1397,6 +1379,8 @@ public class NavigationMyFolderActivity extends BaseActivity {
         actionCamera = (FloatingActionButton)findViewById(R.id.menu_camera_item);
         actionNewFolder = (FloatingActionButton) findViewById(R.id.menu_new_folder_item);
         actionVideo = (FloatingActionButton)findViewById(R.id.menu_camera_video_item);
+
+        mRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
 
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
@@ -1944,14 +1928,26 @@ public class NavigationMyFolderActivity extends BaseActivity {
     private void setGridAdapterToView(List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses) {
 
         toggle.setImageResource(R.mipmap.ic_grid);
-        mRecyclerView.setLayoutManager(new GridLayoutManager(context,3));
+        int mNoOfColumns = GridAutofitLayoutManager.calculateNoOfColumns(getApplicationContext());
+        mRecyclerView.setLayoutManager(new GridLayoutManager(context, mNoOfColumns));
         mAdapter = new DmsAdapter(getCategoryDocumentsResponses, NavigationMyFolderActivity.this);
         mRecyclerView.setAdapter(mAdapter);
 
     }
 
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
 
-      @Override
+        if (GlobalVariables.isTileView && !GlobalVariables.isMoveInitiated)
+        {
+            int mNoOfColumns = GridAutofitLayoutManager.calculateNoOfColumns(getApplicationContext());
+            mRecyclerView.setLayoutManager(new GridLayoutManager(context, mNoOfColumns));
+        }
+
+    }
+
+    @Override
       public boolean onCreateOptionsMenu(Menu menu) {
 
           getMenuInflater().inflate(R.menu.menu_multi_select, menu);
@@ -2039,11 +2035,13 @@ public class NavigationMyFolderActivity extends BaseActivity {
               case R.id.action_share:
                   CommonFunctions.setSelectedItems(mSelectedDocumentList);
 
-                  GlobalVariables.isMoveInitiated = true;
+                /*  GlobalVariables.isMoveInitiated = true;
                   GlobalVariables.selectedActionName =  "share";
                   Intent intent = new Intent(context, NavigationSharedActivity.class);
                   intent.putExtra("ObjectId", "0");
-                  startActivity(intent);
+                  startActivity(intent);*/
+
+                  initiateMoveAction("copy");
 
                   break;
 
@@ -2337,6 +2335,11 @@ public class NavigationMyFolderActivity extends BaseActivity {
                 Button cancel = (Button) view.findViewById(R.id.cancel_b);
                 Button allow = (Button) view.findViewById(R.id.allow);
                 final EditText namer = (EditText) view.findViewById(R.id.edit_username1);
+
+                InputFilter[] FilterArray = new InputFilter[1];
+                FilterArray[0] = new InputFilter.LengthFilter(45);
+                namer.setFilters(FilterArray);
+
                 allow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -2889,6 +2892,7 @@ public class NavigationMyFolderActivity extends BaseActivity {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });
@@ -2943,6 +2947,7 @@ public class NavigationMyFolderActivity extends BaseActivity {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });
@@ -3045,6 +3050,7 @@ public class NavigationMyFolderActivity extends BaseActivity {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                 }
             });
         }
@@ -3109,6 +3115,7 @@ public class NavigationMyFolderActivity extends BaseActivity {
                     {
                         downloadIndex = 0;
                         transparentProgressDialog.dismiss();
+                        CommonFunctions.showSuccessfullyDownloaded(context);
                     }
 
 
@@ -3131,7 +3138,7 @@ public class NavigationMyFolderActivity extends BaseActivity {
         OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(context);
         OfflineFiles offlineFilesModel = new OfflineFiles();
         offlineFilesModel.setDocumentId(digitalAsset.getObject_id());
-        offlineFilesModel.setDocumentName(digitalAsset.getName());
+        offlineFilesModel.setDocumentName(digitalAsset.getFilename());
         offlineFilesModel.setDocumentVersionId(digitalAsset.getDocument_version_id());
         offlineFilesModel.setDownloadDate(DateHelper.getCurrentDate());
         offlineFilesModel.setFilename(digitalAsset.getName());
@@ -3235,6 +3242,7 @@ public class NavigationMyFolderActivity extends BaseActivity {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });
@@ -3303,6 +3311,7 @@ public class NavigationMyFolderActivity extends BaseActivity {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                 }
             });
         }
@@ -3337,41 +3346,7 @@ public class NavigationMyFolderActivity extends BaseActivity {
     }
 
 
-    private void showSessionExpiryAlert(String mMessage)
-    {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-        builder.setView(view);
-        builder.setCancelable(false);
 
-        TextView title = (TextView) view.findViewById(R.id.title);
-        title.setText("Alert");
-
-        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-        txtMessage.setText(mMessage);
-
-        Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-        cancelButton.setVisibility(View.GONE);
-
-        sendPinButton.setText("OK");
-
-        sendPinButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mAlertDialog.dismiss();
-                AccountSettings accountSettings = new AccountSettings(context);
-                accountSettings.deleteAll();
-                startActivity(new Intent(context, LoginActivity.class));
-            }
-        });
-
-        mAlertDialog = builder.create();
-        mAlertDialog.show();
-    }
 
 
     public void deleteDocumentsService(String deleteMode)
@@ -3512,7 +3487,7 @@ public class NavigationMyFolderActivity extends BaseActivity {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-
+                    CommonFunctions.showTimeoutAlert(context);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });
@@ -3648,7 +3623,7 @@ public class NavigationMyFolderActivity extends BaseActivity {
                         showVideoOrCameraAccess();
                     } else {
                         floatingActionMenu.close(true);
-                        Toast.makeText(context, "Camera Permission denied", Toast.LENGTH_LONG).show();
+                        Toast.makeText(context, "Camera permission denied", Toast.LENGTH_LONG).show();
                     }
                 }
                 break;
@@ -3725,5 +3700,19 @@ public class NavigationMyFolderActivity extends BaseActivity {
     }
 
 
+    @Override
+    public void onRefresh() {
 
+        if (NetworkUtils.checkIfNetworkAvailable(this)) {
+            mRefreshLayout.setRefreshing(false);
+                refreshMyFolderDMS();
+
+        } else {
+            mRefreshLayout.setRefreshing(false);
+            mRefreshLayout.setVisibility(View.GONE);
+            NetworkUtils.getDialog(context).show();
+        }
+
+
+    }
 }

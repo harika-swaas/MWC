@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -82,6 +83,11 @@ public class SplashScreen extends RootActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splashscreen);
+
+        if(getResources().getBoolean(R.bool.portrait_only)){
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
+
         ImageView logo = (ImageView) findViewById(R.id.LOGO);
         RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.BG);
         getAccountSettings();
@@ -336,6 +342,7 @@ public class SplashScreen extends RootActivity {
                         public void onFailure(Throwable t) {
                             transparentProgressDialog.dismiss();
                             mAlertDialog.dismiss();
+                            CommonFunctions.showTimeoutAlert(context);
                             Log.d("PinDevice error", t.getMessage());
                         }
                     });

@@ -404,6 +404,7 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(mActivity);
                     // Toast.makeText(mActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
@@ -449,7 +450,7 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     dialog.dismiss();
-                    Toast.makeText(mActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
+                    CommonFunctions.showTimeoutAlert(mActivity);
                 }
             });
         }
@@ -493,7 +494,9 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
 
                                 AccountSettingsResponse accountSettingsResponse = new AccountSettingsResponse();
                                 accountSettingsResponse.setUser_Id(mLoggedInObj.getUserId());
-                                accountSettingsResponse.setUser_Name(mLoggedInObj.getUserName());
+                              //  accountSettingsResponse.setUser_Name(mLoggedInObj.getUserName());
+                                // As per Changes
+                                accountSettingsResponse.setUser_Name(mUserName);
                                 accountSettingsResponse.setAccess_Token(mLoggedInObj.getAccessToken());
                                 accountSettingsResponse.setCompany_Name(mLoggedInObj.getCompany_name());
                                 accountSettingsResponse.setIs_Terms_Accepted("1");
@@ -517,6 +520,7 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     Log.d("PINVerErr", t.getMessage());
+                    CommonFunctions.showTimeoutAlert(mActivity);
                 }
             });
         }

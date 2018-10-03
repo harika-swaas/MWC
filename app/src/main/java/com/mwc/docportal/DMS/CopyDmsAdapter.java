@@ -25,6 +25,7 @@ import com.mwc.docportal.API.Model.GetEndUserAllowedSharedFoldersRequest;
 import com.mwc.docportal.API.Model.GetEndUserCategoriesResponse;
 import com.mwc.docportal.API.Model.ListPinDevicesResponse;
 import com.mwc.docportal.API.Service.GetEndUserAllowedSharedFoldersService;
+import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.Login.LoginActivity;
 import com.mwc.docportal.Network.NetworkUtils;
@@ -271,6 +272,7 @@ public class CopyDmsAdapter extends RecyclerView.Adapter<CopyDmsAdapter.ViewHold
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });

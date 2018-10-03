@@ -34,8 +34,8 @@ public class RetrofitAPIBuilder {
       //  String UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36";
 
         final OkHttpClient okHttpClient = new OkHttpClient();
-        okHttpClient.setReadTimeout(150, TimeUnit.SECONDS);
-        okHttpClient.setConnectTimeout(150, TimeUnit.SECONDS);
+        okHttpClient.setReadTimeout(120, TimeUnit.SECONDS);
+        okHttpClient.setConnectTimeout(120, TimeUnit.SECONDS);
         okHttpClient.networkInterceptors().add(new StethoInterceptor());
         okHttpClient.interceptors().add(new UserAgentInterceptor(UA));
 

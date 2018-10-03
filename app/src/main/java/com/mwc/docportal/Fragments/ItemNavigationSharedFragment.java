@@ -39,6 +39,7 @@ import com.mwc.docportal.API.Service.GetCategoryDocumentsService;
 
 import com.mwc.docportal.Adapters.SharedFolderAdapter;
 import com.mwc.docportal.Adapters.SharedFolderAdapterList;
+import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Common.SimpleDividerItemDecoration;
 import com.mwc.docportal.DMS.MyFoldersDMSActivity;
 
@@ -243,6 +244,7 @@ public class ItemNavigationSharedFragment extends Fragment
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(mActivity);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });

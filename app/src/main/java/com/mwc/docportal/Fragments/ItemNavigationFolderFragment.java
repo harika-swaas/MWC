@@ -505,6 +505,7 @@ public class ItemNavigationFolderFragment extends Fragment {
                             @Override
                             public void onFailure(Throwable t) {
                                 transparentProgressDialog.dismiss();
+                                CommonFunctions.showTimeoutAlert(mActivity);
                                 Log.d("PinDevice error", t.getMessage());
                             }
                         });
@@ -2427,6 +2428,7 @@ public class ItemNavigationFolderFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(mActivity);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });
@@ -2507,6 +2509,7 @@ public class ItemNavigationFolderFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(mActivity);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });
@@ -2623,6 +2626,7 @@ public class ItemNavigationFolderFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(mActivity);
                 }
             });
         }
@@ -2766,6 +2770,7 @@ public class ItemNavigationFolderFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(mActivity);
                 }
             });
         }

@@ -14,6 +14,7 @@ import com.mwc.docportal.API.Model.ListPinDevices;
 import com.mwc.docportal.API.Model.LoginResponse;
 import com.mwc.docportal.API.Service.ListPinDevicesService;
 import com.mwc.docportal.API.Service.SendPinService;
+import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.Preference.PreferenceUtils;
@@ -83,6 +84,7 @@ public class Pin extends RootActivity {
                 public void onFailure(Throwable t) {
                     {
                         Log.d("Pindevice error", t.getMessage());
+                        CommonFunctions.showTimeoutAlert(pinActivity);
                     }
                 }
 
@@ -132,8 +134,8 @@ public class Pin extends RootActivity {
 
                     @Override
                     public void onFailure(Throwable t) {
-                        Toast.makeText(pinActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
                         transparentProgressDialog.dismiss();
+                        CommonFunctions.showTimeoutAlert(pinActivity);
                     }
                 });
             }

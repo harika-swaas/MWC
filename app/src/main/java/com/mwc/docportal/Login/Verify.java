@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -20,6 +21,7 @@ import com.mwc.docportal.API.Model.VerifyPinRequest;
 import com.mwc.docportal.API.Service.FTLProcessService;
 import com.mwc.docportal.API.Service.SendPinService;
 import com.mwc.docportal.API.Service.VerifyPinService;
+import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.Preference.PreferenceUtils;
@@ -50,6 +52,11 @@ public class Verify extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.verify);
+
+        if(getResources().getBoolean(R.bool.portrait_only)){
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
+
         button3 = (Button) findViewById(R.id.verify_button);
         text = (TextView) findViewById(R.id.resend_pin);
         button3.setOnClickListener(new View.OnClickListener() {
@@ -122,8 +129,9 @@ public class Verify extends Activity {
 
                 @Override
                 public void onFailure(Throwable t) {
-                    Toast.makeText(vActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
+
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(vActivity);
                 }
             });
         }

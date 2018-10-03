@@ -11,17 +11,17 @@ public class VerifyPinRequest {
 
     @SerializedName("pin")
     @Expose
-    private int pin;
+    private long pin;
 
-    public VerifyPinRequest(int pin){
+    public VerifyPinRequest(long pin){
         this.pin = pin;
     }
 
-    public int getPin() {
+    public long getPin() {
         return pin;
     }
 
-    public void setPin(int pin) {
+    public void setPin(long pin) {
         this.pin = pin;
     }
 }

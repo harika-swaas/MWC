@@ -11,6 +11,8 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
+import android.text.InputFilter;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -79,11 +81,30 @@ public class FTLUserValidationFragment extends Fragment {
         mView = inflater.inflate(R.layout.ftl_user_validation_fragment, container, false);
 
         intializeViews();
-        getIntentData();
+      /*  getIntentData();
         getFTLProcess();
         //  setUserName();
         setButtonBackgroundColor();
-        addListenersToViews();
+        addListenersToViews();*/
+
+        /*inputUserName.setFilters(new InputFilter[]{
+                new InputFilter() {
+                    @Override
+                    public CharSequence filter(CharSequence cs, int start, int end,
+                                               Spanned spanned, int dStart, int dEnd) {
+
+                        if (cs.equals("")) {
+                            return cs;
+                        }
+                        if (cs.toString().matches("[a-zA-Z0-9_.,-@]+")) {
+                            return cs;
+                        }
+                        return "";
+                    }
+                }
+        });*/
+
+
         return mView;
     }
 
@@ -480,6 +501,7 @@ public class FTLUserValidationFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     Log.d("FTLProcessErr", t.getMessage());
+                    CommonFunctions.showTimeoutAlert(mActivity);
                 }
             });
         }

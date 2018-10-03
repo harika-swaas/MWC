@@ -7,6 +7,7 @@ import android.app.AlertDialog;
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -64,6 +65,10 @@ public class LoginActivity extends RootActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+
+        if(getResources().getBoolean(R.bool.portrait_only)){
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
 
 
         if(getIntent().getStringExtra("document_version_id") != null)
@@ -395,9 +400,9 @@ public class LoginActivity extends RootActivity {
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     checkAppStatus();
                 } else {
-                    Toast.makeText(context, "Storage access permission denied", Toast.LENGTH_LONG).show();
                     finish();
                     moveTaskToBack(true);
+                    Toast.makeText(context, "Storage access permission denied", Toast.LENGTH_LONG).show();
                 }
                 break;
         }

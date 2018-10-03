@@ -46,6 +46,7 @@ import com.mwc.docportal.API.Model.PushNotificationRequestModel;
 import com.mwc.docportal.API.Model.SharedDocumentResponseModel;
 import com.mwc.docportal.API.Model.WhiteLabelResponse;
 import com.mwc.docportal.API.Service.ShareEndUserDocumentsService;
+import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.DMS.MyFoldersDMSActivity;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Database.PushNotificatoinSettings_Respository;
@@ -502,6 +503,7 @@ public class ItemNavigationSettingsFragment extends Fragment{
                 @Override
                 public void onFailure(Throwable t) {
                     Log.d("PinDevice error", t.getMessage());
+                    CommonFunctions.showTimeoutAlert(mActivity);
                 }
             });
         }

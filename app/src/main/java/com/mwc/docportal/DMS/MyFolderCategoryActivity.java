@@ -24,6 +24,7 @@ import com.mwc.docportal.API.Model.LoginResponse;
 import com.mwc.docportal.API.Model.MoveCategoryRequest;
 import com.mwc.docportal.API.Service.GetEndUserCategoriesService;
 import com.mwc.docportal.API.Service.MoveDocumentService;
+import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Common.SimpleDividerItemDecoration;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
@@ -361,6 +362,7 @@ public class MyFolderCategoryActivity extends RootActivity {
                         @Override
                         public void onFailure(Throwable t) {
                             transparentProgressDialog.dismiss();
+                            CommonFunctions.showTimeoutAlert(MyFolderCategoryActivity.this);
                             Log.d("PinDevice error", t.getMessage());
                         }
                     });

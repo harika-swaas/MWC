@@ -128,6 +128,7 @@ public class Notes_Fragment extends android.support.v4.app.Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(mActivity);
                 }
             });
         }

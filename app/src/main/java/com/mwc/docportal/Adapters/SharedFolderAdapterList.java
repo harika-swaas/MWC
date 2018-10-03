@@ -47,6 +47,7 @@ import com.mwc.docportal.DMS.MyFolderSharedDocuments;
 import com.mwc.docportal.DMS.NavigationMyFolderActivity;
 import com.mwc.docportal.DMS.NavigationSharedActivity;
 import com.mwc.docportal.DMS.Tab_Activity;
+import com.mwc.docportal.DMS.UploadListActivity;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Database.OffLine_Files_Repository;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
@@ -370,6 +371,14 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
             @Override
             public void onClick(View v) {
                 mAlertDialog.dismiss();
+               /* GlobalVariables.isMoveInitiated = false;
+                GlobalVariables.selectedActionName = "";
+                GlobalVariables.selectedDocumentsList.clear();
+
+                Intent intent = new Intent(context, NavigationMyFolderActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                context.startActivity(intent);
+                context.finish();*/
             }
         });
 
@@ -477,6 +486,7 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
                     Log.d("PinDevice error", t.getMessage());
                 }
             });

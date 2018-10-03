@@ -60,6 +60,7 @@ import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Common.FileDownloadManager;
 import com.mwc.docportal.Components.LinkTextView;
 import com.mwc.docportal.DMS.NavigationMyFolderActivity;
+import com.mwc.docportal.DMS.UploadListActivity;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Database.OffLine_Files_Repository;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
@@ -357,90 +358,118 @@ public class FTLPinVerificationFragment extends Fragment {
                             message = apiResponse.status.getMessage().toString();
                         }
 
-                        if(CommonFunctions.isApiSuccess(mActivity, message, apiResponse.status.getCode()))
+                        if(apiResponse.status.getCode() instanceof Double)
                         {
-                            FTLPINResponse mFTLPINResponse = response.body().getData();
-                            if (mFTLPINResponse != null) {
-                                String accessToken = mFTLPINResponse.getAccessToken();
-                                PreferenceUtils.setAccessToken(mActivity, accessToken);
+                            double status_value = new Double(response.body().status.getCode().toString());
+                            if (status_value == 401.3)
+                            {
+                                showAlertDialogForAccessDenied(mActivity, message);
+                            }
+                            else if(status_value ==  401 || status_value ==  401.0)
+                            {
+                                showAlertDialogForSessionExpiry(mActivity, message);
+                            }
+                        }
+                        else if(response.body().status.getCode() instanceof Integer)
+                        {
+                            int integerValue = new Integer(response.body().status.getCode().toString());
+                            if(integerValue ==  401)
+                            {
+                                showAlertDialogForSessionExpiry(mActivity, message);
+                            }
+                        }
+                        else if(response.body().status.getCode() instanceof Boolean)
+                        {
+                            if (response.body().status.getCode() == Boolean.TRUE)
+                            {
+                                String mMessage = apiResponse.status.getMessage().toString();
 
-                                if (mFTLPINResponse.nextStep != null) {
-                                    if (mFTLPINResponse.nextStep.isFtl_required() == true) {
-                                        getFTLUISettings(accessToken, mFTLPINResponse);
+                                FTLPINResponse mFTLPINResponse = response.body().getData();
+                                if (mFTLPINResponse != null) {
+                                    if (mFTLPINResponse.isRequest_pin() == true) {
 
+                                        final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+                                        LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+                                        builder.setView(view);
+                                        builder.setCancelable(false);
+
+                                        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+                                        txtMessage.setText(mMessage);
+
+                                        Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+                                        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+                                        sendPinButton.setText("SEND PIN AGAIN");
+
+                                        sendPinButton.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                mAlertDialog.dismiss();
+                                                sendFTLPin();
+                                            }
+                                        });
+
+                                        cancelButton.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                mAlertDialog.dismiss();
+                                            }
+                                        });
+
+                                        mAlertDialog = builder.create();
+                                        mAlertDialog.show();
+
+                                    } else if (mFTLPINResponse.isFtl_complete() == true) {
+                                        // Showing Alert Dialog
+                                        AlertDialog mDialog = new AlertDialog.Builder(mActivity).create();
+                                        // Setting Dialog Title
+                                        mDialog.setTitle("Alert");
+                                        // Setting Dialog Message
+                                        mDialog.setMessage(mMessage);
+
+                                        // Setting OK Button
+                                        mDialog.setButton("OK", new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                // Write your code here to execute after dialog closed
+                                                mActivity.startActivity(new Intent(mActivity, LoginActivity.class));
+                                            }
+                                        });
+
+                                        mDialog.show();
+                                    }
+                                }
+                                else
+                                {
+                                    mActivity.showMessagebox(mActivity, mMessage, null, false);
+
+                                }
+                            }
+                            else
+                            {
+                                FTLPINResponse mFTLPINResponse = response.body().getData();
+                                if (mFTLPINResponse != null) {
+                                    String accessToken = mFTLPINResponse.getAccessToken();
+                                    PreferenceUtils.setAccessToken(mActivity, accessToken);
+
+                                    if (mFTLPINResponse.nextStep != null) {
+                                        if (mFTLPINResponse.nextStep.isFtl_required() == true) {
+                                            getFTLUISettings(accessToken, mFTLPINResponse);
+
+                                        }
                                     }
                                 }
                             }
                         }
-                        else
-                        {
-                            String mMessage = apiResponse.status.getMessage().toString();
 
-                            FTLPINResponse mFTLPINResponse = response.body().getData();
-                            if (mFTLPINResponse != null) {
-                                if (mFTLPINResponse.isRequest_pin() == true) {
-
-                                    final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-                                    LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                    View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-                                    builder.setView(view);
-                                    builder.setCancelable(false);
-
-                                    TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-                                    txtMessage.setText(mMessage);
-
-                                    Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-                                    Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-                                    sendPinButton.setText("SEND PIN AGAIN");
-
-                                    sendPinButton.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            mAlertDialog.dismiss();
-                                            sendFTLPin();
-                                        }
-                                    });
-
-                                    cancelButton.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            mAlertDialog.dismiss();
-                                        }
-                                    });
-
-                                    mAlertDialog = builder.create();
-                                    mAlertDialog.show();
-
-                                } else if (mFTLPINResponse.isFtl_complete() == true) {
-                                    // Showing Alert Dialog
-                                    AlertDialog mDialog = new AlertDialog.Builder(mActivity).create();
-                                    // Setting Dialog Title
-                                    mDialog.setTitle("Alert");
-                                    // Setting Dialog Message
-                                    mDialog.setMessage(mMessage);
-
-                                    // Setting OK Button
-                                    mDialog.setButton("OK", new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            // Write your code here to execute after dialog closed
-                                            mActivity.startActivity(new Intent(mActivity, LoginActivity.class));
-                                        }
-                                    });
-
-                                    mDialog.show();
-                                }
-                            } else {
-                                mActivity.showMessagebox(mActivity, mMessage, null, false);
-                            }
-                        }
                     }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(mActivity);
                 }
             });
         }
@@ -507,6 +536,7 @@ public class FTLPinVerificationFragment extends Fragment {
 
                 @Override
                 public void onFailure(Throwable t) {
+                    CommonFunctions.showTimeoutAlert(mActivity);
                     // Toast.makeText(mActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
@@ -601,6 +631,7 @@ public class FTLPinVerificationFragment extends Fragment {
 
                 @Override
                 public void onFailure(Throwable t) {
+                    CommonFunctions.showTimeoutAlert(mActivity);
                     // Toast.makeText(mActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
@@ -617,7 +648,8 @@ public class FTLPinVerificationFragment extends Fragment {
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
             final VerifyPinService verifyPinService = retrofitAPI.create(VerifyPinService.class);
 
-            final VerifyPinRequest mVerifyPinRequest = new VerifyPinRequest(Integer.parseInt(pinNo));
+            final VerifyPinRequest mVerifyPinRequest = new VerifyPinRequest(Long.parseLong(pinNo));
+
 
             final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
             transparentProgressDialog.show();
@@ -653,6 +685,7 @@ public class FTLPinVerificationFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(mActivity);
                 }
             });
         }
@@ -719,6 +752,7 @@ public class FTLPinVerificationFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     Log.d("PINVerErr", t.getMessage());
+                    CommonFunctions.showTimeoutAlert(mActivity);
                 }
             });
         }
@@ -777,7 +811,9 @@ public class FTLPinVerificationFragment extends Fragment {
                 }
 
                 @Override
-                public void onFailure(Throwable t) {
+                public void onFailure(Throwable t)
+                {
+                    CommonFunctions.showTimeoutAlert(mActivity);
                 }
             });
         }
@@ -823,7 +859,9 @@ public class FTLPinVerificationFragment extends Fragment {
                 }
 
                 @Override
-                public void onFailure(Throwable t) {
+                public void onFailure(Throwable t)
+                {
+                    CommonFunctions.showTimeoutAlert(mActivity);
                 }
             });
         }
@@ -876,6 +914,7 @@ public class FTLPinVerificationFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(mActivity);
                     Log.d("PINVerErr", t.getMessage());
                 }
             });
@@ -923,6 +962,7 @@ public class FTLPinVerificationFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(mActivity);
                     // Toast.makeText(pinActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
@@ -956,5 +996,77 @@ public class FTLPinVerificationFragment extends Fragment {
                 break;
         }
     }
+
+    private void showAlertDialogForAccessDenied(Context context, String message)
+    {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Error");
+
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+        txtMessage.setText(message);
+
+        Button okButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+        cancelButton.setVisibility(View.GONE);
+
+        okButton.setText("OK");
+
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+
+            }
+        });
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
+    }
+
+    private void showAlertDialogForSessionExpiry(Context context, String message)
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Session Expired");
+
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+        txtMessage.setText(message);
+
+        Button okButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+        cancelButton.setVisibility(View.GONE);
+
+        okButton.setText("OK");
+
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+                AccountSettings accountSettings = new AccountSettings(context);
+                accountSettings.LogouData();
+                context.startActivity(new Intent(context, LoginActivity.class));
+            }
+        });
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
+    }
+
 
 }
