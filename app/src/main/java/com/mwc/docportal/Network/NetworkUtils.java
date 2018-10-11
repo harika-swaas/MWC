@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
+import com.mwc.docportal.R;
+
 /**
  * Created by harika on 12-06-2018.
  */
@@ -35,7 +37,8 @@ public class NetworkUtils {
 
     public static AlertDialog getDialog(final Context context) {
         return new AlertDialog.Builder(context)
-                .setMessage("Network is disabled in your device. Would you like to enable it?")
+             //   .setMessage("Network is disabled in your device. Would you like to enable it?")
+                .setMessage(context.getString(R.string.check_network_txt))
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         context.startActivity(new Intent(android.provider.Settings.ACTION_SETTINGS));

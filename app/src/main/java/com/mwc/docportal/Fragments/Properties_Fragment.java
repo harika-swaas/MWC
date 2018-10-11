@@ -36,6 +36,7 @@ import com.mwc.docportal.API.Model.LoginResponse;
 import com.mwc.docportal.API.Service.DocumentPropertiesService;
 import com.mwc.docportal.API.Service.EditDocumentPropertiesService;
 import com.mwc.docportal.Common.CommonFunctions;
+import com.mwc.docportal.Common.GlobalVariables;
 import com.mwc.docportal.DMS.Tab_Activity;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.Login.LoginActivity;
@@ -44,6 +45,7 @@ import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
+import com.mwc.docportal.Utils.SplashScreen;
 import com.mwc.docportal.pdf.PdfViewActivity;
 
 import org.json.JSONArray;
@@ -142,7 +144,23 @@ public class Properties_Fragment extends Fragment{
                 search_tags= (TextView) mView.findViewById(R.id.textView11);
         }
 */
-    public void getdocumentdetails(){
+        @Override
+        public void onResume() {
+            super.onResume();
+
+            if(GlobalVariables.isComingFromApp)
+            {
+                Intent intent = new Intent(mActivity, SplashScreen.class);
+                intent.putExtra("IsFromForeground", true);
+                intent.putExtra("ActivityName", "com.mwc.docportal.Fragments.Properties_Fragment");
+                startActivityForResult(intent, 123);
+            }
+
+        }
+
+
+
+            public void getdocumentdetails(){
 
         if (NetworkUtils.isNetworkAvailable(getActivity())) {
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();

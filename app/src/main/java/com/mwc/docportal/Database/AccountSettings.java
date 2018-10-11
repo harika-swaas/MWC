@@ -494,6 +494,15 @@ public class AccountSettings {
         GlobalVariables.isSharedTileView = true;
         GlobalVariables.sharedDocsSortType = "type";
         GlobalVariables.sharedDocsIsAscending = true;
+        GlobalVariables.isFromForeground = true;
+        GlobalVariables.isComingFromApp = false;
+        GlobalVariables.isFromCamerOrVideo = false;
+        GlobalVariables.isMultiSelect = false;
+        GlobalVariables.selectedCountValue = 0;
+        GlobalVariables.activityCount = 0;
+        GlobalVariables.moveOriginIndex = 0;
+        GlobalVariables.activityFinishCount = 0;
+        GlobalVariables.refreshPage = false;
 
         Intent intent = new Intent(mContext, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);

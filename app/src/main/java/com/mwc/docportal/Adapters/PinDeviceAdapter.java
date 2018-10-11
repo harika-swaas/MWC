@@ -22,11 +22,13 @@ public class PinDeviceAdapter extends RecyclerView.Adapter<PinDeviceAdapter.PinD
     private RadioButton lastCheckedRB = null;
     final Context context;
     List<ListPinDevices> mListPinDevices;
+    AdapterInterface listener;
 
-
-    public PinDeviceAdapter(Activity context, List<ListPinDevices> mListPinDevices) {
+    public PinDeviceAdapter(Activity context, List<ListPinDevices> mListPinDevices, AdapterInterface listener) {
         this.context = context;
         this.mListPinDevices = mListPinDevices;
+        this.listener = listener;
+
     }
 
     @Override
@@ -60,6 +62,12 @@ public class PinDeviceAdapter extends RecyclerView.Adapter<PinDeviceAdapter.PinD
                 //store the clicked radiobutton
                 lastCheckedRB = radioButton;
                 if(isChecked){
+
+                    if(listener != null)
+                    {
+                        listener.onClick(mListPinDevices.get(position).getDevice_type());
+                    }
+
 
                     String mUserPinDeviceId = mListPinDevices.get(position).getUser_pin_device_id();
                     PreferenceUtils.setUserPinDeviceId(context,mUserPinDeviceId);
@@ -97,4 +105,11 @@ public class PinDeviceAdapter extends RecyclerView.Adapter<PinDeviceAdapter.PinD
             radioButton = (RadioButton) itemView.findViewById(R.id.user_pin_device_radio_type);
         }
     }
+
+    public interface AdapterInterface
+    {
+        void onClick(String value);
+    }
+
+
 }

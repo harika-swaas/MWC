@@ -478,19 +478,20 @@ public class FTLPasswordValidationFragment extends Fragment {
 
         String password = inputPassword.getText().toString().trim();
 
-        if (password.isEmpty() || !isValidPassword(password)) {
-            inputLayoutPassword.setError(getString(R.string.err_msg_password));
-            requestFocus(inputPassword);
-            return false;
-        } else if (password.length() < 8) {
+        if (!password.isEmpty() && password.length() < 8) {
             inputLayoutPassword.setError(getString(R.string.err_msg_password_min_length));
             requestFocus(inputPassword);
             return false;
-        } else if (password.length() > 15) {
+        } else if (!password.isEmpty() && password.length() > 15) {
             inputLayoutPassword.setError(getString(R.string.err_msg_password_max_length));
             requestFocus(inputPassword);
             return false;
-        } else {
+        } else if (password.isEmpty() || !isValidPassword(password)) {
+            inputLayoutPassword.setError(getString(R.string.err_msg_password));
+            requestFocus(inputPassword);
+            return false;
+        }
+        else {
             inputLayoutPassword.setErrorEnabled(false);
         }
 

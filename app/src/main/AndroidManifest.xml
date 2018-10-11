@@ -23,8 +23,7 @@
     <uses-permission
         android:name="android.permission.CAPTURE_VIDEO_OUTPUT"
         tools:ignore="ProtectedPermissions" />
-    <uses-permission
-        android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
+    <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
 
     <application
         android:name=".MWCApplication"
@@ -34,8 +33,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Login.LoginActivity"
-
+        <activity
+            android:name=".Login.LoginActivity"
             android:configChanges="orientation|screenSize|keyboardHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -45,69 +44,60 @@
         </activity>
         <activity
             android:name=".Utils.SplashScreen"
-            android:configChanges="orientation|screenSize|keyboardHidden"
-            />
-            <!--android:screenOrientation="portrait" -->
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        <!-- android:screenOrientation="portrait" -->
         <activity
             android:name=".FTL.FTLActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden"
-            />
-         <!--   android:screenOrientation="portrait" -->
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        <!-- android:screenOrientation="portrait" -->
         <activity
             android:name=".FTL.FTLRegistrationActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden"
-            />
-          <!--  android:screenOrientation="portrait" -->
-        <activity android:name=".FTL.FTLPinVerificationActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden"
-            />
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        <!-- android:screenOrientation="portrait" -->
+        <activity
+            android:name=".FTL.FTLPinVerificationActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
         <!-- android:screenOrientation="portrait" -->
         <activity
             android:name=".FTL.FTLUserValidationActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden"
-            />
-           <!-- android:screenOrientation="portrait" -->
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        <!-- android:screenOrientation="portrait" -->
         <activity
             android:name=".FTL.FTLPasswordValidationActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden"
-            />
-          <!--  android:screenOrientation="portrait" -->
-        <activity
-            android:name=".Login.Dashboard"/>
-            <!--android:screenOrientation="portrait" -->
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        <!-- android:screenOrientation="portrait" -->
+        <activity android:name=".Login.Dashboard" />
+        <!-- android:screenOrientation="portrait" -->
         <activity
             android:name=".Login.Notifiy"
-            android:configChanges="orientation|screenSize|keyboardHidden"
-            />
-           <!-- android:screenOrientation="portrait" -->
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        <!-- android:screenOrientation="portrait" -->
         <activity
             android:name=".Login.PinVerificationActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden"
-            />
-           <!-- android:screenOrientation="portrait"-->
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        <!-- android:screenOrientation="portrait" -->
         <activity
             android:name=".Login.Touchid"
-            android:configChanges="orientation|screenSize|keyboardHidden"
-            />
-           <!-- android:screenOrientation="portrait" -->
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        <!-- android:screenOrientation="portrait" -->
         <activity
             android:name=".Login.Verify"
             android:screenOrientation="portrait" />
-        <activity android:name=".FTL.FTLAgreeTermsAcceptanceActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden"
-            />
+        <activity
+            android:name=".FTL.FTLAgreeTermsAcceptanceActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
         <!-- android:screenOrientation="portrait" -->
-        <activity android:name=".FTL.WebviewLoaderTermsActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden"
-            />
+        <activity
+            android:name=".FTL.WebviewLoaderTermsActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
         <!-- android:screenOrientation="portrait" -->
-        <activity android:name=".Login.LoginAgreeTermsAcceptanceActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden"
-            />
+        <activity
+            android:name=".Login.LoginAgreeTermsAcceptanceActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
         <!-- android:screenOrientation="portrait" -->
-        <activity android:name=".Login.LoginHelpUserGuideActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden"
-            />
+        <activity
+            android:name=".Login.LoginHelpUserGuideActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
         <!-- android:screenOrientation="portrait" -->
         <activity
             android:name=".DMS.MyFoldersDMSActivity"
@@ -116,22 +106,21 @@
         <activity android:name=".DMS.MyFolderCategoryActivity" />
         <activity
             android:name=".DMS.UploadListActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden"
-            />
-          <!--  android:screenOrientation="portrait" -->
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        <!-- android:screenOrientation="portrait" -->
         <activity
             android:name=".DMS.MyFolderSharedDocuments"
             android:screenOrientation="portrait" />
         <activity
             android:name=".DMS.Tab_Activity"
-            android:label="Document Info"
-            android:configChanges="orientation|screenSize|keyboardHidden"/>
-            <!--android:screenOrientation="portrait"-->
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:label="Document Info" />
+        <!-- android:screenOrientation="portrait" -->
         <activity android:name=".DMS.MyFolderEndUserAllowedSharedFoldersActivity" />
         <activity android:name=".DMS.MyFolderActivity" />
-        <activity android:name=".pdf.PdfViewActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden"
-            />
+        <activity
+            android:name=".pdf.PdfViewActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
         <activity android:name=".DMS.MyfolderDeleteActivity" />
 
         <receiver android:name=".ReadSms">
@@ -139,7 +128,6 @@
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
         </receiver>
-
 
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -190,21 +178,30 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".OffLine_Files_List"
-            android:configChanges="orientation|screenSize|keyboardHidden"/>
-        <activity android:name=".UserProfileActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden"/>
-        <activity android:name=".DMS.NavigationMyFolderActivity"
-            android:configChanges="orientation|screenSize"/>
-        <activity android:name=".DMS.NavigationSharedActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden"/>
-        <activity android:name=".DMS.NavigationSettingsActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden"/>
+        <activity
+            android:name=".OffLine_Files_List"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        <activity
+            android:name=".UserProfileActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        <activity
+            android:name=".DMS.NavigationMyFolderActivity"
+            android:configChanges="orientation|screenSize" />
+        <activity
+            android:name=".DMS.NavigationSharedActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        <activity
+            android:name=".DMS.NavigationSettingsActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        <activity
+            android:name=".GlobalSearch.GlobalSearchActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        <activity
+            android:name=".Online_PdfView_Activity"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
 
-        <activity android:name=".GlobalSearch.GlobalSearchActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden"/>
-        <activity android:name=".Online_PdfView_Activity"
-            android:configChanges="orientation|screenSize|keyboardHidden"></activity>
+
+
     </application>
 
 </manifest>

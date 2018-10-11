@@ -168,8 +168,11 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
                 ds.setUnderlineText(false); // set to false to remove underline
             }
         };
-        spannableString.setSpan(clickableSpan, 41,
-                59, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+       /* spannableString.setSpan(clickableSpan, 41,
+                59, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);*/
+        spannableString.setSpan(clickableSpan, 49,
+                73, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
         setAcceptanceTerms.setText(spannableString,
                 TextView.BufferType.SPANNABLE);
         setAcceptanceTerms.setMovementMethod(LinkMovementMethod.getInstance());

@@ -42,6 +42,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,11 +53,13 @@ import com.github.angads25.filepicker.view.FilePickerDialog;
 import com.google.gson.Gson;
 
 import com.mwc.docportal.Common.CommonFunctions;
+import com.mwc.docportal.Common.GlobalVariables;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.GlobalSearch.GlobalSearchActivity;
 import com.mwc.docportal.Login.LoginActivity;
 import com.mwc.docportal.MWCApplication;
 import com.mwc.docportal.RootActivity;
+import com.mwc.docportal.Utils.SplashScreen;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.RequestBody;
 import com.mwc.docportal.API.Model.UploadDocumentResponse;
@@ -115,6 +118,8 @@ public class UploadListActivity extends RootActivity {
     LinearLayout empty_view;
     ArrayList<String> filteredUploadList = new ArrayList<>();
     private boolean firstConnect = true;
+    RelativeLayout upload_layout;
+    TextView upload_textview, cancel_textview;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -130,9 +135,14 @@ public class UploadListActivity extends RootActivity {
         getSupportActionBar().setTitle("Upload");
         empty_view = (LinearLayout)findViewById(R.id.empty_view);
 
+        upload_layout = (RelativeLayout)findViewById(R.id.upload_layout);
+        upload_textview = (TextView) findViewById(R.id.upload_textview);
+        cancel_textview = (TextView) findViewById(R.id.cancel_textview);
 
         upload_list = (RecyclerView) findViewById(R.id.list_upload);
         upload_list.setLayoutManager(new LinearLayoutManager(this));
+
+        upload_list.setNestedScrollingEnabled(false);
 
         filteredUploadList = PreferenceUtils.getupload(UploadListActivity.this, "key");
 
@@ -148,8 +158,32 @@ public class UploadListActivity extends RootActivity {
                     filteredDataList.add(fileName);
 
                 }
-                PreferenceUtils.setupload(context, filteredDataList, "key");
+
             }
+
+            ArrayList<String> fileFormatList = PreferenceUtils.getFileFormats(UploadListActivity.this, "key");
+
+            ArrayList<String> OriginalUploadList = new ArrayList<>();
+            if(filteredDataList != null && filteredDataList.size() > 0)
+            {
+                for(String fileItem : filteredDataList)
+                {
+                    String[] fileParts = fileItem.split("\\.");
+                    String fileExtension = fileParts[fileParts.length - 1];
+
+                    for(String fileFormat : fileFormatList)
+                    {
+                        if(fileExtension.equalsIgnoreCase(fileFormat))
+                        {
+                            OriginalUploadList.add(fileItem);
+                        }
+                    }
+                }
+
+            }
+
+            PreferenceUtils.setupload(context, OriginalUploadList, "key");
+
         }
 
         UploadList = PreferenceUtils.getupload(UploadListActivity.this, "key");
@@ -161,19 +195,41 @@ public class UploadListActivity extends RootActivity {
         if(UploadList != null && UploadList.size() > 0)
         {
             empty_view.setVisibility(View.GONE);
+            upload_layout.setVisibility(View.VISIBLE);
         }
         else
         {
             empty_view.setVisibility(View.VISIBLE);
+            upload_layout.setVisibility(View.GONE);
         }
 
+        onClickListeners();
 
+    }
+
+    private void onClickListeners()
+    {
+        upload_textview.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+             //   customAdapter.selectedList(PreferenceUtils.getupload(UploadListActivity.this, "key"));
+                uploadDocuments();
+            }
+        });
+
+        cancel_textview.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
     }
 
     public void upload(final int i)
     {
         customAdapter.ActivateLoad(true,fileindex);
         customAdapter.notifyDataSetChanged();
+    //    customAdapter.notifyItemChanged(fileindex);
         UploadList = PreferenceUtils.getupload(UploadListActivity.this, "key");
         int size = UploadList.size();
 
@@ -297,13 +353,16 @@ public class UploadListActivity extends RootActivity {
             if (uploadFailedList.size() == 0)
             {
                 if(!((Activity) context ).isFinishing()) {
-                    showAlertMessage("Your file(s) are being uploaded. You will receive a notification when they are ready to view.", true, "");
+                    showAlertMessage(getString(R.string.upload_txt), true, "");
+                 //   showAlertMessage("Your file(s) are being uploaded. You will receive a notification when they are ready to view.", true, "");
                 }
                 empty_view.setVisibility(View.VISIBLE);
+                upload_layout.setVisibility(View.GONE);
             }
             else
             {
                 empty_view.setVisibility(View.GONE);
+                upload_layout.setVisibility(View.VISIBLE);
                 uploadFailedList.clear();
 
                 final AlertDialog.Builder builder = new AlertDialog.Builder(UploadListActivity.this);
@@ -360,8 +419,6 @@ public class UploadListActivity extends RootActivity {
                 mBottomSheetDialog.dismiss();
                 isVideo = false;
                 cameraAndStoragePermission();
-
-
             }
         });
 
@@ -371,8 +428,6 @@ public class UploadListActivity extends RootActivity {
                 mBottomSheetDialog.dismiss();
                 isVideo = true;
                 cameraAndStoragePermissionForVideo();
-
-
             }
         });
         browse.setOnClickListener(new View.OnClickListener() {
@@ -416,6 +471,7 @@ public class UploadListActivity extends RootActivity {
 
     private void videoAccess()
     {
+        GlobalVariables.isFromCamerOrVideo = true;
         if(Build.VERSION.SDK_INT>=24){
             try{
                 Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
@@ -463,6 +519,7 @@ public class UploadListActivity extends RootActivity {
 
     private void cameraAccess()
     {
+        GlobalVariables.isFromCamerOrVideo = true;
         if(Build.VERSION.SDK_INT>=24){
             try{
                 Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
@@ -527,10 +584,10 @@ public class UploadListActivity extends RootActivity {
                     }
 
                 }
-                else
+                /*else
                 {
                     Toast.makeText(UploadListActivity.this,"Please select less then 10 documents ",Toast.LENGTH_SHORT).show();
-                }
+                }*/
                 Intent intent = new Intent(UploadListActivity.this,UploadListActivity.class);
                 startActivity(intent);
             }
@@ -720,6 +777,7 @@ public class UploadListActivity extends RootActivity {
            {
               Intent intent=new Intent(UploadListActivity.this,NavigationMyFolderActivity.class);
               intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+              intent.putExtra("IsFromUpload", "Upload");
               startActivity(intent);
               finish();
            }
@@ -759,6 +817,7 @@ public class UploadListActivity extends RootActivity {
                 PreferenceUtils.setupload(context, uploadlist, "key");
                 Intent intent=new Intent(UploadListActivity.this,NavigationMyFolderActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                intent.putExtra("IsFromUpload", "Upload");
                 startActivity(intent);
                 finish();
 
@@ -799,6 +858,7 @@ public class UploadListActivity extends RootActivity {
                 if(!unsupported.isEmpty() && unsupported.equalsIgnoreCase("unsupported"))
                 {
                     menuItemUpload.setVisible(true);
+                    upload_textview.setVisibility(View.VISIBLE);
                 }
 
                 if(buttonEnabled == true)
@@ -806,6 +866,7 @@ public class UploadListActivity extends RootActivity {
                     menuItemAdd.setVisible(true);
                     Intent intent=new Intent(UploadListActivity.this,NavigationMyFolderActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    intent.putExtra("IsFromUpload", "Upload");
                     startActivity(intent);
                     finish();
                 }
@@ -903,14 +964,15 @@ public class UploadListActivity extends RootActivity {
             int choosenFilesCount = PreferenceUtils.getupload(UploadListActivity.this, "key").size();
             menuItemAdd.setVisible(false);
             menuItemUpload.setVisible(false);
+            upload_textview.setVisibility(View.GONE);
             Boolean isError = false;
 
-            if (choosenFilesCount > 10) {
+           /* if (choosenFilesCount > 10) {
                 if(!((Activity) context ).isFinishing()) {
                     showAlertMessage("Please select less then 10 documents", false, "");
                 }
                 isError = true;
-            } else {
+            } else {*/
                 for (int i = 0; i < choosenFilesCount; i++) {
                     File file = new File(UploadList.get(i));
                     float file_size = Float.parseFloat(String.valueOf(file.length() / 1024 / 1024));
@@ -938,6 +1000,7 @@ public class UploadListActivity extends RootActivity {
                         if (!validFormat) {
 
                             menuItemUpload.setVisible(false);
+                            upload_textview.setVisibility(View.GONE);
                             if(!((Activity) context ).isFinishing()) {
                                 showAlertMessage(UploadList.get(i) + " " + fileExtension + " is unsupported", false, "unsupported");
                             }
@@ -955,8 +1018,9 @@ public class UploadListActivity extends RootActivity {
                     }
                 } else {
                     menuItemUpload.setVisible(true);
+                    upload_textview.setVisibility(View.VISIBLE);
                 }
-            }
+        //    }
         }
     }
 
@@ -964,6 +1028,7 @@ public class UploadListActivity extends RootActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        GlobalVariables.isFromCamerOrVideo = false;
         unregisterReceiver(networkReceiver);
         if (mCustomAlertDialog != null) {
             mCustomAlertDialog.dismiss();
@@ -980,7 +1045,7 @@ public class UploadListActivity extends RootActivity {
         builder.setCancelable(false);
 
         TextView title = (TextView) view.findViewById(R.id.title);
-        title.setText("Error");
+        title.setText("Alert");
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 
@@ -1047,6 +1112,15 @@ public class UploadListActivity extends RootActivity {
     protected void onResume() {
         super.onResume();
       //  firstConnect = true;
+
+        if(GlobalVariables.isComingFromApp)
+        {
+            Intent intent = new Intent(context, SplashScreen.class);
+            intent.putExtra("IsFromForeground", true);
+            intent.putExtra("ActivityName", "com.mwc.docportal.DMS.UploadListActivity");
+            startActivityForResult(intent, 900);
+        }
+
         this.registerReceiver(this.networkReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
     }
 
@@ -1090,7 +1164,8 @@ public class UploadListActivity extends RootActivity {
 
     public AlertDialog getDialog(Context context) {
         return new AlertDialog.Builder(context)
-                .setMessage("Network is disabled in your device. Would you like to enable it?")
+             //   .setMessage("Network is disabled in your device. Would you like to enable it?")
+                .setMessage(context.getString(R.string.check_network_txt))
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
@@ -1099,15 +1174,18 @@ public class UploadListActivity extends RootActivity {
                         customAdapter = new UploadListAdapter(UploadListActivity.this, UploadList);
                         upload_list.setAdapter(customAdapter);
                         menuItemAdd.setVisible(true);
-                        menuItemUpload.setVisible(true);
+                        menuItemUpload.setVisible(false);
+                        upload_textview.setVisibility(View.VISIBLE);
 
                         if(UploadList != null && UploadList.size() > 0)
                         {
                             empty_view.setVisibility(View.GONE);
+                            upload_layout.setVisibility(View.VISIBLE);
                         }
                         else
                         {
                             empty_view.setVisibility(View.VISIBLE);
+                            upload_layout.setVisibility(View.GONE);
                         }
                         context.startActivity(new Intent(android.provider.Settings.ACTION_SETTINGS));
                     }
@@ -1120,20 +1198,24 @@ public class UploadListActivity extends RootActivity {
                         customAdapter = new UploadListAdapter(UploadListActivity.this, UploadList);
                         upload_list.setAdapter(customAdapter);
                         menuItemAdd.setVisible(true);
-                        menuItemUpload.setVisible(true);
+                        menuItemUpload.setVisible(false);
+                        upload_textview.setVisibility(View.VISIBLE);
 
                         if(UploadList != null && UploadList.size() > 0)
                         {
                             empty_view.setVisibility(View.GONE);
+                            upload_layout.setVisibility(View.VISIBLE);
                         }
                         else
                         {
                             empty_view.setVisibility(View.VISIBLE);
+                            upload_layout.setVisibility(View.GONE);
                         }
                     }
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert).create();
     }
+
 
 
 }

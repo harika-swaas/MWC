@@ -29,6 +29,7 @@ import com.mwc.docportal.API.Model.SharedDocumentResponseModel;
 import com.mwc.docportal.API.Model.WhiteLabelResponse;
 import com.mwc.docportal.API.Service.ShareEndUserDocumentsService;
 import com.mwc.docportal.Common.CommonFunctions;
+import com.mwc.docportal.Common.GlobalVariables;
 import com.mwc.docportal.DMS.MyFoldersDMSActivity;
 import com.mwc.docportal.DMS.NavigationMyFolderActivity;
 import com.mwc.docportal.Database.AccountSettings;
@@ -66,6 +67,7 @@ public class Notifiy extends RootActivity {
     AlertDialog mCustomAlertDialog;
     Notifiy mActivity;
     Context context = this;
+    TextView notification_head;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +81,9 @@ public class Notifiy extends RootActivity {
 
         skip = (TextView) findViewById(R.id.skip_button_1);
         button5 = (Button) findViewById(R.id.enable_touch_button);
+        notification_head = (TextView) findViewById(R.id.notification_head);
+        notification_head.setText("Notifications for" + getResources().getString(R.string.app_name));
+        skip.setVisibility(View.INVISIBLE);
 
         getIntentData();
         setButtonBackgroundColor();
@@ -91,7 +96,11 @@ public class Notifiy extends RootActivity {
             @Override
             public void onClick(View v) {
 
-                final AlertDialog.Builder builder = new AlertDialog.Builder(Notifiy.this);
+                updatePushNotificationAndLoggedInStatus();
+                String register_type = "1";
+                getPushNotificationDocumentService(register_type);
+
+               /* final AlertDialog.Builder builder = new AlertDialog.Builder(Notifiy.this);
                 LayoutInflater inflater = (LayoutInflater) Notifiy.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 View view = inflater.inflate(R.layout.custom_dialog, null);
                 builder.setView(view);
@@ -122,7 +131,7 @@ public class Notifiy extends RootActivity {
                        getPushNotificationDocumentService(register_type);
 
 
-                        /*if (mIsFromFTL) {
+                        *//*if (mIsFromFTL) {
                             Intent intent = new Intent(Notifiy.this, LoginHelpUserGuideActivity.class);
                             startActivity(intent);
                             finish();
@@ -138,12 +147,12 @@ public class Notifiy extends RootActivity {
                                     finish();
                                 }
                             }
-                        }*/
+                        }*//*
                     }
                 });
 
                 mCustomAlertDialog = builder.create();
-                mCustomAlertDialog.show();
+                mCustomAlertDialog.show();*/
             }
         });
 
@@ -253,6 +262,7 @@ public class Notifiy extends RootActivity {
                                         Intent intent = new Intent(Notifiy.this, NavigationMyFolderActivity.class);
                                         startActivity(intent);
                                         finish();
+                                        GlobalVariables.isFromForeground = false;
                                     }
                                 }
                             }

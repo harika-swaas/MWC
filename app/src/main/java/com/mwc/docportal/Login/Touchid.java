@@ -62,6 +62,8 @@ public class Touchid extends Activity {
     String finger_print_settings;
     KeyguardManager keyguardManager;
     private static final int CREDENTIALS_RESULT = 4342;
+    AlertDialog mAlertDialog;
+    Context context = this;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 
@@ -337,10 +339,46 @@ public class Touchid extends Activity {
 
             }
             else{
-                Toast.makeText(Touchid.this,"Authentication Failed",Toast.LENGTH_SHORT).show();
+            //    Toast.makeText(Touchid.this,"Authentication Failed",Toast.LENGTH_SHORT).show();
+                showAuthenticationFailureMessage();
 
             }
         }
+    }
+
+
+    private void showAuthenticationFailureMessage()
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Alert");
+
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+        txtMessage.setText("You have clicked the cancel button. Unable to complete authentication.");
+
+        Button okButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+        cancelButton.setVisibility(View.GONE);
+
+        okButton.setText("OK");
+
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+
+            }
+        });
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
     }
 }
 

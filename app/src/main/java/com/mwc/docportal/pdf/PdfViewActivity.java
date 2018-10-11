@@ -72,9 +72,6 @@ import com.mwc.docportal.API.Service.ShareEndUserDocumentsService;
 import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Common.FileDownloadManager;
 import com.mwc.docportal.Common.GlobalVariables;
-
-import com.mwc.docportal.DMS.MyFolderSharedDocuments;
-
 import com.mwc.docportal.DMS.NavigationMyFolderActivity;
 import com.mwc.docportal.DMS.NavigationSharedActivity;
 import com.mwc.docportal.DMS.Tab_Activity;
@@ -320,16 +317,61 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                 }
                 else if(download_button.getText().toString().equalsIgnoreCase("View"))
                 {
-                    OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(context);
-                    String filepath = offLine_files_repository.getFilePathFromLocalTable(categoryDocumentsResponse.getDocument_version_id());
+                    showWarningMessgeForExternalShare(categoryDocumentsResponse);
 
-                    getExternalSharingContentAPI(categoryDocumentsResponse.getName(), categoryDocumentsResponse.getDocument_version_id(), filepath);
                 }
 
 
             }
         });
 
+    }
+
+    private void showWarningMessgeForExternalShare(GetCategoryDocumentsResponse categoryDocumentsResponse)
+    {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Warning");
+
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+        txtMessage.setText(getString(R.string.share_external_txt));
+
+        Button okButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+        cancelButton.setText("CANCEL");
+
+        okButton.setText("OK");
+
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+            }
+        });
+
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+
+                OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(context);
+                String filepath = offLine_files_repository.getFilePathFromLocalTable(categoryDocumentsResponse.getDocument_version_id());
+
+                getExternalSharingContentAPI(categoryDocumentsResponse.getName(), categoryDocumentsResponse.getDocument_version_id(), filepath);
+
+
+            }
+        });
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
     }
 
     private void showWarningAlertForSharingContent(final String name, final String document_version_id)
@@ -345,7 +387,8 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 
-        txtMessage.setText("You are sharing this document to external contacts. Please aware that document security will not be carried over to the recipient");
+  //      txtMessage.setText("You are sharing this document to external contacts. Please aware that document security will not be carried over to the recipient");
+        txtMessage.setText(getString(R.string.external_sharing_text));
 
         Button okButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
@@ -523,6 +566,14 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
     @Override
     public void onResume() {
         super.onResume();
+
+        if(GlobalVariables.isComingFromApp)
+        {
+            Intent intent = new Intent(context, SplashScreen.class);
+            intent.putExtra("IsFromForeground", true);
+            intent.putExtra("ActivityName", "com.mwc.docportal.pdf.PdfViewActivity");
+            startActivityForResult(intent, 111);
+        }
 
         if (isVisible){
 
@@ -960,16 +1011,14 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                 if(buttonView.isPressed() == true) {
                     mBottomSheetDialog.dismiss();
                     if (!isChecked) {
-                        switchButton_share.setChecked(true);
+                        switchButton_share.setChecked(false);
                         showWarningMessageAlertForSharingContent();
 
                     } else {
-                        switchButton_share.setChecked(false);
-                        GlobalVariables.isMoveInitiated = true;
-                        GlobalVariables.selectedActionName =  "share";
-                        Intent intent = new Intent(context, NavigationSharedActivity.class);
-                        intent.putExtra("ObjectId", "0");
-                        context.startActivity(intent);
+                        switchButton_share.setChecked(true);
+                        showInternalShareAlertMessage();
+
+
                     }
 
 
@@ -1360,6 +1409,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
             @Override
             public void onClick(View v) {
                 mBottomSheetDialog.dismiss();
+                assigningMoveOriginIndex();
                 initiateMoveAction("move");
 
 
@@ -1370,6 +1420,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
             @Override
             public void onClick(View v) {
                 mBottomSheetDialog.dismiss();
+                assigningMoveOriginIndex();
                 initiateMoveAction("copy");
             }
         });
@@ -1405,7 +1456,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                         }
                         else
                         {
-                            Toast.makeText(context, "Please enter name", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, getString(R.string.newname_txt), Toast.LENGTH_SHORT).show();
                         }
 
 
@@ -1604,12 +1655,13 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
         builder.setCancelable(false);
 
         TextView title = (TextView) view.findViewById(R.id.title);
-        title.setText("Warning");
+        title.setText("Stop Sharing");
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 
-        txtMessage.setText("This action will stop sharing the selected document(s). Company with whom this has been shared will no longer be able to view this document");
+    //    txtMessage.setText("This action will stop sharing the selected document(s). Company with whom this has been shared will no longer be able to view this document");
 
+        txtMessage.setText(getString(R.string.stop_sharing_text));
         Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
@@ -1756,7 +1808,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
         GlobalVariables.isMoveInitiated = true;
         GlobalVariables.selectedActionName =  actionName;
         Intent intent = new Intent(context, NavigationMyFolderActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+     //   intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra("ObjectId", "0");
         startActivity(intent);
 
@@ -1954,7 +2006,8 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
         }
     }
 
-    private void showSessionExpiryAlert(String mMessage)
+
+    public void showInternalShareAlertMessage()
     {
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -1966,28 +2019,41 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
         title.setText("Alert");
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-        txtMessage.setText(mMessage);
-
-        Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+        txtMessage.setText(context.getString(R.string.internal_share_txt));
+        Button okButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
-        cancelButton.setVisibility(View.GONE);
+        cancelButton.setText("CANCEL");
 
-        sendPinButton.setText("OK");
+        okButton.setText("OK");
 
-        sendPinButton.setOnClickListener(new View.OnClickListener() {
+        cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mAlertDialog.dismiss();
-                AccountSettings accountSettings = new AccountSettings(context);
-                accountSettings.deleteAll();
-                startActivity(new Intent(context, LoginActivity.class));
+            }
+        });
+
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+                GlobalVariables.isMoveInitiated = true;
+                GlobalVariables.selectedActionName =  "share";
+                Intent intent = new Intent(context, NavigationSharedActivity.class);
+                intent.putExtra("ObjectId", "0");
+                context.startActivity(intent);
+
             }
         });
 
         mAlertDialog = builder.create();
         mAlertDialog.show();
+    }
+
+    public void assigningMoveOriginIndex()
+    {
+        GlobalVariables.moveOriginIndex = GlobalVariables.activityCount;
     }
 
 }

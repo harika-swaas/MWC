@@ -27,6 +27,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.mwc.docportal.API.Model.FTLPINResponse;
 import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.DMS.NavigationMyFolderActivity;
 import com.squareup.okhttp.OkHttpClient;
@@ -206,6 +207,11 @@ public class LoginFragment extends Fragment {
                             if(apiResponse.status.getMessage() != null)
                             {
                                 message = apiResponse.status.getMessage().toString();
+                                if (message.contains("]") || message.contains("[")) {
+                                    message = message.replace(']',' ');
+                                    message = message.replace('[',' ');
+                                    message = message.trim();
+                                }
                             }
 
                             if(CommonFunctions.isApiSuccess(mActivity, message, apiResponse.status.getCode()))
@@ -230,8 +236,7 @@ public class LoginFragment extends Fragment {
                                                 Intent intent = new Intent(mActivity, PinVerificationActivity.class);
                                                 startActivity(intent);
                                             } else if (mLoginResponse.nextStep.isFtl_required() == true) {
-                                                Intent intent = new Intent(mActivity, FTLUserValidationActivity.class);
-                                                startActivity(intent);
+                                                getUiSettingsFromLogin(mLoginResponse);
                                             }
                                         } else {
 
@@ -281,6 +286,68 @@ public class LoginFragment extends Fragment {
                 });
             }
         }
+    }
+
+
+    private void getUiSettings() {
+
+        if (NetworkUtils.isNetworkAvailable(mActivity)) {
+
+            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+            final GetUISettingsService getUISettingsService = retrofitAPI.create(GetUISettingsService.class);
+
+            Call call = getUISettingsService.getUISettings(PreferenceUtils.getAccessToken(mActivity));
+
+            call.enqueue(new Callback<BaseApiResponse<GetUISettingsResponse>>() {
+                @Override
+                public void onResponse(Response<BaseApiResponse<GetUISettingsResponse>> response, Retrofit retrofit) {
+                    BaseApiResponse apiResponse = response.body();
+                    if (apiResponse != null) {
+
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
+                        }
+
+                        if(CommonFunctions.isApiSuccess(mActivity, message, apiResponse.status.getCode())) {
+
+                            GetUISettingsResponse mGetUISettingsResponse = response.body().getData();
+
+                            if (mGetUISettingsResponse != null) {
+
+                                if (mGetUISettingsResponse.ui_properties != null) {
+
+                                    String mobileItemEnableColor = mGetUISettingsResponse.ui_properties.getMobile_item_enable_color();
+                                    String mobileItemDisableColor = mGetUISettingsResponse.ui_properties.getMobile_item_disable_color();
+                                    String splashScreenColor = mGetUISettingsResponse.ui_properties.getMobile_splash_screen_background_color();
+                                    String folderColor = mGetUISettingsResponse.ui_properties.getMobile_folder_color();
+
+                                    AccountSettings accountSettings = new AccountSettings(mActivity);
+                                    WhiteLabelResponse whiteLabelResponse = new WhiteLabelResponse();
+                                    whiteLabelResponse.setItem_Selected_Color(mobileItemEnableColor);
+                                    whiteLabelResponse.setItem_Unselected_Color(mobileItemDisableColor);
+                                    whiteLabelResponse.setSplash_Screen_Color(splashScreenColor);
+                                    whiteLabelResponse.setFolder_Color(folderColor);
+
+                                    accountSettings.InsertWhiteLabelDetails(whiteLabelResponse);
+                                }
+
+                                getUserPreferences();
+
+                            }
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    CommonFunctions.showTimeoutAlert(mActivity);
+                    // Toast.makeText(mActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
     }
 
     private void hideKeyboard(View v) {
@@ -385,14 +452,14 @@ public class LoginFragment extends Fragment {
         }
     }
 
-    private void getUiSettings() {
+    private void getUiSettingsFromLogin(LoginResponse loginResponse) {
 
         if (NetworkUtils.isNetworkAvailable(mActivity)) {
 
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
             final GetUISettingsService getUISettingsService = retrofitAPI.create(GetUISettingsService.class);
 
-            Call call = getUISettingsService.getUISettings(PreferenceUtils.getAccessToken(mActivity));
+            Call call = getUISettingsService.getUISettings(loginResponse.getAccessToken());
 
             call.enqueue(new Callback<BaseApiResponse<GetUISettingsResponse>>() {
                 @Override
@@ -429,6 +496,15 @@ public class LoginFragment extends Fragment {
                                     whiteLabelResponse.setFolder_Color(folderColor);
 
                                     accountSettings.InsertWhiteLabelDetails(whiteLabelResponse);
+
+                                    Intent intent = new Intent(mActivity, FTLUserValidationActivity.class);
+                                    intent.putExtra(Constants.ACCESSTOKEN, loginResponse.getAccessToken());
+                                    FTLPINResponse ftlpinResponse = new FTLPINResponse();
+                                    ftlpinResponse.setAccessToken(loginResponse.getAccessToken());
+                                    ftlpinResponse.setUserId(loginResponse.getUserId());
+                                    ftlpinResponse.setCompany_name(loginResponse.getCompany_name());
+                                    PreferenceUtils.setDocPortalFTLLoggedObj(mActivity, ftlpinResponse);
+                                    startActivity(intent);
                                 }
                             }
                         }

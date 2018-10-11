@@ -258,6 +258,7 @@
                                 android:id="@+id/help_layout"
                                 android:layout_width="match_parent"
                                 android:layout_height="50dp"
+                                android:visibility="gone"
                                 android:orientation="horizontal"
                                 android:weightSum="5">
 
@@ -290,6 +291,7 @@
                             <View
                                 android:layout_width="match_parent"
                                 android:layout_height="1dp"
+                                android:visibility="gone"
                                 android:layout_marginLeft="20dp"
                                 android:background="@color/light_gray" />
 

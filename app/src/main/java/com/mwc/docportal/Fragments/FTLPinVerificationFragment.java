@@ -905,7 +905,8 @@ public class FTLPinVerificationFragment extends Fragment {
 
                         if(CommonFunctions.isApiSuccess(mActivity, message, apiResponse.status.getCode()))
                         {
-                            mActivity.showMessagebox(mActivity, "Pin sent successfully", null, false);
+                            showPINSentSuccessMessage();
+                        //    mActivity.showMessagebox(mActivity, "Pin sent successfully", null, false);
                         }
 
                     }
@@ -953,7 +954,9 @@ public class FTLPinVerificationFragment extends Fragment {
                         }
 
                         if(CommonFunctions.isApiSuccess(mActivity, message, apiResponse.status.getCode())) {
-                            Toast.makeText(mActivity, "Pin Resent Successfully", Toast.LENGTH_SHORT).show();
+
+                            showPINSentSuccessMessage();
+                      //      Toast.makeText(mActivity, "Pin Resent Successfully", Toast.LENGTH_SHORT).show();
                         }
 
                     }
@@ -967,6 +970,40 @@ public class FTLPinVerificationFragment extends Fragment {
                 }
             });
         }
+    }
+
+    private void showPINSentSuccessMessage()
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+        LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Alert");
+
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+        txtMessage.setText("PIN sent");
+
+        Button okButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+        cancelButton.setVisibility(View.GONE);
+
+        okButton.setText("OK");
+
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+
+            }
+        });
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -1007,7 +1044,7 @@ public class FTLPinVerificationFragment extends Fragment {
         builder.setCancelable(false);
 
         TextView title = (TextView) view.findViewById(R.id.title);
-        title.setText("Error");
+        title.setText("Alert");
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 

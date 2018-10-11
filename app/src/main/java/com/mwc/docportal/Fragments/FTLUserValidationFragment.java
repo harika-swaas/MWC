@@ -424,7 +424,12 @@ public class FTLUserValidationFragment extends Fragment {
             inputLayoutUserName.setError(getString(R.string.err_msg_user_name_min_length));
             requestFocus(inputUserName);
             return false;
-        } else {
+        }else if (username.length() > 45) {
+            inputLayoutUserName.setError(getString(R.string.err_msg_user_name_max_length));
+            requestFocus(inputUserName);
+            return false;
+        }
+        else {
             inputLayoutUserName.setErrorEnabled(false);
         }
 

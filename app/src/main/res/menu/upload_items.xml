@@ -6,6 +6,7 @@
         android:id="@+id/action_upload"
         android:icon="@mipmap/ic_upload"
         android:title="@string/menu_item_delete"
+        android:visible="false"
         app:showAsAction="always" />
 
     <item

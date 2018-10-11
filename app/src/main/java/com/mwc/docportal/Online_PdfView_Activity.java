@@ -34,8 +34,10 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.mwc.docportal.Common.GlobalVariables;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.FTL.WebviewLoaderTermsActivity;
+import com.mwc.docportal.Utils.SplashScreen;
 import com.mwc.docportal.pdf.PDFView;
 import com.mwc.docportal.pdf.listener.OnLoadCompleteListener;
 import com.mwc.docportal.pdf.listener.OnPageChangeListener;
@@ -188,6 +190,14 @@ public class Online_PdfView_Activity extends AppCompatActivity implements OnPdfD
     @Override
     public void onResume() {
         super.onResume();
+
+        if(GlobalVariables.isComingFromApp)
+        {
+            Intent intent = new Intent(context, SplashScreen.class);
+            intent.putExtra("IsFromForeground", true);
+            intent.putExtra("ActivityName", "com.mwc.docportal.pdf.Online_PdfView_Activity");
+            startActivityForResult(intent, 222);
+        }
 
         if (isVisible){
 

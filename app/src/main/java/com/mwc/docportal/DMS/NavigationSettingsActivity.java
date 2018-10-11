@@ -46,6 +46,7 @@ import com.mwc.docportal.API.Model.SharedDocumentResponseModel;
 import com.mwc.docportal.API.Model.WhiteLabelResponse;
 import com.mwc.docportal.API.Service.ShareEndUserDocumentsService;
 import com.mwc.docportal.Common.CommonFunctions;
+import com.mwc.docportal.Common.GlobalVariables;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Database.PushNotificatoinSettings_Respository;
 import com.mwc.docportal.FTL.WebviewLoaderTermsActivity;
@@ -58,6 +59,7 @@ import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
 import com.mwc.docportal.UserProfileActivity;
 import com.mwc.docportal.Utils.Constants;
+import com.mwc.docportal.Utils.SplashScreen;
 import com.mwc.docportal.pdf.PdfViewActivity;
 
 import java.io.File;
@@ -219,6 +221,14 @@ public class NavigationSettingsActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
 
+        if(GlobalVariables.isComingFromApp)
+        {
+            Intent intent = new Intent(context, SplashScreen.class);
+            intent.putExtra("IsFromForeground", true);
+            intent.putExtra("ActivityName", "com.mwc.docportal.DMS.NavigationSettingsActivity");
+            startActivityForResult(intent, 300);
+        }
+
         getAccountSettings();
 
         if (mAccountSettingsResponses != null && mAccountSettingsResponses.size() > 0) {
@@ -374,6 +384,7 @@ public class NavigationSettingsActivity extends BaseActivity {
                     startActivity(intent);
 
 
+
                 }
             }
         });
@@ -383,7 +394,7 @@ public class NavigationSettingsActivity extends BaseActivity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (buttonView.isPressed() == true) {
-
+                    GlobalVariables.isFromCamerOrVideo = true;
                     if (finger_print_Switch.isChecked() == true) {
                         finger_print_Switch.setChecked(false);
                     } else {
@@ -471,6 +482,8 @@ public class NavigationSettingsActivity extends BaseActivity {
 
                 ShowWarningMessageForLogout();
 
+
+
             }
         });
 
@@ -484,11 +497,11 @@ public class NavigationSettingsActivity extends BaseActivity {
         builder.setCancelable(false);
 
         TextView title = (TextView) view.findViewById(R.id.title);
-        title.setText("Alert");
+        title.setText("Logout");
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 
-        txtMessage.setText("Do you want to logout?");
+        txtMessage.setText("Are you sure?");
 
         Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
@@ -496,7 +509,7 @@ public class NavigationSettingsActivity extends BaseActivity {
         cancelButton.setText("CANCEL");
 
 
-        sendPinButton.setText("OK");
+        sendPinButton.setText("CONFIRM");
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -522,20 +535,6 @@ public class NavigationSettingsActivity extends BaseActivity {
 
     }
 
-
-    private void clearApplicationData() {
-        File cache = context.getCacheDir();
-        File appDir = new File(cache.getParent());
-        if (appDir.exists()) {
-            String[] children = appDir.list();
-            for (String s : children) {
-                if (!s.equals("lib")) {
-                    deleteDir(new File(appDir, s));
-                    Log.i("TAG", "File /data/data/APP_PACKAGE/" + s + " DELETED");
-                }
-            }
-        }
-    }
 
     public static boolean deleteDir(File dir) {
         if (dir != null && dir.isDirectory()) {
@@ -570,6 +569,7 @@ public class NavigationSettingsActivity extends BaseActivity {
 
             if (resultCode == RESULT_OK) {
 
+                GlobalVariables.isFromCamerOrVideo = false;
                 getAccountSettings();
 
                 if (mAccountSettingsResponses != null && mAccountSettingsResponses.size() > 0) {
@@ -591,12 +591,47 @@ public class NavigationSettingsActivity extends BaseActivity {
                 }
 
             } else {
-                Toast.makeText(context, "Authentication Failed", Toast.LENGTH_SHORT).show();
+                GlobalVariables.isFromCamerOrVideo = false;
+                showAuthenticationFailureMessage();
             }
 
 
         }
 
+    }
+
+    private void showAuthenticationFailureMessage()
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Alert");
+
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+        txtMessage.setText("You have clicked the cancel button. Unable to complete authentication.");
+
+        Button okButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+        cancelButton.setVisibility(View.GONE);
+
+        okButton.setText("OK");
+
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+
+            }
+        });
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
     }
 
 
@@ -634,13 +669,13 @@ public class NavigationSettingsActivity extends BaseActivity {
                             String optValue;
                             if (opt_value.equalsIgnoreCase("opt-in")) {
                                 optValue = "opt-out";
-                                String message = "Secutity settings revoked";
+                                String message = "Device authentication disabled";
                                 showWarningAlertForLocalAuthenticationStatus(message, optValue);
 
 
                             } else {
                                 optValue = "opt-in";
-                                String message = "Thank you for enabling protection. From now on every app launch, you will be required to provide your authentication";
+                                String message = "Device authentication enabled";
                                 showWarningAlertForLocalAuthenticationStatus(message, optValue);
                             }
 

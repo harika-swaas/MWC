@@ -47,7 +47,15 @@ public class GetCategoryDocumentsResponse implements Serializable{
     private String file_path;
     private String doc_status;
     private String filename;
+    private boolean isSelected = false;
 
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public void setSelected(boolean selected) {
+        isSelected = selected;
+    }
 
     @SerializedName("permission")
     @Expose

@@ -29,6 +29,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -82,6 +83,7 @@ import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
 import com.mwc.docportal.Utils.Constants;
 import com.mwc.docportal.Utils.DateHelper;
+import com.mwc.docportal.Utils.SplashScreen;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -147,6 +149,7 @@ public class NavigationSharedActivity extends BaseActivity {
     RelativeLayout move_layout;
     BottomNavigationView bottomNavigationLayout;
     TextView cancel_textview;
+    LinearLayout shared_bottom_linearlayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -179,7 +182,26 @@ public class NavigationSharedActivity extends BaseActivity {
         sorting_layout.setVisibility(View.VISIBLE);
         move_layout.setVisibility(View.GONE);
 
+        setMargins(shared_bottom_linearlayout,0,0,0,60);
+
     }
+
+    private void setMargins (View view, int left, int top, int right, int bottom) {
+        if (view.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
+            ViewGroup.MarginLayoutParams p = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
+
+            final float scale = getBaseContext().getResources().getDisplayMetrics().density;
+            // convert the DP into pixel
+            int l =  (int)(left * scale + 0.5f);
+            int r =  (int)(right * scale + 0.5f);
+            int t =  (int)(top * scale + 0.5f);
+            int b =  (int)(bottom * scale + 0.5f);
+
+            p.setMargins(l, t, r, b);
+            view.requestLayout();
+        }
+    }
+
 
     private void showBottomView()
     {
@@ -187,6 +209,7 @@ public class NavigationSharedActivity extends BaseActivity {
         sorting_layout.setVisibility(View.GONE);
         move_layout.setVisibility(View.VISIBLE);
         GlobalVariables.sharedDocsSortType = "type";
+        setMargins(shared_bottom_linearlayout,0,0,0,110);
     }
 
 
@@ -476,6 +499,8 @@ public class NavigationSharedActivity extends BaseActivity {
         move_layout = (RelativeLayout) findViewById(R.id.move_layout);
         bottomNavigationLayout = (BottomNavigationView) findViewById(R.id.navigation);
         cancel_textview = (TextView) findViewById(R.id.cancel_textview);
+        shared_bottom_linearlayout = (LinearLayout)findViewById(R.id.shared_bottom_linearlayout);
+
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(false);
@@ -783,6 +808,15 @@ public class NavigationSharedActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
 
+        if(GlobalVariables.isComingFromApp)
+        {
+            Intent intent = new Intent(context, SplashScreen.class);
+            intent.putExtra("IsFromForeground", true);
+            intent.putExtra("ActivityName", "com.mwc.docportal.DMS.NavigationSharedActivity");
+            startActivityForResult(intent, 200);
+        }
+
+
         if (ObjectId.equals("0")){
             collapsingToolbarLayout.setTitle("Shared");
         }
@@ -804,6 +838,7 @@ public class NavigationSharedActivity extends BaseActivity {
                 break;
 
             case R.id.action_more:
+
                 openBottomSheetForMultiSelect();
                 break;
 
@@ -853,11 +888,12 @@ public class NavigationSharedActivity extends BaseActivity {
         menuItemMove.setVisible(false);
         menuItemMore.setVisible(false);
 
-        String itemSelectedColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
-        int selectedColor = Color.parseColor(itemSelectedColor);
-
-        menuIconColor(menuItemSearch,selectedColor);
-        menuIconColor(menuItemMore,selectedColor);
+        if(mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
+            String itemSelectedColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
+            int selectedColor = Color.parseColor(itemSelectedColor);
+            menuIconColor(menuItemSearch, selectedColor);
+            menuIconColor(menuItemMore, selectedColor);
+        }
 
         menuItemSearch.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
@@ -1015,11 +1051,13 @@ public class NavigationSharedActivity extends BaseActivity {
             copyLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    GlobalVariables.isMultiSelect = false;
                     mBottomSheetDialog.dismiss();
                     GlobalVariables.isMoveInitiated = true;
                     GlobalVariables.selectedActionName = "copy";
+                    clearSelectedListAfterOperation();
+                    assigningMoveOriginIndex();
                     Intent intent = new Intent(context, NavigationMyFolderActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     intent.putExtra("ObjectId", "0");
                     context.startActivity(intent);
                 }
@@ -1028,6 +1066,7 @@ public class NavigationSharedActivity extends BaseActivity {
             doc_info_layout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    GlobalVariables.isMultiSelect = false;
                     mBottomSheetDialog.dismiss();
                     if (mSelectedDocumentList != null && mSelectedDocumentList.size() == 1) {
                         PreferenceUtils.setDocumentVersionId(context, mSelectedDocumentList.get(0).getDocument_version_id());
@@ -1035,7 +1074,9 @@ public class NavigationSharedActivity extends BaseActivity {
                     }
 
                     Intent intent = new Intent(context, Tab_Activity.class);
+                    intent.putExtra("IsFromShared", true);
                     context.startActivity(intent);
+                    clearSelectedListAfterOperation();
                 }
             });
 
@@ -1067,6 +1108,7 @@ public class NavigationSharedActivity extends BaseActivity {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     if (isTouched) {
+                        GlobalVariables.isMultiSelect = false;
                         isTouched = false;
                         if (isChecked) {
 
@@ -2059,5 +2101,22 @@ public class NavigationSharedActivity extends BaseActivity {
             });
         }
 
+    }
+
+    private void clearSelectedListAfterOperation()
+    {
+        if (isFromList == true) {
+            mAdapterList.clearAll();
+        } else {
+            mAdapter.clearAll();
+        }
+        List<GetCategoryDocumentsResponse> dummyList = new ArrayList<>();
+        updateToolbarMenuItems(dummyList);
+
+    }
+
+    public void assigningMoveOriginIndex()
+    {
+        GlobalVariables.moveOriginIndex = GlobalVariables.activityCount;
     }
 }

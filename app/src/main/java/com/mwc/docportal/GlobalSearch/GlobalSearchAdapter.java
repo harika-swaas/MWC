@@ -462,15 +462,11 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
                 if(buttonView.isPressed() == true) {
                     mBottomSheetDialog.dismiss();
                     if (!isChecked) {
-                        switchButton_share.setChecked(true);
+                        switchButton_share.setChecked(false);
                         showWarningMessageAlertForSharingContent(categoryDocumentsResponse);
                     } else {
-                        switchButton_share.setChecked(false);
-                        GlobalVariables.isMoveInitiated = true;
-                        GlobalVariables.selectedActionName =  "share";
-                        Intent intent = new Intent(context, NavigationSharedActivity.class);
-                        intent.putExtra("ObjectId", "0");
-                        context.startActivity(intent);
+                        switchButton_share.setChecked(true);
+                        showInternalShareAlertMessage();
                     }
 
 
@@ -500,6 +496,7 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
                 mBottomSheetDialog.dismiss();
 
                 GlobalVariables.searchKey = GlobalSearchActivity.searchingData;
+                assigningMoveOriginIndex();
                 initiateMoveAction("move");
 
             }
@@ -525,6 +522,7 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
                 mBottomSheetDialog.dismiss();
 
                 GlobalVariables.searchKey = GlobalSearchActivity.searchingData;
+                assigningMoveOriginIndex();
                 initiateMoveAction("copy");
 
             }
@@ -636,7 +634,7 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
                         }
                         else
                         {
-                            Toast.makeText(context, "Please enter name", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, context.getString(R.string.newname_txt), Toast.LENGTH_SHORT).show();
                         }
 
 
@@ -678,7 +676,6 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
         GlobalVariables.isMoveInitiated = true;
         GlobalVariables.selectedActionName =  actionName;
         Intent intent = new Intent(context, NavigationMyFolderActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra("ObjectId", "0");
         context.startActivity(intent);
     }
@@ -692,12 +689,13 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
         builder.setCancelable(false);
 
         TextView title = (TextView) view.findViewById(R.id.title);
-        title.setText("Warning");
+        title.setText("Stop Sharing");
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 
-        txtMessage.setText("This action will stop sharing the selected document(s). Company with whom this has been shared will no longer be able to view this document");
+  //      txtMessage.setText("This action will stop sharing the selected document(s). Company with whom this has been shared will no longer be able to view this document");
 
+        txtMessage.setText(context.getString(R.string.stop_sharing_text));
         Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
@@ -1162,4 +1160,53 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
     }
 
 
+    public void showInternalShareAlertMessage()
+    {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Alert");
+
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+        txtMessage.setText(context.getString(R.string.internal_share_txt));
+        Button okButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+        cancelButton.setText("CANCEL");
+
+        okButton.setText("OK");
+
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+            }
+        });
+
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+                GlobalVariables.isMoveInitiated = true;
+                GlobalVariables.selectedActionName =  "share";
+                Intent intent = new Intent(context, NavigationSharedActivity.class);
+                intent.putExtra("ObjectId", "0");
+                context.startActivity(intent);
+
+            }
+        });
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
+    }
+
+
+    public void assigningMoveOriginIndex()
+    {
+        GlobalVariables.moveOriginIndex = GlobalVariables.activityCount;
+    }
 }

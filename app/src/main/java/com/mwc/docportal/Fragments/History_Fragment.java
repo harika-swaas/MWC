@@ -1,5 +1,6 @@
 package com.mwc.docportal.Fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -15,6 +16,7 @@ import com.mwc.docportal.API.Model.ListPinDevicesResponse;
 import com.mwc.docportal.API.Service.DocumentHistoryService;
 import com.mwc.docportal.Adapters.HistoryAdapter;
 import com.mwc.docportal.Common.CommonFunctions;
+import com.mwc.docportal.Common.GlobalVariables;
 import com.mwc.docportal.Common.SimpleDividerItemDecoration;
 import com.mwc.docportal.DMS.MyFoldersDMSActivity;
 import com.mwc.docportal.DMS.Tab_Activity;
@@ -23,6 +25,7 @@ import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
+import com.mwc.docportal.Utils.SplashScreen;
 
 import java.util.HashMap;
 import java.util.List;
@@ -124,6 +127,20 @@ public class History_Fragment extends Fragment {
         mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity().getApplicationContext()));
         mAdapter = new HistoryAdapter(documentHistoryResponses, getActivity());
         mRecyclerView.setAdapter(mAdapter);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if(GlobalVariables.isComingFromApp)
+        {
+            Intent intent = new Intent(mActivity, SplashScreen.class);
+            intent.putExtra("IsFromForeground", true);
+            intent.putExtra("ActivityName", "com.mwc.docportal.Fragments.History_Fragment");
+            startActivityForResult(intent, 112);
+        }
+
     }
 
 }

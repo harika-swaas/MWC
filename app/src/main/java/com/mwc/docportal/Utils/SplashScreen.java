@@ -1,6 +1,7 @@
 package com.mwc.docportal.Utils;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.KeyguardManager;
 import android.content.Context;
@@ -18,6 +19,7 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,7 +37,11 @@ import com.mwc.docportal.API.Model.ConfirmPasswordResponseModel;
 import com.mwc.docportal.API.Model.WhiteLabelResponse;
 import com.mwc.docportal.API.Service.UploadNewFolderService;
 import com.mwc.docportal.Common.CommonFunctions;
+import com.mwc.docportal.Common.GlobalVariables;
 import com.mwc.docportal.DMS.NavigationMyFolderActivity;
+import com.mwc.docportal.DMS.NavigationSettingsActivity;
+import com.mwc.docportal.DMS.NavigationSharedActivity;
+import com.mwc.docportal.DMS.UploadListActivity;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.Login.LoginActivity;
@@ -77,7 +83,8 @@ public class SplashScreen extends RootActivity {
     public final int CREDENTIALS_RESULT = 12345;
     Context context = this;
     AlertDialog mAlertDialog;
-
+    boolean isFromForeground = false;
+    String activityName = "";
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -86,6 +93,12 @@ public class SplashScreen extends RootActivity {
 
         if(getResources().getBoolean(R.bool.portrait_only)){
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
+
+        isFromForeground = getIntent().getBooleanExtra("IsFromForeground", false);
+        if(getIntent().getStringExtra("ActivityName") != null)
+        {
+            activityName = getIntent().getStringExtra("ActivityName");
         }
 
         ImageView logo = (ImageView) findViewById(R.id.LOGO);
@@ -226,18 +239,49 @@ public class SplashScreen extends RootActivity {
 
             if (resultCode == RESULT_OK) {
 
-                Intent intent = new Intent(SplashScreen.this, NavigationMyFolderActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
+                if(isFromForeground)
+                {
+                    GlobalVariables.isComingFromApp = false;
+                    try {
+                        Intent intent = new Intent(SplashScreen.this, Class.forName(activityName));
+                        setResult(100, intent);
+                        finish();
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
+
+
+                   /* if(!activityName.isEmpty() && activityName.equalsIgnoreCase("NavigationActivity"))
+                    {
+                        GlobalVariables.isComingFromApp = false;
+                        Intent intent = new Intent(SplashScreen.this, NavigationMyFolderActivity.class);
+                        setResult(100, intent);
+                        finish();
+                    }
+                    else if(!activityName.isEmpty() && activityName.equalsIgnoreCase("NavigationShared"))
+                    {
+                        GlobalVariables.isComingFromApp = false;
+                        Intent intent = new Intent(SplashScreen.this, NavigationSharedActivity.class);
+                        setResult(200, intent);
+                        finish();
+                    }*/
+
+                }
+                else {
+                    Intent intent = new Intent(SplashScreen.this, NavigationMyFolderActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                    GlobalVariables.isFromForeground = false;
+                }
 
 
             } else {
-                Toast.makeText(SplashScreen.this, "Authentication Failed", Toast.LENGTH_SHORT).show();
-                finish();
-                moveTaskToBack(true);
+             //   Toast.makeText(SplashScreen.this, "Authentication Failed", Toast.LENGTH_SHORT).show();
+                showAuthenticationFailureMessage();
             }
 
         }
+
 
     }
 
@@ -254,8 +298,9 @@ public class SplashScreen extends RootActivity {
         final EditText password_edttxt = (EditText) view1.findViewById(R.id.edit_username1);
         TextView title = (TextView) view1.findViewById(R.id.title);
         TextView content = (TextView) view1.findViewById(R.id.content_data);
-        content.setText("Please confirm your "+getResources().getString(R.string.app_name)+" password");
-        title.setText("Confirm password");
+      //  content.setText("Please confirm your "+getResources().getString(R.string.app_name)+" password");
+        content.setText("Please enter your password.");
+        title.setText("Enter Password.");
         allow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -329,8 +374,26 @@ public class SplashScreen extends RootActivity {
                                         showAlertDialogIncorrectPassword(context, message);
                                     }
                                     else {
-                                        startActivity(new Intent(context, NavigationMyFolderActivity.class));
-                                        finish();
+
+                                        if(isFromForeground)
+                                        {
+                                               GlobalVariables.isComingFromApp = false;
+
+                                                try {
+                                                    Intent intent = new Intent(SplashScreen.this, Class.forName(activityName));
+                                                    setResult(100, intent);
+                                                    finish();
+                                                } catch (ClassNotFoundException e) {
+                                                    e.printStackTrace();
+                                                }
+
+                                        }
+                                        else {
+                                            startActivity(new Intent(context, NavigationMyFolderActivity.class));
+                                            finish();
+                                            GlobalVariables.isFromForeground = false;
+                                        }
+
                                     }
                                 }
 
@@ -358,6 +421,7 @@ public class SplashScreen extends RootActivity {
                 finish();
                 moveTaskToBack(true);
 
+
             }
         });
 
@@ -374,7 +438,7 @@ public class SplashScreen extends RootActivity {
         builder.setCancelable(false);
 
         TextView title = (TextView) view.findViewById(R.id.title);
-        title.setText("Error");
+        title.setText("Alert");
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 
@@ -392,6 +456,43 @@ public class SplashScreen extends RootActivity {
             public void onClick(View v) {
                 mAlertDialog.dismiss();
                 showConfirmPasswordAlert();
+
+            }
+        });
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
+    }
+
+    private void showAuthenticationFailureMessage()
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Alert");
+
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+        txtMessage.setText("You have clicked the cancel button. Unable to complete authentication.");
+
+        Button okButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+        cancelButton.setVisibility(View.GONE);
+
+        okButton.setText("OK");
+
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+                finish();
+                moveTaskToBack(true);
+
 
             }
         });
@@ -448,7 +549,7 @@ public class SplashScreen extends RootActivity {
         builder.setCancelable(false);
 
         TextView title = (TextView) view.findViewById(R.id.title);
-        title.setText("Error");
+        title.setText("Alert");
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 

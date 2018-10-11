@@ -1,5 +1,6 @@
 package com.mwc.docportal.Fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,6 +21,7 @@ import com.mwc.docportal.API.Service.DocumentNotesService;
 import com.mwc.docportal.API.Service.GetUserNotesDetailsService;
 import com.mwc.docportal.Adapters.NotesAdapter;
 import com.mwc.docportal.Common.CommonFunctions;
+import com.mwc.docportal.Common.GlobalVariables;
 import com.mwc.docportal.Common.SimpleDividerItemDecoration;
 import com.mwc.docportal.DMS.NavigationMyFolderActivity;
 import com.mwc.docportal.DMS.Tab_Activity;
@@ -28,6 +30,7 @@ import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
+import com.mwc.docportal.Utils.SplashScreen;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -76,6 +79,20 @@ public class Notes_Fragment extends android.support.v4.app.Fragment {
         setHasOptionsMenu(true);
 
         return mView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if(GlobalVariables.isComingFromApp)
+        {
+            Intent intent = new Intent(mActivity, SplashScreen.class);
+            intent.putExtra("IsFromForeground", true);
+            intent.putExtra("ActivityName", "com.mwc.docportal.Fragments.Notes_Fragment");
+            startActivityForResult(intent, 333);
+        }
+
     }
 
     public void getNotes() {

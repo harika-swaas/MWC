@@ -53,6 +53,8 @@ public class UploadListAdapter extends RecyclerView.Adapter<UploadListAdapter.Vi
         notifyItemChanged(position);
     }
 
+
+
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.listitemupload, parent, false);
@@ -81,7 +83,6 @@ public class UploadListAdapter extends RecyclerView.Adapter<UploadListAdapter.Vi
                 holder.thumbnailText.setText(colorCodeModel.getFileType());
             }
 
-
             for(int i= 0;i<uploadList.size();i++) {
                     if(i==pos) {
                         if (activateDone) {
@@ -103,6 +104,11 @@ public class UploadListAdapter extends RecyclerView.Adapter<UploadListAdapter.Vi
                         }
                     }
             }
+
+
+
+
+
             holder.delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

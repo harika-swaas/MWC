@@ -79,8 +79,8 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
     private List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses;
     AlertDialog mAlertDialog;
 
-    boolean isMultiSelect = false;
-    List<GetCategoryDocumentsResponse> selectedList = new ArrayList<>();
+    /*boolean isMultiSelect = false;
+    List<GetCategoryDocumentsResponse> selectedList = new ArrayList<>();*/
     String objectr;
     String categoryr;
     String parentr;
@@ -91,6 +91,7 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
     List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList<>();
     String objectId;
     boolean isFromSecondlevel;
+//    int selectedCountValue = 0;
 
     PdfDocumentResponseModel getDocumentPreviewResponses;
     public SharedFolderAdapterList(List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses, Activity context, String objectId, boolean isFromSecondLevel) {
@@ -228,7 +229,7 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
             holder.list_item_click.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (isMultiSelect)
+                    if (GlobalVariables.isMultiSelect)
                     {
                         if(mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document")) {
                             multi_select(position);
@@ -241,7 +242,7 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
 
                             if(GlobalVariables.isMoveInitiated && isFromSecondlevel)
                             {
-                                showShareDocumentAlert("Do you want to share here?", mGetCategoryDocumentsResponses.get(position).getObject_id(),
+                                showShareDocumentAlert("Are you sure?", mGetCategoryDocumentsResponses.get(position).getObject_id(),
                                         mGetCategoryDocumentsResponses.get(position).getCategory_id());
                                 return;
                             }
@@ -278,9 +279,9 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
                 public boolean onLongClick(View v) {
                     if(mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document")) {
                         if (!GlobalVariables.isMoveInitiated) {
-                            if (!isMultiSelect) {
-                                selectedList = new ArrayList<>();
-                                isMultiSelect = true;
+                            if (!GlobalVariables.isMultiSelect) {
+                             //   selectedList = new ArrayList<>();
+                                GlobalVariables.isMultiSelect = true;
                             }
 
                             multi_select(position);
@@ -311,7 +312,16 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
                 }
             });
 
-            if(selectedList.contains(mGetCategoryDocumentsResponses.get(position)))
+            /*if(selectedList.contains(mGetCategoryDocumentsResponses.get(position)))
+            {
+                holder.selectedItemIv.setVisibility(View.VISIBLE);
+            }
+            else
+            {
+                holder.selectedItemIv.setVisibility(View.GONE);
+            }*/
+
+            if(mGetCategoryDocumentsResponses.get(position).isSelected() == true)
             {
                 holder.selectedItemIv.setVisibility(View.VISIBLE);
             }
@@ -323,7 +333,7 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
             holder.imageMore.setVisibility(View.VISIBLE);
 
 
-            if(selectedList.size() > 0 || mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("category"))
+            if(GlobalVariables.isMultiSelect == true || mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("category"))
             {
                 holder.imageMore.setVisibility(View.GONE);
             }
@@ -343,7 +353,7 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
         builder.setCancelable(false);
 
         TextView title = (TextView) view.findViewById(R.id.title);
-        title.setText("Alert");
+        title.setText("SHARE");
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 
@@ -354,7 +364,7 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
 
         cancelButton.setText("CANCEL");
 
-        okButton.setText("OK");
+        okButton.setText("SHARE");
 
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -388,7 +398,7 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
 
     private void multi_select(int position)
     {
-        if (selectedList.contains(mGetCategoryDocumentsResponses.get(position))) {
+       /* if (selectedList.contains(mGetCategoryDocumentsResponses.get(position))) {
             selectedList.remove(mGetCategoryDocumentsResponses.get(position));
             if (selectedList != null && selectedList.size() == 0) {
                 selectedList.clear();
@@ -397,21 +407,66 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
             }
         } else {
             selectedList.add(mGetCategoryDocumentsResponses.get(position));
-        }
+        }*/
 
+
+        if(mGetCategoryDocumentsResponses.get(position).isSelected() == true)
+        {
+            mGetCategoryDocumentsResponses.get(position).setSelected(false);
+            if(GlobalVariables.selectedCountValue > 0)
+            {
+                GlobalVariables.selectedCountValue--;
+            }
+
+            if(GlobalVariables.selectedCountValue == 0)
+            {
+                GlobalVariables.isMultiSelect = false;
+                notifyDataSetChanged();
+            }
+
+
+        }
+        else
+        {
+            mGetCategoryDocumentsResponses.get(position).setSelected(true);
+            GlobalVariables.selectedCountValue++;
+        }
 
         notifyDataSetChanged();
 
+        List<GetCategoryDocumentsResponse> selectedUpdateList = new ArrayList<>();
+
+        if(mGetCategoryDocumentsResponses != null && mGetCategoryDocumentsResponses.size() > 0)
+        {
+            for(GetCategoryDocumentsResponse categoryDocumentsResponse : mGetCategoryDocumentsResponses)
+            {
+                if(categoryDocumentsResponse.isSelected() == true)
+                {
+                    selectedUpdateList.add(categoryDocumentsResponse);
+                }
+            }
+        }
+
         if (context instanceof NavigationSharedActivity) {
-            ((NavigationSharedActivity) context).updateToolbarMenuItems(selectedList);
+            ((NavigationSharedActivity) context).updateToolbarMenuItems(selectedUpdateList);
         }
 
     }
 
     public void clearAll()
     {
-        selectedList.clear();
-        isMultiSelect = false;
+        if(mGetCategoryDocumentsResponses != null && mGetCategoryDocumentsResponses.size() > 0)
+        {
+            for(GetCategoryDocumentsResponse categoryDocumentsResponse : mGetCategoryDocumentsResponses)
+            {
+                if(categoryDocumentsResponse.isSelected() == true)
+                {
+                    categoryDocumentsResponse.setSelected(false);
+                }
+            }
+        }
+        GlobalVariables.selectedCountValue = 0;
+        GlobalVariables.isMultiSelect = false;
         notifyDataSetChanged();
     }
 
@@ -633,11 +688,12 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
             @Override
             public void onClick(View v) {
                 mBottomSheetDialog.dismiss();
+                GlobalVariables.moveOriginIndex = GlobalVariables.activityCount;
 
                 GlobalVariables.isMoveInitiated = true;
                 GlobalVariables.selectedActionName =  "copy";
                 Intent intent = new Intent(context, NavigationMyFolderActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            //    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 intent.putExtra("ObjectId", "0");
                 context.startActivity(intent);
             }

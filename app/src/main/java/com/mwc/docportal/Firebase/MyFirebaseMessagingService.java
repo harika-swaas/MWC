@@ -89,9 +89,19 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
-        mBuilder.setSmallIcon(R.mipmap.ic_launcher);
-        mBuilder .setLargeIcon(BitmapFactory.decodeResource(context.getResources(),
-            R.mipmap.ic_launcher));
+
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            mBuilder.setSmallIcon(R.mipmap.ic_launcher);
+            mBuilder.setLargeIcon(BitmapFactory.decodeResource(context.getResources(),
+                    R.mipmap.ic_launcher));
+            // must set color for notification icon
+      //      mBuilder.setColor(getResources().getColor(R.color.notification_color));
+
+        } else {
+            mBuilder.setSmallIcon(R.mipmap.ic_launcher);
+            mBuilder.setLargeIcon(BitmapFactory.decodeResource(context.getResources(),
+                    R.mipmap.ic_launcher));
+        }
 
         mBuilder.setContentTitle(title)
                 .setContentText(body)

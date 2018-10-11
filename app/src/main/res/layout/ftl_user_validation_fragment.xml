@@ -111,13 +111,13 @@
                     android:id="@+id/pin_verification_txt1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="32dp"
                     android:layout_gravity="center_vertical"
+                    android:layout_marginTop="32dp"
+                    android:alpha="0.64"
                     android:gravity="center_horizontal"
                     android:text="@string/ftl_username_text"
-                    android:textSize="16sp"
                     android:textColor="@color/black"
-                    android:alpha="0.64"/>
+                    android:textSize="16sp" />
 
             </LinearLayout>
 

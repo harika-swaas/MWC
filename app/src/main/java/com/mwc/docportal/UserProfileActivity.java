@@ -7,38 +7,18 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
-import com.mwc.docportal.API.Model.APIResponseModel;
-import com.mwc.docportal.API.Model.AccountSettingsResponse;
-import com.mwc.docportal.API.Model.BaseApiResponse;
-import com.mwc.docportal.API.Model.DocumentPropertiesRequest;
-import com.mwc.docportal.API.Model.DocumentPropertiesResponse;
-import com.mwc.docportal.API.Model.FTLPINResponse;
-import com.mwc.docportal.API.Model.GetUserPreferencesResponse;
-import com.mwc.docportal.API.Model.ListPinDevicesResponse;
 import com.mwc.docportal.API.Model.UserProfileModel;
-import com.mwc.docportal.API.Service.DocumentPropertiesService;
 import com.mwc.docportal.API.Service.GetTermsPageContentService;
-import com.mwc.docportal.API.Service.GetUserPreferencesService;
 import com.mwc.docportal.Common.CommonFunctions;
-import com.mwc.docportal.DMS.NavigationSharedActivity;
-import com.mwc.docportal.Database.AccountSettings;
+import com.mwc.docportal.Common.GlobalVariables;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
-import com.mwc.docportal.Login.LoginActivity;
 import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
-import com.mwc.docportal.Utils.Constants;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.mwc.docportal.Utils.SplashScreen;
 
 import retrofit.Call;
 import retrofit.Callback;
@@ -96,6 +76,14 @@ public class UserProfileActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        if(GlobalVariables.isComingFromApp)
+        {
+            Intent intent = new Intent(context, SplashScreen.class);
+            intent.putExtra("IsFromForeground", true);
+            intent.putExtra("ActivityName", "com.mwc.docportal.UserProfileActivity");
+            startActivityForResult(intent, 1000);
+        }
 
         getProfileDetailsFromAPI();
     }

@@ -4,6 +4,11 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
 import android.os.Handler;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
@@ -12,13 +17,17 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -36,7 +45,6 @@ import com.mwc.docportal.API.Service.EndUserGlobalSearchService;
 import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Common.GlobalVariables;
 import com.mwc.docportal.Common.SimpleDividerItemDecoration;
-import com.mwc.docportal.DMS.NavigationMyFolderActivity;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.Login.LoginActivity;
@@ -45,6 +53,7 @@ import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
 import com.mwc.docportal.RootActivity;
+import com.mwc.docportal.Utils.SplashScreen;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,6 +64,8 @@ import retrofit.Call;
 import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
+
+import static com.mwc.docportal.DMS.Tab_Activity.isFromShared;
 
 public class GlobalSearchActivity extends RootActivity implements SearchView.OnQueryTextListener{
 
@@ -69,7 +80,7 @@ public class GlobalSearchActivity extends RootActivity implements SearchView.OnQ
 
     GlobalSearchAdapter mAdapterList;
     RecyclerView mRecyclerView;
-    NestedScrollView scrollView;
+  //  NestedScrollView scrollView;
     LinearLayoutManager linearLayoutManager;
     int remainingDataStatus;
     Handler handler = new Handler();
@@ -88,9 +99,6 @@ public class GlobalSearchActivity extends RootActivity implements SearchView.OnQ
 
         initializeViews();
         searchView.setOnQueryTextListener(this);
-        mRecyclerView.setNestedScrollingEnabled(false);
-
-
 
         if(GlobalVariables.searchKey != null && !GlobalVariables.searchKey.isEmpty())
         {
@@ -105,13 +113,11 @@ public class GlobalSearchActivity extends RootActivity implements SearchView.OnQ
                 search_completed_layout.setVisibility(View.GONE);
             }
 
-            loadAdapterData();
+            loadAdapterData(true);
 
         }
 
-
-
-        scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+        /*scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
             @Override
             public void onScrollChanged() {
                 if (scrollView != null) {
@@ -127,22 +133,14 @@ public class GlobalSearchActivity extends RootActivity implements SearchView.OnQ
                 }
             }
         });
-
-
-
-        /*searchView.setOnCloseListener(new SearchView.OnCloseListener() {
-            @Override
-            public boolean onClose() {
-                globalSearchDocumentList.clear();
-                loadAdapterData();
-
-                Toast.makeText(context, "closeed", Toast.LENGTH_SHORT).show();
-
-                return false;
-            }
-        });
-
 */
+
+        mRecyclerView.addOnScrollListener(mScrollListener);
+
+
+
+
+
     }
 
     private void initializeViews()
@@ -153,8 +151,27 @@ public class GlobalSearchActivity extends RootActivity implements SearchView.OnQ
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(getResources().getDrawable(R.mipmap.ic_back));
         searchView = (SearchView) findViewById(R.id.document_search);
+
+        EditText searchEditText = (EditText) searchView.findViewById(android.support.v7.appcompat.R.id.search_src_text);
+        searchEditText.setTextColor(getResources().getColor(R.color.black));
+        searchEditText.setHintTextColor(getResources().getColor(R.color.white));
+
+        // change close icon color
+        ImageView iconClose = (ImageView) searchView.findViewById(android.support.v7.appcompat.R.id.search_close_btn);
+        iconClose.setColorFilter(getResources().getColor(R.color.black));
+
+        //change search icon color
+        /*ImageView iconSearch =(ImageView) searchView.findViewById(android.support.v7.appcompat.R.id.search_button);
+        iconSearch.setColorFilter(getResources().getColor(R.color.black));*/
+
+        ImageView icon = searchView.findViewById(android.support.v7.appcompat.R.id.search_mag_icon);
+        icon.setColorFilter(Color.BLACK);
+
+
+
         mRecyclerView = (RecyclerView) findViewById(R.id.globalSearch_recyclerView);
-        scrollView = (NestedScrollView) findViewById(R.id.mNestedScrollViewView);
+        mRecyclerView.setNestedScrollingEnabled(false);
+      //  scrollView = (NestedScrollView) findViewById(R.id.mNestedScrollViewView);
         search_completed_layout = (RelativeLayout) findViewById(R.id.search_completed_layout);
         empty_view = (LinearLayout) findViewById(R.id.empty_view);
         no_search_results_txt = (TextView)findViewById(R.id.no_search_results_txt);
@@ -168,9 +185,18 @@ public class GlobalSearchActivity extends RootActivity implements SearchView.OnQ
         getMenuInflater().inflate(R.menu.global_search_item, menu);
         MenuItem cancelItem = menu.findItem(R.id.cancel_item);
 
+       /* int positionOfMenuItem = 0;
+        MenuItem item = menu.getItem(positionOfMenuItem);
+        SpannableString s = new SpannableString("CANCEL");
+        s.setSpan(new ForegroundColorSpan(Color.RED), 0, s.length(), 0);
+        item.setTitle(s);*/
+
 
         return true;
     }
+
+
+
 
 
     @Override
@@ -345,7 +371,7 @@ public class GlobalSearchActivity extends RootActivity implements SearchView.OnQ
                                 handler.removeCallbacksAndMessages(null);
                             }
 
-                            loadAdapterData();
+                            loadAdapterData(false);
 
 
                             handler.postDelayed(new Runnable() {
@@ -379,10 +405,27 @@ public class GlobalSearchActivity extends RootActivity implements SearchView.OnQ
 
     }
 
-    private void loadAdapterData()
+    private void loadAdapterData(boolean isFromMoveOrOther)
     {
-        setListAdapterToView(globalSearchDocumentList);
-        mAdapterList.notifyDataSetChanged();
+        if(isFromMoveOrOther)
+        {
+            setListAdapterToView(globalSearchDocumentList);
+            mAdapterList.notifyDataSetChanged();
+        }
+        else
+        {
+            if(globalSearchDocumentList != null && globalSearchDocumentList.size() > 16)
+            {
+                mAdapterList.notifyDataSetChanged();
+            }
+            else
+            {
+                setListAdapterToView(globalSearchDocumentList);
+                mAdapterList.notifyDataSetChanged();
+            }
+        }
+
+
     }
 
     private void setListAdapterToView(List<GetCategoryDocumentsResponse> globalSearchDocumentList)
@@ -458,5 +501,39 @@ public class GlobalSearchActivity extends RootActivity implements SearchView.OnQ
         GlobalVariables.isGlobalSearchCompleted = false;
         finish();
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if(GlobalVariables.isComingFromApp)
+        {
+            Intent intent = new Intent(context, SplashScreen.class);
+            intent.putExtra("IsFromForeground", true);
+            intent.putExtra("ActivityName", "com.mwc.docportal.GlobalSearch.GlobalSearchActivity");
+            startActivityForResult(intent, 600);
+        }
+    }
+
+
+    RecyclerView.OnScrollListener mScrollListener = new RecyclerView.OnScrollListener() {
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+
+            if (!recyclerView.canScrollVertically(1) && dy > 0) {
+                if(remainingDataStatus == 1 && apiCallInProgress == false) {
+                    getEndUserGlobalSearchData();
+                }
+
+            }
+            /*int visibleItemCount = mLayoutManager.getChildCount();
+            int totalItemCount = mLayoutManager.getItemCount();
+            int pastVisibleItems = mLayoutManager.findFirstVisibleItemPosition();
+            if (pastVisibleItems + visibleItemCount >= totalItemCount) {
+                //End of list
+            }*/
+        }
+    };
+
 
 }

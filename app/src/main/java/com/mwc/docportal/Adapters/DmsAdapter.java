@@ -114,7 +114,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
 
 
     private HashSet<Integer> mSelected;
-    public List<GetCategoryDocumentsResponse> selectedList = new ArrayList<>();
+ //   public List<GetCategoryDocumentsResponse> selectedList = new ArrayList<>();
     int lastItemPosition ;
     private static final int GRID_ITEM = 0;
     private static final int LIST_ITEM = 1;
@@ -134,10 +134,11 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
     boolean isSwitchView = true;
     int index=0;
 
-    boolean isMultiSelect = false;
+ //   boolean isMultiSelect = false;
 
     private boolean mIsLoadingFooterAdded = false;
     List<GetCategoryDocumentsResponse> downloadingUrlDataList = new ArrayList<>();
+  //  int selectedCountValue = 0;
 
     public DmsAdapter(List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses, Activity context) {
         this.context = context;
@@ -316,7 +317,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                 @Override
                 public void onClick(View v) {
 
-                    if (isMultiSelect)
+                    if (GlobalVariables.isMultiSelect)
                     {
                         if(mGetCategoryDocumentsResponses.get(position).getPermission().isCanViewDocument()) {
                             multi_select(position);
@@ -359,9 +360,9 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                 public boolean onLongClick(View v) {
                     if(mGetCategoryDocumentsResponses.get(position).getPermission().isCanViewDocument()) {
                         if (!GlobalVariables.isMoveInitiated) {
-                            if (!isMultiSelect) {
-                                selectedList = new ArrayList<>();
-                                isMultiSelect = true;
+                            if (!GlobalVariables.isMultiSelect) {
+                              //  selectedList = new ArrayList<>();
+                                GlobalVariables.isMultiSelect = true;
                             }
 
                             multi_select(position);
@@ -403,7 +404,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
 
             });
 
-            if(selectedList.contains(mGetCategoryDocumentsResponses.get(position)))
+            if(mGetCategoryDocumentsResponses.get(position).isSelected() == true)
             {
                 holder.selectedItemIv.setVisibility(View.VISIBLE);
             }
@@ -412,9 +413,18 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                 holder.selectedItemIv.setVisibility(View.GONE);
             }
 
+            /*if(selectedList.contains(mGetCategoryDocumentsResponses.get(position)))
+            {
+                holder.selectedItemIv.setVisibility(View.VISIBLE);
+            }
+            else
+            {
+                holder.selectedItemIv.setVisibility(View.GONE);
+            }*/
+
             holder.moreIcon.setVisibility(View.VISIBLE);
 
-            if(selectedList.size() > 0 || !mGetCategoryDocumentsResponses.get(position).getPermission().isCanViewDocument())
+            if(GlobalVariables.isMultiSelect == true || !mGetCategoryDocumentsResponses.get(position).getPermission().isCanViewDocument())
             {
                 holder.moreIcon.setVisibility(View.GONE);
             }
@@ -423,23 +433,47 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
 
     public void multi_select(int position)
     {
-            if (selectedList.contains(mGetCategoryDocumentsResponses.get(position))) {
-                selectedList.remove(mGetCategoryDocumentsResponses.get(position));
-                if (selectedList != null && selectedList.size() == 0) {
-                    selectedList.clear();
-                    isMultiSelect = false;
-                    notifyDataSetChanged();
 
+            if(mGetCategoryDocumentsResponses.get(position).isSelected() == true)
+            {
+                mGetCategoryDocumentsResponses.get(position).setSelected(false);
+                if(GlobalVariables.selectedCountValue > 0)
+                {
+                    GlobalVariables.selectedCountValue--;
                 }
+
+                if(GlobalVariables.selectedCountValue == 0)
+                {
+                    GlobalVariables.isMultiSelect = false;
+                    notifyDataSetChanged();
+                }
+
+
             }
-            else {
-                selectedList.add(mGetCategoryDocumentsResponses.get(position));
+            else
+            {
+                mGetCategoryDocumentsResponses.get(position).setSelected(true);
+                GlobalVariables.selectedCountValue++;
             }
 
             notifyDataSetChanged();
 
+            List<GetCategoryDocumentsResponse> selectedUpdateList = new ArrayList<>();
+
+            if(mGetCategoryDocumentsResponses != null && mGetCategoryDocumentsResponses.size() > 0)
+            {
+                for(GetCategoryDocumentsResponse categoryDocumentsResponse : mGetCategoryDocumentsResponses)
+                {
+                    if(categoryDocumentsResponse.isSelected() == true)
+                    {
+                        selectedUpdateList.add(categoryDocumentsResponse);
+                    }
+                }
+            }
+
+
             if (context instanceof NavigationMyFolderActivity) {
-                ((NavigationMyFolderActivity) context).updateToolbarMenuItems(selectedList);
+                ((NavigationMyFolderActivity) context).updateToolbarMenuItems(selectedUpdateList);
             }
 
 
@@ -449,8 +483,19 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
 
     public void clearAll()
     {
-        selectedList.clear();
-        isMultiSelect = false;
+        if(mGetCategoryDocumentsResponses != null && mGetCategoryDocumentsResponses.size() > 0)
+        {
+            for(GetCategoryDocumentsResponse categoryDocumentsResponse : mGetCategoryDocumentsResponses)
+            {
+                if(categoryDocumentsResponse.isSelected() == true)
+                {
+                    categoryDocumentsResponse.setSelected(false);
+                }
+            }
+        }
+
+        GlobalVariables.selectedCountValue = 0;
+        GlobalVariables.isMultiSelect = false;
         notifyDataSetChanged();
 
     }
@@ -617,6 +662,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
             public void onClick(View v) {
                 mBottomSheetDialog.dismiss();
                 if (context instanceof NavigationMyFolderActivity) {
+                    ((NavigationMyFolderActivity) context).assigningMoveOriginIndex();
                     ((NavigationMyFolderActivity) context).initiateMoveAction("move");
                 }
 
@@ -628,6 +674,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
             public void onClick(View v) {
                 mBottomSheetDialog.dismiss();
                 if (context instanceof NavigationMyFolderActivity) {
+                    ((NavigationMyFolderActivity) context).assigningMoveOriginIndex();
                     ((NavigationMyFolderActivity) context).initiateMoveAction("copy");
                 }
 
@@ -701,11 +748,10 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
 
                     } else {
                         switchButton_share.setChecked(true);
-                        GlobalVariables.isMoveInitiated = true;
-                        GlobalVariables.selectedActionName =  "share";
-                        Intent intent = new Intent(context, NavigationSharedActivity.class);
-                        intent.putExtra("ObjectId", "0");
-                        context.startActivity(intent);
+
+                        if (context instanceof NavigationMyFolderActivity) {
+                            ((NavigationMyFolderActivity) context).showInternalShareAlertMessage();
+                        }
 
                     }
 
@@ -832,7 +878,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                         }
                         else
                         {
-                            Toast.makeText(context, "Please enter name", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, context.getString(R.string.newname_txt), Toast.LENGTH_SHORT).show();
                         }
 
 
@@ -855,6 +901,8 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         });
     }
 
+
+
     private void showWarningMessageAlertForSharingContent(final GetCategoryDocumentsResponse mGetCategoryDocumentsResponses, SwitchCompat switchButton_share)
     {
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -864,12 +912,12 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         builder.setCancelable(false);
 
         TextView title = (TextView) view.findViewById(R.id.title);
-        title.setText("Warning");
+        title.setText("Stop Sharing");
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 
-        txtMessage.setText("This action will stop sharing the selected document(s). Company with whom this has been shared will no longer be able to view this document");
-
+      //  txtMessage.setText("This action will stop sharing the selected document(s). Company with whom this has been shared will no longer be able to view this document");
+        txtMessage.setText(context.getString(R.string.stop_sharing_text));
         Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
@@ -937,15 +985,15 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                             message = response.body().getStatus().getMessage().toString();
                         }
 
-                       CommonFunctions.isApiSuccess(context, message, response.body().getStatus().getCode());
+                      if(CommonFunctions.isApiSuccess(context, message, response.body().getStatus().getCode()))
+                      {
+                          switchButton_share.setChecked(false);
 
-                        switchButton_share.setChecked(false);
-
-                        if (context instanceof NavigationMyFolderActivity) {
-                            ((NavigationMyFolderActivity) context).resetPageNumber();
-                            ((NavigationMyFolderActivity) context).getCategoryDocuments();
-                        }
-
+                          if (context instanceof NavigationMyFolderActivity) {
+                              ((NavigationMyFolderActivity) context).resetPageNumber();
+                              ((NavigationMyFolderActivity) context).getCategoryDocuments();
+                          }
+                      }
 
                     }
                 }
@@ -1012,6 +1060,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
             public void onClick(View v) {
                 mBottomSheetDialog.dismiss();
                 if (context instanceof NavigationMyFolderActivity) {
+                    ((NavigationMyFolderActivity) context).assigningMoveOriginIndex();
                     ((NavigationMyFolderActivity) context).initiateMoveAction("move");
                 }
 
@@ -1051,7 +1100,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                         }
                         else
                         {
-                            Toast.makeText(context, "Please enter name", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, context.getString(R.string.newname_txt), Toast.LENGTH_SHORT).show();
                         }
 
 
@@ -1117,6 +1166,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                         NavigationMyFolderActivity.mode = 1;
                         mBackDialog.dismiss();
                         if (context instanceof NavigationMyFolderActivity) {
+                            ((NavigationMyFolderActivity) context).assigningMoveOriginIndex();
                             ((NavigationMyFolderActivity) context).initiateMoveAction("delete");
                         }
 

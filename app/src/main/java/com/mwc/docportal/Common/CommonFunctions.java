@@ -225,7 +225,7 @@ public class CommonFunctions
         builder.setCancelable(false);
 
         TextView title = (TextView) view.findViewById(R.id.title);
-        title.setText("Error");
+        title.setText("Alert");
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 
@@ -266,7 +266,7 @@ public class CommonFunctions
 
             TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 
-            txtMessage.setText("Download is completed. You can check the downloaded files through View Offline Files option available in settings menu");
+            txtMessage.setText("Download completed. Please view in offline files");
 
             Button okButton = (Button) view.findViewById(R.id.send_pin_button);
             Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
@@ -301,7 +301,8 @@ public class CommonFunctions
 
     public static AlertDialog getDialog(Context context) {
         return new AlertDialog.Builder(context)
-                .setMessage("Network is disabled in your device. Would you like to enable it?")
+               // .setMessage("Network is disabled in your device. Would you like to enable it?")
+                .setMessage(context.getString(R.string.check_network_txt))
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();

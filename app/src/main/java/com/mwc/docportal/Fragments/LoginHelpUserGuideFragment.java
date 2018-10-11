@@ -30,6 +30,7 @@ import com.mwc.docportal.API.Model.WhiteLabelResponse;
 import com.mwc.docportal.API.Service.GetAssistancePopupService;
 import com.mwc.docportal.API.Service.SetUserPreferenceGuideService;
 import com.mwc.docportal.Common.CommonFunctions;
+import com.mwc.docportal.Common.GlobalVariables;
 import com.mwc.docportal.DMS.MyFoldersDMSActivity;
 import com.mwc.docportal.DMS.NavigationMyFolderActivity;
 import com.mwc.docportal.Database.AccountSettings;
@@ -267,6 +268,7 @@ public class LoginHelpUserGuideFragment extends Fragment {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
                 mActivity.finish();
+                GlobalVariables.isFromForeground = false;
 
                 if (checkBox.isChecked()) {
                     setUserPreferences();
@@ -281,6 +283,7 @@ public class LoginHelpUserGuideFragment extends Fragment {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
                 mActivity.finish();
+                GlobalVariables.isFromForeground = false;
                 updateLoggedInStatus();
             }
         });

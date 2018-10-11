@@ -16,10 +16,12 @@ import com.mwc.docportal.API.Model.OfflineFiles;
 import com.mwc.docportal.API.Model.WhiteLabelResponse;
 import com.mwc.docportal.Adapters.DmsAdapterList;
 import com.mwc.docportal.Adapters.OffLineFilesListAdapter;
+import com.mwc.docportal.Common.GlobalVariables;
 import com.mwc.docportal.Common.SimpleDividerItemDecoration;
 import com.mwc.docportal.DMS.MyFoldersDMSActivity;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Database.OffLine_Files_Repository;
+import com.mwc.docportal.Utils.SplashScreen;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -103,6 +105,19 @@ public class OffLine_Files_List extends RootActivity {
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if(GlobalVariables.isComingFromApp)
+        {
+            Intent intent = new Intent(context, SplashScreen.class);
+            intent.putExtra("IsFromForeground", true);
+            intent.putExtra("ActivityName", "com.mwc.docportal.OffLine_Files_List");
+            startActivityForResult(intent, 800);
+        }
     }
 
 }

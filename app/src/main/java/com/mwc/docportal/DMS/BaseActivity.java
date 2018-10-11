@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.mwc.docportal.API.Model.WhiteLabelResponse;
+import com.mwc.docportal.Common.GlobalVariables;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.R;
 
@@ -59,20 +60,30 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
-
-
             int itemId = item.getItemId();
             if (itemId == R.id.navigation_folder) {
-                startActivity(new Intent(this, NavigationMyFolderActivity.class));
+                resetMoveVariables();
+                Intent intent=new Intent(this,NavigationMyFolderActivity.class);
+                startActivity(intent);
             } else if (itemId == R.id.navigation_shared) {
+                GlobalVariables.isMultiSelect = false;
+                GlobalVariables.selectedCountValue = 0;
                 Intent intent = new Intent(this, NavigationSharedActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
             } else if (itemId == R.id.navigation_settings) {
                 startActivity(new Intent(this, NavigationSettingsActivity.class));
             }
             finish();
         return true;
+    }
+
+    private void resetMoveVariables()
+    {
+        GlobalVariables.isMultiSelect = false;
+        GlobalVariables.selectedCountValue = 0;
+        GlobalVariables.activityCount = 0;
+        GlobalVariables.activityFinishCount = 0;
+        GlobalVariables.moveOriginIndex = 0;
     }
 
     private void setNavMenuItemThemeColors(int selectedColor)

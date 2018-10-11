@@ -1,6 +1,8 @@
 package com.mwc.docportal.Fragments;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -17,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -66,6 +69,10 @@ public class  PinVerificationFragment extends Fragment {
     public static final int REQUEST_STORAGE_PERMISSION = 111;
     public static final int REQUEST_READ_SMS_PERMISSION = 133;
     public static String deviceType = "";
+    AlertDialog mAlertDialog;
+    String selectedDeviceType = "";
+
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -182,13 +189,28 @@ public class  PinVerificationFragment extends Fragment {
 
     private void setAdapter(List<ListPinDevices> mListPinDevices) {
 
+        PinDeviceAdapter.AdapterInterface listener = new PinDeviceAdapter.AdapterInterface()
+        {
+            @Override
+            public void onClick(String value)
+            {
+                selectedDeviceType = value;
+            }
+        };
+
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
-        mAdapter = new PinDeviceAdapter(mActivity, mListPinDevices);
+        mAdapter = new PinDeviceAdapter(mActivity, mListPinDevices, listener);
         mRecyclerView.setAdapter(mAdapter); // set the Adapter to RecyclerView
     }
 
     private void sendPin() {
+
+        if(selectedDeviceType.isEmpty())
+        {
+            showSelectOneDeviceAlertMessage();
+            return;
+        }
 
         if (NetworkUtils.isNetworkAvailable(mActivity)) {
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
@@ -238,6 +260,40 @@ public class  PinVerificationFragment extends Fragment {
         }
     }
 
+    private void showSelectOneDeviceAlertMessage()
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+        LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Alert");
+
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+        txtMessage.setText("Please select a device");
+
+        Button okButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+        cancelButton.setVisibility(View.GONE);
+
+        okButton.setText("OK");
+
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+
+            }
+        });
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
@@ -259,5 +315,6 @@ public class  PinVerificationFragment extends Fragment {
                 break;
         }
     }
+
 
 }

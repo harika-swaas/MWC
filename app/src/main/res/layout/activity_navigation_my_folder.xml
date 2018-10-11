@@ -122,9 +122,11 @@
 
 
         <LinearLayout
+            android:id="@+id/bottom_linearlayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginTop="0dp"
+            android:layout_marginBottom="90dp"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
             <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -132,24 +134,24 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                    <android.support.v4.widget.NestedScrollView
+                    <!--<android.support.v4.widget.NestedScrollView
                         android:id="@+id/nest_scrollview"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_marginTop="0dp"
-                        android:layout_marginBottom="30dp"
-                        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+                        app:layout_behavior="@string/appbar_scrolling_view_behavior">-->
 
                         <android.support.v7.widget.RecyclerView
                             android:id="@+id/recycler_dms"
                             android:layout_width="match_parent"
                             android:layout_marginLeft="5dp"
                             android:layout_marginRight="10dp"
-                            android:layout_height="match_parent">
+                            android:clipToPadding="false"
+                            android:layout_height="wrap_content">
 
                         </android.support.v7.widget.RecyclerView>
 
-                    </android.support.v4.widget.NestedScrollView>
+                   <!-- </android.support.v4.widget.NestedScrollView>-->
 
             </android.support.v4.widget.SwipeRefreshLayout>
 
@@ -189,18 +191,11 @@
         app:menu="@menu/navigation"
         />-->
 
-    <include
-        layout="@layout/activity_dms_bottom_navigation_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_alignParentBottom="true"
-        />
 
     <RelativeLayout
         android:id="@+id/move_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="55dp"
         android:layout_gravity="bottom"
         android:layout_alignParentBottom="true"
         android:padding="12dp"
@@ -212,7 +207,7 @@
         <TextView
             android:id="@+id/move_textview"
             android:layout_width="wrap_content"
-            android:layout_height="30dp"
+            android:layout_height="match_parent"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_centerInParent="true"
@@ -226,7 +221,7 @@
         <TextView
             android:id="@+id/cancel_textview"
             android:layout_width="wrap_content"
-            android:layout_height="30dp"
+            android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
             android:layout_centerInParent="true"
             android:text="Cancel"
@@ -235,6 +230,16 @@
             android:textAllCaps="true"
             android:layout_marginLeft="16dp"/>
     </RelativeLayout>
+
+    <include
+        layout="@layout/activity_dms_bottom_navigation_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_alignParentBottom="true"
+        />
+
+
 
 
     <com.github.clans.fab.FloatingActionMenu

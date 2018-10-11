@@ -241,8 +241,8 @@ public class OffLineFilesListAdapter extends RecyclerView.Adapter<OffLineFilesLi
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 
-        txtMessage.setText("You are sharing this document to external contacts. Please aware that document security will not be carried over to the recipient");
-
+      //  txtMessage.setText("You are sharing this document to external contacts. Please aware that document security will not be carried over to the recipient");
+        txtMessage.setText(context.getString(R.string.external_sharing_text));
         Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 

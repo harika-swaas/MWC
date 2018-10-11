@@ -1,33 +1,38 @@
 package com.mwc.docportal;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.Application;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
+import android.app.KeyguardManager;
+import android.app.usage.UsageEvents;
+import android.app.usage.UsageStatsManager;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.multidex.MultiDexApplication;
 import android.support.v4.app.NotificationManagerCompat;
-import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.facebook.stetho.Stetho;
 import com.google.gson.Gson;
+import com.mwc.docportal.API.Model.AccountSettingsResponse;
 import com.mwc.docportal.API.Model.PushNotificationRequestModel;
 import com.mwc.docportal.API.Model.SharedDocumentResponseModel;
 import com.mwc.docportal.API.Service.ShareEndUserDocumentsService;
 import com.mwc.docportal.Common.CommonFunctions;
-import com.mwc.docportal.DMS.NavigationSettingsActivity;
-import com.mwc.docportal.Database.AccountSettings;
+import com.mwc.docportal.Common.GlobalVariables;
 import com.mwc.docportal.Database.PushNotificatoinSettings_Respository;
 import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
+import com.mwc.docportal.Utils.SplashScreen;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import io.fabric.sdk.android.Fabric;
@@ -46,6 +51,9 @@ public class MWCApplication extends MultiDexApplication implements Application.A
     private int activityReferences = 0;
     private boolean isActivityChangingConfigurations = false;
     PushNotificatoinSettings_Respository pushNotificationSettings;
+    List<AccountSettingsResponse> mAccountSettingsResponses = new ArrayList<>();
+    KeyguardManager keyguardManager;
+    public final int CREDENTIALS_RESULT = 12345;
     @Override
     public void onCreate() {
         super.onCreate();
@@ -71,11 +79,12 @@ public class MWCApplication extends MultiDexApplication implements Application.A
 
 
 
+
     @Override
     public void onActivityStarted(Activity activity) {
         if (++activityReferences == 1 && !isActivityChangingConfigurations) {
             // App enters foreground
-         //   Toast.makeText(activity, "foreground", Toast.LENGTH_LONG).show();
+
 
             String channalId = "my_channel_01";
             boolean device_status = isNotificationChannelEnabled(activity, channalId);
@@ -99,8 +108,21 @@ public class MWCApplication extends MultiDexApplication implements Application.A
                 getPushNotificationDocumentService(activity,"1");
             }
 
+
+
+
+            if(!GlobalVariables.isFromForeground && !GlobalVariables.isFromCamerOrVideo)
+            {
+              //  Toast.makeText(activity, "foreground", Toast.LENGTH_LONG).show();
+
+                GlobalVariables.isComingFromApp = true;
+
+            }
+
         }
+
     }
+
 
       private void getPushNotificationDocumentService(Activity activity, String register_type)
         {
@@ -171,6 +193,7 @@ public class MWCApplication extends MultiDexApplication implements Application.A
         }
     }
 
+
     @Override
     public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
 
@@ -198,7 +221,6 @@ public class MWCApplication extends MultiDexApplication implements Application.A
             return areNotificationsEnabled;
     //    }
     }
-
 
 
 }
