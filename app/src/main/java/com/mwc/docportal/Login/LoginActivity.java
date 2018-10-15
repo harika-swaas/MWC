@@ -175,10 +175,10 @@ public class LoginActivity extends RootActivity {
                 LoginActivity.this.finish();
 
             }
-            else
+           /* else
             {
                 gotoSplashScreenPage();
-            }
+            }*/
 
         }
 

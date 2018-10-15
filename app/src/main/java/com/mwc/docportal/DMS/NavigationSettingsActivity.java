@@ -59,7 +59,6 @@ import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
 import com.mwc.docportal.UserProfileActivity;
 import com.mwc.docportal.Utils.Constants;
-import com.mwc.docportal.Utils.SplashScreen;
 import com.mwc.docportal.pdf.PdfViewActivity;
 
 import java.io.File;

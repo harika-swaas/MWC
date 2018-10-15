@@ -59,7 +59,6 @@ import com.mwc.docportal.GlobalSearch.GlobalSearchActivity;
 import com.mwc.docportal.Login.LoginActivity;
 import com.mwc.docportal.MWCApplication;
 import com.mwc.docportal.RootActivity;
-import com.mwc.docportal.Utils.SplashScreen;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.RequestBody;
 import com.mwc.docportal.API.Model.UploadDocumentResponse;

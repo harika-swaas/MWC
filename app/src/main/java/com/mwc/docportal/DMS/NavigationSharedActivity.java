@@ -77,14 +77,12 @@ import com.mwc.docportal.Database.OffLine_Files_Repository;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.GlobalSearch.GlobalSearchActivity;
 import com.mwc.docportal.GridAutofitLayoutManager;
-import com.mwc.docportal.Login.LoginActivity;
 import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
 import com.mwc.docportal.Utils.Constants;
 import com.mwc.docportal.Utils.DateHelper;
-import com.mwc.docportal.Utils.SplashScreen;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -1312,41 +1310,6 @@ public class NavigationSharedActivity extends BaseActivity {
 
     }
 
-    private void showSessionExpiryAlert(String mMessage)
-    {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-        builder.setView(view);
-        builder.setCancelable(false);
-
-        TextView title = (TextView) view.findViewById(R.id.title);
-        title.setText("Alert");
-
-        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-        txtMessage.setText(mMessage);
-
-        Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
-        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-        cancelButton.setVisibility(View.GONE);
-
-        sendPinButton.setText("OK");
-
-        sendPinButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mAlertDialog.dismiss();
-                AccountSettings accountSettings = new AccountSettings(context);
-                accountSettings.deleteAll();
-                startActivity(new Intent(context, LoginActivity.class));
-            }
-        });
-
-        mAlertDialog = builder.create();
-        mAlertDialog.show();
-    }
 
 
     private void getDownloadManagerForDownloading(List<GetCategoryDocumentsResponse> downloadingUrlDataList)

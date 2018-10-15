@@ -53,7 +53,7 @@ import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
 import com.mwc.docportal.RootActivity;
-import com.mwc.docportal.Utils.SplashScreen;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;

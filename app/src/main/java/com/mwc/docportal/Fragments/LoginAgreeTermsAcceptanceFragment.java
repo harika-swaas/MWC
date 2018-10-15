@@ -306,6 +306,7 @@ public class LoginAgreeTermsAcceptanceFragment extends Fragment {
 
                             updateIsTermsAcceptedAndLoggedInStatus();
                             //update help user guide status
+
                             Intent mIntent = new Intent(mActivity, LoginHelpUserGuideActivity.class);
                             startActivity(mIntent);
                             mActivity.finish();

@@ -345,12 +345,12 @@ public class LoginHelpUserGuideFragment extends Fragment {
     private void updateLoggedInStatus() {
 
         AccountSettings accountSettings = new AccountSettings(mActivity);
-        accountSettings.updateLocalAuthEnableStatus(String.valueOf(Constants.Assistance_Popup_Completed));
+        accountSettings.updateLocalAuthEnableStatus(String.valueOf(Constants.All_Settings_Completed));
     }
 
     private void updateHelpAcceptedAndLoggedInStatus() {
 
         AccountSettings accountSettings = new AccountSettings(mActivity);
-        accountSettings.updateIsHelpAcceptedAndLoggedInStatus(String.valueOf(Constants.Assistance_Popup_Completed), "0");
+        accountSettings.updateIsHelpAcceptedAndLoggedInStatus(String.valueOf(Constants.All_Settings_Completed), "0");
     }
 }
