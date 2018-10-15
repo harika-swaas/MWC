@@ -143,7 +143,12 @@ public class LoginActivity extends RootActivity {
                 if(isTouchIdEnabled)
                 {
 
-                    checkTouchIdCredentials();
+                //    checkTouchIdCredentials();
+
+                    Intent intent = new Intent(LoginActivity.this, Touchid.class);
+                    startActivity(intent);
+                    LoginActivity.this.finish();
+
 
                 }
                 else

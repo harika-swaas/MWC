@@ -81,19 +81,7 @@ public class Notes_Fragment extends android.support.v4.app.Fragment {
         return mView;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
 
-        if(GlobalVariables.isComingFromApp)
-        {
-            Intent intent = new Intent(mActivity, SplashScreen.class);
-            intent.putExtra("IsFromForeground", true);
-            intent.putExtra("ActivityName", "com.mwc.docportal.Fragments.Notes_Fragment");
-            startActivityForResult(intent, 333);
-        }
-
-    }
 
     public void getNotes() {
         if (NetworkUtils.isNetworkAvailable(getActivity())) {

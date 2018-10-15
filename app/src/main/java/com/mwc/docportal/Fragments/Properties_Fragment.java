@@ -144,19 +144,6 @@ public class Properties_Fragment extends Fragment{
                 search_tags= (TextView) mView.findViewById(R.id.textView11);
         }
 */
-        @Override
-        public void onResume() {
-            super.onResume();
-
-            if(GlobalVariables.isComingFromApp)
-            {
-                Intent intent = new Intent(mActivity, SplashScreen.class);
-                intent.putExtra("IsFromForeground", true);
-                intent.putExtra("ActivityName", "com.mwc.docportal.Fragments.Properties_Fragment");
-                startActivityForResult(intent, 123);
-            }
-
-        }
 
 
 

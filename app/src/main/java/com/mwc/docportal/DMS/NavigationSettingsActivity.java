@@ -221,13 +221,6 @@ public class NavigationSettingsActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
 
-        if(GlobalVariables.isComingFromApp)
-        {
-            Intent intent = new Intent(context, SplashScreen.class);
-            intent.putExtra("IsFromForeground", true);
-            intent.putExtra("ActivityName", "com.mwc.docportal.DMS.NavigationSettingsActivity");
-            startActivityForResult(intent, 300);
-        }
 
         getAccountSettings();
 
@@ -394,7 +387,7 @@ public class NavigationSettingsActivity extends BaseActivity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (buttonView.isPressed() == true) {
-                    GlobalVariables.isFromCamerOrVideo = true;
+               //     GlobalVariables.isFromCamerOrVideo = true;
                     if (finger_print_Switch.isChecked() == true) {
                         finger_print_Switch.setChecked(false);
                     } else {
@@ -569,7 +562,7 @@ public class NavigationSettingsActivity extends BaseActivity {
 
             if (resultCode == RESULT_OK) {
 
-                GlobalVariables.isFromCamerOrVideo = false;
+             //   GlobalVariables.isFromCamerOrVideo = false;
                 getAccountSettings();
 
                 if (mAccountSettingsResponses != null && mAccountSettingsResponses.size() > 0) {
@@ -591,7 +584,6 @@ public class NavigationSettingsActivity extends BaseActivity {
                 }
 
             } else {
-                GlobalVariables.isFromCamerOrVideo = false;
                 showAuthenticationFailureMessage();
             }
 

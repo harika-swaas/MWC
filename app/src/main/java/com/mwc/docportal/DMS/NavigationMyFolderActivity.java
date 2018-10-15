@@ -228,7 +228,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
         if(PreferenceUtils.getPushNotificationDocumentVersionId(context) != null && !PreferenceUtils.getPushNotificationDocumentVersionId(context).isEmpty())
         {
-           GlobalVariables.isComingFromApp = false;
+       //    GlobalVariables.isComingFromApp = false;
            Intent intent = new Intent(NavigationMyFolderActivity.this, PdfViewActivity.class);
            startActivity(intent);
         }
@@ -280,25 +280,10 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
         mRefreshLayout.setOnRefreshListener(this);
 
-       /* mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-
-                if (!recyclerView.canScrollVertically(1)) {
-                    Toast.makeText(context, "Last", Toast.LENGTH_LONG).show();
-                   *//* if(pageNumber + 1 <= totalPages) {
-                        getCategoryDocuments();
-                    }
-*//*
-                }
-            }
-        });*/
-
-
         mRecyclerView.addOnScrollListener(mScrollListener);
 
-
+        setSortTitle();
+        reloadAdapterData(false);
 
 
     }
@@ -1008,7 +993,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
     private void videoAccess()
     {
         floatingActionMenu.close(true);
-        GlobalVariables.isFromCamerOrVideo = true;
+     //   GlobalVariables.isFromCamerOrVideo = true;
         if(Build.VERSION.SDK_INT>=24){
             try{
                 Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
@@ -1414,7 +1399,6 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
     {
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_dms);
         mRecyclerView.setNestedScrollingEnabled(false);
-    //    scrollView = (NestedScrollView) findViewById(R.id.nest_scrollview);
         sort = (TextView) findViewById(R.id.name_sort);
         toggleView = (RelativeLayout) findViewById(R.id.toggle_view);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -3413,16 +3397,9 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
         clearingMoveOrCopyActivity();
 
-        if(GlobalVariables.isComingFromApp)
-        {
-            Intent intent = new Intent(context, SplashScreen.class);
-            intent.putExtra("IsFromForeground", true);
-            intent.putExtra("ActivityName", "com.mwc.docportal.DMS.NavigationMyFolderActivity");
-            startActivityForResult(intent, 100);
-        }
 
-        setSortTitle();
-        reloadAdapterData(false);
+        /*setSortTitle();
+        reloadAdapterData(false);*/
         if(!GlobalVariables.isMoveInitiated)
         {
             hideBottomView();
@@ -3667,7 +3644,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
     public void cameraAccess()
     {
         floatingActionMenu.close(true);
-        GlobalVariables.isFromCamerOrVideo = true;
+      //  GlobalVariables.isFromCamerOrVideo = true;
 
         if(Build.VERSION.SDK_INT>=24){
             try{
@@ -3738,7 +3715,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                         showVideoOrCameraAccess();
                     } else {
                         floatingActionMenu.close(true);
-                        Toast.makeText(context, "Camera permission denied", Toast.LENGTH_LONG).show();
+                        Toast.makeText(context, "Camera access permission denied", Toast.LENGTH_LONG).show();
                     }
                 }
                 break;
@@ -3803,7 +3780,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
     @Override
     public void onRefresh() {
-
+        GlobalVariables.isMultiSelect = false;
         if (NetworkUtils.checkIfNetworkAvailable(this)) {
             List<GetCategoryDocumentsResponse> dummyList = new ArrayList<>();
             updateToolbarMenuItems(dummyList);
@@ -3868,7 +3845,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
     public void onDestroy() {
         super.onDestroy();
-        GlobalVariables.isFromCamerOrVideo = false;
+     //   GlobalVariables.isFromCamerOrVideo = false;
 
     }
 
@@ -3910,5 +3887,6 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             }*/
         }
     };
+
 
 }

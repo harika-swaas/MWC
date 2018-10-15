@@ -77,14 +77,6 @@ public class UserProfileActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        if(GlobalVariables.isComingFromApp)
-        {
-            Intent intent = new Intent(context, SplashScreen.class);
-            intent.putExtra("IsFromForeground", true);
-            intent.putExtra("ActivityName", "com.mwc.docportal.UserProfileActivity");
-            startActivityForResult(intent, 1000);
-        }
-
         getProfileDetailsFromAPI();
     }
 

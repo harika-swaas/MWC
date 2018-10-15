@@ -107,17 +107,6 @@ public class OffLine_Files_List extends RootActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
 
-        if(GlobalVariables.isComingFromApp)
-        {
-            Intent intent = new Intent(context, SplashScreen.class);
-            intent.putExtra("IsFromForeground", true);
-            intent.putExtra("ActivityName", "com.mwc.docportal.OffLine_Files_List");
-            startActivityForResult(intent, 800);
-        }
-    }
 
 }

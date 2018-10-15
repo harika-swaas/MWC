@@ -14,6 +14,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 
+import android.support.v4.app.NotificationManagerCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -68,6 +69,7 @@ public class Notifiy extends RootActivity {
     Notifiy mActivity;
     Context context = this;
     TextView notification_head;
+    TextView notification_body;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,8 +83,22 @@ public class Notifiy extends RootActivity {
 
         skip = (TextView) findViewById(R.id.skip_button_1);
         button5 = (Button) findViewById(R.id.enable_touch_button);
+        notification_body = (TextView) findViewById(R.id.notification_body);
         notification_head = (TextView) findViewById(R.id.notification_head);
-        notification_head.setText("Notifications for" + getResources().getString(R.string.app_name));
+        notification_head.setText("Notifications for " + getResources().getString(R.string.app_name));
+
+        boolean device_status = isNotificationChannelEnabled(Notifiy.this);
+        String enabled_String = "";
+        if(device_status)
+        {
+            enabled_String = "enabled";
+        }
+        else
+        {
+            enabled_String = "disabled";
+        }
+
+        notification_body.setText("Push notifications are "+ enabled_String +" for "+ getResources().getString(R.string.app_name) + " app. You can change the status from the settings page later.");
         skip.setVisibility(View.INVISIBLE);
 
         getIntentData();
@@ -97,7 +113,20 @@ public class Notifiy extends RootActivity {
             public void onClick(View v) {
 
                 updatePushNotificationAndLoggedInStatus();
-                String register_type = "1";
+                String register_type = "";
+                boolean device_status = isNotificationChannelEnabled(Notifiy.this);
+
+                if(device_status)
+                {
+                    register_type = "1";
+                }
+                else
+                {
+                    register_type = "0";
+                }
+
+
+
                 getPushNotificationDocumentService(register_type);
 
                /* final AlertDialog.Builder builder = new AlertDialog.Builder(Notifiy.this);
@@ -262,7 +291,7 @@ public class Notifiy extends RootActivity {
                                         Intent intent = new Intent(Notifiy.this, NavigationMyFolderActivity.class);
                                         startActivity(intent);
                                         finish();
-                                        GlobalVariables.isFromForeground = false;
+
                                     }
                                 }
                             }
@@ -416,6 +445,13 @@ public class Notifiy extends RootActivity {
 
         AccountSettings accountSettings = new AccountSettings(this);
         accountSettings.updatePushNotificationEnableAndLoggedInStatus(String.valueOf(Constants.Push_Notification_Completed), "1");
+    }
+
+    public boolean isNotificationChannelEnabled(Activity context){
+        NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
+        boolean areNotificationsEnabled = notificationManagerCompat.areNotificationsEnabled();
+        return areNotificationsEnabled;
+
     }
 
 

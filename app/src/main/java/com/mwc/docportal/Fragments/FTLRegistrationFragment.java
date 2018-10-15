@@ -29,11 +29,11 @@ import com.mwc.docportal.API.Model.VerifyFTLResponse;
 import com.mwc.docportal.API.Service.SendFTLPINService;
 import com.mwc.docportal.API.Service.VerifyFTLDetailsService;
 import com.mwc.docportal.Common.CommonFunctions;
-import com.mwc.docportal.DMS.NavigationMyFolderActivity;
+
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.FTL.FTLPinVerificationActivity;
 import com.mwc.docportal.FTL.FTLRegistrationActivity;
-import com.mwc.docportal.Login.LoginActivity;
+
 import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;

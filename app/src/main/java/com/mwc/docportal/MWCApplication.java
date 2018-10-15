@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.multidex.MultiDexApplication;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
@@ -86,8 +87,8 @@ public class MWCApplication extends MultiDexApplication implements Application.A
             // App enters foreground
 
 
-            String channalId = "my_channel_01";
-            boolean device_status = isNotificationChannelEnabled(activity, channalId);
+
+            boolean device_status = isNotificationChannelEnabled(activity);
             pushNotificationSettings = new PushNotificatoinSettings_Respository(activity);
             String pushNotificationStatus = pushNotificationSettings.getPushNotificatonSettingsStatus();
 
@@ -106,17 +107,6 @@ public class MWCApplication extends MultiDexApplication implements Application.A
             {
                 pushNotificationSettings.updatePushNotificatoinStatus("1");
                 getPushNotificationDocumentService(activity,"1");
-            }
-
-
-
-
-            if(!GlobalVariables.isFromForeground && !GlobalVariables.isFromCamerOrVideo)
-            {
-              //  Toast.makeText(activity, "foreground", Toast.LENGTH_LONG).show();
-
-                GlobalVariables.isComingFromApp = true;
-
             }
 
         }
@@ -190,6 +180,7 @@ public class MWCApplication extends MultiDexApplication implements Application.A
         if (--activityReferences == 0 && !isActivityChangingConfigurations) {
             // App enters background
          //   Toast.makeText(activity, "background", Toast.LENGTH_LONG).show();
+
         }
     }
 
@@ -204,7 +195,7 @@ public class MWCApplication extends MultiDexApplication implements Application.A
 
     }
 
-    public boolean isNotificationChannelEnabled(Activity context, String channelId){
+    public boolean isNotificationChannelEnabled(Activity context){
       /*  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if(!TextUtils.isEmpty(channelId)) {
                 NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);

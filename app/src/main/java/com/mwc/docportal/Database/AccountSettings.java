@@ -494,9 +494,6 @@ public class AccountSettings {
         GlobalVariables.isSharedTileView = true;
         GlobalVariables.sharedDocsSortType = "type";
         GlobalVariables.sharedDocsIsAscending = true;
-        GlobalVariables.isFromForeground = true;
-        GlobalVariables.isComingFromApp = false;
-        GlobalVariables.isFromCamerOrVideo = false;
         GlobalVariables.isMultiSelect = false;
         GlobalVariables.selectedCountValue = 0;
         GlobalVariables.activityCount = 0;

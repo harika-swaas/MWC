@@ -28,9 +28,9 @@
     <application
         android:name=".MWCApplication"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/doc_ic_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/doc_ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
@@ -148,28 +148,43 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
-        <!--
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
-            android:resource="@drawable/notification_bg_low" />
-        &lt;!&ndash;
+            android:resource="@mipmap/doc_ic_launcher" />
+        <!--
              Set color used with incoming notification messages. This is used when no color is set for the incoming
              notification message. See README(https://goo.gl/6BKBk7) for more.
-        &ndash;&gt;
+        -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
-            android:resource="@color/colorAccent" />
-        -->
+            android:resource="@color/notification_icon_color" />
+
+
+
+       <!-- Production fabric key-->
+
+       <!-- <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="f65d8896b478db0bc4f72b5d76f323801dc0509e"
+            />-->
+
+        <!-- Testing fabric key-->
 
         <meta-data
             android:name="io.fabric.ApiKey"
-            android:value="d96603e1352aa9824c02ecac1485febe32590ab7" />
+            android:value="39f3eab4f9f7f060c8d19339c0c8cdd4d7b8bbb0"
+            />
+
+
+
 
         <service android:name=".Firebase.MyFirebaseInstanceIdService">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
+
+
         <service
             android:name=".Firebase.MyFirebaseMessagingService"
             android:stopWithTask="true">

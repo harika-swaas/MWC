@@ -81,7 +81,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         intent.putExtra("document_version_id", documentVersionId);
         intent.putExtra("notification_type", notificationType);
 
-    //    intent .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         PendingIntent resultPendingIntent = PendingIntent.getActivity(context,
                 0 /* Request code */, intent,
@@ -91,16 +90,16 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mBuilder.setSmallIcon(R.mipmap.ic_launcher);
+            mBuilder.setSmallIcon(R.mipmap.ic_notification_icon);
             mBuilder.setLargeIcon(BitmapFactory.decodeResource(context.getResources(),
-                    R.mipmap.ic_launcher));
+                    R.mipmap.ic_notification_icon));
             // must set color for notification icon
-      //      mBuilder.setColor(getResources().getColor(R.color.notification_color));
+            mBuilder.setColor(getResources().getColor(R.color.notification_icon_color));
 
         } else {
-            mBuilder.setSmallIcon(R.mipmap.ic_launcher);
+            mBuilder.setSmallIcon(R.mipmap.ic_notification_icon);
             mBuilder.setLargeIcon(BitmapFactory.decodeResource(context.getResources(),
-                    R.mipmap.ic_launcher));
+                    R.mipmap.ic_notification_icon));
         }
 
         mBuilder.setContentTitle(title)

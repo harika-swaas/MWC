@@ -95,7 +95,6 @@ public class Touchid extends Activity {
 
                 updateLoggedInStatus();
 
-
                 Intent intent = new Intent(Touchid.this, Notifiy.class);
                 startActivity(intent);
                 finish();

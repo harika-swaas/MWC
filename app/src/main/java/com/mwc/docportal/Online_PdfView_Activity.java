@@ -191,13 +191,6 @@ public class Online_PdfView_Activity extends AppCompatActivity implements OnPdfD
     public void onResume() {
         super.onResume();
 
-        if(GlobalVariables.isComingFromApp)
-        {
-            Intent intent = new Intent(context, SplashScreen.class);
-            intent.putExtra("IsFromForeground", true);
-            intent.putExtra("ActivityName", "com.mwc.docportal.pdf.Online_PdfView_Activity");
-            startActivityForResult(intent, 222);
-        }
 
         if (isVisible){
 

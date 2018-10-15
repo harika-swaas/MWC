@@ -161,13 +161,15 @@ public class SplashScreen extends RootActivity {
 
     private void checkTouchIdEnabledOrNot()
     {
+
         if(mAccountSettingsResponses.get(0).getIs_Local_Auth_Enabled().equalsIgnoreCase("1") && checkTouchIdEnabled()) {
-            checkTouchIdCredentials();
+                checkTouchIdCredentials();
         }
         else
         {
-
-            showConfirmPasswordAlert();
+            if(!((Activity) context ).isFinishing()) {
+                showConfirmPasswordAlert();
+            }
         }
     }
 
@@ -239,45 +241,15 @@ public class SplashScreen extends RootActivity {
 
             if (resultCode == RESULT_OK) {
 
-                if(isFromForeground)
-                {
-                    GlobalVariables.isComingFromApp = false;
-                    try {
-                        Intent intent = new Intent(SplashScreen.this, Class.forName(activityName));
-                        setResult(100, intent);
-                        finish();
-                    } catch (ClassNotFoundException e) {
-                        e.printStackTrace();
-                    }
-
-
-                   /* if(!activityName.isEmpty() && activityName.equalsIgnoreCase("NavigationActivity"))
-                    {
-                        GlobalVariables.isComingFromApp = false;
-                        Intent intent = new Intent(SplashScreen.this, NavigationMyFolderActivity.class);
-                        setResult(100, intent);
-                        finish();
-                    }
-                    else if(!activityName.isEmpty() && activityName.equalsIgnoreCase("NavigationShared"))
-                    {
-                        GlobalVariables.isComingFromApp = false;
-                        Intent intent = new Intent(SplashScreen.this, NavigationSharedActivity.class);
-                        setResult(200, intent);
-                        finish();
-                    }*/
-
-                }
-                else {
-                    Intent intent = new Intent(SplashScreen.this, NavigationMyFolderActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(intent);
-                    GlobalVariables.isFromForeground = false;
-                }
+                Intent intent = new Intent(SplashScreen.this, NavigationMyFolderActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
 
 
             } else {
              //   Toast.makeText(SplashScreen.this, "Authentication Failed", Toast.LENGTH_SHORT).show();
                 showAuthenticationFailureMessage();
+
             }
 
         }
@@ -375,24 +347,8 @@ public class SplashScreen extends RootActivity {
                                     }
                                     else {
 
-                                        if(isFromForeground)
-                                        {
-                                               GlobalVariables.isComingFromApp = false;
-
-                                                try {
-                                                    Intent intent = new Intent(SplashScreen.this, Class.forName(activityName));
-                                                    setResult(100, intent);
-                                                    finish();
-                                                } catch (ClassNotFoundException e) {
-                                                    e.printStackTrace();
-                                                }
-
-                                        }
-                                        else {
-                                            startActivity(new Intent(context, NavigationMyFolderActivity.class));
-                                            finish();
-                                            GlobalVariables.isFromForeground = false;
-                                        }
+                                        startActivity(new Intent(context, NavigationMyFolderActivity.class));
+                                        finish();
 
                                     }
                                 }
@@ -455,7 +411,10 @@ public class SplashScreen extends RootActivity {
             @Override
             public void onClick(View v) {
                 mAlertDialog.dismiss();
-                showConfirmPasswordAlert();
+
+                if(!((Activity) context ).isFinishing()) {
+                    showConfirmPasswordAlert();
+                }
 
             }
         });
@@ -573,4 +532,8 @@ public class SplashScreen extends RootActivity {
         mAlertDialog = builder.create();
         mAlertDialog.show();
     }
-}
+
+
+
+
+ }

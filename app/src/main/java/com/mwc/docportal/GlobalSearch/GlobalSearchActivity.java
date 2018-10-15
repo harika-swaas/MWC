@@ -502,18 +502,6 @@ public class GlobalSearchActivity extends RootActivity implements SearchView.OnQ
         finish();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        if(GlobalVariables.isComingFromApp)
-        {
-            Intent intent = new Intent(context, SplashScreen.class);
-            intent.putExtra("IsFromForeground", true);
-            intent.putExtra("ActivityName", "com.mwc.docportal.GlobalSearch.GlobalSearchActivity");
-            startActivityForResult(intent, 600);
-        }
-    }
 
 
     RecyclerView.OnScrollListener mScrollListener = new RecyclerView.OnScrollListener() {

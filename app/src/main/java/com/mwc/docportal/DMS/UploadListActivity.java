@@ -471,7 +471,7 @@ public class UploadListActivity extends RootActivity {
 
     private void videoAccess()
     {
-        GlobalVariables.isFromCamerOrVideo = true;
+       // GlobalVariables.isFromCamerOrVideo = true;
         if(Build.VERSION.SDK_INT>=24){
             try{
                 Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
@@ -519,7 +519,7 @@ public class UploadListActivity extends RootActivity {
 
     private void cameraAccess()
     {
-        GlobalVariables.isFromCamerOrVideo = true;
+     //   GlobalVariables.isFromCamerOrVideo = true;
         if(Build.VERSION.SDK_INT>=24){
             try{
                 Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
@@ -1028,7 +1028,7 @@ public class UploadListActivity extends RootActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        GlobalVariables.isFromCamerOrVideo = false;
+       // GlobalVariables.isFromCamerOrVideo = false;
         unregisterReceiver(networkReceiver);
         if (mCustomAlertDialog != null) {
             mCustomAlertDialog.dismiss();
@@ -1111,15 +1111,6 @@ public class UploadListActivity extends RootActivity {
     @Override
     protected void onResume() {
         super.onResume();
-      //  firstConnect = true;
-
-        if(GlobalVariables.isComingFromApp)
-        {
-            Intent intent = new Intent(context, SplashScreen.class);
-            intent.putExtra("IsFromForeground", true);
-            intent.putExtra("ActivityName", "com.mwc.docportal.DMS.UploadListActivity");
-            startActivityForResult(intent, 900);
-        }
 
         this.registerReceiver(this.networkReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
     }

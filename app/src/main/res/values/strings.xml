@@ -54,7 +54,7 @@
     <string name="enable_touch">ENABLE</string>
     <string name="skip">Skip</string>
     <string name="touch_id_ques">Would you like to use the device unlock method to access DOC PORTAL</string>
-    <string name="touch_id_body">You can login using your device authentication (face, touch, passcode ID). Please click below to enable</string>
+    <string name="touch_id_body">You can login using your device authentication (pattern, touch, passcode ID). Please click below to enable</string>
     <string name="login_verification_text">As an additional security step you will shortly receive a PIN to you registered mobile phone.</string>
     <string name="enable_notification">Notification for "DOC PORTAL"</string>
     <string name="enable_notification_button">Proceed</string>

@@ -10,6 +10,7 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.os.Parcelable;
 import android.os.StrictMode;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -120,7 +121,7 @@ public class NavigationSharedActivity extends BaseActivity {
     RelativeLayout toggleView;
     ImageView toggle, sort_image;
     LinearLayout sortingView;
-    public static TextView sort;
+    TextView sort;
     LinearLayout empty_view;
     TextView no_documents_txt;
     List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList();
@@ -150,6 +151,9 @@ public class NavigationSharedActivity extends BaseActivity {
     BottomNavigationView bottomNavigationLayout;
     TextView cancel_textview;
     LinearLayout shared_bottom_linearlayout;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -501,6 +505,7 @@ public class NavigationSharedActivity extends BaseActivity {
         cancel_textview = (TextView) findViewById(R.id.cancel_textview);
         shared_bottom_linearlayout = (LinearLayout)findViewById(R.id.shared_bottom_linearlayout);
 
+
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(false);
@@ -768,6 +773,7 @@ public class NavigationSharedActivity extends BaseActivity {
         mRecyclerView.setAdapter(mAdapterList);
 
 
+
     }
 
     private void getWhiteLabelProperities() {
@@ -808,15 +814,6 @@ public class NavigationSharedActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
 
-        if(GlobalVariables.isComingFromApp)
-        {
-            Intent intent = new Intent(context, SplashScreen.class);
-            intent.putExtra("IsFromForeground", true);
-            intent.putExtra("ActivityName", "com.mwc.docportal.DMS.NavigationSharedActivity");
-            startActivityForResult(intent, 200);
-        }
-
-
         if (ObjectId.equals("0")){
             collapsingToolbarLayout.setTitle("Shared");
         }
@@ -825,6 +822,7 @@ public class NavigationSharedActivity extends BaseActivity {
             collapsingToolbarLayout.setTitle(categoryName);
         }
         doLocalSorting(GlobalVariables.sharedDocsSortType);
+
 
     }
 
@@ -2119,4 +2117,6 @@ public class NavigationSharedActivity extends BaseActivity {
     {
         GlobalVariables.moveOriginIndex = GlobalVariables.activityCount;
     }
+
+
 }

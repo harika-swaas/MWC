@@ -268,7 +268,7 @@ public class LoginHelpUserGuideFragment extends Fragment {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
                 mActivity.finish();
-                GlobalVariables.isFromForeground = false;
+
 
                 if (checkBox.isChecked()) {
                     setUserPreferences();
@@ -283,7 +283,6 @@ public class LoginHelpUserGuideFragment extends Fragment {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
                 mActivity.finish();
-                GlobalVariables.isFromForeground = false;
                 updateLoggedInStatus();
             }
         });

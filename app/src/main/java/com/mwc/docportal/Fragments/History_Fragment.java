@@ -129,18 +129,6 @@ public class History_Fragment extends Fragment {
         mRecyclerView.setAdapter(mAdapter);
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
 
-        if(GlobalVariables.isComingFromApp)
-        {
-            Intent intent = new Intent(mActivity, SplashScreen.class);
-            intent.putExtra("IsFromForeground", true);
-            intent.putExtra("ActivityName", "com.mwc.docportal.Fragments.History_Fragment");
-            startActivityForResult(intent, 112);
-        }
-
-    }
 
 }

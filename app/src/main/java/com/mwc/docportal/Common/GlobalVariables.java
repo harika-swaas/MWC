@@ -22,9 +22,6 @@ public class GlobalVariables
     public static boolean isSharedMoveInitiated = false;
     public static String sharedDocsSortType = "type";
     public static boolean sharedDocsIsAscending = true;
-    public static boolean isFromForeground = true;
-    public static boolean isComingFromApp = false;
-    public static boolean isFromCamerOrVideo = false;
     public static boolean isMultiSelect = false;
     public static int selectedCountValue = 0;
     public static int activityCount = 0;
