@@ -21,7 +21,7 @@ import com.mwc.docportal.Common.SimpleDividerItemDecoration;
 import com.mwc.docportal.DMS.MyFoldersDMSActivity;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Database.OffLine_Files_Repository;
-import com.mwc.docportal.Utils.SplashScreen;
+
 
 import java.util.ArrayList;
 import java.util.List;

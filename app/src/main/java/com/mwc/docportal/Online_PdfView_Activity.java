@@ -37,7 +37,6 @@ import android.widget.TextView;
 import com.mwc.docportal.Common.GlobalVariables;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.FTL.WebviewLoaderTermsActivity;
-import com.mwc.docportal.Utils.SplashScreen;
 import com.mwc.docportal.pdf.PDFView;
 import com.mwc.docportal.pdf.listener.OnLoadCompleteListener;
 import com.mwc.docportal.pdf.listener.OnPageChangeListener;

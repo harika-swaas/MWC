@@ -290,6 +290,7 @@ public class Notifiy extends RootActivity {
                                     else{
                                         Intent intent = new Intent(Notifiy.this, NavigationMyFolderActivity.class);
                                         startActivity(intent);
+                                        updateLoggedInStatus();
                                         finish();
 
                                     }
@@ -438,7 +439,7 @@ public class Notifiy extends RootActivity {
     private void updateLoggedInStatus() {
 
         AccountSettings accountSettings = new AccountSettings(this);
-        accountSettings.updatePushNotificationEnableStatus(String.valueOf(Constants.Push_Notification_Completed));
+        accountSettings.updatePushNotificationEnableStatus(String.valueOf(Constants.All_Settings_Completed));
     }
 
     private void updatePushNotificationAndLoggedInStatus() {

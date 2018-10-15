@@ -18,7 +18,7 @@ import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
-import com.mwc.docportal.Utils.SplashScreen;
+
 
 import retrofit.Call;
 import retrofit.Callback;

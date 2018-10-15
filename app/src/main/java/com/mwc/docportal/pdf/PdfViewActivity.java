@@ -85,7 +85,6 @@ import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
 import com.mwc.docportal.Utils.Constants;
 import com.mwc.docportal.Utils.DateHelper;
-import com.mwc.docportal.Utils.SplashScreen;
 import com.mwc.docportal.pdf.listener.OnLoadCompleteListener;
 import com.mwc.docportal.pdf.listener.OnPageChangeListener;
 import com.mwc.docportal.pdf.listener.OnSingleTapTouchListener;

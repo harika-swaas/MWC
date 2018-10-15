@@ -241,7 +241,7 @@ public class SplashScreen extends RootActivity {
 
             if (resultCode == RESULT_OK) {
 
-                Intent intent = new Intent(SplashScreen.this, NavigationMyFolderActivity.class);
+                Intent intent = new Intent(context, NavigationMyFolderActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
 

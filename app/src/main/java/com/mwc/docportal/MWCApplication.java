@@ -24,12 +24,10 @@ import com.mwc.docportal.API.Model.PushNotificationRequestModel;
 import com.mwc.docportal.API.Model.SharedDocumentResponseModel;
 import com.mwc.docportal.API.Service.ShareEndUserDocumentsService;
 import com.mwc.docportal.Common.CommonFunctions;
-import com.mwc.docportal.Common.GlobalVariables;
 import com.mwc.docportal.Database.PushNotificatoinSettings_Respository;
 import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
-import com.mwc.docportal.Utils.SplashScreen;
 
 import java.util.ArrayList;
 import java.util.HashMap;
