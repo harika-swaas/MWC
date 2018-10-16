@@ -150,16 +150,16 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
-        <meta-data
+        <!--<meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@mipmap/doc_ic_launcher" />
-        <!--
+        &lt;!&ndash;
              Set color used with incoming notification messages. This is used when no color is set for the incoming
              notification message. See README(https://goo.gl/6BKBk7) for more.
-        -->
+        &ndash;&gt;
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
-            android:resource="@color/notification_icon_color" />
+            android:resource="@color/notification_icon_color" />-->
 
 
 
@@ -216,7 +216,6 @@
         <activity
             android:name=".Online_PdfView_Activity"
             android:configChanges="orientation|screenSize|keyboardHidden" />
-
 
 
     </application>
