@@ -572,9 +572,9 @@ public class NavigationSharedActivity extends BaseActivity {
                         if(CommonFunctions.isApiSuccess(NavigationSharedActivity.this, message, apiResponse.getStatus().getCode()))
                         {
                             List<Object> listOfObjects = apiResponse.getData().getCategories();
-
+                            List<Object> listOfDocuments = apiResponse.getData().getDocuments();
                             JSONArray categoryArray = new JSONArray(listOfObjects);
-                            JSONArray documentArray = new JSONArray();
+                            JSONArray documentArray = new JSONArray(listOfDocuments);
                             JSONObject obj= new JSONObject();
                             try {
                                 obj.put("categories",categoryArray);

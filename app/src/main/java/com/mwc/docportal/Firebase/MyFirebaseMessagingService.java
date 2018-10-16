@@ -91,21 +91,20 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             mBuilder.setSmallIcon(R.mipmap.ic_notification_icon);
-            mBuilder.setLargeIcon(BitmapFactory.decodeResource(context.getResources(),
-                    R.mipmap.ic_notification_icon));
             // must set color for notification icon
             mBuilder.setColor(getResources().getColor(R.color.notification_icon_color));
 
         } else {
             mBuilder.setSmallIcon(R.mipmap.ic_notification_icon);
-            mBuilder.setLargeIcon(BitmapFactory.decodeResource(context.getResources(),
-                    R.mipmap.ic_notification_icon));
+
         }
 
         mBuilder.setContentTitle(title)
                 .setContentText(body)
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)
+                .setLargeIcon(BitmapFactory.decodeResource(context.getResources(),
+                        R.mipmap.ic_notification_icon))
                 .setContentIntent(resultPendingIntent);
 
         NotificationManager  mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);

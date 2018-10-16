@@ -67,6 +67,20 @@ public class SharedDocumentResponseModel
         @Expose
         private List<Object> categories = null;
 
+
+        @SerializedName("documents")
+        @Expose
+        private List<Object> documents = null;
+
+
+        public List<Object> getDocuments() {
+            return documents;
+        }
+
+        public void setDocuments(List<Object> documents) {
+            this.documents = documents;
+        }
+
         public List<Object> getCategories() {
             return categories;
         }
