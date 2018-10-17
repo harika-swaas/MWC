@@ -162,6 +162,12 @@
             android:resource="@color/notification_icon_color" />-->
 
 
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@mipmap/ic_notification_transparent" />
+        <meta-data android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/notification_icon_color" />
+
 
        <!-- Production fabric key-->
 

@@ -90,7 +90,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mBuilder.setSmallIcon(R.mipmap.ic_notification_icon);
+            mBuilder.setSmallIcon(R.mipmap.ic_notification_transparent);
             // must set color for notification icon
             mBuilder.setColor(getResources().getColor(R.color.notification_icon_color));
 
@@ -103,8 +103,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 .setContentText(body)
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)
-                .setLargeIcon(BitmapFactory.decodeResource(context.getResources(),
-                        R.mipmap.ic_notification_icon))
+              /*  .setLargeIcon(BitmapFactory.decodeResource(context.getResources(),
+                        R.mipmap.ic_notification_icon))*/
                 .setContentIntent(resultPendingIntent);
 
         NotificationManager  mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
