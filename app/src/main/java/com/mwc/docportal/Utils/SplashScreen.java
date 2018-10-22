@@ -247,8 +247,10 @@ public class SplashScreen extends RootActivity {
 
 
             } else {
-             //   Toast.makeText(SplashScreen.this, "Authentication Failed", Toast.LENGTH_SHORT).show();
-                showAuthenticationFailureMessage();
+                Toast.makeText(context, "You have cancelled this action.", Toast.LENGTH_SHORT).show();
+                finish();
+                moveTaskToBack(true);
+                //    showAuthenticationFailureMessage();
 
             }
 
@@ -374,6 +376,7 @@ public class SplashScreen extends RootActivity {
             @Override
             public void onClick(View v) {
                 mAlertDialog.dismiss();
+                Toast.makeText(context, "You have cancelled this action.", Toast.LENGTH_SHORT).show();
                 finish();
                 moveTaskToBack(true);
 
@@ -436,7 +439,7 @@ public class SplashScreen extends RootActivity {
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 
-        txtMessage.setText("You have clicked the cancel button. Unable to complete authentication.");
+        txtMessage.setText("You have cancelled this action.");
 
         Button okButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);

@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -90,12 +91,16 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mBuilder.setSmallIcon(R.mipmap.ic_notification_transparent);
+            mBuilder.setSmallIcon(R.mipmap.ic_notification_icon);
+            mBuilder.setLargeIcon(BitmapFactory.decodeResource(context.getResources(),
+                    R.mipmap.ic_notification_icon));
             // must set color for notification icon
             mBuilder.setColor(getResources().getColor(R.color.notification_icon_color));
 
         } else {
             mBuilder.setSmallIcon(R.mipmap.ic_notification_icon);
+            mBuilder.setLargeIcon(BitmapFactory.decodeResource(context.getResources(),
+                    R.mipmap.ic_notification_icon));
 
         }
 
@@ -103,8 +108,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 .setContentText(body)
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)
-              /*  .setLargeIcon(BitmapFactory.decodeResource(context.getResources(),
-                        R.mipmap.ic_notification_icon))*/
                 .setContentIntent(resultPendingIntent);
 
         NotificationManager  mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);

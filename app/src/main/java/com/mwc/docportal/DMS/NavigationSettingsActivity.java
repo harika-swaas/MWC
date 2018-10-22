@@ -604,7 +604,7 @@ public class NavigationSettingsActivity extends BaseActivity {
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 
-        txtMessage.setText("You have clicked the cancel button. Unable to complete authentication.");
+        txtMessage.setText("You have cancelled this action.");
 
         Button okButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);

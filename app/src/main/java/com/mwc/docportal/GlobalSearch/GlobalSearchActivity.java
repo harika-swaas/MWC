@@ -483,10 +483,24 @@ public class GlobalSearchActivity extends RootActivity implements SearchView.OnQ
                 onBackPressed();
                 break;
             case R.id.cancel_item:
-                clearAllItems();
+                cancelItem();
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void cancelItem()
+    {
+        GlobalVariables.searchKey ="";
+        GlobalVariables.globalSearchDocumentList.clear();
+        GlobalVariables.isGlobalSearchCompleted = false;
+        searchView.setQuery("", false);
+        handler.removeCallbacksAndMessages(null);
+        if(mAdapterList != null)
+        {
+            mAdapterList.notifyDataSetChanged();
+        }
+        search_completed_layout.setVisibility(View.GONE);
     }
 
     @Override
