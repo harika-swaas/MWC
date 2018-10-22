@@ -1857,12 +1857,43 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                             message = response.body().status.getMessage().toString();
                         }
 
-                        if(CommonFunctions.isApiSuccess(PdfViewActivity.this, message, response.body().status.getCode())) {
-                            documentPropertiesResponse = response.body().getData();
-                            getDocumentViewUrl(documentPropertiesResponse, pushNotificationDocumentVersionId, documentShareType);
-
+                        if(apiResponse.status.getCode() instanceof Double)
+                        {
+                            double status_value = new Double(response.body().status.getCode().toString());
+                            if (status_value == 401.3)
+                            {
+                                finish();
+                            }
+                            else if(status_value ==  401 || status_value ==  401.0)
+                            {
+                                showAlertDialogForSessionExpiry(context, message);
+                            }
+                        }
+                        else if(response.body().status.getCode() instanceof Integer)
+                        {
+                            int integerValue = new Integer(response.body().status.getCode().toString());
+                            if(integerValue ==  401)
+                            {
+                                showAlertDialogForSessionExpiry(context, message);
+                            }
+                        }
+                        else if(response.body().status.getCode() instanceof Boolean) {
+                            if (response.body().status.getCode() == Boolean.TRUE) {
+                                showAlertDialogForAccessDenied(context, message);
+                            }
+                            else
+                            {
+                                documentPropertiesResponse = response.body().getData();
+                                getDocumentViewUrl(documentPropertiesResponse, pushNotificationDocumentVersionId, documentShareType);
+                            }
                         }
 
+
+
+                      /*  if(CommonFunctions.isApiSuccess(PdfViewActivity.this, message, response.body().status.getCode())) {
+                            documentPropertiesResponse = response.body().getData();
+                            getDocumentViewUrl(documentPropertiesResponse, pushNotificationDocumentVersionId, documentShareType);
+                        }*/
 
                     }
                 }
@@ -2046,6 +2077,80 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
     public void assigningMoveOriginIndex()
     {
         GlobalVariables.moveOriginIndex = GlobalVariables.activityCount;
+    }
+
+
+
+
+    private void showAlertDialogForSessionExpiry(Context context, String message)
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Session Expired");
+
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+        txtMessage.setText(message);
+
+        Button okButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+        cancelButton.setVisibility(View.GONE);
+
+        okButton.setText("OK");
+
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+                AccountSettings accountSettings = new AccountSettings(context);
+                accountSettings.LogouData();
+                context.startActivity(new Intent(context, LoginActivity.class));
+            }
+        });
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
+    }
+
+    private void showAlertDialogForAccessDenied(Context context, String message)
+    {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Alert");
+
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+        txtMessage.setText(message);
+
+        Button okButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+        cancelButton.setVisibility(View.GONE);
+
+        okButton.setText("OK");
+
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+
+            }
+        });
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
     }
 
 }
