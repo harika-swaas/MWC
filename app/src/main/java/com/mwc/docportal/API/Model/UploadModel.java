@@ -6,6 +6,15 @@ public class UploadModel
     boolean success;
     boolean failure;
     boolean yetToStarted;
+    boolean started;
+
+    public boolean isStarted() {
+        return started;
+    }
+
+    public void setStarted(boolean started) {
+        this.started = started;
+    }
 
     public String getFilePath() {
         return filePath;

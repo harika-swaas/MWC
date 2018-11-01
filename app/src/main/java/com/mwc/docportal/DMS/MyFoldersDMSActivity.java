@@ -1,37 +1,25 @@
 package com.mwc.docportal.DMS;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.ClipData;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewPager;
-import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -41,52 +29,36 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.github.clans.fab.FloatingActionButton;
-import com.github.clans.fab.FloatingActionMenu;
 import com.google.gson.Gson;
 
-import com.mwc.docportal.Common.CameraUtils;
 import com.mwc.docportal.Common.CommonFunctions;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.RequestBody;
 import com.mwc.docportal.API.Model.BaseApiResponse;
 import com.mwc.docportal.API.Model.DownloadDocumentRequest;
 import com.mwc.docportal.API.Model.DownloadDocumentResponse;
-import com.mwc.docportal.API.Model.EndUserRenameRequest;
 import com.mwc.docportal.API.Model.GetCategoryDocumentsRequest;
 import com.mwc.docportal.API.Model.GetCategoryDocumentsResponse;
 import com.mwc.docportal.API.Model.ListPinDevicesResponse;
-import com.mwc.docportal.API.Model.LoginResponse;
 import com.mwc.docportal.API.Model.UploadEndUserDocumentsRequest;
 import com.mwc.docportal.API.Model.UploadEndUsersDocumentResponse;
-import com.mwc.docportal.API.Model.UploadNewFolderRequest;
 import com.mwc.docportal.API.Model.WhiteLabelResponse;
 import com.mwc.docportal.API.Service.DownloadDocumentService;
-import com.mwc.docportal.API.Service.EndUserRenameService;
 import com.mwc.docportal.API.Service.GetCategoryDocumentsService;
 import com.mwc.docportal.API.Service.UploadEndUsersDocumentService;
-import com.mwc.docportal.API.Service.UploadNewFolderService;
 import com.mwc.docportal.Adapters.DmsAdapter;
 import com.mwc.docportal.Adapters.DmsAdapterList;
-import com.mwc.docportal.Common.CameraUtils;
 import com.mwc.docportal.Common.ServerConfig;
-import com.mwc.docportal.Common.SimpleDividerItemDecoration;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
-import com.mwc.docportal.Fragments.ItemNavigationFolderFragment;
-import com.mwc.docportal.Fragments.ItemNavigationSettingsFragment;
-import com.mwc.docportal.Fragments.ItemNavigationSharedFragment;
 import com.mwc.docportal.Login.LoginActivity;
 import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.Preference.PreferenceUtils;
@@ -99,12 +71,10 @@ import com.mwc.docportal.Utils.Constants;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.Serializable;
-import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -136,9 +106,9 @@ public class MyFoldersDMSActivity extends RootActivity {
     String download_data;
     Menu mBottomNavigationMenu;
     MenuItem mFolderMenuItem, mSharedMenuItem, mSettingsMenuItem;
-    ItemNavigationFolderFragment mFolderFragment;
+   /* ItemNavigationFolderFragment mFolderFragment;
     ItemNavigationSharedFragment mSharedFragment;
-    ItemNavigationSettingsFragment mSettingsFragment;
+    ItemNavigationSettingsFragment mSettingsFragment;*/
     ImageView select;
     public TextView emptyText;
     public static RelativeLayout toggleView;
@@ -203,7 +173,7 @@ public class MyFoldersDMSActivity extends RootActivity {
     int totalPages=1;
     String obj="0";
     Context context=this;
-    ItemNavigationFolderFragment fragment;
+   // ItemNavigationFolderFragment fragment;
     private static final int CREDENTIALS_RESULT = 4342;
 
     public static String localAuthenticatonStatusValue;
@@ -1582,7 +1552,7 @@ public class MyFoldersDMSActivity extends RootActivity {
         switch (fragment) {
             case 1:
                 mSelectedItem = FOLDER_FRAGMENT;
-                if (mFolderFragment == null) {
+              /*  if (mFolderFragment == null) {
                     mFolderFragment = ItemNavigationFolderFragment.newInstance();
                 }
                 getSupportFragmentManager().beginTransaction().replace(R.id.container, mFolderFragment).addToBackStack(null).commit();
@@ -1594,14 +1564,14 @@ public class MyFoldersDMSActivity extends RootActivity {
                     d.setColorFilter(selectedColor, PorterDuff.Mode.SRC_ATOP);
 
                     //    mBottomNavigationView.setItemIconTintList(d);
-                }
+                }*/
 
 
                 break;
 
             case 2:
                 mSelectedItem = SHARED_FRAGMENT;
-                if (mSharedFragment == null) {
+                /*if (mSharedFragment == null) {
                     mSharedFragment = ItemNavigationSharedFragment.newInstance();
                 }
                 getSupportFragmentManager().beginTransaction().replace(R.id.container, mSharedFragment).addToBackStack(null).commit();
@@ -1611,12 +1581,12 @@ public class MyFoldersDMSActivity extends RootActivity {
                     int selectedColor = Color.parseColor(itemSelectedColor);
                     Drawable d = getResources().getDrawable(R.mipmap.ic_shared);
                     d.setColorFilter(selectedColor, PorterDuff.Mode.SRC_ATOP);
-                }
+                }*/
                 break;
 
             case 3:
                 mSelectedItem = SETTINGS_FRAGMENT;
-                if (mSettingsFragment == null) {
+               /* if (mSettingsFragment == null) {
                     mSettingsFragment = ItemNavigationSettingsFragment.newInstance();
                 }
                 getSupportFragmentManager().beginTransaction().replace(R.id.container, mSettingsFragment).addToBackStack(null).commit();
@@ -1625,7 +1595,7 @@ public class MyFoldersDMSActivity extends RootActivity {
                     int selectedColor = Color.parseColor(itemSelectedColor);
                     Drawable d = getResources().getDrawable(R.mipmap.ic_settings);
                     d.setColorFilter(selectedColor, PorterDuff.Mode.SRC_ATOP);
-                }
+                }*/
 
                 break;
         }
