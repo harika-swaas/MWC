@@ -206,7 +206,7 @@ public class MyFolderCopyActivity extends RootActivity {
 
                                 cancelButton.setVisibility(View.GONE);
 
-                                sendPinButton.setText("OK");
+                                sendPinButton.setText("Ok");
 
                                 sendPinButton.setOnClickListener(new View.OnClickListener() {
                                     @Override
@@ -335,7 +335,7 @@ public class MyFolderCopyActivity extends RootActivity {
 
                                         cancelButton.setVisibility(View.GONE);
 
-                                        sendPinButton.setText("OK");
+                                        sendPinButton.setText("Ok");
 
                                         sendPinButton.setOnClickListener(new View.OnClickListener() {
                                             @Override

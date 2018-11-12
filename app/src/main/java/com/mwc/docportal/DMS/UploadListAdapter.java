@@ -123,7 +123,7 @@ public class UploadListAdapter extends RecyclerView.Adapter<UploadListAdapter.Vi
                         builder.setCancelable(false);
 
                         final Button BtnAllow = (Button) view.findViewById(R.id.allow_button);
-                        BtnAllow.setText("ok");
+                        BtnAllow.setText("Ok");
                         final Button BtnCancel = (Button) view.findViewById(R.id.cancel_button);
                         TextView textView =(TextView) view.findViewById(R.id.txt_message);
                         textView.setVisibility(View.GONE);

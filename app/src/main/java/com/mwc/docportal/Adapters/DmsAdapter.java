@@ -21,6 +21,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
 import android.text.InputFilter;
+import android.text.InputType;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
@@ -86,6 +87,7 @@ import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
+import com.mwc.docportal.Utils.Constants;
 import com.mwc.docportal.pdf.PdfViewActivity;
 
 
@@ -653,6 +655,8 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                     PreferenceUtils.setDocument_Id(context, mGetCategoryDocumentsResponses.getObject_id());
 
                 Intent intent = new Intent (context,Tab_Activity.class);
+                intent.putExtra("IsFromMyFolder", true);
+                intent.putExtra(Constants.DOCUMENT_NAME, mGetCategoryDocumentsResponses.getName());
                 context.startActivity(intent);
             }
         });
@@ -861,10 +865,10 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                 Button cancel = (Button) view.findViewById(R.id.cancel_b);
                 Button allow = (Button) view.findViewById(R.id.allow);
                 final EditText namer = (EditText) view.findViewById(R.id.edit_username1);
-
                 InputFilter[] FilterArray = new InputFilter[1];
                 FilterArray[0] = new InputFilter.LengthFilter(45);
                 namer.setFilters(FilterArray);
+                namer.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
                 allow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -921,9 +925,9 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
-        cancelButton.setText("CANCEL");
+        cancelButton.setText("Cancel");
 
-        sendPinButton.setText("OK");
+        sendPinButton.setText("Ok");
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1085,7 +1089,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                 InputFilter[] FilterArray = new InputFilter[1];
                 FilterArray[0] = new InputFilter.LengthFilter(45);
                 namer.setFilters(FilterArray);
-
+                namer.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
 
                 allow.setOnClickListener(new View.OnClickListener() {
                     @Override

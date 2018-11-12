@@ -199,7 +199,7 @@ public class CommonFunctions
 
         cancelButton.setVisibility(View.GONE);
 
-        okButton.setText("OK");
+        okButton.setText("Ok");
 
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -236,7 +236,7 @@ public class CommonFunctions
 
         cancelButton.setVisibility(View.GONE);
 
-        okButton.setText("OK");
+        okButton.setText("Ok");
 
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -273,7 +273,7 @@ public class CommonFunctions
 
             cancelButton.setVisibility(View.GONE);
 
-            okButton.setText("OK");
+            okButton.setText("Ok");
 
             okButton.setOnClickListener(new View.OnClickListener() {
                 @Override

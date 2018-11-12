@@ -260,7 +260,7 @@ public class MoveDmsAdapter extends RecyclerView.Adapter<MoveDmsAdapter.ViewHold
 
                             cancelButton.setVisibility(View.GONE);
 
-                            sendPinButton.setText("OK");
+                            sendPinButton.setText("Ok");
 
                             sendPinButton.setOnClickListener(new View.OnClickListener() {
                                 @Override

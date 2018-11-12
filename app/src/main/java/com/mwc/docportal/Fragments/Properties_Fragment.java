@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.InputFilter;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -62,6 +63,7 @@ import retrofit.Response;
 import retrofit.Retrofit;
 
 import static com.mwc.docportal.DMS.Tab_Activity.isFromShared;
+import static com.mwc.docportal.DMS.Tab_Activity.isNameEditAvailable;
 
 public class Properties_Fragment extends Fragment{
     Tab_Activity  mActivity;
@@ -69,7 +71,6 @@ public class Properties_Fragment extends Fragment{
     TextView filename,name,version,type,size,uploaded_date,author,created_date,search_tags;
     EditText name_edtText;
     MenuItem editButton;
-    AlertDialog mAlertDialog;
     List<DocumentPropertiesResponse> documentPropertiesResponse;
     public static Properties_Fragment newInstance() {
         Properties_Fragment fragment = new Properties_Fragment();
@@ -106,7 +107,7 @@ public class Properties_Fragment extends Fragment{
             InputFilter[] FilterArray = new InputFilter[1];
             FilterArray[0] = new InputFilter.LengthFilter(45);
             name_edtText.setFilters(FilterArray);
-
+            name_edtText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
             name_edtText.setImeOptions(EditorInfo.IME_ACTION_DONE);
             getdocumentdetails();
 
@@ -146,8 +147,7 @@ public class Properties_Fragment extends Fragment{
 
 
 
-            public void getdocumentdetails(){
-
+    public void getdocumentdetails(){
         if (NetworkUtils.isNetworkAvailable(getActivity())) {
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
             final DocumentPropertiesService documentPropertiesService = retrofitAPI.create(DocumentPropertiesService.class);
@@ -347,6 +347,14 @@ public class Properties_Fragment extends Fragment{
                         }
 
                         if(CommonFunctions.isApiSuccess(mActivity, message, apiResponse.status.getCode())) {
+
+                            if(isNameEditAvailable)
+                            {
+                                PreferenceUtils.setDocumentName(getActivity(), renameData);
+                            }
+
+                            ((Tab_Activity) getActivity())
+                                    .getSupportActionBar().setTitle(renameData);
                             getdocumentdetails();
                         }
 

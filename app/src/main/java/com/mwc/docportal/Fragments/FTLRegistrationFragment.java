@@ -274,7 +274,7 @@ public class FTLRegistrationFragment extends Fragment {
                                         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
                                         cancelButton.setVisibility(View.GONE);
-                                        sendPinButton.setText("OK");
+                                        sendPinButton.setText("Ok");
 
                                         sendPinButton.setOnClickListener(new View.OnClickListener() {
                                             @Override

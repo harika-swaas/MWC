@@ -48,6 +48,16 @@ public class GetCategoryDocumentsResponse implements Serializable{
     private String doc_status;
     private String filename;
     private boolean isSelected = false;
+    private String sharetype;
+
+
+    public String getSharetype() {
+        return sharetype;
+    }
+
+    public void setSharetype(String sharetype) {
+        this.sharetype = sharetype;
+    }
 
     public boolean isSelected() {
         return isSelected;

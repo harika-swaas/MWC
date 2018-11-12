@@ -28,5 +28,6 @@ public class GlobalVariables
     public static int moveOriginIndex = 0;
     public static int activityFinishCount = 0;
     public static boolean refreshPage = false;
+    public static boolean refreshSharedDocumentPage = false;
 
 }

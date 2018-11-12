@@ -130,7 +130,7 @@ public class ItemNavigationFolderListFragment extends Fragment {
 
                             cancelButton.setVisibility(View.GONE);
 
-                            sendPinButton.setText("OK");
+                            sendPinButton.setText("Ok");
 
                             sendPinButton.setOnClickListener(new View.OnClickListener() {
                                 @Override

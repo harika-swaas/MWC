@@ -237,7 +237,7 @@ public class OffLineFilesListAdapter extends RecyclerView.Adapter<OffLineFilesLi
         builder.setCancelable(false);
 
         TextView title = (TextView) view.findViewById(R.id.title);
-        title.setText("Warning");
+        title.setText("Alert");
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 
@@ -246,9 +246,9 @@ public class OffLineFilesListAdapter extends RecyclerView.Adapter<OffLineFilesLi
         Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
-        cancelButton.setText("CANCEL");
+        cancelButton.setText("Cancel");
 
-        sendPinButton.setText("OK");
+        sendPinButton.setText("Ok");
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override

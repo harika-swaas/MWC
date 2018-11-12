@@ -22,6 +22,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.InputFilter;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
@@ -155,6 +156,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
     MenuItem  menuItemMore;
     List<DocumentPropertiesResponse> documentPropertiesResponse;
     String urlName;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -287,6 +289,8 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                 PreferenceUtils.setDocumentVersionId(context,categoryDocumentsResponse.getDocument_version_id());
                 PreferenceUtils.setDocument_Id(context, categoryDocumentsResponse.getObject_id());
                 Intent intent = new Intent(context,Tab_Activity.class);
+                intent.putExtra("IsNameEditEnable", true);
+                intent.putExtra(Constants.DOCUMENT_NAME, categoryDocumentsResponse.getName());
                 if(isFromDocumentShare)
                 {
                     intent.putExtra("IsFromShared", true);
@@ -324,6 +328,8 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
             }
         });
 
+
+
     }
 
     private void showWarningMessgeForExternalShare(GetCategoryDocumentsResponse categoryDocumentsResponse)
@@ -335,7 +341,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
         builder.setCancelable(false);
 
         TextView title = (TextView) view.findViewById(R.id.title);
-        title.setText("Warning");
+        title.setText("Alert");
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 
@@ -344,9 +350,9 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
         Button okButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
-        cancelButton.setText("CANCEL");
+        cancelButton.setText("Cancel");
 
-        okButton.setText("OK");
+        okButton.setText("Ok");
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -382,7 +388,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
         builder.setCancelable(false);
 
         TextView title = (TextView) view.findViewById(R.id.title);
-        title.setText("Warning");
+        title.setText("Alert");
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 
@@ -392,9 +398,9 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
         Button okButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
-        cancelButton.setText("CANCEL");
+        cancelButton.setText("Cancel");
 
-        okButton.setText("OK");
+        okButton.setText("Ok");
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -566,6 +572,14 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
     public void onResume() {
         super.onResume();
 
+        if(PreferenceUtils.getDocumentName(context) != null && !PreferenceUtils.getDocumentName(context).isEmpty())
+        {
+            getSupportActionBar().setTitle(PreferenceUtils.getDocumentName(context));
+            GlobalVariables.refreshDMS = true;
+            categoryDocumentsResponse.setName(PreferenceUtils.getDocumentName(context));
+            PreferenceUtils.setDocumentName(context, "");
+        }
+
 
         if (isVisible){
 
@@ -684,24 +698,6 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
     }
 
-    private void setTimer(final int page) {
-
-        waitTimer = new CountDownTimer(3000, 300) {
-            public void onTick(long millisUntilFinished) {
-                //called every 300 milliseconds, which could be used to
-                //send messages or some other action
-            }
-            public void onFinish() {
-
-                Calendar calendarfinish = Calendar.getInstance();
-                calendarfinish.add(Calendar.SECOND,-3);
-                DetailedStartTime = calendarfinish.getTime();
-                PageStartTime = calendarfinish.getTime();
-
-
-            }
-        }.start();
-    }
 
 
     @Override
@@ -988,10 +984,20 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
         if(isFromDocumentShare)
         {
-            shareView.setVisibility(View.GONE);
+
             move.setVisibility(View.GONE);
             rename_Layout.setVisibility(View.GONE);
             delete.setVisibility(View.GONE);
+
+            if(categoryDocumentsResponse.getSharetype().equals("1"))
+            {
+                shareView.setVisibility(View.VISIBLE);
+                switchButton_share.setChecked(true);
+            }
+            else
+            {
+                shareView.setVisibility(View.GONE);
+            }
         }
 
 
@@ -1012,7 +1018,6 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
 
                     }
-
 
                 }
 
@@ -1388,6 +1393,8 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                 PreferenceUtils.setDocumentVersionId(context,categoryDocumentsResponse.getDocument_version_id());
                 PreferenceUtils.setDocument_Id(context, categoryDocumentsResponse.getObject_id());
                 Intent intent = new Intent(context,Tab_Activity.class);
+                intent.putExtra("IsNameEditEnable", true);
+                intent.putExtra(Constants.DOCUMENT_NAME, categoryDocumentsResponse.getName());
                 if(isFromDocumentShare)
                 {
                     intent.putExtra("IsFromShared", true);
@@ -1434,7 +1441,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                 InputFilter[] FilterArray = new InputFilter[1];
                 FilterArray[0] = new InputFilter.LengthFilter(45);
                 namer.setFilters(FilterArray);
-
+                namer.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
                 allow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -1657,9 +1664,9 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
         Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
-        cancelButton.setText("CANCEL");
+        cancelButton.setText("Cancel");
 
-        sendPinButton.setText("OK");
+        sendPinButton.setText("Ok");
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1722,9 +1729,20 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                             message = response.body().getStatus().getMessage().toString();
                         }
 
+
+
                         if(CommonFunctions.isApiSuccess(PdfViewActivity.this, message, response.body().getStatus().getCode()))
                         {
-                            categoryDocumentsResponse.setIs_shared("0");
+                            if(isFromDocumentShare)
+                            {
+                                PreferenceUtils.setSharetypeDocumentversionid(context,  categoryDocumentsResponse.getDocument_version_id());
+                                finish();
+                            }
+                            else
+                            {
+                                categoryDocumentsResponse.setIs_shared("0");
+                            }
+
                         }
 
                     }
@@ -1780,6 +1798,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                         if(CommonFunctions.isApiSuccess(PdfViewActivity.this, message, apiResponse.status.getCode())) {
                             categoryDocumentsResponse.setName(name);
                             getSupportActionBar().setTitle(name);
+                            GlobalVariables.refreshDMS = true;
                         }
 
                     }
@@ -2046,9 +2065,9 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
         Button okButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
-        cancelButton.setText("CANCEL");
+        cancelButton.setText("Cancel");
 
-        okButton.setText("OK");
+        okButton.setText("Ok");
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -2102,7 +2121,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
         cancelButton.setVisibility(View.GONE);
 
-        okButton.setText("OK");
+        okButton.setText("Ok");
 
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -2139,7 +2158,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
         cancelButton.setVisibility(View.GONE);
 
-        okButton.setText("OK");
+        okButton.setText("Ok");
 
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -39,6 +39,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -69,11 +70,19 @@ import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
+import com.vincent.filepicker.Constant;
+import com.vincent.filepicker.activity.ImagePickActivity;
+import com.vincent.filepicker.activity.NormalFilePickActivity;
+import com.vincent.filepicker.activity.VideoPickActivity;
+import com.vincent.filepicker.filter.entity.ImageFile;
+import com.vincent.filepicker.filter.entity.NormalFile;
+import com.vincent.filepicker.filter.entity.VideoFile;
 
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import retrofit.Call;
@@ -82,6 +91,8 @@ import retrofit.Response;
 import retrofit.Retrofit;
 
 import static com.mwc.docportal.Common.CameraUtils.getOutputMediaFile;
+import static com.vincent.filepicker.activity.BaseActivity.IS_NEED_FOLDER_LIST;
+import static com.vincent.filepicker.activity.ImagePickActivity.IS_NEED_CAMERA;
 
 
 /**
@@ -92,7 +103,7 @@ public class UploadListActivity extends RootActivity {
 
     RecyclerView upload_list;
     Uri fileUri;
-    TextView camera,video,browse,cancel;
+    TextView camera,video,cancel, pick_image, pick_video, pick_documents, folder_creation;
     ArrayList<String> UploadList = new ArrayList<>();
     ArrayList<String> uploadFailedList = new ArrayList<>();
     private  String imageStoragePath;
@@ -102,6 +113,7 @@ public class UploadListActivity extends RootActivity {
     public static final int REQUEST_CAPTURE_IMAGE_CODE = 300;
     public static final int CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE = 400;
 
+
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final int MEDIA_TYPE_VIDEO = 2;
     int fileindex;
@@ -109,9 +121,10 @@ public class UploadListActivity extends RootActivity {
     AlertDialog mCustomAlertDialog;
     Context context = this;
 
-    public static final int REQUEST_STORAGE_PERMISSION = 111;
+  //  public static final int REQUEST_STORAGE_PERMISSION = 111;
     public static final int REQUEST_CAMERA_PERMISSION = 222;
     boolean isVideo = false;
+
     Toolbar toolbar;
     MenuItem menuItemUpload, menuItemAdd;
     LinearLayout empty_view;
@@ -211,7 +224,6 @@ public class UploadListActivity extends RootActivity {
         upload_textview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-             //   customAdapter.selectedList(PreferenceUtils.getupload(UploadListActivity.this, "key"));
                 uploadDocuments();
             }
         });
@@ -371,7 +383,7 @@ public class UploadListActivity extends RootActivity {
                 builder.setCancelable(false);
 
                 final Button BtnAllow = (Button) view.findViewById(R.id.allow_button);
-                BtnAllow.setText("RETRY");
+                BtnAllow.setText("Retry");
                 final Button BtnCancel = (Button) view.findViewById(R.id.cancel_button);
                 TextView textView =(TextView) view.findViewById(R.id.txt_message);
                 textView.setVisibility(View.GONE);
@@ -403,8 +415,13 @@ public class UploadListActivity extends RootActivity {
         View view = getLayoutInflater().inflate(R.layout.bottom_sheet_upload, null);
         camera = (TextView) view.findViewById(R.id.camera);
         video = (TextView) view.findViewById(R.id.video);
-        browse = (TextView) view.findViewById(R.id.browse);
+        pick_image = (TextView) view.findViewById(R.id.pick_image);
+        pick_documents = (TextView) view.findViewById(R.id.pick_documents);
+        pick_video = (TextView) view.findViewById(R.id.pick_video);
         cancel =(TextView) view.findViewById(R.id.cancel);
+        folder_creation =(TextView) view.findViewById(R.id.folder_creation);
+        folder_creation.setVisibility(View.GONE);
+
         final Dialog mBottomSheetDialog = new Dialog(UploadListActivity.this, R.style.MaterialDialogSheet);
         mBottomSheetDialog.setContentView(view);
         mBottomSheetDialog.setCancelable(true);
@@ -429,15 +446,69 @@ public class UploadListActivity extends RootActivity {
                 cameraAndStoragePermissionForVideo();
             }
         });
-        browse.setOnClickListener(new View.OnClickListener() {
+        pick_image.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
             @Override
             public void onClick(View v) {
                 mBottomSheetDialog.dismiss();
-                storageAccessPermission();
+                Intent intent1 = new Intent(UploadListActivity.this, ImagePickActivity.class);
+                intent1.putExtra(IS_NEED_CAMERA, false);
+                intent1.putExtra(IS_NEED_FOLDER_LIST, false);
+                startActivityForResult(intent1, Constant.REQUEST_CODE_PICK_IMAGE);
 
             }
         });
+
+        pick_video.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mBottomSheetDialog.dismiss();
+                Intent intent2 = new Intent(context, VideoPickActivity.class);
+                intent2.putExtra(IS_NEED_CAMERA, false);
+                intent2.putExtra(IS_NEED_FOLDER_LIST, false);
+                startActivityForResult(intent2, Constant.REQUEST_CODE_PICK_VIDEO);
+            }
+        });
+
+
+        pick_documents.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mBottomSheetDialog.dismiss();
+                List<String> fileformats = PreferenceUtils.getFileFormats(context, "key");
+                ArrayList<String> remainingFileformats = new ArrayList<>();
+                if(fileformats != null && fileformats.size() > 0)
+                {
+                    for(String fileformat : fileformats)
+                    {
+                        fileformat = "."+fileformat;
+                        String extension = MimeTypeMap.getFileExtensionFromUrl(fileformat);
+                        String type = null;
+                        if (extension != null) {
+                            type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+                                if((type != null && type.contains("image")) || (type != null && type.contains("video"))) {
+                                }
+                                else
+                                {
+                                    remainingFileformats.add(fileformat);
+                                }
+                        }
+                    }
+                }
+                if(remainingFileformats != null && remainingFileformats.size() > 0)
+                {
+                    String[] documentArray = new String[remainingFileformats.size()];
+                    documentArray = remainingFileformats.toArray(documentArray);
+                    Intent intent4 = new Intent(context, NormalFilePickActivity.class);
+                    intent4.putExtra(IS_NEED_FOLDER_LIST, false);
+                    intent4.putExtra(NormalFilePickActivity.SUFFIX, documentArray);
+                    startActivityForResult(intent4, Constant.REQUEST_CODE_PICK_FILE);
+                }
+
+            }
+        });
+
+
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -446,6 +517,33 @@ public class UploadListActivity extends RootActivity {
             }
         });
     }
+
+   /* private void storageAccessPermissionForDocumentsPick()
+    {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            int storagePermission = ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE);
+            if (storagePermission == PackageManager.PERMISSION_GRANTED) {
+                documentPickToUpload();
+            } else {
+                requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_STORAGE_PERMISSION);
+            }
+        } else {
+            documentPickToUpload();
+        }
+    }*/
+
+   /* private void documentPickToUpload()
+    {
+        if(Build.VERSION.SDK_INT>=24){
+            try{
+                Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
+                m.invoke(null);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+
+    }*/
 
     private void cameraAndStoragePermissionForVideo()
     {
@@ -536,34 +634,7 @@ public class UploadListActivity extends RootActivity {
         upload_list.setAdapter(customAdapter);
     }
 
-    private void storageAccessPermission()
-    {
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            int storagePermission = ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE);
-            if (storagePermission == PackageManager.PERMISSION_GRANTED) {
-                documentUpload();
-            } else {
-                requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_STORAGE_PERMISSION);
-            }
-        } else {
-            documentUpload();
-        }
-    }
-
-    private void documentUpload()
-    {
-        if(Build.VERSION.SDK_INT>=24){
-            try{
-                Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
-                m.invoke(null);
-            }catch(Exception e){
-                e.printStackTrace();
-            }
-        }
-
-        pickFile();
-    }
 
     public void pickFile() {
         DialogProperties properties = new DialogProperties();
@@ -729,10 +800,44 @@ public class UploadListActivity extends RootActivity {
             PreferenceUtils.setupload(UploadListActivity.this,UploadList,"key");
             upload_list.setAdapter(customAdapter);
 
-
+        }
+        else if (requestCode == Constant.REQUEST_CODE_PICK_IMAGE && resultCode == RESULT_OK)
+        {
+            ArrayList<ImageFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_IMAGE);
+            for (ImageFile file : list) {
+                String path = file.getPath();
+                UploadList =  PreferenceUtils.getupload(UploadListActivity.this, "key");
+                UploadList.add(path);
+                PreferenceUtils.setupload(UploadListActivity.this,UploadList,"key");
+                upload_list.setAdapter(customAdapter);
+            }
 
 
         }
+        else if (requestCode == Constant.REQUEST_CODE_PICK_VIDEO && resultCode == RESULT_OK)
+        {
+            ArrayList<VideoFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_VIDEO);
+            for (VideoFile file : list) {
+                String path = file.getPath();
+                UploadList =  PreferenceUtils.getupload(UploadListActivity.this, "key");
+                UploadList.add(path);
+                PreferenceUtils.setupload(UploadListActivity.this,UploadList,"key");
+                upload_list.setAdapter(customAdapter);
+            }
+
+        }
+        else if (requestCode == Constant.REQUEST_CODE_PICK_FILE && resultCode == RESULT_OK)
+        {
+            ArrayList<NormalFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_FILE);
+            for (NormalFile file : list) {
+                String path = file.getPath();
+                UploadList =  PreferenceUtils.getupload(UploadListActivity.this, "key");
+                UploadList.add(path);
+                PreferenceUtils.setupload(UploadListActivity.this,UploadList,"key");
+                upload_list.setAdapter(customAdapter);
+            }
+        }
+
         upload_list.setAdapter(customAdapter);
         finish();
         startActivity(getIntent());
@@ -903,15 +1008,28 @@ public class UploadListActivity extends RootActivity {
                     }
                 }
                 break;
-            case REQUEST_STORAGE_PERMISSION:
+            /*case REQUEST_STORAGE_PERMISSION:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    documentUpload();
+                    showImageOrdocumentUpload();
                 } else {
                     Toast.makeText(context, "Storage access permission denied", Toast.LENGTH_LONG).show();
                 }
-                break;
+                break;*/
         }
     }
+
+  /*  private void showImageOrdocumentUpload()
+    {
+        if(isDocumentAccess)
+        {
+            storageAccessPermissionForDocumentsPick();
+        }
+        else
+        {
+            storageAccessPermissionForImagesPick();
+
+        }
+    }*/
 
     private void showVideoOrCameraAccess()
     {
@@ -980,7 +1098,7 @@ public class UploadListActivity extends RootActivity {
 
                     if (file_size > sizeAPI) {
                         if(!((Activity) context ).isFinishing()) {
-                            showAlertMessage(UploadList.get(i) + "exceeds" + PreferenceUtils.getMaxSizeUpload(UploadListActivity.this) + "MB", false, "");
+                            showAlertMessage(UploadList.get(i) + " can't exceed" + PreferenceUtils.getMaxSizeUpload(UploadListActivity.this) + " MB", false, "");
                         }
                         isError = true;
                         break;
@@ -1027,7 +1145,6 @@ public class UploadListActivity extends RootActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-       // GlobalVariables.isFromCamerOrVideo = false;
         unregisterReceiver(networkReceiver);
         if (mCustomAlertDialog != null) {
             mCustomAlertDialog.dismiss();
@@ -1055,7 +1172,7 @@ public class UploadListActivity extends RootActivity {
 
         cancelButton.setVisibility(View.GONE);
 
-        okButton.setText("OK");
+        okButton.setText("Ok");
 
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1089,7 +1206,7 @@ public class UploadListActivity extends RootActivity {
 
         cancelButton.setVisibility(View.GONE);
 
-        okButton.setText("OK");
+        okButton.setText("Ok");
 
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1124,7 +1241,6 @@ public class UploadListActivity extends RootActivity {
                 if (intent.getAction() != null && intent.getAction().matches(ConnectivityManager.CONNECTIVITY_ACTION)) {
                     isNetworkAvailable();
                     firstConnect = false;
-
                 }
             }
             else
@@ -1205,6 +1321,8 @@ public class UploadListActivity extends RootActivity {
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert).create();
     }
+
+
 
 
 

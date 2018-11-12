@@ -168,10 +168,10 @@ public class LoginFragment extends Fragment {
         String password = mPassword.getText().toString().trim();
 
         if (username.equals("")) {
-            String message = "Please provide username";
+            String message = "Please enter a username";
             mActivity.showMessagebox(mActivity, message, null, false);
         } else if (password.equals("")) {
-            String message = "Please provide password";
+            String message = "Please enter a password";
             mActivity.showMessagebox(mActivity, message, null, false);
         } else {
 

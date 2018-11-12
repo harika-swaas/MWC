@@ -210,7 +210,7 @@ public class MyfolderDeleteActivity extends RootActivity{
 
                                 cancelButton.setVisibility(View.GONE);
 
-                                sendPinButton.setText("OK");
+                                sendPinButton.setText("Ok");
 
                                 sendPinButton.setOnClickListener(new View.OnClickListener() {
                                     @Override

@@ -155,7 +155,7 @@ public class MyFoldersDMSActivity extends RootActivity {
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final int MEDIA_TYPE_VIDEO = 2;
     // Image and Video file extensions
-    public static final String IMAGE_EXTENSION = "jpg";
+    public static final String IMAGE_EXTENSION = "jpeg";
     public static final String VIDEO_EXTENSION = "mp4";
     private static final int PAGE_START = 1;
     ArrayList<String>list_upload = new ArrayList<>();
@@ -349,7 +349,7 @@ public class MyFoldersDMSActivity extends RootActivity {
 
                                 cancelButton.setVisibility(View.GONE);
 
-                                sendPinButton.setText("OK");
+                                sendPinButton.setText("Ok");
 
                                 sendPinButton.setOnClickListener(new View.OnClickListener() {
                                     @Override
@@ -1157,7 +1157,7 @@ public class MyFoldersDMSActivity extends RootActivity {
 
                                 cancelButton.setVisibility(View.GONE);
 
-                                sendPinButton.setText("OK");
+                                sendPinButton.setText("Ok");
 
                                 sendPinButton.setOnClickListener(new View.OnClickListener() {
                                     @Override
@@ -1269,7 +1269,7 @@ public class MyFoldersDMSActivity extends RootActivity {
 
                                 cancelButton.setVisibility(View.GONE);
 
-                                sendPinButton.setText("OK");
+                                sendPinButton.setText("Ok");
 
                                 sendPinButton.setOnClickListener(new View.OnClickListener() {
                                     @Override

@@ -34,7 +34,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/toolbar_layout"
-            android:layout_marginBottom="35dp"
+            android:layout_marginBottom="38dp"
             android:clickable="true">
 
             <android.support.v7.widget.RecyclerView
@@ -83,10 +83,10 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_centerInParent="true"
-            android:text="UPLOAD"
+            android:text="Upload"
             android:textSize="16sp"
             android:textColor="@color/black"
-            android:textAllCaps="true"
+            android:textAllCaps="false"
             android:layout_marginRight="16dp"
             android:visibility="visible"/>
 
@@ -99,7 +99,7 @@
             android:text="Cancel"
             android:textSize="16sp"
             android:textColor="@color/black"
-            android:textAllCaps="true"
+            android:textAllCaps="false"
             android:layout_marginLeft="16dp"/>
     </RelativeLayout>
 

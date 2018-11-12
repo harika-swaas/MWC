@@ -12,6 +12,7 @@ import android.os.StrictMode;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
 import android.text.InputFilter;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
@@ -65,6 +66,7 @@ import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
+import com.mwc.docportal.Utils.Constants;
 import com.mwc.docportal.Utils.DateHelper;
 import com.mwc.docportal.pdf.PdfViewActivity;
 
@@ -369,6 +371,16 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
             rename_layout.setVisibility(View.GONE);
             move.setVisibility(View.GONE);
             delete.setVisibility(View.GONE);
+
+           /* if(categoryDocumentsResponse.getSharetype().equals("1"))
+            {
+                shareView.setVisibility(View.VISIBLE);
+                switchButton_share.setChecked(true);
+            }
+            else {
+                shareView.setVisibility(View.GONE);
+            }*/
+
         }
         else
         {
@@ -488,6 +500,7 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
                 PreferenceUtils.setDocumentVersionId(context,categoryDocumentsResponse.getDocument_version_id());
                 PreferenceUtils.setDocument_Id(context, categoryDocumentsResponse.getObject_id());
                 Intent intent = new Intent (context,Tab_Activity.class);
+                intent.putExtra(Constants.DOCUMENT_NAME, categoryDocumentsResponse.getName());
                 if(categoryDocumentsResponse.getDoc_status().equalsIgnoreCase("shared"))
                 {
                     intent.putExtra("IsFromShared", true);
@@ -599,7 +612,7 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
                 InputFilter[] FilterArray = new InputFilter[1];
                 FilterArray[0] = new InputFilter.LengthFilter(45);
                 namer.setFilters(FilterArray);
-
+                namer.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
                 allow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -671,16 +684,13 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
         title.setText("Stop Sharing");
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-  //      txtMessage.setText("This action will stop sharing the selected document(s). Company with whom this has been shared will no longer be able to view this document");
-
         txtMessage.setText(context.getString(R.string.stop_sharing_text));
         Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
-        cancelButton.setText("CANCEL");
+        cancelButton.setText("Cancel");
 
-        sendPinButton.setText("OK");
+        sendPinButton.setText("Ok");
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -912,7 +922,7 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
 
         cancelButton.setVisibility(View.GONE);
 
-        sendPinButton.setText("OK");
+        sendPinButton.setText("Ok");
 
         sendPinButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1155,9 +1165,9 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
         Button okButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
-        cancelButton.setText("CANCEL");
+        cancelButton.setText("Cancel");
 
-        okButton.setText("OK");
+        okButton.setText("Ok");
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override

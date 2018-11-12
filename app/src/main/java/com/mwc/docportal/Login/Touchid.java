@@ -359,7 +359,7 @@ public class Touchid extends Activity {
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 
-        txtMessage.setText("You have cancelled this action.");
+        txtMessage.setText("You have cancelled this action");
 
 
         Button okButton = (Button) view.findViewById(R.id.send_pin_button);
@@ -367,7 +367,7 @@ public class Touchid extends Activity {
 
         cancelButton.setVisibility(View.GONE);
 
-        okButton.setText("OK");
+        okButton.setText("Ok");
 
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override

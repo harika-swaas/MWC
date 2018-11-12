@@ -498,10 +498,10 @@ public class NavigationSettingsActivity extends BaseActivity {
         Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
-        cancelButton.setText("CANCEL");
+        cancelButton.setText("Cancel");
 
 
-        sendPinButton.setText("CONFIRM");
+        sendPinButton.setText("Confirm");
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -611,7 +611,7 @@ public class NavigationSettingsActivity extends BaseActivity {
 
         cancelButton.setVisibility(View.GONE);
 
-        okButton.setText("OK");
+        okButton.setText("Ok");
 
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -705,10 +705,10 @@ public class NavigationSettingsActivity extends BaseActivity {
         Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
-        cancelButton.setText("CANCEL");
+        cancelButton.setText("Cancel");
         cancelButton.setVisibility(View.GONE);
 
-        sendPinButton.setText("OK");
+        sendPinButton.setText("Ok");
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override

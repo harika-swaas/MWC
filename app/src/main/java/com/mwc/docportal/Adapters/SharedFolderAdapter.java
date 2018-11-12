@@ -96,7 +96,7 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
     String version_number;
     boolean isSwitchView = true;
  //   boolean isMultiSelect = false;
-   // int selectedCountValue = 0;
+    AlertDialog mAlertDialog;
     String objectId;
 
     public SharedFolderAdapter(List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses, Activity context, String objectId) {
@@ -535,11 +535,20 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
         categoryDocumentlist.add(mGetCategoryDocumentsResponses);
         CommonFunctions.setSelectedItems(categoryDocumentlist);
 
-
-        shareView.setVisibility(View.GONE);
         rename_layout.setVisibility(View.GONE);
         move.setVisibility(View.GONE);
         delete.setVisibility(View.GONE);
+
+        if(mGetCategoryDocumentsResponses.getSharetype().equals("1"))
+        {
+            shareView.setVisibility(View.VISIBLE);
+            switchButton_share.setChecked(true);
+        }
+        else
+        {
+            shareView.setVisibility(View.GONE);
+        }
+
 
 
         if (mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
@@ -581,6 +590,7 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
 
                 Intent intent = new Intent (context,Tab_Activity.class);
                 intent.putExtra("IsFromShared", true);
+                intent.putExtra(Constants.DOCUMENT_NAME, mGetCategoryDocumentsResponses.getName());
                 context.startActivity(intent);
             }
         });
@@ -646,6 +656,121 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
         });
 
 
+        switchButton_share.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
+        {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+            {
+                if(buttonView.isPressed() == true) {
+                    mBottomSheetDialog.dismiss();
+                    switchButton_share.setChecked(false);
+                    showWarningMessageAlertForSharingContent(mGetCategoryDocumentsResponses);
+                }
+            }
+        });
+
+    }
+
+
+    private void showWarningMessageAlertForSharingContent(GetCategoryDocumentsResponse categoryDocumentsResponse)
+    {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Stop Sharing");
+
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+        txtMessage.setText(context.getString(R.string.stop_sharing_text));
+        Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+        cancelButton.setText("Cancel");
+
+        sendPinButton.setText("Ok");
+
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+            }
+        });
+
+        sendPinButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+
+                ArrayList<String> documentIdslist = new ArrayList<>();
+                documentIdslist.add(categoryDocumentsResponse.getObject_id());
+                getInternalStoppingSharingContentAPI(categoryDocumentsResponse, documentIdslist, categoryDocumentsResponse.getCategory_id());
+
+
+            }
+        });
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
+    }
+
+    private void getInternalStoppingSharingContentAPI(GetCategoryDocumentsResponse categoryDocumentsResponse, ArrayList<String> documentIdslist, String category_id)
+    {
+        if (NetworkUtils.isNetworkAvailable(context)) {
+
+            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+
+            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
+            transparentProgressDialog.show();
+
+
+            final StopSharingRequestModel deleteEndUserFolderRequest = new StopSharingRequestModel(documentIdslist,category_id);
+
+            String request = new Gson().toJson(deleteEndUserFolderRequest);
+
+
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("data", request);
+
+            final GetEndUserParentSHaredFoldersService mGetEndUserParentSHaredstopService = retrofitAPI.create(GetEndUserParentSHaredFoldersService.class);
+
+            Call call = mGetEndUserParentSHaredstopService.getEndUserStopSharedDocuments(params, PreferenceUtils.getAccessToken(context));
+
+            call.enqueue(new Callback<SharedDocumentResponseModel>() {
+                @Override
+                public void onResponse(Response<SharedDocumentResponseModel> response, Retrofit retrofit) {
+
+                    if (response != null) {
+
+                        transparentProgressDialog.dismiss();
+                        String message = "";
+                        if(response.body().getStatus().getMessage() != null)
+                        {
+                            message = response.body().getStatus().getMessage().toString();
+                        }
+
+
+
+                        if(CommonFunctions.isApiSuccess(context, message, response.body().getStatus().getCode()))
+                        {
+                            mGetCategoryDocumentsResponses.remove(categoryDocumentsResponse);
+                            notifyDataSetChanged();
+                        }
+
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
+                    Log.d("PinDevice error", t.getMessage());
+                }
+            });
+        }
     }
 
 

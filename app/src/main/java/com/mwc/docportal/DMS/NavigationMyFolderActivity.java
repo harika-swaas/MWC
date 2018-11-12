@@ -35,7 +35,13 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.InputFilter;
+import android.text.InputType;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextPaint;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
@@ -45,6 +51,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -120,11 +127,21 @@ import com.mwc.docportal.GlobalSearch.GlobalSearchActivity;
 import com.mwc.docportal.GridAutofitLayoutManager;
 import com.mwc.docportal.Login.LoginActivity;
 import com.mwc.docportal.Network.NetworkUtils;
+import com.mwc.docportal.OffLine_Files_List;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
+import com.mwc.docportal.Utils.Constants;
 import com.mwc.docportal.Utils.DateHelper;
 import com.mwc.docportal.pdf.PdfViewActivity;
+import com.vincent.filepicker.Constant;
+import com.vincent.filepicker.activity.ImagePickActivity;
+import com.vincent.filepicker.activity.NormalFilePickActivity;
+import com.vincent.filepicker.activity.VideoPickActivity;
+import com.vincent.filepicker.filter.entity.ImageFile;
+import com.vincent.filepicker.filter.entity.NormalFile;
+import com.vincent.filepicker.filter.entity.VideoFile;
+
 import java.io.File;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
@@ -139,6 +156,9 @@ import retrofit.Call;
 import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
+
+import static com.vincent.filepicker.activity.BaseActivity.IS_NEED_FOLDER_LIST;
+import static com.vincent.filepicker.activity.ImagePickActivity.IS_NEED_CAMERA;
 
 public class NavigationMyFolderActivity extends BaseActivity implements SwipeRefreshLayout.OnRefreshListener {
 
@@ -207,7 +227,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
     LoadingProgressDialog transparentProgressDialog;
     private SwipeRefreshLayout mRefreshLayout;
     LinearLayout bottom_linearlayout;
-
+    Button refreshButton;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -227,7 +247,6 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
         if(PreferenceUtils.getPushNotificationDocumentVersionId(context) != null && !PreferenceUtils.getPushNotificationDocumentVersionId(context).isEmpty())
         {
-       //    GlobalVariables.isComingFromApp = false;
            Intent intent = new Intent(NavigationMyFolderActivity.this, PdfViewActivity.class);
            startActivity(intent);
         }
@@ -240,8 +259,6 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         no_documents_txt.setText("");
 
         transparentProgressDialog = new LoadingProgressDialog(context);
-
-
 
         if(getIntent().getStringExtra("ObjectId") != null)
         {
@@ -265,9 +282,10 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         getCategoryDocuments();
 
         if (!GlobalVariables.isMoveInitiated) {
-            hideBottomView();
+            if(NetworkUtils.checkIfNetworkAvailable(this))
+                hideBottomView();
         }
-        else{
+        else {
             showBottomView();
         }
 
@@ -284,7 +302,6 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         setSortTitle();
         reloadAdapterData(false);
 
-
     }
 
     private void incrementActivityCount()
@@ -298,17 +315,20 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         bottomNavigationLayout.setVisibility(View.GONE);
         sorting_layout.setVisibility(View.GONE);
         move_layout.setVisibility(View.VISIBLE);
-        floatingActionMenu.setVisibility(View.GONE);
+   //     floatingActionMenu.setVisibility(View.GONE);
+        actionCamera.setVisibility(View.GONE);
+        actionUpload.setVisibility(View.GONE);
+        actionVideo.setVisibility(View.GONE);
         GlobalVariables.sortType = "type";
 
-        setMargins(bottom_linearlayout,0,0,0,110);
+        setMargins(bottom_linearlayout,0,0,0,122);
 
 
         if (GlobalVariables.selectedActionName.equalsIgnoreCase("move") || GlobalVariables.selectedActionName.equalsIgnoreCase("delete"))
         {
             if(!objectId.equals("0"))
             {
-                move_textview.setText("MOVE");
+                move_textview.setText("Move Here");
             }
 
         }
@@ -316,7 +336,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         {
             if(!objectId.equals("0"))
             {
-                move_textview.setText("COPY");
+                move_textview.setText("Copy Here");
             }
 
         }
@@ -327,17 +347,10 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         bottomNavigationLayout.setVisibility(View.VISIBLE);
         sorting_layout.setVisibility(View.VISIBLE);
         move_layout.setVisibility(View.GONE);
-        floatingActionMenu.setVisibility(View.VISIBLE);
+   //     floatingActionMenu.setVisibility(View.VISIBLE);
+
 
         setMargins(bottom_linearlayout,0,0,0,90);
-
-
-
-       /* LinearLayout.LayoutParams params = (LinearLayout.LayoutParams)bottom_linearlayout.getLayoutParams();
-        params.setMargins(0, 0, 0, 70);
-        bottom_linearlayout.setLayoutParams(params);
-        bottom_linearlayout.requestLayout();*/
-
 
     }
 
@@ -431,7 +444,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
                                 cancelButton.setVisibility(View.GONE);
 
-                                sendPinButton.setText("OK");
+                                sendPinButton.setText("Ok");
 
                                 sendPinButton.setOnClickListener(new View.OnClickListener() {
                                     @Override
@@ -493,7 +506,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
     public void getCategoryDocuments() {
 
-        if (NetworkUtils.isNetworkAvailable(context)) {
+        if (NetworkUtils.checkIfNetworkAvailable(this)) {
 
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
 
@@ -586,6 +599,10 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                     Log.d("PinDevice error", t.getMessage());
                 }
             });
+        }
+        else
+        {
+            internetUnAvailableWithMessage();
         }
     }
 
@@ -720,9 +737,9 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         {
             ActionBar actionBar = getSupportActionBar();
             actionBar.setDisplayHomeAsUpEnabled(true);
-            actionCamera.setVisibility(View.VISIBLE);
-            actionUpload.setVisibility(View.VISIBLE);
-            actionVideo.setVisibility(View.VISIBLE);
+            actionCamera.setVisibility(View.GONE);
+            actionUpload.setVisibility(View.GONE);
+            actionVideo.setVisibility(View.GONE);
         }
     }
 
@@ -737,7 +754,30 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
                 if(GlobalVariables.selectedActionName.equalsIgnoreCase("move"))
                 {
-                    moveDocuments();
+
+                    List<GetCategoryDocumentsResponse> filteredListForDuplicate = new ArrayList<>();
+                    for(GetCategoryDocumentsResponse cate : GlobalVariables.selectedDocumentsList)
+                    {
+                        if(cate.getType().equalsIgnoreCase("category"))
+                        {
+                            if(cate.getObject_id().contains(objectId))
+                            {
+                                filteredListForDuplicate.add(cate);
+                            }
+                        }
+
+                    }
+
+                    if(filteredListForDuplicate != null && filteredListForDuplicate.size() > 0)
+                    {
+                        showWarningMessageAlertForSourceFolderWrong();
+                        filteredListForDuplicate.clear();
+                    }
+                    else
+                    {
+                        moveDocuments();
+                    }
+
                 }
                 else if(GlobalVariables.selectedActionName.equalsIgnoreCase("copy"))
                 {
@@ -791,7 +831,6 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 storageAccessPermission();
 
 
-
             }
         });
 
@@ -834,6 +873,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             InputFilter[] FilterArray = new InputFilter[1];
             FilterArray[0] = new InputFilter.LengthFilter(45);
             namer.setFilters(FilterArray);
+            namer.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
             allow.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -934,7 +974,70 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             }
         });*/
 
+        refreshButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = getIntent();
+                overridePendingTransition(0, 0);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                finish();
+                overridePendingTransition(0, 0);
+                startActivity(intent);
+            }
+        });
 
+        /*floatingActionMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+              //  floatingActionMenu.close(true);
+                Toast.makeText(context, "Button clicked",Toast.LENGTH_SHORT).show();
+            }
+        });*/
+
+        floatingActionMenu.setOnMenuButtonClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openFolderUploadBottomSheet();
+                floatingActionMenu.close(true);
+            }
+        });
+
+
+
+    }
+
+
+
+    private void showWarningMessageAlertForSourceFolderWrong()
+    {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Alert");
+
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+        txtMessage.setText("The Destination folder is the subfolder of the source folder.");
+        Button okButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+        cancelButton.setVisibility(View.GONE);
+        okButton.setText("Ok");
+
+
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+
+            }
+        });
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
     }
 
     private void storageAccessPermission()
@@ -965,7 +1068,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             }
         }
 
-        pickFile();
+   //     pickFile();
     }
 
     private void cameraAndStoragePermissionForVideo()
@@ -1383,10 +1486,10 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             }
         }
 
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+        String timeStamp = new SimpleDateFormat("ddMMyyHHmmss", Locale.getDefault()).format(new Date());
         File mediaFile;
         if (type == MEDIA_TYPE_IMAGE) {
-            mediaFile = new File(mediaStorageDir.getPath() + File.separator + "IMG_" + timeStamp + ".jpg");
+            mediaFile = new File(mediaStorageDir.getPath() + File.separator + "Image_" + timeStamp + ".jpeg");
         } else {
             return null;
         }
@@ -1421,6 +1524,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
         mRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
         bottom_linearlayout = (LinearLayout) findViewById(R.id.bottom_linearlayout);
+        refreshButton = (Button) findViewById(R.id.refresh_button);
 
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
@@ -1879,6 +1983,49 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
 
         }
+        else if (requestCode == Constant.REQUEST_CODE_PICK_IMAGE && resultCode == RESULT_OK)
+        {
+            list_upload = new ArrayList<>();
+            ArrayList<ImageFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_IMAGE);
+            for (ImageFile file : list) {
+                String path = file.getPath();
+                list_upload = new ArrayList<>(PreferenceUtils.getupload(NavigationMyFolderActivity.this, "key"));
+                list_upload.add(path);
+
+                PreferenceUtils.setupload(NavigationMyFolderActivity.this,list_upload,"key");
+                Intent intent = new Intent (context,UploadListActivity.class);
+                startActivity(intent);
+            }
+
+
+        }
+        else if (requestCode == Constant.REQUEST_CODE_PICK_VIDEO && resultCode == RESULT_OK)
+        {
+            list_upload = new ArrayList<>();
+            ArrayList<VideoFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_VIDEO);
+            for (VideoFile file : list) {
+                String path = file.getPath();
+                list_upload = new ArrayList<>(PreferenceUtils.getupload(NavigationMyFolderActivity.this, "key"));
+                list_upload.add(path);
+                PreferenceUtils.setupload(NavigationMyFolderActivity.this,list_upload,"key");
+                Intent intent = new Intent (context,UploadListActivity.class);
+                startActivity(intent);
+            }
+
+        }
+        else if (requestCode == Constant.REQUEST_CODE_PICK_FILE && resultCode == RESULT_OK)
+        {
+            list_upload = new ArrayList<>();
+            ArrayList<NormalFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_FILE);
+            for (NormalFile file : list) {
+                String path = file.getPath();
+                list_upload = new ArrayList<>(PreferenceUtils.getupload(NavigationMyFolderActivity.this, "key"));
+                list_upload.add(path);
+                PreferenceUtils.setupload(NavigationMyFolderActivity.this,list_upload,"key");
+                Intent intent = new Intent (context,UploadListActivity.class);
+                startActivity(intent);
+            }
+        }
 
 
     }
@@ -1924,7 +2071,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             builder.setCancelable(false);
 
             final Button BtnAllow = (Button) view.findViewById(R.id.allow_button);
-            BtnAllow.setText("RETRY");
+            BtnAllow.setText("Retry");
             final Button BtnCancel = (Button) view.findViewById(R.id.cancel_button);
             mCustomAlertDialog = builder.create();
             mCustomAlertDialog.show();
@@ -1951,9 +2098,8 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
 
 
-    public void setListAdapterToView(final List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses
-    ) {
-
+    public void setListAdapterToView(final List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses)
+    {
         mRecyclerView.setHasFixedSize(true);
         linearLayoutManager = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
         mRecyclerView.setLayoutManager(linearLayoutManager);
@@ -1996,6 +2142,9 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
           menuItemMore = menu.findItem(R.id.action_more);
           menuItemMove = menu.findItem(R.id.action_move);
 
+          searchIconDisplay();
+
+
           if(mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0)
           {
               String itemSelectedColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
@@ -2022,7 +2171,20 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
           return true;
       }
 
-      @Override
+    private void searchIconDisplay()
+    {
+        if (!GlobalVariables.isMoveInitiated)
+        {
+            menuItemSearch.setVisible(true);
+        }
+        else
+        {
+            menuItemSearch.setVisible(false);
+        }
+
+    }
+
+    @Override
       public boolean onOptionsItemSelected(MenuItem item)
       {
 
@@ -2261,7 +2423,8 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                     if (!isChecked) {
                         switchButton_share.setChecked(false);
                         ArrayList<String> documentIdslist = new ArrayList<>();
-                        for(GetCategoryDocumentsResponse categoryDocumentsResponse : mSelectedDocumentList)                        {
+                        for(GetCategoryDocumentsResponse categoryDocumentsResponse : mSelectedDocumentList)
+                        {
                             documentIdslist.add(categoryDocumentsResponse.getObject_id());
                         }
 
@@ -2343,8 +2506,10 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 }
 
                 Intent intent = new Intent (context,Tab_Activity.class);
-                context.startActivity(intent);
-                clearSelectedListAfterOperation();
+                intent.putExtra("IsFromMyFolder", true);
+                intent.putExtra(Constants.DOCUMENT_NAME, mSelectedDocumentList.get(0).getName());
+                startActivity(intent);
+              //  clearSelectedListAfterOperation();
             }
         });
 
@@ -2379,7 +2544,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         renameLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                clearSelectedListAfterOperation();
+
                 final AlertDialog.Builder builder = new AlertDialog.Builder(context);
                 LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 View view = inflater.inflate(R.layout.rename_alert, null);
@@ -2393,7 +2558,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 InputFilter[] FilterArray = new InputFilter[1];
                 FilterArray[0] = new InputFilter.LengthFilter(45);
                 namer.setFilters(FilterArray);
-
+                namer.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
                 allow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -2947,6 +3112,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                         }
 
                         if(CommonFunctions.isApiSuccess(NavigationMyFolderActivity.this, message, apiResponse.status.getCode())) {
+                            clearSelectedListAfterOperation();
                             resetPageNumber();
                             getCategoryDocuments();
                         }
@@ -3002,6 +3168,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                         }
 
                         if(CommonFunctions.isApiSuccess(NavigationMyFolderActivity.this, message, apiResponse.status.getCode())) {
+                            clearSelectedListAfterOperation();
                             resetPageNumber();
                             getCategoryDocuments();
                         }
@@ -3226,7 +3393,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         builder.setCancelable(false);
 
         TextView title = (TextView) view.findViewById(R.id.title);
-        title.setText("Warning");
+        title.setText("Stop Sharing");
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 
@@ -3236,9 +3403,9 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
-        cancelButton.setText("CANCEL");
+        cancelButton.setText("Cancel");
 
-        sendPinButton.setText("OK");
+        sendPinButton.setText("Ok");
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -3392,14 +3559,12 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
     protected void onResume() {
         super.onResume();
         Log.d("Navigation act", "Intent called");
-
-
         clearingMoveOrCopyActivity();
 
 
         /*setSortTitle();
         reloadAdapterData(false);*/
-        if(!GlobalVariables.isMoveInitiated)
+        if(!GlobalVariables.isMoveInitiated && NetworkUtils.checkIfNetworkAvailable(this))
         {
             hideBottomView();
         }
@@ -3408,6 +3573,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         {
             refreshMyFolderDMS();
             GlobalVariables.refreshDMS = false;
+            clearSelectedListAfterOperation();
         }
 
         if (objectId.equals("0")){
@@ -3596,12 +3762,20 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         if(mGetCategoryDocumentsResponses != null && mGetCategoryDocumentsResponses.size() > 0)
         {
             empty_view.setVisibility(View.GONE);
-            sorting_layout.setVisibility(View.VISIBLE);
+            if(GlobalVariables.isMoveInitiated)
+            {
+                sorting_layout.setVisibility(View.GONE);
+            }
+            else
+            {
+                sorting_layout.setVisibility(View.VISIBLE);
+            }
+
         }
         else
         {
             empty_view.setVisibility(View.VISIBLE);
-            no_documents_txt.setText("NO DOCUMENTS FOUND.");
+            no_documents_txt.setText("No files found.");
             sorting_layout.setVisibility(View.GONE);
         }
     }
@@ -3761,7 +3935,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
         cancelButton.setVisibility(View.GONE);
 
-        sendPinButton.setText("OK");
+        sendPinButton.setText("Ok");
 
         sendPinButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -3779,17 +3953,20 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
     @Override
     public void onRefresh() {
+
+
         GlobalVariables.isMultiSelect = false;
         if (NetworkUtils.checkIfNetworkAvailable(this)) {
             List<GetCategoryDocumentsResponse> dummyList = new ArrayList<>();
             updateToolbarMenuItems(dummyList);
             mRefreshLayout.setRefreshing(false);
+            searchIconDisplay();
                 refreshMyFolderDMS();
 
         } else {
             mRefreshLayout.setRefreshing(false);
             mRefreshLayout.setVisibility(View.GONE);
-            NetworkUtils.getDialog(context).show();
+            internetUnAvailableWithMessage();
         }
 
 
@@ -3813,9 +3990,9 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         Button okButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
-        cancelButton.setText("CANCEL");
+        cancelButton.setText("Cancel");
 
-        okButton.setText("OK");
+        okButton.setText("Ok");
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -3842,11 +4019,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
     }
 
 
-    public void onDestroy() {
-        super.onDestroy();
-     //   GlobalVariables.isFromCamerOrVideo = false;
 
-    }
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -3886,6 +4059,271 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             }*/
         }
     };
+
+
+    public void internetUnAvailableWithMessage()
+    {
+        empty_view.setVisibility(View.VISIBLE);
+        no_documents_txt.setText(getString(R.string.internet_failure_txt));
+        sorting_layout.setVisibility(View.GONE);
+        setLinkTextView();
+    }
+
+    public void setLinkTextView()
+    {
+        SpannableString spannableString = new SpannableString(getString(R.string.internet_failure_txt));
+        ClickableSpan clickableSpan = new ClickableSpan() {
+            @Override
+            public void onClick(View textView) {
+                Intent mIntent = new Intent(context, OffLine_Files_List.class);
+                startActivity(mIntent);
+            }
+
+            @Override
+            public void updateDrawState(TextPaint ds) {
+                super.updateDrawState(ds);
+                ds.setUnderlineText(false); // set to false to remove underline
+            }
+        };
+       spannableString.setSpan(clickableSpan, 53,
+                63, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        no_documents_txt.setText(spannableString,
+                TextView.BufferType.SPANNABLE);
+        no_documents_txt.setMovementMethod(LinkMovementMethod.getInstance());
+
+    }
+
+
+    private void openFolderUploadBottomSheet()
+    {
+        TextView camera, video, pick_image,pick_documents, pick_video, cancel, folder_creation;
+        View view = getLayoutInflater().inflate(R.layout.bottom_sheet_upload, null);
+        camera = (TextView) view.findViewById(R.id.camera);
+        video = (TextView) view.findViewById(R.id.video);
+        pick_image = (TextView) view.findViewById(R.id.pick_image);
+        pick_documents = (TextView) view.findViewById(R.id.pick_documents);
+        pick_video = (TextView) view.findViewById(R.id.pick_video);
+        cancel =(TextView) view.findViewById(R.id.cancel);
+        folder_creation =(TextView) view.findViewById(R.id.folder_creation);
+
+        final Dialog mBottomSheetDialog = new Dialog(NavigationMyFolderActivity.this, R.style.MaterialDialogSheet);
+        mBottomSheetDialog.setContentView(view);
+        mBottomSheetDialog.setCancelable(true);
+        mBottomSheetDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        mBottomSheetDialog.getWindow().setGravity(Gravity.BOTTOM);
+        mBottomSheetDialog.show();
+
+
+        if (objectId.equals("0")){
+            camera.setVisibility(View.GONE);
+            video.setVisibility(View.GONE);
+            pick_image.setVisibility(View.GONE);
+            pick_video.setVisibility(View.GONE);
+            pick_documents.setVisibility(View.GONE);
+        }
+        else
+        {
+            camera.setVisibility(View.VISIBLE);
+            video.setVisibility(View.VISIBLE);
+            pick_image.setVisibility(View.VISIBLE);
+            pick_video.setVisibility(View.VISIBLE);
+            pick_documents.setVisibility(View.VISIBLE);
+        }
+
+
+        folder_creation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mBottomSheetDialog.dismiss();
+                final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View view1 = inflater.inflate(R.layout.newfolder, null);
+                builder.setView(view1);
+                builder.setCancelable(false);
+
+                Button cancel = (Button) view1.findViewById(R.id.cancel_b);
+                Button allow = (Button) view1.findViewById(R.id.allow);
+                final EditText namer = (EditText) view1.findViewById(R.id.edit_username1);
+                InputFilter[] FilterArray = new InputFilter[1];
+                FilterArray[0] = new InputFilter.LengthFilter(45);
+                namer.setFilters(FilterArray);
+                namer.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+                allow.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String folder_name = namer.getText().toString().trim();
+
+                        if(folder_name == null || folder_name.isEmpty())
+                        {
+                            Toast.makeText(context, "Please enter a name", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+
+
+                        if (NetworkUtils.isNetworkAvailable(context)) {
+
+                            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+
+                            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
+                            transparentProgressDialog.show();
+
+                            final UploadNewFolderRequest uploadNewFolderRequest = new UploadNewFolderRequest(objectId, folder_name);
+
+                            String request = new Gson().toJson(uploadNewFolderRequest);
+
+                            //Here the json data is add to a hash map with key data
+                            Map<String, String> params = new HashMap<String, String>();
+                            params.put("data", request);
+
+                            final UploadNewFolderService uploadNewFolderService = retrofitAPI.create(UploadNewFolderService.class);
+
+                            Call call = uploadNewFolderService.getNewFolder(params, PreferenceUtils.getAccessToken(context));
+
+                            call.enqueue(new Callback<ListPinDevicesResponse<LoginResponse>>() {
+                                @Override
+                                public void onResponse(Response<ListPinDevicesResponse<LoginResponse>> response, Retrofit retrofit) {
+                                    ListPinDevicesResponse apiResponse = response.body();
+                                    if (apiResponse != null) {
+
+                                        transparentProgressDialog.dismiss();
+                                        String message = "";
+                                        if(apiResponse.status.getMessage() != null)
+                                        {
+                                            message = apiResponse.status.getMessage().toString();
+                                        }
+
+                                        if(CommonFunctions.isApiSuccess(NavigationMyFolderActivity.this, message, apiResponse.status.getCode())) {
+                                            resetPageNumber();
+                                            getCategoryDocuments();
+                                        }
+
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Throwable t) {
+                                    transparentProgressDialog.dismiss();
+                                    CommonFunctions.showTimeoutAlert(context);
+                                    Log.d("PinDevice error", t.getMessage());
+                                }
+                            });
+                        }
+
+
+                        mAlertDialog.dismiss();
+
+                    }
+                });
+
+                cancel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mAlertDialog.dismiss();
+
+                    }
+                });
+
+                mAlertDialog = builder.create();
+                mAlertDialog.show();
+
+
+            }
+        });
+
+        camera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mBottomSheetDialog.dismiss();
+                isVideo = false;
+                cameraAndStoragePermission();
+            }
+        });
+
+        video.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mBottomSheetDialog.dismiss();
+                isVideo = true;
+                cameraAndStoragePermissionForVideo();
+            }
+        });
+        pick_image.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
+            @Override
+            public void onClick(View v) {
+                mBottomSheetDialog.dismiss();
+                Intent intent1 = new Intent(NavigationMyFolderActivity.this, ImagePickActivity.class);
+                intent1.putExtra(IS_NEED_CAMERA, false);
+                intent1.putExtra(IS_NEED_FOLDER_LIST, false);
+                startActivityForResult(intent1, Constant.REQUEST_CODE_PICK_IMAGE);
+
+            }
+        });
+
+        pick_video.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mBottomSheetDialog.dismiss();
+                Intent intent2 = new Intent(context, VideoPickActivity.class);
+                intent2.putExtra(IS_NEED_CAMERA, false);
+                intent2.putExtra(IS_NEED_FOLDER_LIST, false);
+                startActivityForResult(intent2, Constant.REQUEST_CODE_PICK_VIDEO);
+            }
+        });
+
+
+        pick_documents.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mBottomSheetDialog.dismiss();
+
+                List<String> fileformats = PreferenceUtils.getFileFormats(context, "key");
+
+                ArrayList<String> remainingFileformats = new ArrayList<>();
+                if(fileformats != null && fileformats.size() > 0)
+                {
+                    for(String fileformat : fileformats)
+                    {
+                        fileformat = "."+fileformat;
+                        String extension = MimeTypeMap.getFileExtensionFromUrl(fileformat);
+                        String type = null;
+                        if (extension != null) {
+                            type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+                            if((type != null && type.contains("image")) || (type != null && type.contains("video")))   {
+                            }
+                            else
+                            {
+                                remainingFileformats.add(fileformat);
+                            }
+                        }
+                    }
+
+                }
+
+                if(remainingFileformats != null && remainingFileformats.size() > 0)
+                {
+                    String[] documentArray = new String[remainingFileformats.size()];
+                    documentArray = remainingFileformats.toArray(documentArray);
+                    Intent intent4 = new Intent(context, NormalFilePickActivity.class);
+                    intent4.putExtra(IS_NEED_FOLDER_LIST, false);
+                    intent4.putExtra(NormalFilePickActivity.SUFFIX, documentArray);
+                    startActivityForResult(intent4, Constant.REQUEST_CODE_PICK_FILE);
+                }
+
+            }
+        });
+
+
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mBottomSheetDialog.dismiss();
+
+            }
+        });
+    }
 
 
 }

@@ -13,6 +13,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
 import android.text.InputFilter;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -66,10 +67,6 @@ import com.mwc.docportal.DMS.Tab_Activity;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Database.OffLine_Files_Repository;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
-import com.mwc.docportal.FTL.WebviewLoaderTermsActivity;
-import com.mwc.docportal.Fragments.ItemNavigationFolderFragment;
-import com.mwc.docportal.Login.DocumentPreview;
-import com.mwc.docportal.Login.LoginActivity;
 import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
@@ -77,7 +74,6 @@ import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
 import com.mwc.docportal.Utils.Constants;
 import com.mwc.docportal.pdf.PdfViewActivity;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -665,6 +661,8 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                 PreferenceUtils.setDocumentVersionId(context,categoryDocumentsResponse.getDocument_version_id());
                 PreferenceUtils.setDocument_Id(context, categoryDocumentsResponse.getObject_id());
                 Intent intent = new Intent (context,Tab_Activity.class);
+                intent.putExtra("IsFromMyFolder", true);
+                intent.putExtra(Constants.DOCUMENT_NAME, categoryDocumentsResponse.getName());
                 context.startActivity(intent);
             }
         });
@@ -777,7 +775,7 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                 InputFilter[] FilterArray = new InputFilter[1];
                 FilterArray[0] = new InputFilter.LengthFilter(45);
                 namer.setFilters(FilterArray);
-
+                namer.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
                 allow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -825,14 +823,6 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
         }
 
 
-        shareView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                /*Intent mIntent = new Intent(context,MyFolderSharedDocuments.class);
-                mIntent.putExtra(Constants.OBJ, (Serializable) selectedList);
-                context.startActivity(mIntent);*/
-            }
-        });
     }
 
     private void showWarningMessageAlertForSharingContent(final GetCategoryDocumentsResponse categoryDocumentsResponse)
@@ -853,9 +843,9 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
         Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
-        cancelButton.setText("CANCEL");
+        cancelButton.setText("Cancel");
 
-        sendPinButton.setText("OK");
+        sendPinButton.setText("Ok");
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1018,7 +1008,7 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                 InputFilter[] FilterArray = new InputFilter[1];
                 FilterArray[0] = new InputFilter.LengthFilter(45);
                 namer.setFilters(FilterArray);
-
+                namer.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
                 allow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {

@@ -252,7 +252,7 @@ public class MoveCategoryDmsAdapter extends RecyclerView.Adapter<MoveCategoryDms
 
                             cancelButton.setVisibility(View.GONE);
 
-                            sendPinButton.setText("OK");
+                            sendPinButton.setText("Ok");
 
                             sendPinButton.setOnClickListener(new View.OnClickListener() {
                                 @Override

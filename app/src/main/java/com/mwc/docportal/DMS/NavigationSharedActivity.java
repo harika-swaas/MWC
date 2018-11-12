@@ -21,7 +21,12 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextPaint;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
@@ -78,6 +83,7 @@ import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.GlobalSearch.GlobalSearchActivity;
 import com.mwc.docportal.GridAutofitLayoutManager;
 import com.mwc.docportal.Network.NetworkUtils;
+import com.mwc.docportal.OffLine_Files_List;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
@@ -149,7 +155,7 @@ public class NavigationSharedActivity extends BaseActivity {
     BottomNavigationView bottomNavigationLayout;
     TextView cancel_textview;
     LinearLayout shared_bottom_linearlayout;
-
+    Button refreshButton;
 
 
     @Override
@@ -211,7 +217,7 @@ public class NavigationSharedActivity extends BaseActivity {
         sorting_layout.setVisibility(View.GONE);
         move_layout.setVisibility(View.VISIBLE);
         GlobalVariables.sharedDocsSortType = "type";
-        setMargins(shared_bottom_linearlayout,0,0,0,110);
+        setMargins(shared_bottom_linearlayout,0,0,0,122);
     }
 
 
@@ -248,7 +254,7 @@ public class NavigationSharedActivity extends BaseActivity {
 
     private void getAllowedSharedFolders()
     {
-        if (NetworkUtils.isNetworkAvailable(context)) {
+        if (NetworkUtils.checkIfNetworkAvailable(this)) {
 
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
 
@@ -316,6 +322,10 @@ public class NavigationSharedActivity extends BaseActivity {
                 }
             });
         }
+        else
+        {
+            internetUnAvailableWithMessage();
+        }
 
     }
 
@@ -339,7 +349,7 @@ public class NavigationSharedActivity extends BaseActivity {
 
         cancelButton.setVisibility(View.GONE);
 
-        sendPinButton.setText("OK");
+        sendPinButton.setText("Ok");
 
         sendPinButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -354,7 +364,7 @@ public class NavigationSharedActivity extends BaseActivity {
 
     private void getShareParentFolders()
     {
-        if (NetworkUtils.isNetworkAvailable(this)) {
+        if (NetworkUtils.checkIfNetworkAvailable(this)) {
 
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
 
@@ -414,6 +424,10 @@ public class NavigationSharedActivity extends BaseActivity {
                     Log.d("PinDevice error", t.getMessage());
                 }
             });
+        }
+        else
+        {
+            internetUnAvailableWithMessage();
         }
     }
 
@@ -484,6 +498,18 @@ public class NavigationSharedActivity extends BaseActivity {
             }
         });
 
+        refreshButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = getIntent();
+                overridePendingTransition(0, 0);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                finish();
+                overridePendingTransition(0, 0);
+                startActivity(intent);
+            }
+        });
+
     }
 
     private void initializeViews()
@@ -502,7 +528,7 @@ public class NavigationSharedActivity extends BaseActivity {
         bottomNavigationLayout = (BottomNavigationView) findViewById(R.id.navigation);
         cancel_textview = (TextView) findViewById(R.id.cancel_textview);
         shared_bottom_linearlayout = (LinearLayout)findViewById(R.id.shared_bottom_linearlayout);
-
+        refreshButton = (Button) findViewById(R.id.refresh_button);
 
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
@@ -534,7 +560,7 @@ public class NavigationSharedActivity extends BaseActivity {
     public void getSharedDocs()
     {
 
-        if (NetworkUtils.isNetworkAvailable(context)) {
+        if (NetworkUtils.checkIfNetworkAvailable(this)) {
 
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
 
@@ -603,6 +629,10 @@ public class NavigationSharedActivity extends BaseActivity {
                 }
             });
         }
+        else
+        {
+            internetUnAvailableWithMessage();
+        }
     }
 
 
@@ -635,6 +665,7 @@ public class NavigationSharedActivity extends BaseActivity {
                         categoryDocumentsResponse.setFilesize(objString.getString("filesize"));
                         categoryDocumentsResponse.setShared_date(objString.getString("shared_date"));
                         categoryDocumentsResponse.setCreated_date(objString.getString("shared_date"));
+                        categoryDocumentsResponse.setSharetype(objString.getString("sharetype"));
                         categoryDocumentsResponse.setCategory_id(parentDocumentId);
                         categoryDocumentsResponse.setIs_shared("1");
                         categoryDocumentsResponse.setType("document");
@@ -732,7 +763,7 @@ public class NavigationSharedActivity extends BaseActivity {
         else
         {
             empty_view.setVisibility(View.VISIBLE);
-            no_documents_txt.setText("NO DOCUMENTS FOUND.");
+            no_documents_txt.setText("No files found.");
             sorting_layout.setVisibility(View.GONE);
         }
     }
@@ -821,6 +852,32 @@ public class NavigationSharedActivity extends BaseActivity {
         }
         doLocalSorting(GlobalVariables.sharedDocsSortType);
 
+        if(GlobalVariables.refreshSharedDocumentPage)
+        {
+            clearSelectedListAfterOperation();
+            GlobalVariables.refreshSharedDocumentPage = false;
+        }
+
+        if(PreferenceUtils.getSharetypeDocumentversionid(context) != null)
+        {
+            for(GetCategoryDocumentsResponse categoryDocumentsResponse : documentsCategoryList)
+            {
+                if(categoryDocumentsResponse.getDocument_version_id().equalsIgnoreCase(PreferenceUtils.getSharetypeDocumentversionid(context)))
+                {
+                    documentsCategoryList.remove(categoryDocumentsResponse);
+                    break;
+                }
+            }
+            if (isFromList == true) {
+                mAdapterList.notifyDataSetChanged();
+            }
+            else
+            {
+                mAdapter.notifyDataSetChanged();
+            }
+            toggleEmptyState();
+            PreferenceUtils.setSharetypeDocumentversionid(context, null);
+        }
 
     }
 
@@ -883,6 +940,15 @@ public class NavigationSharedActivity extends BaseActivity {
         menuItemShare.setVisible(false);
         menuItemMove.setVisible(false);
         menuItemMore.setVisible(false);
+
+        if (!GlobalVariables.isMoveInitiated)
+        {
+            menuItemSearch.setVisible(true);
+        }
+        else
+        {
+            menuItemSearch.setVisible(false);
+        }
 
         if(mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
             String itemSelectedColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
@@ -987,7 +1053,7 @@ public class NavigationSharedActivity extends BaseActivity {
         ImageView categoryImage = (ImageView) view.findViewById(R.id.category_image);
         View line_layout = (View) view.findViewById(R.id.line_layout);
 
-        shareLayout.setVisibility(View.GONE);
+
         moveLayout.setVisibility(View.GONE);
         renameLayout.setVisibility(View.GONE);
         folder_layout.setVisibility(View.GONE);
@@ -1022,12 +1088,18 @@ public class NavigationSharedActivity extends BaseActivity {
 
 
             List<String> temporarydownloadList = new ArrayList<>();
+            List<String> temporarySharedList = new ArrayList<>();
             if (mSelectedDocumentList != null && mSelectedDocumentList.size() > 0) {
                 for (GetCategoryDocumentsResponse getcategoryResponseModel : mSelectedDocumentList) {
                     if (getcategoryResponseModel.getType() != null && getcategoryResponseModel.getType().equalsIgnoreCase("document")) {
                         OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(context);
                         if (!offLine_files_repository.checkAlreadyDocumentAvailableOrNot(getcategoryResponseModel.getDocument_version_id())) {
                             temporarydownloadList.add("Is_Download_Available");
+                        }
+
+                        if(getcategoryResponseModel.getSharetype().equalsIgnoreCase("1"))
+                        {
+                            temporarySharedList.add("Is_Shared_Available");
                         }
                     }
 
@@ -1041,8 +1113,15 @@ public class NavigationSharedActivity extends BaseActivity {
                 download.setChecked(false);
             }
 
-
-
+        if(temporarySharedList != null && temporarySharedList.size() == mSelectedDocumentList.size())
+        {
+            shareLayout.setVisibility(View.VISIBLE);
+            switchButton_share.setChecked(true);
+        }
+        else
+        {
+            shareLayout.setVisibility(View.GONE);
+        }
 
             copyLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -1064,15 +1143,17 @@ public class NavigationSharedActivity extends BaseActivity {
                 public void onClick(View v) {
                     GlobalVariables.isMultiSelect = false;
                     mBottomSheetDialog.dismiss();
+                    GlobalVariables.refreshSharedDocumentPage = true;
                     if (mSelectedDocumentList != null && mSelectedDocumentList.size() == 1) {
                         PreferenceUtils.setDocumentVersionId(context, mSelectedDocumentList.get(0).getDocument_version_id());
                         PreferenceUtils.setDocument_Id(context, mSelectedDocumentList.get(0).getObject_id());
                     }
 
                     Intent intent = new Intent(context, Tab_Activity.class);
+                    intent.putExtra(Constants.DOCUMENT_NAME, mSelectedDocumentList.get(0).getName());
                     intent.putExtra("IsFromShared", true);
-                    context.startActivity(intent);
-                    clearSelectedListAfterOperation();
+                    startActivity(intent);
+                  //  clearSelectedListAfterOperation();
                 }
             });
 
@@ -1090,6 +1171,32 @@ public class NavigationSharedActivity extends BaseActivity {
                     updateToolbarMenuItems(dummyList);
                 }
             });
+
+
+        switchButton_share.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
+        {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+            {
+
+                GlobalVariables.isMultiSelect = false;
+                if(buttonView.isPressed() == true) {
+                    mBottomSheetDialog.dismiss();
+                        switchButton_share.setChecked(false);
+                        ArrayList<String> documentIdslist = new ArrayList<>();
+                        for(GetCategoryDocumentsResponse categoryDocumentsResponse : mSelectedDocumentList)
+                        {
+                            documentIdslist.add(categoryDocumentsResponse.getObject_id());
+                        }
+
+                        if(documentIdslist !=null && documentIdslist.size() > 0)
+                        {
+                            showWarningMessageAlertForSharingContent(documentIdslist, mSelectedDocumentList);
+                        }
+
+                }
+            }
+        });
 
 
             download.setOnTouchListener(new View.OnTouchListener() {
@@ -1210,6 +1317,121 @@ public class NavigationSharedActivity extends BaseActivity {
 
         }
 
+
+
+    private void showWarningMessageAlertForSharingContent(ArrayList<String> stopSharingList, List<GetCategoryDocumentsResponse> mSelectedDocumentList)
+    {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Stop Sharing");
+
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+        //   txtMessage.setText("This action will stop sharing the selected document(s). Company with whom this has been shared will no longer be able to view this document");
+
+        txtMessage.setText(context.getString(R.string.stop_sharing_text));
+        Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+        cancelButton.setText("Cancel");
+
+        sendPinButton.setText("Ok");
+
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+            }
+        });
+
+        sendPinButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+
+                getInternalStoppingSharingContentAPI(stopSharingList, mSelectedDocumentList);
+
+
+            }
+        });
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
+    }
+
+    private void getInternalStoppingSharingContentAPI(ArrayList<String> sharingList, List<GetCategoryDocumentsResponse> selectedDocumentList)
+    {
+        if (NetworkUtils.isNetworkAvailable(context)) {
+
+            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+
+            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
+            transparentProgressDialog.show();
+
+
+            final StopSharingRequestModel stopSharingRequestModel = new StopSharingRequestModel(sharingList, selectedDocumentList.get(0).getCategory_id());
+
+            String request = new Gson().toJson(stopSharingRequestModel);
+
+
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("data", request);
+
+            final GetEndUserParentSHaredFoldersService mGetEndUserParentSHaredstopService = retrofitAPI.create(GetEndUserParentSHaredFoldersService.class);
+
+            Call call = mGetEndUserParentSHaredstopService.getEndUserStopSharedDocuments(params, PreferenceUtils.getAccessToken(context));
+
+            call.enqueue(new Callback<com.mwc.docportal.API.Model.SharedDocumentResponseModel>() {
+                @Override
+                public void onResponse(Response<com.mwc.docportal.API.Model.SharedDocumentResponseModel> response, Retrofit retrofit) {
+
+                    if (response != null) {
+
+                        transparentProgressDialog.dismiss();
+
+                        String message = "";
+                        if(response.body().getStatus().getMessage() != null)
+                        {
+                            message = response.body().getStatus().getMessage().toString();
+                        }
+
+
+
+                        if(CommonFunctions.isApiSuccess(NavigationSharedActivity.this, message, response.body().getStatus().getCode()))
+                        {
+                            for(GetCategoryDocumentsResponse categoryDocumentsResponse : selectedDocumentList)
+                            {
+                                documentsCategoryList.remove(categoryDocumentsResponse);
+                            }
+
+                            clearSelectedListAfterOperation();
+                            if (isFromList == true) {
+                                mAdapterList.notifyDataSetChanged();
+                            }
+                            else
+                            {
+                                mAdapter.notifyDataSetChanged();
+                            }
+
+                        }
+
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
+                    Log.d("PinDevice error", t.getMessage());
+                }
+            });
+        }
+    }
 
     public void convertingDownloadUrl(List<GetCategoryDocumentsResponse> downloadedList)
     {
@@ -1477,7 +1699,7 @@ public class NavigationSharedActivity extends BaseActivity {
 
     public void getWorkSpaceCategoriesDocument()
     {
-        if (NetworkUtils.isNetworkAvailable(context)) {
+        if (NetworkUtils.checkIfNetworkAvailable(this)) {
 
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
 
@@ -1546,6 +1768,43 @@ public class NavigationSharedActivity extends BaseActivity {
                 }
             });
         }
+        else
+        {
+            internetUnAvailableWithMessage();
+        }
+    }
+
+    public void internetUnAvailableWithMessage()
+    {
+        empty_view.setVisibility(View.VISIBLE);
+        no_documents_txt.setText(getString(R.string.internet_failure_txt));
+        sorting_layout.setVisibility(View.GONE);
+        setLinkTextView();
+    }
+
+    public void setLinkTextView()
+    {
+        SpannableString spannableString = new SpannableString(getString(R.string.internet_failure_txt));
+        ClickableSpan clickableSpan = new ClickableSpan() {
+            @Override
+            public void onClick(View textView) {
+                Intent mIntent = new Intent(context, OffLine_Files_List.class);
+                startActivity(mIntent);
+            }
+
+            @Override
+            public void updateDrawState(TextPaint ds) {
+                super.updateDrawState(ds);
+                ds.setUnderlineText(false); // set to false to remove underline
+            }
+        };
+        spannableString.setSpan(clickableSpan, 53,
+                63, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        no_documents_txt.setText(spannableString,
+                TextView.BufferType.SPANNABLE);
+        no_documents_txt.setMovementMethod(LinkMovementMethod.getInstance());
+
     }
 
 
@@ -2037,16 +2296,24 @@ public class NavigationSharedActivity extends BaseActivity {
 
                         if(CommonFunctions.isApiSuccess(NavigationSharedActivity.this, message, apiResponse.status.getCode()))
                         {
-                            String mMessage = apiResponse.status.getMessage().toString();
-                            Toast.makeText(context,mMessage,Toast.LENGTH_SHORT).show();
+                          //  String mMessage = apiResponse.status.getMessage().toString();
+                            Toast.makeText(context,"Selected item(s) shared successfully",Toast.LENGTH_SHORT).show();
                             GlobalVariables.isMoveInitiated = false;
                             GlobalVariables.selectedActionName = "";
                             GlobalVariables.selectedDocumentsList.clear();
 
-                            Intent intent = new Intent(context, NavigationSharedActivity.class);
+                            /*Intent intent = new Intent(context, NavigationSharedActivity.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                             intent.putExtra("ObjectId", "0");
+                            startActivity(intent);*/
+
+
+                            Intent intent = new Intent(context, NavigationMyFolderActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                            intent.putExtra("IsFromUpload", "Upload");
                             startActivity(intent);
+                            finish();
+
                         }
 
 

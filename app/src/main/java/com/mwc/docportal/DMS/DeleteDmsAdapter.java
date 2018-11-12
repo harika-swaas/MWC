@@ -250,7 +250,7 @@ public class DeleteDmsAdapter extends RecyclerView.Adapter<DeleteDmsAdapter.View
 
                             cancelButton.setVisibility(View.GONE);
 
-                            sendPinButton.setText("OK");
+                            sendPinButton.setText("Ok");
 
                             sendPinButton.setOnClickListener(new View.OnClickListener() {
                                 @Override

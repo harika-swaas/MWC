@@ -72,7 +72,7 @@ public class Constants {
     public static final String Logo_Image_Name = "/mwc-logo.png";
 
     public static final String Folder_Name = ".Doc_Portal";
-
+    public static final String DOCUMENT_NAME = "Document_Name";
 }
 
 

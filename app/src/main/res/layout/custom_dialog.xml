@@ -91,6 +91,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/cancel"
+                    android:textAllCaps="false"
                     android:textColor="#717171"
                     android:background="?android:attr/selectableItemBackground"
                     android:textSize="16sp"/>
@@ -101,6 +102,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/allow_alert"
                     android:textColor="#717171"
+                    android:textAllCaps="false"
                     android:background="?android:attr/selectableItemBackground"
                     android:textSize="16sp"/>
 

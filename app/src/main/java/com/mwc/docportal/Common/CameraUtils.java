@@ -115,15 +115,15 @@ public class CameraUtils {
 
         // Preparing media file naming convention
         // adds timestamp
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss",
+        String timeStamp = new SimpleDateFormat("ddMMyyHHmmss",
                 Locale.getDefault()).format(new Date());
         File mediaFile;
         if (type == MyFoldersDMSActivity.MEDIA_TYPE_IMAGE) {
             mediaFile = new File(mediaStorageDir.getPath() + File.separator
-                    + "IMG_" + timeStamp + "." + MyFoldersDMSActivity.IMAGE_EXTENSION);
+                    + "Image_" + timeStamp + "." + MyFoldersDMSActivity.IMAGE_EXTENSION);
         } else if (type == MyFoldersDMSActivity.MEDIA_TYPE_VIDEO) {
             mediaFile = new File(mediaStorageDir.getPath() + File.separator
-                    + "VID_" + timeStamp + "." + MyFoldersDMSActivity.VIDEO_EXTENSION);
+                    + "Video_" + timeStamp + "." + MyFoldersDMSActivity.VIDEO_EXTENSION);
         } else {
             return null;
         }

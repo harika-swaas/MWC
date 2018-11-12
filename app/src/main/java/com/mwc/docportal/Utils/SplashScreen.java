@@ -247,7 +247,7 @@ public class SplashScreen extends RootActivity {
 
 
             } else {
-                Toast.makeText(context, "You have cancelled this action.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "You have cancelled this action", Toast.LENGTH_SHORT).show();
                 finish();
                 moveTaskToBack(true);
                 //    showAuthenticationFailureMessage();
@@ -273,8 +273,8 @@ public class SplashScreen extends RootActivity {
         TextView title = (TextView) view1.findViewById(R.id.title);
         TextView content = (TextView) view1.findViewById(R.id.content_data);
       //  content.setText("Please confirm your "+getResources().getString(R.string.app_name)+" password");
-        content.setText("Please enter your password.");
-        title.setText("Enter Password.");
+        content.setText("Please enter a password");
+        title.setText("Enter password");
         allow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -282,7 +282,7 @@ public class SplashScreen extends RootActivity {
 
                 if(password_txt == null || password_txt.isEmpty())
                 {
-                    Toast.makeText(context, "Please enter password", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Please enter a password", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -408,7 +408,7 @@ public class SplashScreen extends RootActivity {
 
         cancelButton.setVisibility(View.GONE);
 
-        okButton.setText("OK");
+        okButton.setText("Ok");
 
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -439,14 +439,14 @@ public class SplashScreen extends RootActivity {
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 
-        txtMessage.setText("You have cancelled this action.");
+        txtMessage.setText("You have cancelled this action");
 
         Button okButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
         cancelButton.setVisibility(View.GONE);
 
-        okButton.setText("OK");
+        okButton.setText("Ok");
 
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -484,7 +484,7 @@ public class SplashScreen extends RootActivity {
 
         cancelButton.setVisibility(View.GONE);
 
-        okButton.setText("OK");
+        okButton.setText("Ok");
 
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -522,7 +522,7 @@ public class SplashScreen extends RootActivity {
 
         cancelButton.setVisibility(View.GONE);
 
-        okButton.setText("OK");
+        okButton.setText("Ok");
 
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override

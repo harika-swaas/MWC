@@ -459,7 +459,7 @@ public class GlobalSearchActivity extends RootActivity implements SearchView.OnQ
 
         cancelButton.setVisibility(View.GONE);
 
-        sendPinButton.setText("OK");
+        sendPinButton.setText("Ok");
 
         sendPinButton.setOnClickListener(new View.OnClickListener() {
             @Override

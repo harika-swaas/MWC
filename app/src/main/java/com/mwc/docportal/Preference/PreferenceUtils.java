@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mwc.docportal.API.Model.FTLPINResponse;
+import com.mwc.docportal.API.Model.GetCategoryDocumentsResponse;
 import com.mwc.docportal.API.Model.LoginResponse;
 
 import java.lang.reflect.Type;
@@ -46,6 +47,8 @@ public class PreferenceUtils {
     private static final String PUSH_NOTIFICATION_DOCUMENT_SHARE = "push_notification_document_share";
 
     private static final String LOGO_IMAGE_PATH = "logo_image_path";
+    private static final String DOCUMENT_NAME = "document_Name";
+    private static final String SHARETYPE_DOCUMENTVERSIONID = "shareType_documentVersionId";
 
 
     public static void setAccessToken(Context context, String accesstoken) {
@@ -421,6 +424,32 @@ public class PreferenceUtils {
         SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
         String imagePath = sharedPreferences.getString(LOGO_IMAGE_PATH, null);
         return imagePath;
+    }
+
+    public static void setDocumentName(Context context, String documentName) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(DOCUMENT_NAME, documentName);
+        editor.commit();
+    }
+
+    public static String getDocumentName(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        String documentName = sharedPreferences.getString(DOCUMENT_NAME, null);
+        return documentName;
+    }
+
+    public static void setSharetypeDocumentversionid(Context context, String documentVersionId) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(SHARETYPE_DOCUMENTVERSIONID, documentVersionId);
+        editor.commit();
+    }
+
+    public static String getSharetypeDocumentversionid(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        String versionid = sharedPreferences.getString(SHARETYPE_DOCUMENTVERSIONID, null);
+        return versionid;
     }
 
 }

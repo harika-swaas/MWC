@@ -353,7 +353,7 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
         builder.setCancelable(false);
 
         TextView title = (TextView) view.findViewById(R.id.title);
-        title.setText("SHARE");
+        title.setText("Share");
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 
@@ -362,9 +362,9 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
         Button okButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
-        cancelButton.setText("CANCEL");
+        cancelButton.setText("Cancel");
 
-        okButton.setText("SHARE");
+        okButton.setText("Share");
 
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -599,10 +599,20 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
         categoryDocumentlist.add(categoryDocumentsResponse);
         CommonFunctions.setSelectedItems(categoryDocumentlist);
 
-        shareView.setVisibility(View.GONE);
+
         rename_layout.setVisibility(View.GONE);
         move.setVisibility(View.GONE);
         delete.setVisibility(View.GONE);
+
+        if(categoryDocumentsResponse.getSharetype().equals("1"))
+        {
+            shareView.setVisibility(View.VISIBLE);
+            switchButton_share.setChecked(true);
+        }
+        else
+        {
+            shareView.setVisibility(View.GONE);
+        }
 
 
         final Dialog mBottomSheetDialog = new Dialog(context, R.style.MaterialDialogSheet);
@@ -627,7 +637,6 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(buttonView.isPressed() == true) {
                     if (isChecked) {
-
                         switchButton_download.setChecked(true);
                         if (context instanceof NavigationSharedActivity) {
                             ((NavigationSharedActivity) context).getDownloadurlFromServiceSingleDocument(categoryDocumentsResponse);
@@ -651,6 +660,20 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
                     }
 
 
+                }
+            }
+        });
+
+
+        switchButton_share.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
+        {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+            {
+                if(buttonView.isPressed() == true) {
+                    mBottomSheetDialog.dismiss();
+                    switchButton_share.setChecked(false);
+                    showWarningMessageAlertForSharingContent(categoryDocumentsResponse);
                 }
             }
         });
@@ -681,6 +704,7 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
                 PreferenceUtils.setDocument_Id(context, categoryDocumentsResponse.getObject_id());
                 Intent intent = new Intent (context,Tab_Activity.class);
                 intent.putExtra("IsFromShared", true);
+                intent.putExtra(Constants.DOCUMENT_NAME, categoryDocumentsResponse.getName());
                 context.startActivity(intent);
             }
         });
@@ -733,4 +757,109 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
         doc_id.remove(k);
         return doc_id;
     }
+
+    private void showWarningMessageAlertForSharingContent(final GetCategoryDocumentsResponse categoryDocumentsResponse)
+    {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Stop Sharing");
+
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+        txtMessage.setText(context.getString(R.string.stop_sharing_text));
+        Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+        cancelButton.setText("Cancel");
+
+        sendPinButton.setText("Ok");
+
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+            }
+        });
+
+        sendPinButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+
+                ArrayList<String> documentIdslist = new ArrayList<>();
+                documentIdslist.add(categoryDocumentsResponse.getObject_id());
+                getInternalStoppingSharingContentAPI(categoryDocumentsResponse, documentIdslist, categoryDocumentsResponse.getCategory_id());
+
+
+            }
+        });
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
+    }
+
+    private void getInternalStoppingSharingContentAPI(GetCategoryDocumentsResponse categoryDocumentsResponse, ArrayList<String> documentIdslist, String category_id)
+    {
+        if (NetworkUtils.isNetworkAvailable(context)) {
+
+            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+
+            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
+            transparentProgressDialog.show();
+
+
+            final StopSharingRequestModel deleteEndUserFolderRequest = new StopSharingRequestModel(documentIdslist,category_id);
+
+            String request = new Gson().toJson(deleteEndUserFolderRequest);
+
+
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("data", request);
+
+            final GetEndUserParentSHaredFoldersService mGetEndUserParentSHaredstopService = retrofitAPI.create(GetEndUserParentSHaredFoldersService.class);
+
+            Call call = mGetEndUserParentSHaredstopService.getEndUserStopSharedDocuments(params, PreferenceUtils.getAccessToken(context));
+
+            call.enqueue(new Callback<SharedDocumentResponseModel>() {
+                @Override
+                public void onResponse(Response<SharedDocumentResponseModel> response, Retrofit retrofit) {
+
+                    if (response != null) {
+
+                        transparentProgressDialog.dismiss();
+                        String message = "";
+                        if(response.body().getStatus().getMessage() != null)
+                        {
+                            message = response.body().getStatus().getMessage().toString();
+                        }
+
+                        /*mGetCategoryDocumentsResponses.remove(categoryDocumentsResponse);
+                        notifyDataSetChanged();*/
+
+                        if(CommonFunctions.isApiSuccess(context, message, response.body().getStatus().getCode()))
+                        {
+                            mGetCategoryDocumentsResponses.remove(categoryDocumentsResponse);
+                            notifyDataSetChanged();
+                        }
+
+
+
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    transparentProgressDialog.dismiss();
+                    CommonFunctions.showTimeoutAlert(context);
+                    Log.d("PinDevice error", t.getMessage());
+                }
+            });
+        }
+    }
+
 }

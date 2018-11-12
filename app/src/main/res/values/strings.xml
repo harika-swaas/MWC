@@ -1,7 +1,7 @@
 <resources>
     <string name="versionCode">2</string>
     <string name="versionName">1.1</string>
-    <string name="app_name">DocumentPortal</string>
+    <string name="app_name">Doc Portal</string>
     <string name="ok">Ok</string>
     <string name="snackbar_download">DOWNLOAD</string>
     <string name="login">Login</string>
@@ -12,7 +12,7 @@
     <string name="registration">Registration</string>
     <string name="ftl_registration">To login for the first time we will need you to enter some details to register and activate the account.
         Follow the simple steps over the next few screens to get going. Start by entering the email address registered for this account in the field below</string>
-    <string name="whats_your_email_id">Please enter your Email Address</string>
+    <string name="whats_your_email_id">Please enter your email address</string>
     <string name="email">Email</string>
     <string name="enter_email_id">Enter Email ID</string>
     <string name="pin_verification">PIN Verification</string>
@@ -38,8 +38,8 @@
     <string name="lets_start">Let\'s Start!</string>
     <string name="mobile">Mobile number</string>
     <string name="err_msg_email">Please enter your email address</string>
-    <string name="err_msg_mobile">Please provide valid mobile number</string>
-    <string name="pin_verification_dialog_msg">As an additional security step you will shortly receive a PIN to you registered mobile phone.</string>
+    <string name="err_msg_mobile">Please enter valid mobile number</string>
+    <string name="pin_verification_dialog_msg">As an additional security step you will shortly receive a PIN to your registered mobile phone.</string>
     <string name="send_pin">Send PIN</string>
     <string name="cancel">Cancel</string>
     <string name="send_again_pin">SEND PIN AGAIN</string>
@@ -57,7 +57,7 @@
     <string name="skip">Skip</string>
     <string name="touch_id_ques">Would you like to use the device unlock method to access DOC PORTAL</string>
     <string name="touch_id_body">You can login using your device authentication (pattern, touch, passcode ID). Please click below to enable</string>
-    <string name="login_verification_text">As an additional security step you will shortly receive a PIN to you registered mobile phone.</string>
+    <string name="login_verification_text">As an additional security step you will shortly receive a PIN to your registered mobile phone.</string>
     <string name="enable_notification">Notification for "DOC PORTAL"</string>
     <string name="enable_notification_button">Proceed</string>
     <string name="alert_title">\"DOC PORTAL\" Would like to Send You Notifcations</string>
@@ -137,6 +137,9 @@
     <string name="camera">Camera</string>
     <string name="photo_library">Photo library</string>
     <string name="browse">Browse</string>
+    <string name="pick_image">Select Image</string>
+    <string name="pick_video">Select Video</string>
+    <string name="pick_documents">Select File</string>
     <string name="video">Video</string>
     <string name="user_name_txt">User Name</string>
     <string name="user_offline_files_txt">Offline Files</string>
@@ -166,4 +169,6 @@
     <string name="upload_txt">Your file(s) are being uploaded and will be available in your account in a few minutes</string>
     <string name="internal_share_txt">Please choose a location to share into</string>
     <string name="upload_failed_txt">One or more files not uploaded. Tap here to see details</string>
+    <string name="internet_failure_txt">Please check that you are connected to the internet. Click here to view files you have made available offline.</string>
+
 </resources>

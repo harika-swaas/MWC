@@ -120,7 +120,7 @@ public class Notes_Fragment extends android.support.v4.app.Fragment {
                             }
                             else
                             {
-                                notes_empty_txt.setText("No document notes found");
+                                notes_empty_txt.setText("No notes found.");
                                 empty_view.setVisibility(View.VISIBLE);
                             }
 

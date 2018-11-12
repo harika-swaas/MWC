@@ -500,6 +500,7 @@ public class AccountSettings {
         GlobalVariables.moveOriginIndex = 0;
         GlobalVariables.activityFinishCount = 0;
         GlobalVariables.refreshPage = false;
+        GlobalVariables.refreshSharedDocumentPage = false;
 
         Intent intent = new Intent(mContext, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);

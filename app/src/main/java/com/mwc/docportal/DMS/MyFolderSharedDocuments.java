@@ -147,7 +147,7 @@ public class MyFolderSharedDocuments extends RootActivity {
 
                                 cancelButton.setVisibility(View.GONE);
 
-                                sendPinButton.setText("OK");
+                                sendPinButton.setText("Ok");
 
                                 sendPinButton.setOnClickListener(new View.OnClickListener() {
                                     @Override
@@ -267,7 +267,7 @@ public class MyFolderSharedDocuments extends RootActivity {
 
                                         cancelButton.setVisibility(View.GONE);
 
-                                        sendPinButton.setText("OK");
+                                        sendPinButton.setText("Ok");
 
                                         sendPinButton.setOnClickListener(new View.OnClickListener() {
                                             @Override

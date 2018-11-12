@@ -430,7 +430,7 @@ public class FTLPinVerificationFragment extends Fragment {
                                         mDialog.setMessage(mMessage);
 
                                         // Setting OK Button
-                                        mDialog.setButton("OK", new DialogInterface.OnClickListener() {
+                                        mDialog.setButton("Ok", new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int which) {
                                                 // Write your code here to execute after dialog closed
                                                 mActivity.startActivity(new Intent(mActivity, LoginActivity.class));
@@ -992,7 +992,7 @@ public class FTLPinVerificationFragment extends Fragment {
 
         cancelButton.setVisibility(View.GONE);
 
-        okButton.setText("OK");
+        okButton.setText("Ok");
 
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1055,7 +1055,7 @@ public class FTLPinVerificationFragment extends Fragment {
 
         cancelButton.setVisibility(View.GONE);
 
-        okButton.setText("OK");
+        okButton.setText("Ok");
 
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1089,7 +1089,7 @@ public class FTLPinVerificationFragment extends Fragment {
 
         cancelButton.setVisibility(View.GONE);
 
-        okButton.setText("OK");
+        okButton.setText("Ok");
 
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override

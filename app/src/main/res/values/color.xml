@@ -151,6 +151,6 @@
     <color name="black_45">#737373</color>
 
     <color name="notification_icon_color">#25a3dd</color>
-
+<color name="button_default_color">#717171</color>
 
 </resources>
