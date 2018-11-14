@@ -91,7 +91,7 @@ public class OffLine_Files_List extends RootActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(getResources().getDrawable(R.mipmap.ic_back));
-        getSupportActionBar().setTitle("Offline");
+        getSupportActionBar().setTitle("Offline Files");
         empty_view = (LinearLayout)findViewById(R.id.empty_view);
 
     }

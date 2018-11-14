@@ -8,8 +8,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.RectShape;
 import android.os.Parcelable;
 import android.os.StrictMode;
 import android.support.design.widget.BottomNavigationView;
@@ -167,6 +170,7 @@ public class NavigationSharedActivity extends BaseActivity {
         getWhiteLabelProperities();
         no_documents_txt.setText("");
         mRecyclerView.setNestedScrollingEnabled(false);
+        itemSelectedColorApplied();
 
         transparentProgressDialog = new LoadingProgressDialog(context);
 
@@ -775,6 +779,9 @@ public class NavigationSharedActivity extends BaseActivity {
         toggle.setImageResource(R.mipmap.ic_grid);
         int mNoOfColumns = GridAutofitLayoutManager.calculateNoOfColumns(getApplicationContext());
         mRecyclerView.setLayoutManager(new GridLayoutManager(context, mNoOfColumns));
+        while (mRecyclerView.getItemDecorationCount() > 0) {
+            mRecyclerView.removeItemDecorationAt(0);
+        }
         mAdapter = new SharedFolderAdapter(getCategoryDocumentsResponses, NavigationSharedActivity.this, ObjectId);
         mRecyclerView.setAdapter(mAdapter);
         Log.d("After Adapter Reload", DateHelper.getCurrentTime());
@@ -877,6 +884,16 @@ public class NavigationSharedActivity extends BaseActivity {
             }
             toggleEmptyState();
             PreferenceUtils.setSharetypeDocumentversionid(context, null);
+        }
+
+        if(!NetworkUtils.checkIfNetworkAvailable(this))
+        {
+            internetUnAvailableWithMessage();
+            mRecyclerView.setVisibility(View.GONE);
+        }
+        else
+        {
+            mRecyclerView.setVisibility(View.VISIBLE);
         }
 
     }
@@ -2297,7 +2314,7 @@ public class NavigationSharedActivity extends BaseActivity {
                         if(CommonFunctions.isApiSuccess(NavigationSharedActivity.this, message, apiResponse.status.getCode()))
                         {
                           //  String mMessage = apiResponse.status.getMessage().toString();
-                            Toast.makeText(context,"Selected item(s) shared successfully",Toast.LENGTH_SHORT).show();
+                        //    Toast.makeText(context,"Selected item(s) shared successfully",Toast.LENGTH_SHORT).show();
                             GlobalVariables.isMoveInitiated = false;
                             GlobalVariables.selectedActionName = "";
                             GlobalVariables.selectedDocumentsList.clear();
@@ -2346,6 +2363,24 @@ public class NavigationSharedActivity extends BaseActivity {
     public void assigningMoveOriginIndex()
     {
         GlobalVariables.moveOriginIndex = GlobalVariables.activityCount;
+    }
+
+    private void itemSelectedColorApplied()
+    {
+
+        if(mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0)
+        {
+            String itemSelectedColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
+            int selectedColor = Color.parseColor(itemSelectedColor);
+            ShapeDrawable shapedrawable = new ShapeDrawable();
+            shapedrawable.setShape(new RectShape());
+            shapedrawable.getPaint().setColor(selectedColor);
+            shapedrawable.getPaint().setStrokeWidth(2f);
+            shapedrawable.getPaint().setStyle(Paint.Style.STROKE);
+            refreshButton.setBackground(shapedrawable);
+            refreshButton.setTextColor(selectedColor);
+        }
+
     }
 
 

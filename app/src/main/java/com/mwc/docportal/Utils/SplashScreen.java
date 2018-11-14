@@ -492,7 +492,6 @@ public class SplashScreen extends RootActivity {
                 mAlertDialog.dismiss();
                 AccountSettings accountSettings = new AccountSettings(context);
                 accountSettings.LogouData();
-                context.startActivity(new Intent(context, LoginActivity.class));
             }
         });
 

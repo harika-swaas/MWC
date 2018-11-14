@@ -113,7 +113,6 @@ public class UploadListAdapter extends RecyclerView.Adapter<UploadListAdapter.Vi
                 @Override
                 public void onClick(View v) {
 
-                    {
                         // Toast.makeText(UploadListActivity.this, String.valueOf(size1) + "files were not uploaded", Toast.LENGTH_SHORT).show();
 
                         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -123,12 +122,13 @@ public class UploadListAdapter extends RecyclerView.Adapter<UploadListAdapter.Vi
                         builder.setCancelable(false);
 
                         final Button BtnAllow = (Button) view.findViewById(R.id.allow_button);
-                        BtnAllow.setText("Ok");
+                        BtnAllow.setText("Remove");
                         final Button BtnCancel = (Button) view.findViewById(R.id.cancel_button);
                         TextView textView =(TextView) view.findViewById(R.id.txt_message);
                         textView.setVisibility(View.GONE);
                         TextView text = (TextView) view.findViewById(R.id.message);
-                        text.setText("Are you sure you want to delete "+ uploadList.get(position).substring(uploadList.get(position).lastIndexOf("/") + 1));
+                      //  text.setText("Are you sure you want to delete "+ uploadList.get(position).substring(uploadList.get(position).lastIndexOf("/") + 1));
+                        text.setText("Do you want to remove?");
                         mCustomAlertDialog = builder.create();
                         mCustomAlertDialog.show();
                         BtnAllow.setOnClickListener(new View.OnClickListener() {
@@ -149,9 +149,6 @@ public class UploadListAdapter extends RecyclerView.Adapter<UploadListAdapter.Vi
                                 mCustomAlertDialog.dismiss();
                             }
                         });
-
-
-                    }
 
                 }
             });

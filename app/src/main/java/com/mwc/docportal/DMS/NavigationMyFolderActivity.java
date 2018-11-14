@@ -13,8 +13,12 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.RectShape;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -29,6 +33,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -61,10 +66,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.github.angads25.filepicker.controller.DialogSelectionListener;
-import com.github.angads25.filepicker.model.DialogConfigs;
-import com.github.angads25.filepicker.model.DialogProperties;
-import com.github.angads25.filepicker.view.FilePickerDialog;
+
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
 import com.google.gson.Gson;
@@ -257,6 +259,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         OnClickListeners();
         getWhiteLabelProperities();
         no_documents_txt.setText("");
+        itemSelectedColorApplied();
 
         transparentProgressDialog = new LoadingProgressDialog(context);
 
@@ -304,6 +307,27 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
     }
 
+    private void itemSelectedColorApplied()
+    {
+
+        if(mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0)
+        {
+            String itemSelectedColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
+            int selectedColor = Color.parseColor(itemSelectedColor);
+            floatingActionMenu.setMenuButtonColorNormal(selectedColor);
+            floatingActionMenu.setMenuButtonColorPressed(selectedColor);
+
+            ShapeDrawable shapedrawable = new ShapeDrawable();
+            shapedrawable.setShape(new RectShape());
+            shapedrawable.getPaint().setColor(selectedColor);
+            shapedrawable.getPaint().setStrokeWidth(2f);
+            shapedrawable.getPaint().setStyle(Paint.Style.STROKE);
+            refreshButton.setBackground(shapedrawable);
+            refreshButton.setTextColor(selectedColor);
+        }
+
+    }
+
     private void incrementActivityCount()
     {
         GlobalVariables.activityCount++;
@@ -345,7 +369,15 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
     private void hideBottomView()
     {
         bottomNavigationLayout.setVisibility(View.VISIBLE);
-        sorting_layout.setVisibility(View.VISIBLE);
+        if(mGetCategoryDocumentsResponses != null && mGetCategoryDocumentsResponses.size() > 0)
+        {
+            sorting_layout.setVisibility(View.VISIBLE);
+        }
+        else
+        {
+            sorting_layout.setVisibility(View.GONE);
+        }
+
         move_layout.setVisibility(View.GONE);
    //     floatingActionMenu.setVisibility(View.VISIBLE);
 
@@ -760,7 +792,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                     {
                         if(cate.getType().equalsIgnoreCase("category"))
                         {
-                            if(cate.getObject_id().contains(objectId))
+                            if(cate.getObject_id().equalsIgnoreCase(objectId))
                             {
                                 filteredListForDuplicate.add(cate);
                             }
@@ -787,7 +819,31 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 {
                     if (mode == 1)
                     {
-                        delete_Folder_Move();
+                        List<GetCategoryDocumentsResponse> filteredList = new ArrayList<>();
+                        for(GetCategoryDocumentsResponse cate : GlobalVariables.selectedDocumentsList)
+                        {
+                            if(cate.getType().equalsIgnoreCase("category"))
+                            {
+                                if(cate.getObject_id().equalsIgnoreCase(objectId))
+                                {
+                                    filteredList.add(cate);
+                                }
+                            }
+
+                        }
+
+                        if(filteredList != null && filteredList.size() > 0)
+                        {
+                            showWarningMessageAlertForSourceFolderWrong();
+                            filteredList.clear();
+                        }
+                        else
+                        {
+                            delete_Folder_Move();
+                        }
+
+
+
                     }
                 }
             }
@@ -1186,7 +1242,6 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                     if (apiResponse != null) {
 
                         transparentProgressDialog.dismiss();
-                        GlobalVariables.isMoveInitiated = false;
 
 
                         String message = "";
@@ -1196,6 +1251,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                         }
 
                         if(CommonFunctions.isApiSuccess(NavigationMyFolderActivity.this, message, apiResponse.status.getCode())) {
+                            GlobalVariables.isMoveInitiated = false;
                             hideBottomView();
                             resetPageNumber();
                             getCategoryDocuments();
@@ -1250,7 +1306,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                     if (apiResponse != null) {
 
                         transparentProgressDialog.dismiss();
-                        GlobalVariables.isMoveInitiated = false;
+
 
                         String message = "";
                         if(apiResponse.status.getMessage() != null)
@@ -1262,8 +1318,9 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                         //    hideBottomView();
                          //   resetPageNumber();
                          //   getCategoryDocuments();
+                            GlobalVariables.isMoveInitiated = false;
                             GlobalVariables.refreshPage = true;
-                            Toast.makeText(context, "Selected item(s) moved successfully", Toast.LENGTH_LONG).show();
+                          //  Toast.makeText(context, "Selected item(s) moved successfully", Toast.LENGTH_LONG).show();
                             cancel_textview.performClick();
                         }
 
@@ -1316,7 +1373,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                     if (apiResponse != null) {
 
                         transparentProgressDialog.dismiss();
-                        GlobalVariables.isMoveInitiated = false;
+
 
 
                         String message = "";
@@ -1329,9 +1386,10 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                         if(CommonFunctions.isApiSuccess(NavigationMyFolderActivity.this, message, response.body().status.getCode())) {
                          //   hideBottomView();
                           //  resetPageNumber();
+                            GlobalVariables.isMoveInitiated = false;
                             GlobalVariables.refreshPage = true;
                             isFromSearchData = true;
-                            Toast.makeText(context, "Selected item(s) copied successfully", Toast.LENGTH_LONG).show();
+                        //    Toast.makeText(context, "Selected item(s) copied successfully", Toast.LENGTH_LONG).show();
                             cancel_textview.performClick();
                           //  getCategoryDocuments();
                         }
@@ -1395,8 +1453,6 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                     if (apiResponse != null) {
 
                         transparentProgressDialog.dismiss();
-                        GlobalVariables.isMoveInitiated = false;
-
 
                         String message = "";
                         if(response.body().status.getMessage() != null)
@@ -1407,8 +1463,9 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                         if(CommonFunctions.isApiSuccess(NavigationMyFolderActivity.this, message, response.body().status.getCode())) {
                          //   hideBottomView();
                         //   resetPageNumber();
+                            GlobalVariables.isMoveInitiated = false;
                             GlobalVariables.refreshPage = true;
-                            Toast.makeText(context, "Selected item(s) moved successfully", Toast.LENGTH_LONG).show();
+                       //     Toast.makeText(context, "Selected item(s) moved successfully", Toast.LENGTH_LONG).show();
                             isFromSearchData = true;
                             cancel_textview.performClick();
                           //  getCategoryDocuments();
@@ -1542,12 +1599,10 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         collapsingToolbarLayout.setExpandedTitleTextAppearance(R.style.expandedappbar);
     }
 
-
-
-    public void pickFile() {
+   /* public void pickFile() {
         DialogProperties properties = new DialogProperties();
-        /*properties.extensions = new String[]{".pdf", ".doc", ".docx", ".xlsx", ".txt", ".jpg", ".png", ".bmp", ".gif", ".tiff", ".jpeg", ".xls" ,".mp4",".mp3",".wav",".mov",".avi",".m4a",".jpeg",".mkv",".ppt",".pptx"};
-         */
+        *//*properties.extensions = new String[]{".pdf", ".doc", ".docx", ".xlsx", ".txt", ".jpg", ".png", ".bmp", ".gif", ".tiff", ".jpeg", ".xls" ,".mp4",".mp3",".wav",".mov",".avi",".m4a",".jpeg",".mkv",".ppt",".pptx"};
+         *//*
         properties.selection_mode = DialogConfigs.MULTI_MODE;
         FilePickerDialog dialog = new FilePickerDialog(context, properties);
         dialog.setTitle("Select a File");
@@ -1566,17 +1621,17 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                     }
 
              //   }
-                /*else
+                *//*else
                 {
                     Toast.makeText(context,"Please select less then 10 documents ",Toast.LENGTH_SHORT).show();
-                }*/
+                }*//*
                 Intent intent = new Intent(context,UploadListActivity.class);
                 startActivity(intent);
             }
         });
         dialog.show();
     }
-
+*/
 
     private void openBottomSheet() {
 
@@ -1989,7 +2044,11 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             ArrayList<ImageFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_IMAGE);
             for (ImageFile file : list) {
                 String path = file.getPath();
-                list_upload = new ArrayList<>(PreferenceUtils.getupload(NavigationMyFolderActivity.this, "key"));
+                list_upload = PreferenceUtils.getupload(NavigationMyFolderActivity.this, "key");
+                if(list_upload == null)
+                {
+                    list_upload = new ArrayList<>();
+                }
                 list_upload.add(path);
 
                 PreferenceUtils.setupload(NavigationMyFolderActivity.this,list_upload,"key");
@@ -2005,8 +2064,16 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             ArrayList<VideoFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_VIDEO);
             for (VideoFile file : list) {
                 String path = file.getPath();
-                list_upload = new ArrayList<>(PreferenceUtils.getupload(NavigationMyFolderActivity.this, "key"));
-                list_upload.add(path);
+                list_upload = PreferenceUtils.getupload(NavigationMyFolderActivity.this, "key");
+                if(list_upload == null)
+                {
+                    list_upload = new ArrayList<>();
+                }
+                if(path != null)
+                {
+                    list_upload.add(path);
+                }
+
                 PreferenceUtils.setupload(NavigationMyFolderActivity.this,list_upload,"key");
                 Intent intent = new Intent (context,UploadListActivity.class);
                 startActivity(intent);
@@ -2019,8 +2086,15 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             ArrayList<NormalFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_FILE);
             for (NormalFile file : list) {
                 String path = file.getPath();
-                list_upload = new ArrayList<>(PreferenceUtils.getupload(NavigationMyFolderActivity.this, "key"));
-                list_upload.add(path);
+                list_upload = PreferenceUtils.getupload(NavigationMyFolderActivity.this, "key");
+                if(list_upload == null)
+                {
+                    list_upload = new ArrayList<>();
+                }
+                if(path != null)
+                {
+                    list_upload.add(path);
+                }
                 PreferenceUtils.setupload(NavigationMyFolderActivity.this,list_upload,"key");
                 Intent intent = new Intent (context,UploadListActivity.class);
                 startActivity(intent);
@@ -2110,13 +2184,15 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
     }
 
     private void setGridAdapterToView(List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses) {
+
         toggle.setImageResource(R.mipmap.ic_grid);
         int mNoOfColumns = GridAutofitLayoutManager.calculateNoOfColumns(getApplicationContext());
         mRecyclerView.setLayoutManager(new GridLayoutManager(context, mNoOfColumns));
+        while (mRecyclerView.getItemDecorationCount() > 0) {
+            mRecyclerView.removeItemDecorationAt(0);
+        }
         mAdapter = new DmsAdapter(getCategoryDocumentsResponses, NavigationMyFolderActivity.this);
         mRecyclerView.setAdapter(mAdapter);
-
-
 
     }
 
@@ -3584,13 +3660,22 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             collapsingToolbarLayout.setTitle(categoryName);
         }
 
+        if(!NetworkUtils.checkIfNetworkAvailable(this))
+        {
+            internetUnAvailableWithMessage();
+            mRecyclerView.setVisibility(View.GONE);
+        }
+        else
+        {
+            mRecyclerView.setVisibility(View.VISIBLE);
+        }
+
     }
 
     private void clearingMoveOrCopyActivity()
     {
         if(GlobalVariables.activityFinishCount > 0)
         {
-
             GlobalVariables.activityFinishCount--;
             GlobalVariables.activityCount--;
             finish();
@@ -4115,7 +4200,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         mBottomSheetDialog.show();
 
 
-        if (objectId.equals("0")){
+        if (objectId.equals("0") || GlobalVariables.isMoveInitiated){
             camera.setVisibility(View.GONE);
             video.setVisibility(View.GONE);
             pick_image.setVisibility(View.GONE);
@@ -4129,6 +4214,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             pick_image.setVisibility(View.VISIBLE);
             pick_video.setVisibility(View.VISIBLE);
             pick_documents.setVisibility(View.VISIBLE);
+
         }
 
 

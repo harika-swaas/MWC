@@ -40,6 +40,7 @@
     <color name="thumbnail_dot_corner_color">#0d3268</color>
     <color name="thumbnail_default_color">#e7e8e9</color>
     <color name="thumbnail_default_corner_color">#737474</color>
-
+    <color name="button_default_color">#717171</color>
+    <color name="sky_blue">#42C0F0</color>
 
 </resources>

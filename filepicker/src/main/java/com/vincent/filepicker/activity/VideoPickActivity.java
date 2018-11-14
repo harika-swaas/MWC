@@ -57,6 +57,7 @@ public class VideoPickActivity extends BaseActivity {
     private RelativeLayout rl_done;
     private RelativeLayout tb_pick;
 
+    LinearLayout emptyView;
     @Override
     void permissionGranted() {
         loadData();
@@ -78,6 +79,7 @@ public class VideoPickActivity extends BaseActivity {
         tv_count.setText(mCurrentNumber + " selected");
 
         mRecyclerView = (RecyclerView) findViewById(R.id.rv_video_pick);
+        emptyView = (LinearLayout) findViewById(R.id.empty_view);
         GridLayoutManager layoutManager = new GridLayoutManager(this, COLUMN_NUMBER);
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.addItemDecoration(new DividerGridItemDecoration(this));
@@ -207,8 +209,7 @@ public class VideoPickActivity extends BaseActivity {
 
             if(directory.getName().equalsIgnoreCase(".Doc_Portal")) {
             }
-            else
-            {
+            else {
                 list.addAll(directory.getFiles());
             }
 
@@ -225,7 +226,17 @@ public class VideoPickActivity extends BaseActivity {
                 list.get(index).setSelected(true);
             }
         }
-        mAdapter.refresh(list);
+
+        if(list != null && list.size() > 0)
+        {
+            emptyView.setVisibility(View.GONE);
+            mAdapter.refresh(list);
+        }
+        else
+        {
+            emptyView.setVisibility(View.VISIBLE);
+        }
+
     }
 
     private boolean findAndAddTaken(List<VideoFile> list) {

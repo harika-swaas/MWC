@@ -50,6 +50,7 @@ import com.mwc.docportal.DMS.Tab_Activity;
 import com.mwc.docportal.DMS.UploadListActivity;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Database.OffLine_Files_Repository;
+import com.mwc.docportal.Database.PushNotificatoinSettings_Respository;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.Login.LoginActivity;
 import com.mwc.docportal.Network.NetworkUtils;
@@ -356,8 +357,10 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
         title.setText("Share");
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+        AccountSettings accountSettings = new AccountSettings(context);
+        String companyName = accountSettings.getCompanyName();
 
-        txtMessage.setText(message);
+        txtMessage.setText("You are about to share this document with "+ companyName +". Are you sure you wish to proceed?");
 
         Button okButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);

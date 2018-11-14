@@ -12,6 +12,7 @@
 
     <FrameLayout
         android:id="@+id/frame1"
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_heightPercent="40%">
@@ -27,7 +28,7 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_heightPercent="60%"
+        app:layout_heightPercent="100%"
         android:layout_below="@+id/frame1"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true">
@@ -47,6 +48,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/help_guide_alert"
+                    android:layout_marginTop="40dp"
                     android:textSize="18sp"
                     android:textColor="@color/black"
                     android:layout_gravity="center"
@@ -57,7 +59,7 @@
                     android:id="@+id/assistance_popup_body"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="60dp"
                     android:text="@string/help_guide_txt"
                     android:textSize="16sp"
                     android:textColor="@color/black"
@@ -79,7 +81,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_marginBottom="20dp"
+                    android:layout_marginBottom="30dp"
                     android:alpha="0.64"
                     android:gravity="center"
                     android:text="@string/do_not_show_again"

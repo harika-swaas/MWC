@@ -41,7 +41,7 @@
                 android:gravity="center"
                 android:textAppearance="?android:textAppearanceMedium"
                 android:textColor="@color/button_default_color"
-                android:textSize="28sp"/>
+                android:textSize="30sp"/>
 
         </RelativeLayout>
 

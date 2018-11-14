@@ -85,7 +85,7 @@ public class Notifiy extends RootActivity {
         button5 = (Button) findViewById(R.id.enable_touch_button);
         notification_body = (TextView) findViewById(R.id.notification_body);
         notification_head = (TextView) findViewById(R.id.notification_head);
-        notification_head.setText("Notifications for " + getResources().getString(R.string.app_name));
+        notification_head.setText("Notification for " + getResources().getString(R.string.app_name));
 
         boolean device_status = isNotificationChannelEnabled(Notifiy.this);
         String enabled_String = "";

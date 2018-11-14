@@ -54,7 +54,7 @@ public class ImagePickActivity extends BaseActivity {
     private LinearLayout ll_folder;
     private RelativeLayout rl_done;
     private RelativeLayout tb_pick;
-
+    LinearLayout emptyView;
     @Override
     void permissionGranted() {
         loadData();
@@ -77,6 +77,7 @@ public class ImagePickActivity extends BaseActivity {
         tv_count.setText(mCurrentNumber + " selected");
 
         mRecyclerView = (RecyclerView) findViewById(R.id.rv_image_pick);
+        emptyView = (LinearLayout) findViewById(R.id.empty_view);
         final GridLayoutManager layoutManager = new GridLayoutManager(this, COLUMN_NUMBER);
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.addItemDecoration(new DividerGridItemDecoration(this));
@@ -218,12 +219,9 @@ public class ImagePickActivity extends BaseActivity {
         for (Directory<ImageFile> directory : directories) {
             if(directory.getName().equalsIgnoreCase("Logo12345") || directory.getName().equalsIgnoreCase(".Doc_Portal"))  {
             }
-            else
-            {
+            else {
                 list.addAll(directory.getFiles());
             }
-
-
 
             // auto-select taken images?
             if (tryToFindTakenImage) {
@@ -237,7 +235,17 @@ public class ImagePickActivity extends BaseActivity {
                 list.get(index).setSelected(true);
             }
         }
-        mAdapter.refresh(list);
+
+        if(list != null && list.size() > 0)
+        {
+            emptyView.setVisibility(View.GONE);
+            mAdapter.refresh(list);
+        }
+        else
+        {
+            emptyView.setVisibility(View.VISIBLE);
+        }
+
     }
 
     private boolean findAndAddTakenImage(List<ImageFile> list) {

@@ -58,7 +58,7 @@
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:layout_marginRight="10dp"
-        android:src="@drawable/vw_selector_cbx_audio" />
+        android:src="@drawable/vw_selector_cbx" />
 
     <LinearLayout
         android:layout_width="wrap_content"

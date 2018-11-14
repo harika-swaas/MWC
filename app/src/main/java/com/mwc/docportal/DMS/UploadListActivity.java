@@ -46,19 +46,9 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.github.angads25.filepicker.controller.DialogSelectionListener;
-import com.github.angads25.filepicker.model.DialogConfigs;
-import com.github.angads25.filepicker.model.DialogProperties;
-import com.github.angads25.filepicker.view.FilePickerDialog;
 import com.google.gson.Gson;
-
-import com.mwc.docportal.Common.CommonFunctions;
-import com.mwc.docportal.Common.GlobalVariables;
 import com.mwc.docportal.Database.AccountSettings;
-import com.mwc.docportal.GlobalSearch.GlobalSearchActivity;
 import com.mwc.docportal.Login.LoginActivity;
-import com.mwc.docportal.MWCApplication;
 import com.mwc.docportal.RootActivity;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.RequestBody;
@@ -213,6 +203,12 @@ public class UploadListActivity extends RootActivity {
         {
             empty_view.setVisibility(View.VISIBLE);
             upload_layout.setVisibility(View.GONE);
+
+            Intent intent=new Intent(UploadListActivity.this,NavigationMyFolderActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            intent.putExtra("IsFromUpload", "Upload");
+            startActivity(intent);
+            finish();
         }
 
         onClickListeners();
@@ -225,6 +221,7 @@ public class UploadListActivity extends RootActivity {
             @Override
             public void onClick(View v) {
                 uploadDocuments();
+                upload_layout.setVisibility(View.GONE);
             }
         });
 
@@ -636,7 +633,7 @@ public class UploadListActivity extends RootActivity {
 
 
 
-    public void pickFile() {
+   /* public void pickFile() {
         DialogProperties properties = new DialogProperties();
        // properties.extensions = new String[]{".pdf", ".doc", ".docx", ".xlsx", ".txt", ".jpg", ".png", ".bmp", ".gif", ".tiff", ".jpeg", ".xls" ,".mp4",".mp3",".wav",".mov",".avi",".m4a",".jpeg",".mkv",".ppt",".pptx"};
         properties.selection_mode = DialogConfigs.MULTI_MODE;
@@ -654,16 +651,16 @@ public class UploadListActivity extends RootActivity {
                     }
 
                 }
-                /*else
+                *//*else
                 {
                     Toast.makeText(UploadListActivity.this,"Please select less then 10 documents ",Toast.LENGTH_SHORT).show();
-                }*/
+                }*//*
                 Intent intent = new Intent(UploadListActivity.this,UploadListActivity.class);
                 startActivity(intent);
             }
         });
         dialog.show();
-    }
+    }*/
 
     public Uri getOutputMediaFileUri(int type) {
         return Uri.fromFile(getOutputMediaFile(type));
@@ -942,6 +939,11 @@ public class UploadListActivity extends RootActivity {
         View view = inflater.inflate(R.layout.custom_dialog, null);
         builder.setView(view);
         builder.setCancelable(false);
+        TextView title = (TextView) view.findViewById(R.id.title);
+        if(buttonEnabled)
+        {
+            title.setText("Success");
+        }
 
         final Button BtnAllow = (Button) view.findViewById(R.id.allow_button);
         BtnAllow.setText("Ok");
@@ -1143,14 +1145,16 @@ public class UploadListActivity extends RootActivity {
 
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    protected void onStop() {
+        super.onStop();
         unregisterReceiver(networkReceiver);
         if (mCustomAlertDialog != null) {
             mCustomAlertDialog.dismiss();
             mCustomAlertDialog = null;
         }
     }
+
+
     private void showAlertDialogForAccessDenied(Context context, String message)
     {
 
@@ -1214,7 +1218,6 @@ public class UploadListActivity extends RootActivity {
                 mAlertDialog.dismiss();
                 AccountSettings accountSettings = new AccountSettings(context);
                 accountSettings.LogouData();
-                context.startActivity(new Intent(context, LoginActivity.class));
             }
         });
 

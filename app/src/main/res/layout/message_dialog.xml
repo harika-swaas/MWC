@@ -13,7 +13,7 @@
         android:visibility="visible">
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_centerVertical="true"
@@ -21,9 +21,10 @@
 
             <TextView
                 android:id="@+id/title"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/alert"
+                android:gravity="center"
                 android:textColor="#f1f1f1"
                 android:textSize="18dp"/>
 
@@ -78,6 +79,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/ok"
+                android:textAllCaps="false"
                 android:textColor="#717171"
                 android:background="?android:attr/selectableItemBackground" />
 

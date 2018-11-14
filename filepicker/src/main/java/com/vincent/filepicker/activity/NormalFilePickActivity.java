@@ -53,7 +53,7 @@ public class NormalFilePickActivity extends BaseActivity {
     private LinearLayout ll_folder;
     private RelativeLayout rl_done;
     private RelativeLayout tb_pick;
-
+    LinearLayout emptyView;
     @Override
     void permissionGranted() {
         loadData();
@@ -74,6 +74,7 @@ public class NormalFilePickActivity extends BaseActivity {
         tv_count.setText(mCurrentNumber + " selected");
 
         mRecyclerView = (RecyclerView) findViewById(R.id.rv_file_pick);
+        emptyView  =(LinearLayout) findViewById(R.id.empty_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.addItemDecoration(new DividerListItemDecoration(this,
@@ -171,8 +172,7 @@ public class NormalFilePickActivity extends BaseActivity {
 
             if(directory.getName().equalsIgnoreCase(".Doc_Portal")) {
             }
-            else
-            {
+            else {
                 list.addAll(directory.getFiles());
             }
           //  list.addAll(directory.getFiles());
@@ -185,6 +185,16 @@ public class NormalFilePickActivity extends BaseActivity {
             }
         }
 
-        mAdapter.refresh(list);
+        if(list != null && list.size() > 0)
+        {
+            emptyView.setVisibility(View.GONE);
+            mAdapter.refresh(list);
+        }
+        else
+        {
+            emptyView.setVisibility(View.VISIBLE);
+        }
+
+
     }
 }

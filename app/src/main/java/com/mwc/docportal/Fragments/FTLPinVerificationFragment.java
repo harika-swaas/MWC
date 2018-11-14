@@ -1097,7 +1097,6 @@ public class FTLPinVerificationFragment extends Fragment {
                 mAlertDialog.dismiss();
                 AccountSettings accountSettings = new AccountSettings(context);
                 accountSettings.LogouData();
-                context.startActivity(new Intent(context, LoginActivity.class));
             }
         });
 

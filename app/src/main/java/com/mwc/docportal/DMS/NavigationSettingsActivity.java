@@ -473,9 +473,6 @@ public class NavigationSettingsActivity extends BaseActivity {
             public void onClick(View v) {
 
                 ShowWarningMessageForLogout();
-
-
-
             }
         });
 
@@ -515,8 +512,7 @@ public class NavigationSettingsActivity extends BaseActivity {
             public void onClick(View v) {
                 mAlertDialog.dismiss();
 
-                AccountSettings accountSettings = new AccountSettings(context);
-                accountSettings.LogouData();
+                getPushNotificationDocumentService(NavigationSettingsActivity.this, "0");
 
             }
         });
@@ -763,6 +759,58 @@ public class NavigationSettingsActivity extends BaseActivity {
             backButtonCount++;
 
         }
+    }
+
+    private void getPushNotificationDocumentService(Activity activity, String register_type)
+    {
+        if (NetworkUtils.isNetworkAvailable(activity)) {
+
+            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+
+            PushNotificatoinSettings_Respository pushNotificatoinSettings_respository = new PushNotificatoinSettings_Respository(activity);
+            String DeviceTokenId = pushNotificatoinSettings_respository.getDeviceTokenFromTableStatus();
+
+            final PushNotificationRequestModel externalShareResponseModel = new PushNotificationRequestModel(DeviceTokenId, "Android", register_type);
+
+            String request = new Gson().toJson(externalShareResponseModel);
+
+            //Here the json data is add to a hash map with key data
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("data", request);
+
+            final ShareEndUserDocumentsService mGetCategoryDocumentsService = retrofitAPI.create(ShareEndUserDocumentsService.class);
+
+            Call call = mGetCategoryDocumentsService.sendPushNotificatoinStatus(params, PreferenceUtils.getAccessToken(activity));
+
+            call.enqueue(new Callback<SharedDocumentResponseModel>() {
+                @Override
+                public void onResponse(Response<SharedDocumentResponseModel> response, Retrofit retrofit) {
+
+                    if (response != null) {
+
+                        String message = "";
+                        if(response.body().getStatus().getMessage() != null)
+                        {
+                            message = response.body().getStatus().getMessage().toString();
+                        }
+
+                        if(CommonFunctions.isApiSuccess(activity, message, response.body().getStatus().getCode()))
+                        {
+                            AccountSettings accountSettings = new AccountSettings(context);
+                            accountSettings.LogouData();
+                        }
+
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    Log.d("PinDevice error", t.getMessage());
+                    CommonFunctions.showTimeoutAlert(activity);
+                }
+            });
+        }
+
     }
 
 

@@ -263,9 +263,8 @@ public class LoginAgreeTermsAcceptanceFragment extends Fragment {
             public void onClick(View v) {
 
                 AccountSettings accountSettings = new AccountSettings(mActivity);
-                accountSettings.deleteAll();
-                startActivity(new Intent(mActivity, LoginActivity.class));
-                mActivity.finish();
+                accountSettings.LogouData();
+
             }
         });
     }

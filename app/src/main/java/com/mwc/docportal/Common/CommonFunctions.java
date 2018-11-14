@@ -207,7 +207,6 @@ public class CommonFunctions
                 mAlertDialog.dismiss();
                 AccountSettings accountSettings = new AccountSettings(context);
                 accountSettings.LogouData();
-                context.startActivity(new Intent(context, LoginActivity.class));
             }
         });
 
@@ -262,11 +261,11 @@ public class CommonFunctions
             builder.setCancelable(false);
 
             TextView title = (TextView) view.findViewById(R.id.title);
-            title.setText("Alert");
+            title.setText("Success");
 
             TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 
-            txtMessage.setText("Download completed. Please view in offline files");
+            txtMessage.setText("Download completed. You can view these in Offline Files.");
 
             Button okButton = (Button) view.findViewById(R.id.send_pin_button);
             Button cancelButton = (Button) view.findViewById(R.id.cancel_button);

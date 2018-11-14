@@ -431,6 +431,24 @@ public class AccountSettings {
         return pushNotificationEnabled;
     }
 
+    public String getCompanyName()
+    {
+        String companyName = "";
+        try {
+            DBConnectionOpen();
+            String selectQuery = "SELECT Company_Name FROM tbl_Account_Settings";
+            Cursor cursor = database.rawQuery(selectQuery, null);
+            if (cursor != null && cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                companyName = cursor.getString(cursor.getColumnIndex("Company_Name"));
+            }
+            cursor.close();
+        } finally {
+            DBConnectionClose();
+        }
+        return companyName;
+    }
+
     public interface GetLoggedInCB {
         void getLoggedInSuccessCB(List<AccountSettingsResponse> accountSettingsResponses);
         void getLoggedInFailureCB(String message);

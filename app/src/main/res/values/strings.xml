@@ -7,20 +7,20 @@
     <string name="login">Login</string>
     <string name="signIn">Sign In</string>
     <string name="join_doc_portal">Registration</string>
-    <string name="login_help_txt">We\'ll help you to Login in a few  "\n" easy steps</string>
+    <string name="login_help_txt">We\'ll help you login in a few easy steps</string>
     <string name="next">Next</string>
     <string name="registration">Registration</string>
     <string name="ftl_registration">To login for the first time we will need you to enter some details to register and activate the account.
-        Follow the simple steps over the next few screens to get going. Start by entering the email address registered for this account in the field below</string>
+        Follow the simple steps over the next few screens to get going. Start by entering the email address registered for this account</string>
     <string name="whats_your_email_id">Please enter your email address</string>
     <string name="email">Email</string>
     <string name="enter_email_id">Enter Email ID</string>
     <string name="pin_verification">PIN Verification</string>
-    <string name="ftl_pin_verification_text">We have sent a PIN to the requested device. Please enter this below.</string>
+    <string name="ftl_pin_verification_text">We have sent a PIN to your registered mobile phone, please enter this below.</string>
     <string name="enter_pin_number">Enter PIN Number</string>
     <string name="pin_number">PIN Number</string>
     <string name="enter_your_pin_number">Please enter PIN</string>
-    <string name="resend_pin_text">Not received PIN?</string>
+    <string name="resend_pin_text">Not received PIN code?</string>
     <string name="resend_pin_btn_text">Resend PIN</string>
     <string name="user_name">Username</string>
     <string name="welcome_to_capital">Welcome to Capital</string>
@@ -28,7 +28,7 @@
     <string name="enter_user_name">Enter the username</string>
     <string name="password">Password</string>
     <string name="choose_password">Choose a Password</string>
-    <string name="enter_password">Password(8+ character)</string>
+    <string name="enter_password">Password</string>
     <string name="confirm_password">Confirm password</string>
     <string name="shr_button_next">Sign In</string>
     <string name="not_logged_in_before">Not logged in before?</string>
@@ -57,7 +57,7 @@
     <string name="skip">Skip</string>
     <string name="touch_id_ques">Would you like to use the device unlock method to access DOC PORTAL</string>
     <string name="touch_id_body">You can login using your device authentication (pattern, touch, passcode ID). Please click below to enable</string>
-    <string name="login_verification_text">As an additional security step you will shortly receive a PIN to your registered mobile phone.</string>
+    <string name="login_verification_text">As an additional security step you will shortly receive a PIN to your registered device.</string>
     <string name="enable_notification">Notification for "DOC PORTAL"</string>
     <string name="enable_notification_button">Proceed</string>
     <string name="alert_title">\"DOC PORTAL\" Would like to Send You Notifcations</string>
@@ -77,7 +77,7 @@
     <string name="resent_title" />
     <string name="resent_pin_msg">Pin Resent Succesfully !</string>
     <string name="ftl_username_text">This is the username you will login with.</string>
-    <string name="ftl_password_text">Please enter a password of your choosing. It must be at least 8 characters and contain one uppercase letter and one number.</string>
+    <string name="ftl_password_text">Please enter a password of your choosing. It must be at least 8 characters and contain one uppercase letter and one number</string>
     <string name="err_msg_user_name_min_length">The username should be a minimum of 5 characters</string>
     <string name="err_msg_user_name_max_length">The username should be a maximum of 45 characters</string>
     <string name="err_msg_password_min_length">Password should be minimum of 8 characters</string>
@@ -129,7 +129,7 @@
     <string name="Certificates">Certificates</string>
     <string name="Createdby">Johnsmith </string>
     <string name="date">on 12 May</string>
-    <string name="lorem">Push notifications are enabled for The Document Portal app. You can change the status from the settings page later.</string>
+    <string name="lorem">The push notifications are enabled for The Doc Portal app. You can change the status from the settings page later.</string>
     <string name="identity">Identity Validation</string>
     <string name="upload">Upload</string>
     <string name="document">Document</string>

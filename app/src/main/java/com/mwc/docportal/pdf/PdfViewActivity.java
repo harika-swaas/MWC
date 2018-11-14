@@ -2129,7 +2129,6 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                 mAlertDialog.dismiss();
                 AccountSettings accountSettings = new AccountSettings(context);
                 accountSettings.LogouData();
-                context.startActivity(new Intent(context, LoginActivity.class));
             }
         });
 

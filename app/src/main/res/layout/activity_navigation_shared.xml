@@ -165,14 +165,15 @@
 
             <Button
                 android:id="@+id/refresh_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:textAllCaps="false"
+                android:layout_width="120dp"
+                android:layout_height="37dp"
+                android:layout_marginTop="25dp"
+                android:textAllCaps="true"
                 android:text="Refresh"
                 android:textColor="@color/sky_blue"
-                android:background="?android:attr/selectableItemBackground"
-                android:textSize="18sp"/>
+                android:background="@drawable/background_rectangle"
+                style="?android:attr/borderlessButtonStyle"
+                android:textSize="16sp"/>
 
         </LinearLayout>
 
