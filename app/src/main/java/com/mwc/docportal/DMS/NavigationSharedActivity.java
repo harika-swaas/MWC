@@ -306,6 +306,7 @@ public class NavigationSharedActivity extends BaseActivity {
                                     categoryDocumentsResponse.setCategory_id(endUserSharedParentFoldersResponse.getWorkspace_id());
                                     categoryDocumentsResponse.setFilesize("0");
                                     categoryDocumentsResponse.setType("category");
+                                    categoryDocumentsResponse.setUnread_count(0);
 
                                     documentsCategoryList.add(categoryDocumentsResponse);
 
@@ -408,6 +409,7 @@ public class NavigationSharedActivity extends BaseActivity {
                                     categoryDocumentsResponse.setCategory_id(endUserSharedParentFoldersResponse.getWorkspace_id());
                                     categoryDocumentsResponse.setFilesize("0");
                                     categoryDocumentsResponse.setType("category");
+                                    categoryDocumentsResponse.setUnread_count(0);
 
                                     documentsCategoryList.add(categoryDocumentsResponse);
 
@@ -673,6 +675,7 @@ public class NavigationSharedActivity extends BaseActivity {
                         categoryDocumentsResponse.setCategory_id(parentDocumentId);
                         categoryDocumentsResponse.setIs_shared("1");
                         categoryDocumentsResponse.setType("document");
+                        categoryDocumentsResponse.setViewed(objString.getString("viewed"));
 
                         GlobalVariables.sharedDocumentList.add(categoryDocumentsResponse);
                     }
@@ -697,6 +700,7 @@ public class NavigationSharedActivity extends BaseActivity {
                         categoryDocumentsResponse.setCategory_id(parentDocumentId);
                         categoryDocumentsResponse.setFilesize("0");
                         categoryDocumentsResponse.setType("category");
+                        categoryDocumentsResponse.setUnread_count(0);
 
                         GlobalVariables.sharedDocumentList.add(categoryDocumentsResponse);
 
@@ -1348,16 +1352,18 @@ public class NavigationSharedActivity extends BaseActivity {
         title.setText("Stop Sharing");
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+    //    txtMessage.setText(context.getString(R.string.stop_sharing_text));
 
-        //   txtMessage.setText("This action will stop sharing the selected document(s). Company with whom this has been shared will no longer be able to view this document");
+        AccountSettings accountSettings = new AccountSettings(context);
+        String companyName = accountSettings.getCompanyName();
+        txtMessage.setText("You are about to share this document with "+ companyName +". Are you sure you wish to proceed?");
 
-        txtMessage.setText(context.getString(R.string.stop_sharing_text));
         Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
         cancelButton.setText("Cancel");
 
-        sendPinButton.setText("Ok");
+        sendPinButton.setText("Share");
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override

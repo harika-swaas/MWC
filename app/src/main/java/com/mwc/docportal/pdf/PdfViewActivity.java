@@ -989,7 +989,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
             rename_Layout.setVisibility(View.GONE);
             delete.setVisibility(View.GONE);
 
-            if(categoryDocumentsResponse.getSharetype().equals("1"))
+            if(categoryDocumentsResponse.getSharetype() != null && categoryDocumentsResponse.getSharetype().equals("1"))
             {
                 shareView.setVisibility(View.VISIBLE);
                 switchButton_share.setChecked(true);
@@ -1657,16 +1657,19 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
         title.setText("Stop Sharing");
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+     //   txtMessage.setText(getString(R.string.stop_sharing_text));
 
-    //    txtMessage.setText("This action will stop sharing the selected document(s). Company with whom this has been shared will no longer be able to view this document");
+        AccountSettings accountSettings = new AccountSettings(context);
+        String companyName = accountSettings.getCompanyName();
+        txtMessage.setText("You are about to share this document with "+ companyName +". Are you sure you wish to proceed?");
 
-        txtMessage.setText(getString(R.string.stop_sharing_text));
+
         Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
         cancelButton.setText("Cancel");
 
-        sendPinButton.setText("Ok");
+        sendPinButton.setText("Share");
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override

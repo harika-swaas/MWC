@@ -71,6 +71,22 @@
                                 android:src="@mipmap/ic_folder"
                                 android:layout_centerVertical="true"/>
 
+                            <TextView
+                                android:id="@+id/unread_count"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:layout_alignRight="@+id/folder"
+                                android:layout_alignTop="@+id/folder"
+                                android:background="@drawable/circle_upload_color"
+                                android:gravity="center"
+                                android:layout_marginTop="4dp"
+                                android:visibility="gone"
+                                android:textSize="10sp"
+                                android:padding="2dp"
+                                android:text="5"
+                                android:textColor="@color/white"
+                                android:textStyle="bold" />
+
                         </RelativeLayout>
 
                         <RelativeLayout

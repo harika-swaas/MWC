@@ -398,7 +398,6 @@ public class GlobalSearchActivity extends RootActivity implements SearchView.OnQ
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
                     CommonFunctions.showTimeoutAlert(context);
-                    Log.d("PinDevice error", t.getMessage());
                 }
             });
         }
@@ -424,8 +423,6 @@ public class GlobalSearchActivity extends RootActivity implements SearchView.OnQ
                 mAdapterList.notifyDataSetChanged();
             }
         }
-
-
     }
 
     private void setListAdapterToView(List<GetCategoryDocumentsResponse> globalSearchDocumentList)

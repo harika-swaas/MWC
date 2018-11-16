@@ -13,10 +13,13 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
+import android.text.SpannableString;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -137,7 +140,7 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
         public LinearLayout parentLayout;
         public RelativeLayout gridClick, thumbnailLayout;
         public ImageView imageView, selectedItemIv, thumbnailIcon, thumbnailCornerIcon, moreIcon;
-        public TextView text, thumbnailText;
+        public TextView text, thumbnailText, unread_Count_txt;
         public View layout;
         ViewHolder vh;
 
@@ -154,6 +157,7 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
             gridClick = (RelativeLayout) itemView.findViewById(R.id.grid_click);
             thumbnailLayout = (RelativeLayout) itemView.findViewById(R.id.thumbnail_layout);
             moreIcon = (ImageView) itemView.findViewById(R.id.more_icon);
+            unread_Count_txt = (TextView) itemView.findViewById(R.id.unread_count);
 
         }
     }
@@ -210,6 +214,24 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
                     }
                 }
 
+                if(mGetCategoryDocumentsResponses.get(position).getUnread_count() > 0)
+                {
+                    holder.unread_Count_txt.setVisibility(View.VISIBLE);
+                    if(mGetCategoryDocumentsResponses.get(position).getUnread_count() > 99)
+                    {
+                        holder.unread_Count_txt.setText("99+");
+                    }
+                    else
+                    {
+                        holder.unread_Count_txt.setText(String.valueOf(mGetCategoryDocumentsResponses.get(position).getUnread_count()));
+                    }
+                    holder.text.setTypeface(holder.text.getTypeface(), Typeface.BOLD);
+                }
+                else {
+                    holder.unread_Count_txt.setVisibility(View.GONE);
+                    holder.text.setTypeface(holder.text.getTypeface(), Typeface.NORMAL);
+                }
+
 
             } else if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document")) {
                 holder.imageView.setVisibility(View.GONE);
@@ -223,11 +245,20 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
                     holder.thumbnailText.setText(colorCodeModel.getFileType());
                 }
 
+                if(mGetCategoryDocumentsResponses.get(position).getViewed() != null && mGetCategoryDocumentsResponses.get(position).getViewed().equalsIgnoreCase("No"))
+                {
+                    holder.text.setTypeface(holder.text.getTypeface(), Typeface.BOLD);
+                }
+                else {
+                    holder.text.setTypeface(holder.text.getTypeface(), Typeface.NORMAL);
+                }
 
             }
 
             final String name = mGetCategoryDocumentsResponses.get(position).getName();
             holder.text.setText(name);
+
+
 
             holder.parentLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -322,15 +353,6 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
                 holder.selectedItemIv.setVisibility(View.GONE);
             }
 
-            /*if(selectedList.contains(mGetCategoryDocumentsResponses.get(position)))
-            {
-                holder.selectedItemIv.setVisibility(View.VISIBLE);
-            }
-            else
-            {
-                holder.selectedItemIv.setVisibility(View.GONE);
-            }
-*/
             holder.moreIcon.setVisibility(View.VISIBLE);
 
 
@@ -685,13 +707,17 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 
-        txtMessage.setText(context.getString(R.string.stop_sharing_text));
+        AccountSettings accountSettings = new AccountSettings(context);
+        String companyName = accountSettings.getCompanyName();
+        txtMessage.setText("You are about to share this document with "+ companyName +". Are you sure you wish to proceed?");
+
+    //    txtMessage.setText(context.getString(R.string.stop_sharing_text));
         Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
         cancelButton.setText("Cancel");
 
-        sendPinButton.setText("Ok");
+        sendPinButton.setText("Share");
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override

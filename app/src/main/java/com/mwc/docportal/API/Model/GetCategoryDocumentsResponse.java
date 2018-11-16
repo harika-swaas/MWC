@@ -49,7 +49,18 @@ public class GetCategoryDocumentsResponse implements Serializable{
     private String filename;
     private boolean isSelected = false;
     private String sharetype;
+    private String viewed;
+    private Permission permission;
+    private int unread_count;
 
+
+    public int getUnread_count() {
+        return unread_count;
+    }
+
+    public void setUnread_count(int unread_count) {
+        this.unread_count = unread_count;
+    }
 
     public String getSharetype() {
         return sharetype;
@@ -67,10 +78,14 @@ public class GetCategoryDocumentsResponse implements Serializable{
         isSelected = selected;
     }
 
-    @SerializedName("permission")
-    @Expose
-    private Permission permission;
 
+    public String getViewed() {
+        return viewed;
+    }
+
+    public void setViewed(String viewed) {
+        this.viewed = viewed;
+    }
 
     public String getFilename() {
         return filename;

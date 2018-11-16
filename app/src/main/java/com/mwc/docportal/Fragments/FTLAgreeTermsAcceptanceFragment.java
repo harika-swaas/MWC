@@ -522,7 +522,7 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
 
                 @Override
                 public void onFailure(Throwable t) {
-                    Log.d("PINVerErr", t.getMessage());
+                    Log.d("ErrorLog", t.getMessage());
                     CommonFunctions.showTimeoutAlert(mActivity);
                 }
             });

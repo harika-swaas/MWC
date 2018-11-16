@@ -372,14 +372,14 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
             move.setVisibility(View.GONE);
             delete.setVisibility(View.GONE);
 
-           /* if(categoryDocumentsResponse.getSharetype().equals("1"))
+            if(categoryDocumentsResponse.getSharetype() != null && categoryDocumentsResponse.getSharetype().equals("1"))
             {
                 shareView.setVisibility(View.VISIBLE);
                 switchButton_share.setChecked(true);
             }
             else {
                 shareView.setVisibility(View.GONE);
-            }*/
+            }
 
         }
         else
@@ -684,13 +684,18 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
         title.setText("Stop Sharing");
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-        txtMessage.setText(context.getString(R.string.stop_sharing_text));
+     //   txtMessage.setText(context.getString(R.string.stop_sharing_text));
+
+        AccountSettings accountSettings = new AccountSettings(context);
+        String companyName = accountSettings.getCompanyName();
+        txtMessage.setText("You are about to share this document with "+ companyName +". Are you sure you wish to proceed?");
+
         Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
         cancelButton.setText("Cancel");
 
-        sendPinButton.setText("Ok");
+        sendPinButton.setText("Share");
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -273,9 +273,21 @@ public class Notifiy extends RootActivity {
                             getAccountSettings();
 
                             if (mIsFromFTL) {
-                                Intent intent = new Intent(Notifiy.this, LoginHelpUserGuideActivity.class);
-                                startActivity(intent);
-                                finish();
+                                if(mAccountSettingsResponses != null && mAccountSettingsResponses.size() > 0){
+                                    if(mAccountSettingsResponses.get(0).getIs_Help_Accepted().equals("1")){
+                                        Intent intent = new Intent(Notifiy.this, LoginHelpUserGuideActivity.class);
+                                        startActivity(intent);
+                                        finish();
+                                    }
+                                    else
+                                    {
+                                        Intent intent = new Intent(Notifiy.this, NavigationMyFolderActivity.class);
+                                        startActivity(intent);
+                                        updateLoggedInStatus();
+                                        finish();
+                                    }
+                                }
+
                             } else {
                                 if(mAccountSettingsResponses != null && mAccountSettingsResponses.size() > 0){
                                     if(mAccountSettingsResponses.get(0).getIs_Terms_Accepted().equals("0")){

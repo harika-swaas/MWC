@@ -920,14 +920,18 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 
-      //  txtMessage.setText("This action will stop sharing the selected document(s). Company with whom this has been shared will no longer be able to view this document");
-        txtMessage.setText(context.getString(R.string.stop_sharing_text));
+        AccountSettings accountSettings = new AccountSettings(context);
+        String companyName = accountSettings.getCompanyName();
+
+        txtMessage.setText("You are about to share this document with "+ companyName +". Are you sure you wish to proceed?");
+
+      //  txtMessage.setText(context.getString(R.string.stop_sharing_text));
         Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
         cancelButton.setText("Cancel");
 
-        sendPinButton.setText("Ok");
+        sendPinButton.setText("Share");
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override

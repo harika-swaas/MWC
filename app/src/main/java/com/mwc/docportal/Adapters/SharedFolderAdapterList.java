@@ -8,6 +8,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
@@ -108,7 +109,7 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         public ImageView imageView, selectedItemIv, thumbnailIcon, thumbnailCornerIcon, imageMore;
-        public TextView folder_name;
+        public TextView folder_name, unread_count_txt;
         public View layout;
         public TextView folder_date, thumbnailText;
         ViewHolder vh;
@@ -135,6 +136,7 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
             thumbnailText = (TextView) itemView.findViewById(R.id.thumbnail_text);
             foldernext=(RelativeLayout)itemView.findViewById(R.id.folder_rl_2);
             list_item_click = (RelativeLayout) itemView.findViewById(R.id.list_item_click);
+            unread_count_txt = (TextView) mView.findViewById(R.id.unread_count);
 
         }
 
@@ -179,6 +181,25 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
                 final String createdDate = mGetCategoryDocumentsResponses.get(position).getCreated_date();
                 holder.folder_date.setText("Uploaded on "+createdDate);
 
+                
+                if(mGetCategoryDocumentsResponses.get(position).getUnread_count() > 0)
+                {
+                    holder.unread_count_txt.setVisibility(View.VISIBLE);
+                    if(mGetCategoryDocumentsResponses.get(position).getUnread_count() > 99)
+                    {
+                        holder.unread_count_txt.setText("99+");
+                    }
+                    else
+                    {
+                        holder.unread_count_txt.setText(String.valueOf(mGetCategoryDocumentsResponses.get(position).getUnread_count()));
+                    }
+                    holder.folder_name.setTypeface(holder.folder_name.getTypeface(), Typeface.BOLD);
+                }
+                else {
+                    holder.unread_count_txt.setVisibility(View.GONE);
+                    holder.folder_name.setTypeface(holder.folder_name.getTypeface(), Typeface.NORMAL);
+                }
+
 
             } else if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document")) {
                 holder.folderView.setVisibility(View.GONE);
@@ -197,12 +218,18 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
                 final String createdDate = mGetCategoryDocumentsResponses.get(position).getCreated_date();
                 holder.folder_date.setText("Uploaded on "+createdDate);
 
+                if(mGetCategoryDocumentsResponses.get(position).getViewed() != null && mGetCategoryDocumentsResponses.get(position).getViewed().equalsIgnoreCase("No"))
+                {
+                    holder.folder_name.setTypeface(holder.folder_name.getTypeface(), Typeface.BOLD);
+                }
+                else {
+                    holder.folder_name.setTypeface(holder.folder_name.getTypeface(), Typeface.NORMAL);
+                }
+
             }
 
             final String name = mGetCategoryDocumentsResponses.get(position).getName();
             holder.folder_name.setText(name);
-
-
 
 
             if(GlobalVariables.sharedDocsSortType.equalsIgnoreCase("name"))
@@ -357,10 +384,7 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
         title.setText("Share");
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-        AccountSettings accountSettings = new AccountSettings(context);
-        String companyName = accountSettings.getCompanyName();
-
-        txtMessage.setText("You are about to share this document with "+ companyName +". Are you sure you wish to proceed?");
+        txtMessage.setText(message);
 
         Button okButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
@@ -774,13 +798,17 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 
-        txtMessage.setText(context.getString(R.string.stop_sharing_text));
+      //  txtMessage.setText(context.getString(R.string.stop_sharing_text));
+        AccountSettings accountSettings = new AccountSettings(context);
+        String companyName = accountSettings.getCompanyName();
+        txtMessage.setText("You are about to share this document with "+ companyName +". Are you sure you wish to proceed?");
+
         Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
         cancelButton.setText("Cancel");
 
-        sendPinButton.setText("Ok");
+        sendPinButton.setText("Share");
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override

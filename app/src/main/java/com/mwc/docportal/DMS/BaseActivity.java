@@ -1,5 +1,6 @@
 package com.mwc.docportal.DMS;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -7,10 +8,15 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.internal.BottomNavigationItemView;
+import android.support.design.internal.BottomNavigationMenuView;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
 import com.mwc.docportal.API.Model.WhiteLabelResponse;
 import com.mwc.docportal.Common.GlobalVariables;
@@ -24,7 +30,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
 
     protected BottomNavigationView navigationView;
     List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList();
- //   MenuItem navigationFolder, navigationShared, navigationSettings;
+    Context context = this;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,6 +47,20 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
             setNavMenuItemThemeColors(selectedColor);
         }
 
+        showBadgeCount(navigationView, R.id.navigation_shared, "99+");
+
+
+
+    }
+
+    private void showBadgeCount(BottomNavigationView navigationView, int itemId, String badgeCountValue)
+    {
+        BottomNavigationItemView itemView = navigationView.findViewById(itemId);
+        View badge = LayoutInflater.from(context).inflate(R.layout.badge_count_item, navigationView, false);
+
+        TextView text = badge.findViewById(R.id.unread_count);
+        text.setText(badgeCountValue);
+        itemView.addView(badge);
 
     }
 
@@ -48,6 +68,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
     protected void onStart() {
         super.onStart();
         updateNavigationBarState();
+
     }
 
     // Remove inter-activity transition to avoid screen tossing on tapping bottom navigation items
@@ -73,6 +94,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
             } else if (itemId == R.id.navigation_settings) {
                 startActivity(new Intent(this, NavigationSettingsActivity.class));
             }
+
             finish();
         return true;
     }
