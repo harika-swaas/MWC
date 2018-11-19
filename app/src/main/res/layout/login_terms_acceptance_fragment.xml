@@ -14,15 +14,26 @@
         android:id="@+id/frame1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="invisible"
+        android:visibility="visible"
         app:layout_heightPercent="40%">
 
-        <ImageView
+        <!--<ImageView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-           android:src="@mipmap/logo"/>
+           android:src="@mipmap/logo"/>-->
 
+
+        <TextView
+            android:id="@+id/login_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Secure Login"
+            android:layout_gravity="center_vertical"
+            android:gravity="center"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:textColor="@color/button_default_color"
+            android:textSize="30sp"/>
 
 
     </FrameLayout>

@@ -306,7 +306,6 @@ public class NavigationSharedActivity extends BaseActivity {
                                     categoryDocumentsResponse.setCategory_id(endUserSharedParentFoldersResponse.getWorkspace_id());
                                     categoryDocumentsResponse.setFilesize("0");
                                     categoryDocumentsResponse.setType("category");
-                                    categoryDocumentsResponse.setUnread_count(0);
 
                                     documentsCategoryList.add(categoryDocumentsResponse);
 
@@ -409,7 +408,6 @@ public class NavigationSharedActivity extends BaseActivity {
                                     categoryDocumentsResponse.setCategory_id(endUserSharedParentFoldersResponse.getWorkspace_id());
                                     categoryDocumentsResponse.setFilesize("0");
                                     categoryDocumentsResponse.setType("category");
-                                    categoryDocumentsResponse.setUnread_count(0);
 
                                     documentsCategoryList.add(categoryDocumentsResponse);
 
@@ -675,8 +673,6 @@ public class NavigationSharedActivity extends BaseActivity {
                         categoryDocumentsResponse.setCategory_id(parentDocumentId);
                         categoryDocumentsResponse.setIs_shared("1");
                         categoryDocumentsResponse.setType("document");
-                        categoryDocumentsResponse.setViewed(objString.getString("viewed"));
-
                         GlobalVariables.sharedDocumentList.add(categoryDocumentsResponse);
                     }
                 }
@@ -700,7 +696,6 @@ public class NavigationSharedActivity extends BaseActivity {
                         categoryDocumentsResponse.setCategory_id(parentDocumentId);
                         categoryDocumentsResponse.setFilesize("0");
                         categoryDocumentsResponse.setType("category");
-                        categoryDocumentsResponse.setUnread_count(0);
 
                         GlobalVariables.sharedDocumentList.add(categoryDocumentsResponse);
 
@@ -879,6 +874,7 @@ public class NavigationSharedActivity extends BaseActivity {
                     break;
                 }
             }
+
             if (isFromList == true) {
                 mAdapterList.notifyDataSetChanged();
             }
@@ -887,7 +883,21 @@ public class NavigationSharedActivity extends BaseActivity {
                 mAdapter.notifyDataSetChanged();
             }
             toggleEmptyState();
+
+
+            if(GlobalVariables.sharedDocumentList != null && GlobalVariables.sharedDocumentList.size() > 0) {
+
+                for(GetCategoryDocumentsResponse categoryDocumentsResponse : GlobalVariables.sharedDocumentList)
+                {
+                    if(categoryDocumentsResponse.getDocument_version_id() != null && categoryDocumentsResponse.getDocument_version_id().equalsIgnoreCase(PreferenceUtils.getSharetypeDocumentversionid(context)))
+                    {
+                        GlobalVariables.sharedDocumentList.remove(categoryDocumentsResponse);
+                    }
+                }
+            }
+
             PreferenceUtils.setSharetypeDocumentversionid(context, null);
+
         }
 
         if(!NetworkUtils.checkIfNetworkAvailable(this))
@@ -1212,7 +1222,8 @@ public class NavigationSharedActivity extends BaseActivity {
 
                         if(documentIdslist !=null && documentIdslist.size() > 0)
                         {
-                            showWarningMessageAlertForSharingContent(documentIdslist, mSelectedDocumentList);
+                          //  showWarningMessageAlertForSharingContent(documentIdslist, mSelectedDocumentList);
+                            getInternalStoppingSharingContentAPI(documentIdslist, mSelectedDocumentList);
                         }
 
                 }
@@ -1430,6 +1441,20 @@ public class NavigationSharedActivity extends BaseActivity {
                             for(GetCategoryDocumentsResponse categoryDocumentsResponse : selectedDocumentList)
                             {
                                 documentsCategoryList.remove(categoryDocumentsResponse);
+                            }
+
+                            if(GlobalVariables.sharedDocumentList != null && GlobalVariables.sharedDocumentList.size() > 0) {
+
+                                for(GetCategoryDocumentsResponse mcategoryDocumentsResponse : GlobalVariables.sharedDocumentList)
+                                {
+                                    for(GetCategoryDocumentsResponse innercategoryDocumentsResponse : selectedDocumentList)
+                                    {
+                                        if(innercategoryDocumentsResponse.getDocument_version_id().equalsIgnoreCase(mcategoryDocumentsResponse.getDocument_version_id()))
+                                        {
+                                            GlobalVariables.sharedDocumentList.remove(innercategoryDocumentsResponse);
+                                        }
+                                    }
+                                }
                             }
 
                             clearSelectedListAfterOperation();

@@ -182,7 +182,7 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
                 holder.folder_date.setText("Uploaded on "+createdDate);
 
                 
-                if(mGetCategoryDocumentsResponses.get(position).getUnread_count() > 0)
+               /* if(mGetCategoryDocumentsResponses.get(position).getUnread_count() > 0)
                 {
                     holder.unread_count_txt.setVisibility(View.VISIBLE);
                     if(mGetCategoryDocumentsResponses.get(position).getUnread_count() > 99)
@@ -198,7 +198,7 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
                 else {
                     holder.unread_count_txt.setVisibility(View.GONE);
                     holder.folder_name.setTypeface(holder.folder_name.getTypeface(), Typeface.NORMAL);
-                }
+                }*/
 
 
             } else if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document")) {
@@ -218,13 +218,13 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
                 final String createdDate = mGetCategoryDocumentsResponses.get(position).getCreated_date();
                 holder.folder_date.setText("Uploaded on "+createdDate);
 
-                if(mGetCategoryDocumentsResponses.get(position).getViewed() != null && mGetCategoryDocumentsResponses.get(position).getViewed().equalsIgnoreCase("No"))
+                /*if(mGetCategoryDocumentsResponses.get(position).getViewed() != null && mGetCategoryDocumentsResponses.get(position).getViewed().equalsIgnoreCase("No"))
                 {
                     holder.folder_name.setTypeface(holder.folder_name.getTypeface(), Typeface.BOLD);
                 }
                 else {
                     holder.folder_name.setTypeface(holder.folder_name.getTypeface(), Typeface.NORMAL);
-                }
+                }*/
 
             }
 
@@ -365,9 +365,6 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
             {
                 holder.imageMore.setVisibility(View.GONE);
             }
-
-
-
 
         }
     }
@@ -700,7 +697,10 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
                 if(buttonView.isPressed() == true) {
                     mBottomSheetDialog.dismiss();
                     switchButton_share.setChecked(false);
-                    showWarningMessageAlertForSharingContent(categoryDocumentsResponse);
+                   // showWarningMessageAlertForSharingContent(categoryDocumentsResponse);
+                    ArrayList<String> documentIdslist = new ArrayList<>();
+                    documentIdslist.add(categoryDocumentsResponse.getObject_id());
+                    getInternalStoppingSharingContentAPI(categoryDocumentsResponse, documentIdslist, categoryDocumentsResponse.getCategory_id());
                 }
             }
         });
@@ -876,10 +876,18 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
                         {
                             mGetCategoryDocumentsResponses.remove(categoryDocumentsResponse);
                             notifyDataSetChanged();
+
+                            if(GlobalVariables.sharedDocumentList != null && GlobalVariables.sharedDocumentList.size() > 0) {
+
+                                for(GetCategoryDocumentsResponse mcategoryDocumentsResponse : GlobalVariables.sharedDocumentList)
+                                {
+                                    if(mcategoryDocumentsResponse.getDocument_version_id().equalsIgnoreCase(categoryDocumentsResponse.getDocument_version_id()))
+                                    {
+                                        GlobalVariables.sharedDocumentList.remove(categoryDocumentsResponse);
+                                    }
+                                }
+                            }
                         }
-
-
-
                     }
                 }
 

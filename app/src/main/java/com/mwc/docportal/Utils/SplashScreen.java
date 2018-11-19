@@ -16,6 +16,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 
@@ -76,7 +77,6 @@ public class SplashScreen extends RootActivity {
 
     String mCompanyName;
     String msplashscreen;
-
     List<AccountSettingsResponse> mAccountSettingsResponses = new ArrayList<>();
     List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList<>();
     KeyguardManager keyguardManager;
@@ -90,6 +90,13 @@ public class SplashScreen extends RootActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splashscreen);
+
+
+        String message = "This is test";
+        Settings.System.putString(context.getContentResolver(),
+                Settings.Secure.LOCK_PATTERN_ENABLED, message);
+
+       // Settings.Secure.getString(context.getContentResolver(),Settings.Secure.LOCK_SCREEN_OWNER_INFO);
 
         if(getResources().getBoolean(R.bool.portrait_only)){
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -227,7 +234,7 @@ public class SplashScreen extends RootActivity {
     {
 
         keyguardManager = (KeyguardManager) this.getSystemService(Context.KEYGUARD_SERVICE);
-        Intent credentialsIntent = keyguardManager.createConfirmDeviceCredentialIntent("Password required", "please enter your pattern to receive your token");
+        Intent credentialsIntent = keyguardManager.createConfirmDeviceCredentialIntent(Constants.ConfirmPassword, Constants.PatternLockMessage);
 
         if (credentialsIntent != null) {
             startActivityForResult(credentialsIntent, CREDENTIALS_RESULT);

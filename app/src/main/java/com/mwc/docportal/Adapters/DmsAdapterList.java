@@ -613,7 +613,11 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                     mBottomSheetDialog.dismiss();
                     if (!isChecked) {
                         switchButton_share.setChecked(false);
-                        showWarningMessageAlertForSharingContent(categoryDocumentsResponse);
+                      //  showWarningMessageAlertForSharingContent(categoryDocumentsResponse);
+                        ArrayList<String> documentIdslist = new ArrayList<>();
+                        documentIdslist.add(categoryDocumentsResponse.getObject_id());
+                        getInternalStoppingSharingContentAPI(documentIdslist, categoryDocumentsResponse.getCategory_id());
+
 
                     } else {
                         switchButton_share.setChecked(true);

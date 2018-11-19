@@ -60,6 +60,7 @@ import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
 import com.mwc.docportal.UserProfileActivity;
 import com.mwc.docportal.Utils.Constants;
 import com.mwc.docportal.pdf.PdfViewActivity;
+import com.vincent.filepicker.Constant;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -542,7 +543,7 @@ public class NavigationSettingsActivity extends BaseActivity {
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void checkCredentials() {
         keyguardManager = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
-        Intent credentialsIntent = keyguardManager.createConfirmDeviceCredentialIntent("Password required", "please enter your pattern to receive your token");
+        Intent credentialsIntent = keyguardManager.createConfirmDeviceCredentialIntent(Constants.ConfirmPassword, Constants.PatternLockMessage);
 
         if (credentialsIntent != null) {
             startActivityForResult(credentialsIntent, CREDENTIALS_RESULT);

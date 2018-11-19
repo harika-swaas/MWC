@@ -214,7 +214,7 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
                     }
                 }
 
-                if(mGetCategoryDocumentsResponses.get(position).getUnread_count() > 0)
+               /* if(mGetCategoryDocumentsResponses.get(position).getUnread_count() > 0)
                 {
                     holder.unread_Count_txt.setVisibility(View.VISIBLE);
                     if(mGetCategoryDocumentsResponses.get(position).getUnread_count() > 99)
@@ -230,7 +230,7 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
                 else {
                     holder.unread_Count_txt.setVisibility(View.GONE);
                     holder.text.setTypeface(holder.text.getTypeface(), Typeface.NORMAL);
-                }
+                }*/
 
 
             } else if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document")) {
@@ -245,13 +245,13 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
                     holder.thumbnailText.setText(colorCodeModel.getFileType());
                 }
 
-                if(mGetCategoryDocumentsResponses.get(position).getViewed() != null && mGetCategoryDocumentsResponses.get(position).getViewed().equalsIgnoreCase("No"))
+               /* if(mGetCategoryDocumentsResponses.get(position).getViewed() != null && mGetCategoryDocumentsResponses.get(position).getViewed().equalsIgnoreCase("No"))
                 {
                     holder.text.setTypeface(holder.text.getTypeface(), Typeface.BOLD);
                 }
                 else {
                     holder.text.setTypeface(holder.text.getTypeface(), Typeface.NORMAL);
-                }
+                }*/
 
             }
 
@@ -419,13 +419,9 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
             }
         }
 
-
         if (context instanceof NavigationSharedActivity) {
             ((NavigationSharedActivity) context).updateToolbarMenuItems(selectedUpdateList);
         }
-
-
-
     }
 
 
@@ -447,9 +443,6 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
         notifyDataSetChanged();
 
     }
-
-
-
 
 
     private void getDocumentPreviews(final GetCategoryDocumentsResponse categoryDocumentsResponse) {
@@ -686,7 +679,10 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
                 if(buttonView.isPressed() == true) {
                     mBottomSheetDialog.dismiss();
                     switchButton_share.setChecked(false);
-                    showWarningMessageAlertForSharingContent(mGetCategoryDocumentsResponses);
+                  //  showWarningMessageAlertForSharingContent(mGetCategoryDocumentsResponses);
+                    ArrayList<String> documentIdslist = new ArrayList<>();
+                    documentIdslist.add(mGetCategoryDocumentsResponses.getObject_id());
+                    getInternalStoppingSharingContentAPI(mGetCategoryDocumentsResponses, documentIdslist, mGetCategoryDocumentsResponses.getCategory_id());
                 }
             }
         });
@@ -784,6 +780,17 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
                         {
                             mGetCategoryDocumentsResponses.remove(categoryDocumentsResponse);
                             notifyDataSetChanged();
+
+                            if(GlobalVariables.sharedDocumentList != null && GlobalVariables.sharedDocumentList.size() > 0) {
+
+                                for(GetCategoryDocumentsResponse mcategoryDocumentsResponse : GlobalVariables.sharedDocumentList)
+                                {
+                                    if(mcategoryDocumentsResponse.getDocument_version_id().equalsIgnoreCase(categoryDocumentsResponse.getDocument_version_id()))
+                                    {
+                                        GlobalVariables.sharedDocumentList.remove(categoryDocumentsResponse);
+                                    }
+                                }
+                            }
                         }
 
                     }

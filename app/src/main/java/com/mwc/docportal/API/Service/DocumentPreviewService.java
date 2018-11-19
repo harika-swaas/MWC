@@ -3,6 +3,7 @@ package com.mwc.docportal.API.Service;
 import com.mwc.docportal.API.Model.BaseApiResponse;
 import com.mwc.docportal.API.Model.DocumentPreviewResponse;
 import com.mwc.docportal.API.Model.PdfDocumentResponseModel;
+import com.mwc.docportal.API.Model.SharedFolderModel.SharedDocumentReadStatusResponse;
 
 import java.util.Map;
 
@@ -21,5 +22,9 @@ public interface DocumentPreviewService {
     @POST("/generate-document-pdf-url")
     @FormUrlEncoded
     Call<PdfDocumentResponseModel> getDocumentPreviews(@FieldMap Map<String,String> params, @Header("access-token") String accessToken);
+
+    @POST("/modify-eu-share-document-status")
+    @FormUrlEncoded
+    Call<SharedDocumentReadStatusResponse> getDocumentReadStatus(@FieldMap Map<String,String> params, @Header("access-token") String accessToken);
 
 }

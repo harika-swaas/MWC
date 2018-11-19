@@ -454,7 +454,10 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
                     mBottomSheetDialog.dismiss();
                     if (!isChecked) {
                         switchButton_share.setChecked(false);
-                        showWarningMessageAlertForSharingContent(categoryDocumentsResponse);
+                    //    showWarningMessageAlertForSharingContent(categoryDocumentsResponse);
+                        ArrayList<String> documentIdslist = new ArrayList<>();
+                        documentIdslist.add(categoryDocumentsResponse.getObject_id());
+                        getInternalStoppingSharingContentAPI(documentIdslist, categoryDocumentsResponse.getCategory_id());
                     } else {
                         switchButton_share.setChecked(true);
                         showInternalShareAlertMessage();

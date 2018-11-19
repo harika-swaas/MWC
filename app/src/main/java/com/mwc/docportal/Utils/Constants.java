@@ -73,6 +73,8 @@ public class Constants {
 
     public static final String Folder_Name = ".Doc_Portal";
     public static final String DOCUMENT_NAME = "Document_Name";
+    public static final String PatternLockMessage = "Confirm your screen lock pattern, PIN or password";
+    public static final String ConfirmPassword = "Confirm your pattern";
 }
 
 

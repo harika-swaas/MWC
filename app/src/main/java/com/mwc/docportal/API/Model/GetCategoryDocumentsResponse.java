@@ -51,16 +51,8 @@ public class GetCategoryDocumentsResponse implements Serializable{
     private String sharetype;
     private String viewed;
     private Permission permission;
-    private int unread_count;
 
 
-    public int getUnread_count() {
-        return unread_count;
-    }
-
-    public void setUnread_count(int unread_count) {
-        this.unread_count = unread_count;
-    }
 
     public String getSharetype() {
         return sharetype;

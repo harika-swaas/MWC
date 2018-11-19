@@ -114,7 +114,6 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
     AlertDialog mAlertDialog;
    // private ItemClickListener mClickListener;
 
-
     private HashSet<Integer> mSelected;
  //   public List<GetCategoryDocumentsResponse> selectedList = new ArrayList<>();
     int lastItemPosition ;
@@ -617,6 +616,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
 
 
 
+
         if (mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
             String itemSelectedColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
             int selectedColor = Color.parseColor(itemSelectedColor);
@@ -748,11 +748,13 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                     mBottomSheetDialog.dismiss();
                     if (!isChecked) {
 
-                        showWarningMessageAlertForSharingContent(mGetCategoryDocumentsResponses, switchButton_share);
+                    //    showWarningMessageAlertForSharingContent(mGetCategoryDocumentsResponses, switchButton_share);
+                        ArrayList<String> documentIdslist = new ArrayList<>();
+                        documentIdslist.add(mGetCategoryDocumentsResponses.getObject_id());
+                        getInternalStoppingSharingContentAPI(documentIdslist, mGetCategoryDocumentsResponses.getCategory_id(), switchButton_share);
 
                     } else {
                         switchButton_share.setChecked(true);
-
                         if (context instanceof NavigationMyFolderActivity) {
                             ((NavigationMyFolderActivity) context).showInternalShareAlertMessage();
                         }
@@ -984,7 +986,6 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                 public void onResponse(Response<SharedDocumentResponseModel> response, Retrofit retrofit) {
 
                     if (response != null) {
-
                         transparentProgressDialog.dismiss();
 
                         String message = "";
@@ -996,7 +997,6 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                       if(CommonFunctions.isApiSuccess(context, message, response.body().getStatus().getCode()))
                       {
                           switchButton_share.setChecked(false);
-
                           if (context instanceof NavigationMyFolderActivity) {
                               ((NavigationMyFolderActivity) context).resetPageNumber();
                               ((NavigationMyFolderActivity) context).getCategoryDocuments();
@@ -1034,9 +1034,6 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         List<GetCategoryDocumentsResponse> categoryDocumentlist = new ArrayList<>();
         categoryDocumentlist.add(getCategoryDocumentsResponse);
         CommonFunctions.setSelectedItems(categoryDocumentlist);
-
-
-
 
         categoryText.setText(name);
         if (mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {

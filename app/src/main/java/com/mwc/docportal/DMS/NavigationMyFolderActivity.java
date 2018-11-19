@@ -307,7 +307,6 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
     private void itemSelectedColorApplied()
     {
-
         if(mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0)
         {
             String itemSelectedColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
@@ -2504,7 +2503,8 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
                         if(documentIdslist !=null && documentIdslist.size() > 0)
                         {
-                            showWarningMessageAlertForSharingContent(documentIdslist, mSelectedDocumentList);
+                          //  showWarningMessageAlertForSharingContent(documentIdslist, mSelectedDocumentList);
+                            getInternalStoppingSharingContentAPI(documentIdslist, mSelectedDocumentList);
                         }
 
                     } else {

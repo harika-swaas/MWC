@@ -60,6 +60,8 @@ import com.mwc.docportal.API.Model.LoginResponse;
 import com.mwc.docportal.API.Model.OfflineFiles;
 import com.mwc.docportal.API.Model.PdfDocumentResponseModel;
 import com.mwc.docportal.API.Model.SharedDocumentResponseModel;
+import com.mwc.docportal.API.Model.SharedFolderModel.SharedDocumentReadStatusRequest;
+import com.mwc.docportal.API.Model.SharedFolderModel.SharedDocumentReadStatusResponse;
 import com.mwc.docportal.API.Model.StopSharingRequestModel;
 import com.mwc.docportal.API.Model.WhiteLabelResponse;
 import com.mwc.docportal.API.Service.DeleteDocumentService;
@@ -511,10 +513,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
     @Override
     public void onStop() {
         super.onStop();
-
         isWentFromBackground = true;
-
-
     }
 
 
@@ -603,7 +602,6 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
         Log.e("Pdf","onResume");
         LoadOfflinePdf();
 
-
     }
 
 
@@ -613,10 +611,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
         super.onPause();
         Log.e("Pdf","pause");
 
-
     }
-
-
 
     @Override
     public void onPdfDownloaded(String pdfpath) {
@@ -624,8 +619,61 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
         if (pdfpath!=null){
             PdfPath = pdfpath;
             LoadOnlinePdf();
+        }
+
+       /* if(isFromDocumentShare && !isFromStatus400)
+        {
+            if(categoryDocumentsResponse.getDocument_share_id() != null && categoryDocumentsResponse.getViewed().equalsIgnoreCase("No"))
+            {
+                sentDocumentReadStatus(categoryDocumentsResponse);
+            }
+
+            updateUnreadStatusForDocument(categoryDocumentsResponse);
+           updateUnreadCountInParentFolder(categoryDocumentsResponse);
+
+        }*/
+
+    }
+
+    /*private void updateUnreadCountInParentFolder(GetCategoryDocumentsResponse categoryDocumentsResponse)
+    {
+        if(GlobalVariables.sharedDocumentList != null && GlobalVariables.sharedDocumentList.size() > 0 && !categoryDocumentsResponse.getCategory_id().equals("0"))
+        {
+            for(GetCategoryDocumentsResponse mcategoryDocumentsResponse : GlobalVariables.sharedDocumentList)
+            {
+                if(mcategoryDocumentsResponse.getCategory_id() != null && mcategoryDocumentsResponse.getCategory_id().equalsIgnoreCase(categoryDocumentsResponse.getCategory_id()))
+                {
+                    int unreadCount = mcategoryDocumentsResponse.getUnread_count();
+                    if(unreadCount > 0)
+                    {
+                        mcategoryDocumentsResponse.setUnread_count(unreadCount--);
+                    }
+
+                    updateUnreadCountInParentFolder(mcategoryDocumentsResponse);
+
+                }
+                
+            }
 
         }
+    }*/
+
+    private void updateUnreadStatusForDocument(GetCategoryDocumentsResponse categoryDocumentsResponse)
+    {
+        /*if(GlobalVariables.sharedDocumentList != null && GlobalVariables.sharedDocumentList.size() > 0)
+        {
+            for(GetCategoryDocumentsResponse mcategoryDocumentsResponse : GlobalVariables.sharedDocumentList)
+            {
+
+                if(mcategoryDocumentsResponse.getDocument_version_id() != null && mcategoryDocumentsResponse.getDocument_version_id().equalsIgnoreCase(categoryDocumentsResponse.getDocument_version_id()))
+                {
+                   // GlobalVariables.sharedDocumentList.remove(categoryDocumentsResponse);
+                    mcategoryDocumentsResponse.setViewed("Yes");
+                    break;
+                }
+            }
+
+        }*/
     }
 
     private void LoadOnlinePdf() {
@@ -643,13 +691,8 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
     @Override
     public void onPageChanged(int page, int pageCount) {
-
         Log.d("=>checkingsingle", "" + page);
-
-
     }
-
-
 
     @Override
     public void loadComplete(int nbPages) {
@@ -664,7 +707,6 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
             mPdfview.setVisibility(View.VISIBLE);
             mProgressText.setVisibility(View.GONE);
         }
-
 
         Log.e("=>pdf","onloadcomplete"+nbPages);
         mPdfview.enableSingletap(this);
@@ -698,6 +740,52 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
     }
 
+    private void sentDocumentReadStatus(GetCategoryDocumentsResponse categoryDocumentsResponse)
+    {
+        /*if (NetworkUtils.isNetworkAvailable(context)) {
+
+            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+
+
+            SharedDocumentReadStatusRequest editDocumentPropertiesRequest = new SharedDocumentReadStatusRequest(categoryDocumentsResponse.getDocument_share_id());
+
+            String request = new Gson().toJson(editDocumentPropertiesRequest);
+
+            //Here the json data is add to a hash map with key data
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("data", request);
+
+            final DocumentPreviewService documentPreviewService = retrofitAPI.create(DocumentPreviewService.class);
+
+            Call call = documentPreviewService.getDocumentReadStatus(params, PreferenceUtils.getAccessToken(context));
+
+            call.enqueue(new Callback<SharedDocumentReadStatusResponse>() {
+                @Override
+                public void onResponse(Response<SharedDocumentReadStatusResponse> response, Retrofit retrofit) {
+                    SharedDocumentReadStatusResponse apiResponse = response.body();
+                    if (apiResponse != null) {
+
+                        String message = "";
+                        if(apiResponse.getStatus().getMessage() != null)
+                        {
+                            message = apiResponse.getStatus().getMessage().toString();
+                        }
+
+                        if(CommonFunctions.isApiSuccess(PdfViewActivity.this, message, apiResponse.getStatus().getCode())) {
+                            Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+                        }
+
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    CommonFunctions.showTimeoutAlert(context);
+                    Log.d("PinDevice error", t.getMessage());
+                }
+            });
+        }*/
+    }
 
 
     @Override
@@ -710,7 +798,6 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
        /* if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-
 
             setUpLandscape();
 
@@ -806,41 +893,6 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
     }
 
-
-   /* public void showMenu(int itemId) {
-
-        switch (itemId){
-
-            case R.id.singlepage:
-
-                singlePageShow();
-
-                break;
-
-            case R.id.continuespage:
-
-                loadpdfOnlineinitial = false;
-                mMenuHolder.setVisibility(View.GONE);
-                isSinglePageTap = false;
-                mPageHolder.setVisibility(View.GONE);
-                mPdfview.setListenerForSinglePage(this);
-                mPdfview.fromFile(new File(PdfPath)).defaultPage(CurrentPageNumber)
-                        .onPageChange(this)
-                        .enableAnnotationRendering(true)
-                        .onLoad(this)
-                        .load();
-
-
-
-                break;
-
-            default:
-
-                break;
-
-        }
-
-    }*/
 
     private void singlePageShow() {
 
@@ -1010,7 +1062,11 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                     mBottomSheetDialog.dismiss();
                     if (!isChecked) {
                         switchButton_share.setChecked(false);
-                        showWarningMessageAlertForSharingContent();
+                    //    showWarningMessageAlertForSharingContent();
+
+                        ArrayList<String> documentIdslist = new ArrayList<>();
+                        documentIdslist.add(categoryDocumentsResponse.getObject_id());
+                        getInternalStoppingSharingContentAPI(documentIdslist, categoryDocumentsResponse.getCategory_id());
 
                     } else {
                         switchButton_share.setChecked(true);
@@ -1199,7 +1255,6 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
                                             offLine_files_repository.deleteAlreadydownloadedFileBasedUPonCondition(categoryDocumentsResponse.getDocument_version_id(),
                                                     categoryDocumentsResponse.getObject_id());
-
                                             GlobalVariables.refreshDMS = true;
                                             finish();
 
