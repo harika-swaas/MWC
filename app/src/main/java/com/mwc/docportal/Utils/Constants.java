@@ -74,7 +74,11 @@ public class Constants {
     public static final String Folder_Name = ".Doc_Portal";
     public static final String DOCUMENT_NAME = "Document_Name";
     public static final String PatternLockMessage = "Confirm your screen lock pattern, PIN or password";
-    public static final String ConfirmPassword = "Confirm your pattern";
+    public static final String ConfirmPassword = "Unlock ";
+
+   public static final int BadGatewayStatusCode = 502;
+   public static final String BadGateWayMessage = "The service is temporarily unavailable. Please check back after some time.";
+
 }
 
 

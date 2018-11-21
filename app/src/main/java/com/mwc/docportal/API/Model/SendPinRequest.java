@@ -13,8 +13,22 @@ public class SendPinRequest {
     @Expose
     private String user_pin_device_id;
 
-    public SendPinRequest(String user_pin_device_id){
+    @SerializedName("override_pin_bypass")
+    @Expose
+    private boolean override_pin_bypass;
+
+
+    public boolean isOverride_pin_bypass() {
+        return override_pin_bypass;
+    }
+
+    public void setOverride_pin_bypass(boolean override_pin_bypass) {
+        this.override_pin_bypass = override_pin_bypass;
+    }
+
+    public SendPinRequest(String user_pin_device_id, boolean isOverride_pin_bypass){
         this.user_pin_device_id = user_pin_device_id;
+        this.override_pin_bypass = isOverride_pin_bypass;
     }
 
     public String getUser_pin_device_id() {

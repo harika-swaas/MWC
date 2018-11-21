@@ -84,7 +84,7 @@ public class Pin extends RootActivity {
                 public void onFailure(Throwable t) {
                     {
                         Log.d("Pindevice error", t.getMessage());
-                        CommonFunctions.showTimeoutAlert(pinActivity);
+                        CommonFunctions.retrofitBadGatewayFailure(pinActivity, t);
                     }
                 }
 
@@ -135,7 +135,7 @@ public class Pin extends RootActivity {
                     @Override
                     public void onFailure(Throwable t) {
                         transparentProgressDialog.dismiss();
-                        CommonFunctions.showTimeoutAlert(pinActivity);
+                        CommonFunctions.retrofitBadGatewayFailure(pinActivity, t);
                     }
                 });
             }

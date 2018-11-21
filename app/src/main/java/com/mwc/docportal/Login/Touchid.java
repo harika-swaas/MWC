@@ -149,7 +149,7 @@ public class Touchid extends Activity {
                 @Override
                 public void onFailure(Throwable t) {
                     Log.d("PinDevice error", t.getMessage());
-                    CommonFunctions.showTimeoutAlert(Touchid.this);
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
                 }
             });
         }
@@ -296,7 +296,7 @@ public class Touchid extends Activity {
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void checkCredentials() {
         keyguardManager = (KeyguardManager) this.getSystemService(Context.KEYGUARD_SERVICE);
-        Intent credentialsIntent = keyguardManager.createConfirmDeviceCredentialIntent(Constants.ConfirmPassword, Constants.PatternLockMessage);
+        Intent credentialsIntent = keyguardManager.createConfirmDeviceCredentialIntent(Constants.ConfirmPassword + getResources().getString(R.string.app_name), Constants.PatternLockMessage);
 
         if (credentialsIntent != null) {
             startActivityForResult(credentialsIntent, CREDENTIALS_RESULT);

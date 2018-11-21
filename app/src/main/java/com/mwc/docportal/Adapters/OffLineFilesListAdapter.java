@@ -360,8 +360,7 @@ public class OffLineFilesListAdapter extends RecyclerView.Adapter<OffLineFilesLi
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(context);
-                    Log.d("PinDevice error", t.getMessage());
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
                 }
             });
         }

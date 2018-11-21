@@ -113,7 +113,7 @@ public class History_Fragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(mActivity);
+                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
                 }
             });
         }

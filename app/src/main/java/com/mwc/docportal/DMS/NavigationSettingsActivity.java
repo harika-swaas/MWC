@@ -89,11 +89,10 @@ public class NavigationSettingsActivity extends BaseActivity {
     private static final String MWC = "MWC";
     AlertDialog mAlertDialog;
     String finger_print_settings;
-
-
     int backButtonCount = 0;
     Toolbar toolbar;
     CollapsingToolbarLayout collapsingToolbarLayout;
+    View finger_print_view;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,8 +105,10 @@ public class NavigationSettingsActivity extends BaseActivity {
         keyguardManager = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
         if (keyguardManager.isKeyguardSecure() == true) {
             finger_print_layout.setVisibility(View.VISIBLE);
+            finger_print_view.setVisibility(View.VISIBLE);
         } else {
             finger_print_layout.setVisibility(View.GONE);
+            finger_print_view.setVisibility(View.GONE);
         }
 
         if (mAccountSettingsResponses != null && mAccountSettingsResponses.size() > 0) {
@@ -199,6 +200,7 @@ public class NavigationSettingsActivity extends BaseActivity {
         finger_print_Switch = (SwitchCompat) findViewById(R.id.finger_print_Switch);
         finger_print_layout = (LinearLayout) findViewById(R.id.finger_print_layout);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
+        finger_print_view = (View) findViewById(R.id.finger_print_view);
 
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
@@ -543,7 +545,7 @@ public class NavigationSettingsActivity extends BaseActivity {
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void checkCredentials() {
         keyguardManager = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
-        Intent credentialsIntent = keyguardManager.createConfirmDeviceCredentialIntent(Constants.ConfirmPassword, Constants.PatternLockMessage);
+        Intent credentialsIntent = keyguardManager.createConfirmDeviceCredentialIntent(Constants.ConfirmPassword + getResources().getString(R.string.app_name), Constants.PatternLockMessage);
 
         if (credentialsIntent != null) {
             startActivityForResult(credentialsIntent, CREDENTIALS_RESULT);
@@ -677,7 +679,7 @@ public class NavigationSettingsActivity extends BaseActivity {
                 @Override
                 public void onFailure(Throwable t) {
                     Log.d("PinDevice error", t.getMessage());
-                    CommonFunctions.showTimeoutAlert(context);
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
                 }
             });
         }
@@ -807,7 +809,7 @@ public class NavigationSettingsActivity extends BaseActivity {
                 @Override
                 public void onFailure(Throwable t) {
                     Log.d("PinDevice error", t.getMessage());
-                    CommonFunctions.showTimeoutAlert(activity);
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
                 }
             });
         }

@@ -153,7 +153,7 @@ public class MWCApplication extends MultiDexApplication implements Application.A
                     @Override
                     public void onFailure(Throwable t) {
                         Log.d("PinDevice error", t.getMessage());
-                        CommonFunctions.showTimeoutAlert(activity);
+                        CommonFunctions.retrofitBadGatewayFailure(activity, t);
                     }
                 });
             }

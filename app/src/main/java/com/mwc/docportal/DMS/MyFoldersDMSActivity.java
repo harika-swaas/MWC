@@ -2115,7 +2115,7 @@ public class MyFoldersDMSActivity extends RootActivity {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(context);
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
                 }
             });
         }

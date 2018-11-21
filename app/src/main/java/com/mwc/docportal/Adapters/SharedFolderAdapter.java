@@ -295,7 +295,7 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
                             context.startActivity(intent);
 
 
-                        } else if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document")) {
+                        } else if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document") && !GlobalVariables.isMoveInitiated) {
                             getDocumentPreviews(mGetCategoryDocumentsResponses.get(position));
 
                         }
@@ -513,8 +513,7 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(context);
-                    Log.d("PinDevice error", t.getMessage());
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
                 }
             });
         }
@@ -616,7 +615,7 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
                 mBottomSheetDialog.dismiss();
                 GlobalVariables.moveOriginIndex = GlobalVariables.activityCount;
                 GlobalVariables.isMoveInitiated = true;
-                GlobalVariables.selectedActionName =  "copy";
+                GlobalVariables.selectedActionName =  "share_copy";
                 Intent intent = new Intent(context, NavigationMyFolderActivity.class);
                 intent.putExtra("ObjectId", "0");
                 context.startActivity(intent);
@@ -679,10 +678,7 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
                 if(buttonView.isPressed() == true) {
                     mBottomSheetDialog.dismiss();
                     switchButton_share.setChecked(false);
-                  //  showWarningMessageAlertForSharingContent(mGetCategoryDocumentsResponses);
-                    ArrayList<String> documentIdslist = new ArrayList<>();
-                    documentIdslist.add(mGetCategoryDocumentsResponses.getObject_id());
-                    getInternalStoppingSharingContentAPI(mGetCategoryDocumentsResponses, documentIdslist, mGetCategoryDocumentsResponses.getCategory_id());
+                    showWarningMessageAlertForSharingContent(mGetCategoryDocumentsResponses);
                 }
             }
         });
@@ -703,17 +699,13 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 
-        AccountSettings accountSettings = new AccountSettings(context);
-        String companyName = accountSettings.getCompanyName();
-        txtMessage.setText("You are about to share this document with "+ companyName +". Are you sure you wish to proceed?");
-
-    //    txtMessage.setText(context.getString(R.string.stop_sharing_text));
+        txtMessage.setText(context.getString(R.string.stop_sharing_text));
         Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
         cancelButton.setText("Cancel");
 
-        sendPinButton.setText("Share");
+        sendPinButton.setText("Ok");
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -729,7 +721,7 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
 
                 ArrayList<String> documentIdslist = new ArrayList<>();
                 documentIdslist.add(categoryDocumentsResponse.getObject_id());
-                getInternalStoppingSharingContentAPI(categoryDocumentsResponse, documentIdslist, categoryDocumentsResponse.getCategory_id());
+                getInternalStoppingSharingContentAPI(categoryDocumentsResponse, documentIdslist);
 
 
             }
@@ -739,7 +731,7 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
         mAlertDialog.show();
     }
 
-    private void getInternalStoppingSharingContentAPI(GetCategoryDocumentsResponse categoryDocumentsResponse, ArrayList<String> documentIdslist, String category_id)
+    private void getInternalStoppingSharingContentAPI(GetCategoryDocumentsResponse categoryDocumentsResponse, ArrayList<String> documentIdslist)
     {
         if (NetworkUtils.isNetworkAvailable(context)) {
 
@@ -749,7 +741,7 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
             transparentProgressDialog.show();
 
 
-            final StopSharingRequestModel deleteEndUserFolderRequest = new StopSharingRequestModel(documentIdslist,category_id);
+            final StopSharingRequestModel deleteEndUserFolderRequest = new StopSharingRequestModel(documentIdslist,categoryDocumentsResponse.getShare_category_id());
 
             String request = new Gson().toJson(deleteEndUserFolderRequest);
 
@@ -785,11 +777,16 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
 
                                 for(GetCategoryDocumentsResponse mcategoryDocumentsResponse : GlobalVariables.sharedDocumentList)
                                 {
-                                    if(mcategoryDocumentsResponse.getDocument_version_id().equalsIgnoreCase(categoryDocumentsResponse.getDocument_version_id()))
+                                    if(mcategoryDocumentsResponse.getObject_id() != null && mcategoryDocumentsResponse.getObject_id().equalsIgnoreCase(categoryDocumentsResponse.getObject_id()))
                                     {
                                         GlobalVariables.sharedDocumentList.remove(categoryDocumentsResponse);
+                                        break;
                                     }
                                 }
+                            }
+
+                            if (context instanceof NavigationSharedActivity) {
+                                ((NavigationSharedActivity) context).toggleEmptyState();
                             }
                         }
 
@@ -799,8 +796,7 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(context);
-                    Log.d("PinDevice error", t.getMessage());
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
                 }
             });
         }

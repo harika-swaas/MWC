@@ -47,6 +47,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.gson.Gson;
+import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Login.LoginActivity;
 import com.mwc.docportal.RootActivity;
@@ -342,11 +343,8 @@ public class UploadListActivity extends RootActivity {
 
                     @Override
                     public void onFailure(Throwable t) {
-                        Log.d("PinDevice error", t.getMessage());
-                        if(!((Activity) context ).isFinishing())
-                        {
-                            getDialog(context).show();
-                        }
+                        Log.d("Message", t.getMessage());
+                        CommonFunctions.retrofitBadGatewayFailure(context, t);
 
 
                     }
@@ -1324,9 +1322,5 @@ public class UploadListActivity extends RootActivity {
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert).create();
     }
-
-
-
-
 
 }

@@ -506,7 +506,7 @@ public class FTLUserValidationFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     Log.d("FTLProcessErr", t.getMessage());
-                    CommonFunctions.showTimeoutAlert(mActivity);
+                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
                 }
             });
         }

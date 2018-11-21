@@ -217,7 +217,7 @@ public class Properties_Fragment extends Fragment{
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(mActivity);
+                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
                 }
             });
         }
@@ -285,7 +285,7 @@ public class Properties_Fragment extends Fragment{
             }
             else
             {
-                Toast.makeText(mActivity, "Please enter name", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mActivity, "Please enter a name", Toast.LENGTH_SHORT).show();
             }
 
         }
@@ -364,8 +364,7 @@ public class Properties_Fragment extends Fragment{
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(mActivity);
-                    Log.d("PinDevice error", t.getMessage());
+                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
                 }
             });
         }

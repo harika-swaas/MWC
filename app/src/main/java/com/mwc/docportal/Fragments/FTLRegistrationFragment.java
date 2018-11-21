@@ -333,7 +333,7 @@ public class FTLRegistrationFragment extends Fragment {
                     @Override
                     public void onFailure(Throwable t) {
                         transparentProgressDialog.dismiss();
-                        CommonFunctions.showTimeoutAlert(mActivity);
+                        CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
                     }
                 });
             }
@@ -459,7 +459,7 @@ public class FTLRegistrationFragment extends Fragment {
                     @Override
                     public void onFailure(Throwable t) {
                         transparentProgressDialog.dismiss();
-                        CommonFunctions.showTimeoutAlert(mActivity);
+                        CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
                     }
                 });
             }
@@ -515,7 +515,7 @@ public class FTLRegistrationFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(mActivity);
+                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
                 }
             });
         }
@@ -566,7 +566,7 @@ public class FTLRegistrationFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(mActivity);
+                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
                 }
             });
         }

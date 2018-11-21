@@ -11,8 +11,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.bumptech.glide.load.HttpException;
 import com.mwc.docportal.API.Model.ColorCodeModel;
+import com.mwc.docportal.API.Model.ConfirmPasswordResponseModel;
 import com.mwc.docportal.API.Model.GetCategoryDocumentsResponse;
 import com.mwc.docportal.DMS.UploadListActivity;
 import com.mwc.docportal.DMS.UploadListAdapter;
@@ -24,6 +27,8 @@ import com.mwc.docportal.Utils.Constants;
 
 import java.io.File;
 import java.util.List;
+
+import retrofit.Response;
 
 public class CommonFunctions
 {
@@ -288,14 +293,14 @@ public class CommonFunctions
     }
 
 
-    public static void showTimeoutAlert(Context context)
+   /* public static void showTimeoutAlert(Context context)
     {
         if (!((Activity) context).isFinishing())
         {
             getDialog(context).show();
         }
 
-    }
+    }*/
 
 
     public static AlertDialog getDialog(Context context) {
@@ -316,5 +321,59 @@ public class CommonFunctions
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert).create();
     }
+
+    public static void retrofitBadGatewayFailure(Context context, Throwable exceptionValue)
+    {
+       if (!((Activity) context).isFinishing()) {
+           getDialog(context).show();
+       }
+
+    }
+
+
+    private static void showBadGatewayFailure(Context context)
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Alert");
+
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+        txtMessage.setText(Constants.BadGateWayMessage);
+
+        Button okButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+        cancelButton.setVisibility(View.GONE);
+
+        okButton.setText("Ok");
+
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+
+            }
+        });
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
+    }
+
+   /* public static void serverErrorExceptions(Context context, int apiResponseCode)
+    {
+        if(apiResponseCode == Constants.BadGatewayStatusCode)
+        {
+            if (!((Activity) context).isFinishing()) {
+                showBadGatewayFailure(context);
+            }
+        }
+
+    }*/
 
 }

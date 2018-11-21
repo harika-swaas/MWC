@@ -63,7 +63,6 @@ import com.mwc.docportal.API.Model.GetSharedCategoryDocumentsRequest;
 import com.mwc.docportal.API.Model.ListPinDevicesResponse;
 import com.mwc.docportal.API.Model.OfflineFiles;
 import com.mwc.docportal.API.Model.ShareEndUserDocumentsRequest;
-import com.mwc.docportal.API.Model.SharedFolderModel.SharedDocumentRequestModel;
 import com.mwc.docportal.API.Model.SharedFolderModel.SharedDocumentResponseModel;
 import com.mwc.docportal.API.Model.StopSharingRequestModel;
 import com.mwc.docportal.API.Model.WhiteLabelResponse;
@@ -159,7 +158,8 @@ public class NavigationSharedActivity extends BaseActivity {
     TextView cancel_textview;
     LinearLayout shared_bottom_linearlayout;
     Button refreshButton;
-
+    int stopSharingIndex = 0;
+    List<GetCategoryDocumentsResponse> stopSharingList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -321,8 +321,8 @@ public class NavigationSharedActivity extends BaseActivity {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(context);
-                    Log.d("PinDevice error", t.getMessage());
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    Log.d("Message", t.getMessage());
                 }
             });
         }
@@ -424,8 +424,8 @@ public class NavigationSharedActivity extends BaseActivity {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(context);
-                    Log.d("PinDevice error", t.getMessage());
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    Log.d("Message", t.getMessage());
                 }
             });
         }
@@ -628,8 +628,8 @@ public class NavigationSharedActivity extends BaseActivity {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(context);
-                    Log.d("PinDevice error", t.getMessage());
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    Log.d("Message", t.getMessage());
                 }
             });
         }
@@ -643,8 +643,6 @@ public class NavigationSharedActivity extends BaseActivity {
     private void getFoldersAndDocs(JSONObject dict, String parentDocumentId) {
 
         try {
-
-
 
             if(dict.has("documents")){
                 JSONArray docArray = dict.getJSONArray("documents");
@@ -673,6 +671,7 @@ public class NavigationSharedActivity extends BaseActivity {
                         categoryDocumentsResponse.setCategory_id(parentDocumentId);
                         categoryDocumentsResponse.setIs_shared("1");
                         categoryDocumentsResponse.setType("document");
+                        categoryDocumentsResponse.setShare_category_id(objString.getString("category_id"));
                         GlobalVariables.sharedDocumentList.add(categoryDocumentsResponse);
                     }
                 }
@@ -868,7 +867,7 @@ public class NavigationSharedActivity extends BaseActivity {
         {
             for(GetCategoryDocumentsResponse categoryDocumentsResponse : documentsCategoryList)
             {
-                if(categoryDocumentsResponse.getDocument_version_id().equalsIgnoreCase(PreferenceUtils.getSharetypeDocumentversionid(context)))
+                if(categoryDocumentsResponse.getObject_id() != null && categoryDocumentsResponse.getObject_id().equalsIgnoreCase(PreferenceUtils.getSharetypeDocumentversionid(context)))
                 {
                     documentsCategoryList.remove(categoryDocumentsResponse);
                     break;
@@ -889,9 +888,10 @@ public class NavigationSharedActivity extends BaseActivity {
 
                 for(GetCategoryDocumentsResponse categoryDocumentsResponse : GlobalVariables.sharedDocumentList)
                 {
-                    if(categoryDocumentsResponse.getDocument_version_id() != null && categoryDocumentsResponse.getDocument_version_id().equalsIgnoreCase(PreferenceUtils.getSharetypeDocumentversionid(context)))
+                    if(categoryDocumentsResponse.getObject_id().equalsIgnoreCase(PreferenceUtils.getSharetypeDocumentversionid(context)))
                     {
                         GlobalVariables.sharedDocumentList.remove(categoryDocumentsResponse);
+                        break;
                     }
                 }
             }
@@ -1160,7 +1160,7 @@ public class NavigationSharedActivity extends BaseActivity {
                     GlobalVariables.isMultiSelect = false;
                     mBottomSheetDialog.dismiss();
                     GlobalVariables.isMoveInitiated = true;
-                    GlobalVariables.selectedActionName = "copy";
+                    GlobalVariables.selectedActionName = "share_copy";
                     clearSelectedListAfterOperation();
                     assigningMoveOriginIndex();
                     Intent intent = new Intent(context, NavigationMyFolderActivity.class);
@@ -1214,18 +1214,18 @@ public class NavigationSharedActivity extends BaseActivity {
                 if(buttonView.isPressed() == true) {
                     mBottomSheetDialog.dismiss();
                         switchButton_share.setChecked(false);
-                        ArrayList<String> documentIdslist = new ArrayList<>();
+                       /* ArrayList<String> documentIdslist = new ArrayList<>();
                         for(GetCategoryDocumentsResponse categoryDocumentsResponse : mSelectedDocumentList)
                         {
                             documentIdslist.add(categoryDocumentsResponse.getObject_id());
-                        }
+                        }*/
 
-                        if(documentIdslist !=null && documentIdslist.size() > 0)
+                        /*if(documentIdslist !=null && documentIdslist.size() > 0)
                         {
-                          //  showWarningMessageAlertForSharingContent(documentIdslist, mSelectedDocumentList);
-                            getInternalStoppingSharingContentAPI(documentIdslist, mSelectedDocumentList);
-                        }
+                            showWarningMessageAlertForSharingContent(documentIdslist, mSelectedDocumentList);
 
+                        }*/
+                        showWarningMessageAlertForSharingContent(mSelectedDocumentList);
                 }
             }
         });
@@ -1351,7 +1351,7 @@ public class NavigationSharedActivity extends BaseActivity {
 
 
 
-    private void showWarningMessageAlertForSharingContent(ArrayList<String> stopSharingList, List<GetCategoryDocumentsResponse> mSelectedDocumentList)
+    private void showWarningMessageAlertForSharingContent(List<GetCategoryDocumentsResponse> selectedDocumentListt)
     {
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -1363,18 +1363,14 @@ public class NavigationSharedActivity extends BaseActivity {
         title.setText("Stop Sharing");
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-    //    txtMessage.setText(context.getString(R.string.stop_sharing_text));
-
-        AccountSettings accountSettings = new AccountSettings(context);
-        String companyName = accountSettings.getCompanyName();
-        txtMessage.setText("You are about to share this document with "+ companyName +". Are you sure you wish to proceed?");
+        txtMessage.setText(context.getString(R.string.stop_sharing_text));
 
         Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
         cancelButton.setText("Cancel");
 
-        sendPinButton.setText("Share");
+        sendPinButton.setText("Ok");
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1387,9 +1383,13 @@ public class NavigationSharedActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 mAlertDialog.dismiss();
-
-                getInternalStoppingSharingContentAPI(stopSharingList, mSelectedDocumentList);
-
+                stopSharingList = selectedDocumentListt;
+                if(stopSharingList.size() >  stopSharingIndex)
+                {
+                    ArrayList<String> documentIdslist = new ArrayList<>();
+                    documentIdslist.add(stopSharingList.get(stopSharingIndex).getObject_id());
+                    getInternalStoppingSharingContentAPI(documentIdslist, stopSharingList.get(stopSharingIndex).getShare_category_id());
+                }
 
             }
         });
@@ -1398,7 +1398,7 @@ public class NavigationSharedActivity extends BaseActivity {
         mAlertDialog.show();
     }
 
-    private void getInternalStoppingSharingContentAPI(ArrayList<String> sharingList, List<GetCategoryDocumentsResponse> selectedDocumentList)
+    private void getInternalStoppingSharingContentAPI(ArrayList<String> sharingList, String share_category_id)
     {
         if (NetworkUtils.isNetworkAvailable(context)) {
 
@@ -1408,7 +1408,7 @@ public class NavigationSharedActivity extends BaseActivity {
             transparentProgressDialog.show();
 
 
-            final StopSharingRequestModel stopSharingRequestModel = new StopSharingRequestModel(sharingList, selectedDocumentList.get(0).getCategory_id());
+            final StopSharingRequestModel stopSharingRequestModel = new StopSharingRequestModel(sharingList, share_category_id);
 
             String request = new Gson().toJson(stopSharingRequestModel);
 
@@ -1434,11 +1434,44 @@ public class NavigationSharedActivity extends BaseActivity {
                             message = response.body().getStatus().getMessage().toString();
                         }
 
-
-
                         if(CommonFunctions.isApiSuccess(NavigationSharedActivity.this, message, response.body().getStatus().getCode()))
                         {
-                            for(GetCategoryDocumentsResponse categoryDocumentsResponse : selectedDocumentList)
+                            documentsCategoryList.remove(stopSharingList.get(stopSharingIndex));
+
+                            if(GlobalVariables.sharedDocumentList != null && GlobalVariables.sharedDocumentList.size() > 0) {
+
+                                for(GetCategoryDocumentsResponse mcategoryDocumentsResponse : GlobalVariables.sharedDocumentList)
+                                {
+                                    if(mcategoryDocumentsResponse.getObject_id() != null && mcategoryDocumentsResponse.getObject_id().equalsIgnoreCase(stopSharingList.get(stopSharingIndex).getObject_id()))
+                                    {
+                                        GlobalVariables.sharedDocumentList.remove(stopSharingList.get(stopSharingIndex));
+                                        break;
+                                    }
+                                }
+                            }
+
+                            stopSharingIndex++;
+                            if(stopSharingList.size()> stopSharingIndex) {
+                                ArrayList<String> documentIdslist = new ArrayList<>();
+                                documentIdslist.add(stopSharingList.get(stopSharingIndex).getObject_id());
+                                getInternalStoppingSharingContentAPI(documentIdslist,stopSharingList.get(stopSharingIndex).getShare_category_id());
+
+                            }
+                            else {
+                                stopSharingIndex = 0;
+                                clearSelectedListAfterOperation();
+                                if (isFromList == true) {
+                                    mAdapterList.notifyDataSetChanged();
+                                }
+                                else
+                                {
+                                    mAdapter.notifyDataSetChanged();
+                                }
+                                toggleEmptyState();
+                            }
+
+
+                            /*for(GetCategoryDocumentsResponse categoryDocumentsResponse : selectedDocumentList)
                             {
                                 documentsCategoryList.remove(categoryDocumentsResponse);
                             }
@@ -1456,15 +1489,8 @@ public class NavigationSharedActivity extends BaseActivity {
                                     }
                                 }
                             }
+*/
 
-                            clearSelectedListAfterOperation();
-                            if (isFromList == true) {
-                                mAdapterList.notifyDataSetChanged();
-                            }
-                            else
-                            {
-                                mAdapter.notifyDataSetChanged();
-                            }
 
                         }
 
@@ -1474,8 +1500,8 @@ public class NavigationSharedActivity extends BaseActivity {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(context);
-                    Log.d("PinDevice error", t.getMessage());
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    Log.d("Message", t.getMessage());
                 }
             });
         }
@@ -1573,7 +1599,7 @@ public class NavigationSharedActivity extends BaseActivity {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(context);
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
                 }
             });
         }
@@ -1735,7 +1761,7 @@ public class NavigationSharedActivity extends BaseActivity {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(context);
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
                 }
             });
         }
@@ -1811,8 +1837,8 @@ public class NavigationSharedActivity extends BaseActivity {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(context);
-                    Log.d("PinDevice error", t.getMessage());
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+
                 }
             });
         }
@@ -2371,8 +2397,8 @@ public class NavigationSharedActivity extends BaseActivity {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(context);
-                    Log.d("PinDevice error", t.getMessage());
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+
                 }
             });
         }

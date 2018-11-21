@@ -21,7 +21,7 @@ public interface DeleteEndUserMoveService {
     @Headers("content-type: application/x-www-form-urlencoded")
     @POST("/delete-eu-folders")
     @FormUrlEncoded
-    Call<ApiResponse<LoginResponse>> delete_eu_move(@FieldMap Map<String, String> params, @Header("access-token") String accessToken);
+    Call<ApiResponse> delete_eu_move(@FieldMap Map<String, String> params, @Header("access-token") String accessToken);
 
 }
 

@@ -131,7 +131,7 @@ public class Verify extends Activity {
                 public void onFailure(Throwable t) {
 
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(vActivity);
+                    CommonFunctions.retrofitBadGatewayFailure(vActivity, t);
                 }
             });
         }

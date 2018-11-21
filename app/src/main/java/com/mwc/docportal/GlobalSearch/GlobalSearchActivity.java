@@ -264,8 +264,7 @@ public class GlobalSearchActivity extends RootActivity implements SearchView.OnQ
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(context);
-                    Log.d("PinDevice error", t.getMessage());
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
                 }
             });
         }
@@ -397,7 +396,7 @@ public class GlobalSearchActivity extends RootActivity implements SearchView.OnQ
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(context);
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
                 }
             });
         }

@@ -51,8 +51,16 @@ public class GetCategoryDocumentsResponse implements Serializable{
     private String sharetype;
     private String viewed;
     private Permission permission;
+    private String share_category_id;
 
 
+    public String getShare_category_id() {
+        return share_category_id;
+    }
+
+    public void setShare_category_id(String share_category_id) {
+        this.share_category_id = share_category_id;
+    }
 
     public String getSharetype() {
         return sharetype;

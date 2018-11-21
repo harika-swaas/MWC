@@ -317,7 +317,7 @@ public class Notifiy extends RootActivity {
                 @Override
                 public void onFailure(Throwable t) {
                     Log.d("PinDevice error", t.getMessage());
-                    CommonFunctions.showTimeoutAlert(mActivity);
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
                 }
             });
         }

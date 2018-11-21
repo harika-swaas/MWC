@@ -1,6 +1,6 @@
 <resources>
-    <string name="versionCode">2</string>
-    <string name="versionName">1.1</string>
+    <string name="versionCode">3</string>
+    <string name="versionName">1.2</string>
     <string name="app_name">Doc Portal</string>
     <string name="ok">Ok</string>
     <string name="snackbar_download">DOWNLOAD</string>
@@ -17,6 +17,7 @@
     <string name="enter_email_id">Enter Email ID</string>
     <string name="pin_verification">PIN Verification</string>
     <string name="ftl_pin_verification_text">We have sent a PIN to your registered mobile phone, please enter this below.</string>
+    <string name="login_pin_verification_text">We have sent a PIN to the requested device. Please enter this below.</string>
     <string name="enter_pin_number">Enter PIN Number</string>
     <string name="pin_number">PIN Number</string>
     <string name="enter_your_pin_number">Please enter PIN</string>

@@ -107,6 +107,7 @@ public class FTLPinVerificationFragment extends Fragment {
     static String Otp;
     public static final int REQUEST_STORAGE_PERMISSION = 111;
     AccountSettingsResponse accountSettingsList = new AccountSettingsResponse();
+    TextView pin_verification_txt;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -163,6 +164,7 @@ public class FTLPinVerificationFragment extends Fragment {
         inputPIN = (EditText) mView.findViewById(R.id.input_pin_number);
         mNext = (Button) mView.findViewById(R.id.next_button);
         mBackIv = (ImageView) mView.findViewById(R.id.back_image_view);
+        pin_verification_txt = (TextView) mView.findViewById(R.id.pin_verification_txt);
     }
 
     private void getIntentData() {
@@ -171,6 +173,15 @@ public class FTLPinVerificationFragment extends Fragment {
             mEmail = mActivity.getIntent().getStringExtra(Constants.EMAIL);
             mMobile = mActivity.getIntent().getStringExtra(Constants.MOBILE);
             isFromLogin = mActivity.getIntent().getBooleanExtra(Constants.IS_FROM_LOGIN, false);
+
+            if(isFromLogin)
+            {
+                pin_verification_txt.setText(getResources().getString(R.string.login_pin_verification_text));
+            }
+            else
+            {
+                pin_verification_txt.setText(getResources().getString(R.string.ftl_pin_verification_text));
+            }
         }
     }
 
@@ -469,7 +480,7 @@ public class FTLPinVerificationFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(mActivity);
+                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
                 }
             });
         }
@@ -536,7 +547,7 @@ public class FTLPinVerificationFragment extends Fragment {
 
                 @Override
                 public void onFailure(Throwable t) {
-                    CommonFunctions.showTimeoutAlert(mActivity);
+                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
                     // Toast.makeText(mActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
@@ -631,7 +642,7 @@ public class FTLPinVerificationFragment extends Fragment {
 
                 @Override
                 public void onFailure(Throwable t) {
-                    CommonFunctions.showTimeoutAlert(mActivity);
+                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
                     // Toast.makeText(mActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
@@ -685,7 +696,7 @@ public class FTLPinVerificationFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(mActivity);
+                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
                 }
             });
         }
@@ -751,8 +762,8 @@ public class FTLPinVerificationFragment extends Fragment {
 
                 @Override
                 public void onFailure(Throwable t) {
-                    Log.d("PINVerErr", t.getMessage());
-                    CommonFunctions.showTimeoutAlert(mActivity);
+                    Log.d("Message", t.getMessage());
+                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
                 }
             });
         }
@@ -813,7 +824,7 @@ public class FTLPinVerificationFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t)
                 {
-                    CommonFunctions.showTimeoutAlert(mActivity);
+                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
                 }
             });
         }
@@ -861,7 +872,7 @@ public class FTLPinVerificationFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t)
                 {
-                    CommonFunctions.showTimeoutAlert(mActivity);
+                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
                 }
             });
         }
@@ -915,8 +926,8 @@ public class FTLPinVerificationFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(mActivity);
-                    Log.d("PINVerErr", t.getMessage());
+                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
+                    Log.d("Message", t.getMessage());
                 }
             });
         }
@@ -931,7 +942,7 @@ public class FTLPinVerificationFragment extends Fragment {
             final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
             transparentProgressDialog.show();
 
-            SendPinRequest sendPinRequest = new SendPinRequest(PreferenceUtils.getUserPinDeviceId(mActivity));
+            SendPinRequest sendPinRequest = new SendPinRequest(PreferenceUtils.getUserPinDeviceId(mActivity), true);
 
             String request = new Gson().toJson(sendPinRequest);
 
@@ -965,7 +976,7 @@ public class FTLPinVerificationFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(mActivity);
+                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
                     // Toast.makeText(pinActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });

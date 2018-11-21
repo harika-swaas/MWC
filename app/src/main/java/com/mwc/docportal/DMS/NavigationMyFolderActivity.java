@@ -342,6 +342,8 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         actionVideo.setVisibility(View.GONE);
         GlobalVariables.sortType = "type";
 
+        setMargins(floatingActionMenu,11,0,11, 75);
+
         setMargins(bottom_linearlayout,0,0,0,122);
 
 
@@ -353,7 +355,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             }
 
         }
-        else if(GlobalVariables.selectedActionName.equalsIgnoreCase("copy"))
+        else if(GlobalVariables.selectedActionName.equalsIgnoreCase("copy") || GlobalVariables.selectedActionName.equalsIgnoreCase("share_copy"))
         {
             if(!objectId.equals("0"))
             {
@@ -378,7 +380,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         move_layout.setVisibility(View.GONE);
    //     floatingActionMenu.setVisibility(View.VISIBLE);
 
-
+        setMargins(floatingActionMenu,11,0,11, 65);
         setMargins(bottom_linearlayout,0,0,0,90);
 
     }
@@ -624,8 +626,8 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(context);
-                    Log.d("PinDevice error", t.getMessage());
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    Log.d("Message", t.getMessage());
                 }
             });
         }
@@ -674,8 +676,8 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
                 @Override
                 public void onFailure(Throwable t) {
-                    Log.d("PinDevice error", t.getMessage());
-                    CommonFunctions.showTimeoutAlert(context);
+                    Log.d("Message", t.getMessage());
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
                 }
             });
         }
@@ -714,8 +716,8 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
                 @Override
                 public void onFailure(Throwable t) {
-                    Log.d("PinDevice error", t.getMessage());
-                    CommonFunctions.showTimeoutAlert(context);
+                    Log.d("Message", t.getMessage());
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
                 }
             });
         }
@@ -808,7 +810,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                     }
 
                 }
-                else if(GlobalVariables.selectedActionName.equalsIgnoreCase("copy"))
+                else if(GlobalVariables.selectedActionName.equalsIgnoreCase("copy") || GlobalVariables.selectedActionName.equalsIgnoreCase("share_copy"))
                 {
                     copyDocuments();
                 }
@@ -838,8 +840,6 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                         {
                             delete_Folder_Move();
                         }
-
-
 
                     }
                 }
@@ -983,8 +983,8 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                             @Override
                             public void onFailure(Throwable t) {
                                 transparentProgressDialog.dismiss();
-                                CommonFunctions.showTimeoutAlert(context);
-                                Log.d("PinDevice error", t.getMessage());
+                                CommonFunctions.retrofitBadGatewayFailure(context, t);
+                                Log.d("Message", t.getMessage());
                             }
                         });
                     }
@@ -1260,8 +1260,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(context);
-                    Log.d("PinDevice error", t.getMessage());
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
                 }
             });
         }
@@ -1296,9 +1295,9 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
             Call call = deleteEndUserMoveService.delete_eu_move(params, PreferenceUtils.getAccessToken(context));
 
-            call.enqueue(new Callback<ApiResponse<LoginResponse>>() {
+            call.enqueue(new Callback<ApiResponse>() {
                 @Override
-                public void onResponse(Response<ApiResponse<LoginResponse>> response, Retrofit retrofit) {
+                public void onResponse(Response<ApiResponse> response, Retrofit retrofit) {
                     ApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
 
@@ -1327,8 +1326,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(context);
-                    Log.d("PinDevice error", t.getMessage());
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
                 }
             });
         }
@@ -1384,9 +1382,11 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                          //   hideBottomView();
                           //  resetPageNumber();
                             GlobalVariables.isMoveInitiated = false;
-                            GlobalVariables.refreshPage = true;
+                            if(GlobalVariables.selectedActionName.equalsIgnoreCase("copy"))
+                            {
+                                GlobalVariables.refreshPage = true;
+                            }
                             isFromSearchData = true;
-                        //    Toast.makeText(context, "Selected item(s) copied successfully", Toast.LENGTH_LONG).show();
                             cancel_textview.performClick();
                           //  getCategoryDocuments();
                         }
@@ -1397,8 +1397,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(context);
-                    Log.d("PinDevice error", t.getMessage());
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
                 }
             });
         }
@@ -1474,8 +1473,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(context);
-                    Log.d("PinDevice error", t.getMessage());
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
                 }
             });
         }
@@ -2503,14 +2501,17 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
                         if(documentIdslist !=null && documentIdslist.size() > 0)
                         {
-                          //  showWarningMessageAlertForSharingContent(documentIdslist, mSelectedDocumentList);
-                            getInternalStoppingSharingContentAPI(documentIdslist, mSelectedDocumentList);
+                            showWarningMessageAlertForSharingContent(documentIdslist, mSelectedDocumentList);
                         }
 
                     } else {
                         switchButton_share.setChecked(true);
-                        showInternalShareAlertMessage();
-
+                     //   showInternalShareAlertMessage();
+                        GlobalVariables.isMoveInitiated = true;
+                        GlobalVariables.selectedActionName =  "share";
+                        Intent intent = new Intent(context, NavigationSharedActivity.class);
+                        intent.putExtra("ObjectId", "0");
+                        startActivity(intent);
 
                     }
 
@@ -3197,8 +3198,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(context);
-                    Log.d("PinDevice error", t.getMessage());
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
                 }
             });
         }
@@ -3253,8 +3253,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(context);
-                    Log.d("PinDevice error", t.getMessage());
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
                 }
             });
         }
@@ -3356,7 +3355,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(context);
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
                 }
             });
         }
@@ -3471,18 +3470,13 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 
-     //   txtMessage.setText(context.getString(R.string.stop_sharing_text));
-
-        AccountSettings accountSettings = new AccountSettings(context);
-        String companyName = accountSettings.getCompanyName();
-        txtMessage.setText("You are about to share this document with "+ companyName +". Are you sure you wish to proceed?");
-
+        txtMessage.setText(context.getString(R.string.stop_sharing_text));
         Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
         cancelButton.setText("Cancel");
 
-        sendPinButton.setText("Share");
+        sendPinButton.setText("Ok");
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -3555,8 +3549,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(context);
-                    Log.d("PinDevice error", t.getMessage());
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
                 }
             });
         }
@@ -3624,7 +3617,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(context);
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
                 }
             });
         }
@@ -3827,8 +3820,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(context);
-                    Log.d("PinDevice error", t.getMessage());
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
                 }
             });
         }
@@ -4292,8 +4284,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                                 @Override
                                 public void onFailure(Throwable t) {
                                     transparentProgressDialog.dismiss();
-                                    CommonFunctions.showTimeoutAlert(context);
-                                    Log.d("PinDevice error", t.getMessage());
+                                    CommonFunctions.retrofitBadGatewayFailure(context, t);
                                 }
                             });
                         }

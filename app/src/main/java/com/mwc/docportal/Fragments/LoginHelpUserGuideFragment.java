@@ -124,7 +124,7 @@ public class LoginHelpUserGuideFragment extends Fragment {
 
                 @Override
                 public void onFailure(Throwable t) {
-                    CommonFunctions.showTimeoutAlert(mActivity);
+                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
                 }
             });
         }
@@ -336,7 +336,7 @@ public class LoginHelpUserGuideFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(mActivity);
+                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
                 }
             });
         }

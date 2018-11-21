@@ -306,8 +306,7 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(context);
-                    Log.d("PinDevice error", t.getMessage());
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
                 }
             });
         }
@@ -454,13 +453,15 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
                     mBottomSheetDialog.dismiss();
                     if (!isChecked) {
                         switchButton_share.setChecked(false);
-                    //    showWarningMessageAlertForSharingContent(categoryDocumentsResponse);
-                        ArrayList<String> documentIdslist = new ArrayList<>();
-                        documentIdslist.add(categoryDocumentsResponse.getObject_id());
-                        getInternalStoppingSharingContentAPI(documentIdslist, categoryDocumentsResponse.getCategory_id());
+                        showWarningMessageAlertForSharingContent(categoryDocumentsResponse);
                     } else {
                         switchButton_share.setChecked(true);
-                        showInternalShareAlertMessage();
+                       // showInternalShareAlertMessage();
+                        GlobalVariables.isMoveInitiated = true;
+                        GlobalVariables.selectedActionName =  "share";
+                        Intent intent = new Intent(context, NavigationSharedActivity.class);
+                        intent.putExtra("ObjectId", "0");
+                        context.startActivity(intent);
                     }
 
 
@@ -491,7 +492,7 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
 
                 GlobalVariables.searchKey = GlobalSearchActivity.searchingData;
                 assigningMoveOriginIndex();
-                initiateMoveAction("move");
+                initiateMoveAction("move", categoryDocumentsResponse.getDoc_status());
 
             }
         });
@@ -518,7 +519,7 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
 
                 GlobalVariables.searchKey = GlobalSearchActivity.searchingData;
                 assigningMoveOriginIndex();
-                initiateMoveAction("copy");
+                initiateMoveAction("copy", categoryDocumentsResponse.getDoc_status());
 
             }
         });
@@ -666,10 +667,18 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
 
     }
 
-    private void initiateMoveAction(String actionName)
+    private void initiateMoveAction(String actionName, String docStatus)
     {
         GlobalVariables.isMoveInitiated = true;
-        GlobalVariables.selectedActionName =  actionName;
+        if(actionName.equalsIgnoreCase("copy") && docStatus != null && docStatus.equalsIgnoreCase("shared"))
+        {
+            GlobalVariables.selectedActionName =  "share_copy";
+        }
+        else
+        {
+            GlobalVariables.selectedActionName =  actionName;
+        }
+
         Intent intent = new Intent(context, NavigationMyFolderActivity.class);
         intent.putExtra("ObjectId", "0");
         context.startActivity(intent);
@@ -687,18 +696,14 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
         title.setText("Stop Sharing");
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-     //   txtMessage.setText(context.getString(R.string.stop_sharing_text));
-
-        AccountSettings accountSettings = new AccountSettings(context);
-        String companyName = accountSettings.getCompanyName();
-        txtMessage.setText("You are about to share this document with "+ companyName +". Are you sure you wish to proceed?");
+        txtMessage.setText(context.getString(R.string.stop_sharing_text));
 
         Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
         cancelButton.setText("Cancel");
 
-        sendPinButton.setText("Share");
+        sendPinButton.setText("Ok");
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -714,9 +719,14 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
 
                 ArrayList<String> documentIdslist = new ArrayList<>();
                 documentIdslist.add(categoryDocumentsResponse.getObject_id());
-                getInternalStoppingSharingContentAPI(documentIdslist, categoryDocumentsResponse.getCategory_id());
-
-
+                if(categoryDocumentsResponse.getDoc_status() != null && categoryDocumentsResponse.getDoc_status().equalsIgnoreCase("shared"))
+                {
+                    getInternalStoppingSharingContentAPI(documentIdslist, categoryDocumentsResponse.getShare_category_id());
+                }
+                else
+                {
+                    getInternalStoppingSharingContentAPI(documentIdslist, categoryDocumentsResponse.getCategory_id());
+                }
             }
         });
 
@@ -769,8 +779,7 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(context);
-                    Log.d("PinDevice error", t.getMessage());
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
                 }
             });
         }
@@ -903,7 +912,7 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(context);
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
                 }
             });
         }
@@ -1149,8 +1158,7 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(context);
-                    Log.d("PinDevice error", t.getMessage());
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
                 }
             });
         }

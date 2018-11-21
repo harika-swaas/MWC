@@ -180,8 +180,7 @@ public class  PinVerificationFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     loadingProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(mActivity);
-                    Log.d("PinDevice error", t.getMessage());
+                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
                 }
             });
         }
@@ -219,7 +218,7 @@ public class  PinVerificationFragment extends Fragment {
             final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
             transparentProgressDialog.show();
 
-            SendPinRequest sendPinRequest = new SendPinRequest(PreferenceUtils.getUserPinDeviceId(mActivity));
+            SendPinRequest sendPinRequest = new SendPinRequest(PreferenceUtils.getUserPinDeviceId(mActivity), true);
 
             String request = new Gson().toJson(sendPinRequest);
 
@@ -254,7 +253,7 @@ public class  PinVerificationFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(mActivity);
+                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
                 }
             });
         }

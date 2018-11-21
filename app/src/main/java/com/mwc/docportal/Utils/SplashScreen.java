@@ -31,6 +31,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.load.HttpException;
 import com.google.gson.Gson;
 import com.mwc.docportal.API.Model.AccountSettingsResponse;
 import com.mwc.docportal.API.Model.ConfirmPasswordRequestModel;
@@ -53,9 +54,12 @@ import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
 import com.mwc.docportal.RootActivity;
+import com.squareup.okhttp.ResponseBody;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -234,7 +238,7 @@ public class SplashScreen extends RootActivity {
     {
 
         keyguardManager = (KeyguardManager) this.getSystemService(Context.KEYGUARD_SERVICE);
-        Intent credentialsIntent = keyguardManager.createConfirmDeviceCredentialIntent(Constants.ConfirmPassword, Constants.PatternLockMessage);
+        Intent credentialsIntent = keyguardManager.createConfirmDeviceCredentialIntent(Constants.ConfirmPassword + getResources().getString(R.string.app_name), Constants.PatternLockMessage);
 
         if (credentialsIntent != null) {
             startActivityForResult(credentialsIntent, CREDENTIALS_RESULT);
@@ -317,10 +321,9 @@ public class SplashScreen extends RootActivity {
                         @Override
                         public void onResponse(Response<ConfirmPasswordResponseModel> response, Retrofit retrofit) {
                             ConfirmPasswordResponseModel apiResponse = response.body();
+                            transparentProgressDialog.dismiss();
+                            mAlertDialog.dismiss();
                             if (apiResponse != null) {
-
-                                transparentProgressDialog.dismiss();
-                                mAlertDialog.dismiss();
 
                                 String message = "";
                                 if(response.body().getStatus().getMessage() != null)
@@ -362,17 +365,19 @@ public class SplashScreen extends RootActivity {
                                     }
                                 }
 
-
                             }
+                           /* else {
+                                CommonFunctions.serverErrorExceptions(context, response.code());
+                            }*/
                         }
 
                         @Override
-                        public void onFailure(Throwable t) {
+                        public void onFailure(Throwable exceptionValue) {
                             transparentProgressDialog.dismiss();
                             mAlertDialog.dismiss();
-                            CommonFunctions.showTimeoutAlert(context);
-                            Log.d("PinDevice error", t.getMessage());
+                            CommonFunctions.retrofitBadGatewayFailure(context, exceptionValue);
                         }
+
                     });
                 }
 

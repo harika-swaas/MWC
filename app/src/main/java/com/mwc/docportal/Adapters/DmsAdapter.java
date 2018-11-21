@@ -347,7 +347,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                            context.startActivity(intent);
 
 
-                        } else if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document")) {
+                        } else if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document") && !GlobalVariables.isMoveInitiated) {
                             getDocumentPreviews(mGetCategoryDocumentsResponses.get(position));
 
                         }
@@ -576,8 +576,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(context);
-                    Log.d("PinDevice error", t.getMessage());
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
                 }
             });
         }
@@ -747,17 +746,17 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                 if(buttonView.isPressed() == true) {
                     mBottomSheetDialog.dismiss();
                     if (!isChecked) {
-
-                    //    showWarningMessageAlertForSharingContent(mGetCategoryDocumentsResponses, switchButton_share);
-                        ArrayList<String> documentIdslist = new ArrayList<>();
-                        documentIdslist.add(mGetCategoryDocumentsResponses.getObject_id());
-                        getInternalStoppingSharingContentAPI(documentIdslist, mGetCategoryDocumentsResponses.getCategory_id(), switchButton_share);
-
+                      showWarningMessageAlertForSharingContent(mGetCategoryDocumentsResponses, switchButton_share);
                     } else {
                         switchButton_share.setChecked(true);
-                        if (context instanceof NavigationMyFolderActivity) {
+                       /* if (context instanceof NavigationMyFolderActivity) {
                             ((NavigationMyFolderActivity) context).showInternalShareAlertMessage();
-                        }
+                        }*/
+                        GlobalVariables.isMoveInitiated = true;
+                        GlobalVariables.selectedActionName =  "share";
+                        Intent intent = new Intent(context, NavigationSharedActivity.class);
+                        intent.putExtra("ObjectId", "0");
+                        context.startActivity(intent);
 
                     }
 
@@ -922,18 +921,13 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 
-        AccountSettings accountSettings = new AccountSettings(context);
-        String companyName = accountSettings.getCompanyName();
-
-        txtMessage.setText("You are about to share this document with "+ companyName +". Are you sure you wish to proceed?");
-
-      //  txtMessage.setText(context.getString(R.string.stop_sharing_text));
+        txtMessage.setText(context.getString(R.string.stop_sharing_text));
         Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
         cancelButton.setText("Cancel");
 
-        sendPinButton.setText("Share");
+        sendPinButton.setText("Ok");
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1009,8 +1003,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(context);
-                    Log.d("PinDevice error", t.getMessage());
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
                 }
             });
         }
@@ -1243,8 +1236,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(context);
-                    Log.d("PinDevice error", t.getMessage());
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
                 }
             });
         }
@@ -1297,8 +1289,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(context);
-                    Log.d("PinDevice error", t.getMessage());
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
                 }
             });
         }

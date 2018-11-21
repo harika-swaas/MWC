@@ -407,7 +407,7 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(mActivity);
+                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
                     // Toast.makeText(mActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
@@ -453,7 +453,7 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     dialog.dismiss();
-                    CommonFunctions.showTimeoutAlert(mActivity);
+                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
                 }
             });
         }
@@ -523,7 +523,7 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
                 @Override
                 public void onFailure(Throwable t) {
                     Log.d("ErrorLog", t.getMessage());
-                    CommonFunctions.showTimeoutAlert(mActivity);
+                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
                 }
             });
         }

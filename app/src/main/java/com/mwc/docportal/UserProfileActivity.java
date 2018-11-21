@@ -125,7 +125,7 @@ public class UserProfileActivity extends AppCompatActivity {
                 @Override
                 public void onFailure(Throwable t) {
                     Log.d("PINVerErr", t.getMessage());
-                    CommonFunctions.showTimeoutAlert(context);
+                    CommonFunctions.retrofitBadGatewayFailure(context, t);
                 }
             });
         }

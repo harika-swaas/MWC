@@ -362,8 +362,7 @@ public class MyFolderCategoryActivity extends RootActivity {
                         @Override
                         public void onFailure(Throwable t) {
                             transparentProgressDialog.dismiss();
-                            CommonFunctions.showTimeoutAlert(MyFolderCategoryActivity.this);
-                            Log.d("PinDevice error", t.getMessage());
+                            CommonFunctions.retrofitBadGatewayFailure(context, t);
                         }
                     });
                 }
