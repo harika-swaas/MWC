@@ -556,6 +556,8 @@ public class FTLPinVerificationFragment extends Fragment {
 
     private void downloadLogoImage(AccountSettingsResponse accountSettingsResponse, String imageUrl)
     {
+        LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
+        transparentProgressDialog.show();
         if (!TextUtils.isEmpty(imageUrl)) {
             FileDownloadManager fileDownloadManager = new FileDownloadManager(mActivity);
             GetCategoryDocumentsResponse categoryDocumentsResponse = new GetCategoryDocumentsResponse();
@@ -574,7 +576,7 @@ public class FTLPinVerificationFragment extends Fragment {
                     {
                         PreferenceUtils.setLogoImagePath(mActivity, path);
                     }
-
+                    transparentProgressDialog.dismiss();
 
                     getTermsConditionsUrlFromService(accountSettingsResponse);
 
@@ -754,9 +756,7 @@ public class FTLPinVerificationFragment extends Fragment {
 
                         }
 
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            checkSecurity();
-                        }
+
                     }
                 }
 
@@ -855,15 +855,16 @@ public class FTLPinVerificationFragment extends Fragment {
                         if(CommonFunctions.isApiSuccess(mActivity, message, apiResponse.status.getCode())) {
                             GetAssistancePopupContentResponse mGetAssistancePopupContentResponse = response.body().getData();
                             if (mGetAssistancePopupContentResponse != null) {
-
                                 String mHelpGuideURL = mGetAssistancePopupContentResponse.getHelp_guide_url();
 
                                 accountSettingsResponse.setHelp_Guide_URL(mHelpGuideURL);
 
                                 AccountSettings accountSettings = new AccountSettings(mActivity);
-                                accountSettings.InsertAccountSettings(accountSettingsResponse);
+                               accountSettings.InsertAccountSettings(accountSettingsResponse);
+                            }
 
-
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                checkSecurity();
                             }
                         }
                     }

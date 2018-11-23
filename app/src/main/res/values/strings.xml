@@ -1,6 +1,6 @@
 <resources>
-    <string name="versionCode">3</string>
-    <string name="versionName">1.2</string>
+    <string name="versionCode">4</string>
+    <string name="versionName">1.3</string>
     <string name="app_name">Doc Portal</string>
     <string name="ok">Ok</string>
     <string name="snackbar_download">DOWNLOAD</string>
