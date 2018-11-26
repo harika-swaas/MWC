@@ -112,6 +112,7 @@ public class Verify extends Activity {
                 @Override
                 public void onResponse(Response<BaseApiResponse<LoginResponse>> response, Retrofit retrofit) {
                     BaseApiResponse apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
                         /*if (apiResponse.status.isCode() == false) {
                             String mMessage = apiResponse.status.getMessage().toString();
@@ -125,13 +126,15 @@ public class Verify extends Activity {
                             dialog.dismiss();
                         }*/
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(vActivity, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
-
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(vActivity, t);
+                    CommonFunctions.showTimeOutError(vActivity, t);
                 }
             });
         }

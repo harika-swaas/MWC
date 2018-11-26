@@ -253,9 +253,8 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
                 @Override
                 public void onResponse(Response<PdfDocumentResponseModel> response, Retrofit retrofit) {
                     PdfDocumentResponseModel apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
-
-                        transparentProgressDialog.dismiss();
 
                         String message = "";
                         if(apiResponse.getStatus().getMessage() != null)
@@ -301,12 +300,15 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
                 }
             });
         }
@@ -760,10 +762,8 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
             call.enqueue(new Callback<SharedDocumentResponseModel>() {
                 @Override
                 public void onResponse(Response<SharedDocumentResponseModel> response, Retrofit retrofit) {
-
+                    transparentProgressDialog.dismiss();
                     if (response != null) {
-
-                        transparentProgressDialog.dismiss();
 
                         String message = "";
                         if(response.body().getStatus().getMessage() != null)
@@ -774,12 +774,15 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
                         CommonFunctions.isApiSuccess(context, message, response.body().getStatus().getCode());
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
                 }
             });
         }
@@ -813,10 +816,8 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
                 @Override
                 public void onResponse(Response<ListPinDevicesResponse<LoginResponse>> response, Retrofit retrofit) {
                     ListPinDevicesResponse apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
-
-                        transparentProgressDialog.dismiss();
-
                         String message = "";
                         if(apiResponse.status.getMessage() != null)
                         {
@@ -828,12 +829,16 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    Log.d("PinDevice error", t.getMessage());
+                    CommonFunctions.showTimeOutError(context, t);
+                    Log.d("Message", t.getMessage());
                 }
             });
         }
@@ -873,9 +878,8 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
                 @Override
                 public void onResponse(Response<ApiResponse<DownloadDocumentResponse>> response, Retrofit retrofit) {
                     ApiResponse apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
-
-                        transparentProgressDialog.dismiss();
                         String message = "";
                         if(apiResponse.status.getMessage() != null)
                         {
@@ -905,6 +909,9 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
 
@@ -912,7 +919,7 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
                 }
             });
         }
@@ -1069,9 +1076,8 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
                 @Override
                 public void onResponse(Response<DeleteDocumentResponseModel> response, Retrofit retrofit) {
                     DeleteDocumentResponseModel apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
-
-                        transparentProgressDialog.dismiss();
 
                         String message = "";
                         if(apiResponse.getStatus().getMessage() != null)
@@ -1153,12 +1159,15 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
                 }
             });
         }

@@ -22,7 +22,8 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.GET_TASKS" />
-    <uses-permission android:name="android.permission.WRITE_SETTINGS"
+    <uses-permission
+        android:name="android.permission.WRITE_SETTINGS"
         tools:ignore="ProtectedPermissions" />
     <uses-permission
         android:name="android.permission.CAPTURE_VIDEO_OUTPUT"
@@ -133,7 +134,8 @@
             </intent-filter>
         </receiver>
 
-       <!-- <provider
+        <!--
+        <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="${applicationId}.provider"
             android:exported="false"
@@ -141,7 +143,8 @@
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
-        </provider>-->
+        </provider>
+        -->
         <provider
             android:name=".GenericFileProvider"
             android:authorities="com.mwc.docportal"
@@ -152,10 +155,8 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
-
-
-
-        <!--<meta-data
+        <!--
+        <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@mipmap/doc_ic_launcher" />
         &lt;!&ndash;
@@ -164,40 +165,38 @@
         &ndash;&gt;
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
-            android:resource="@color/notification_icon_color" />-->
-
+            android:resource="@color/notification_icon_color" />
+        -->
 
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@mipmap/ic_notification_icon" />
-        <meta-data android:name="com.google.firebase.messaging.default_notification_color"
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/notification_icon_color" />
 
+        <!-- Production fabric key -->
 
-       <!-- Production fabric key-->
 
-       <!-- <meta-data
+        <!--
+            <meta-data
             android:name="io.fabric.ApiKey"
             android:value="f65d8896b478db0bc4f72b5d76f323801dc0509e"
-            />-->
+            />
+        -->
 
-        <!-- Testing fabric key-->
+
+        <!-- Testing fabric key -->
 
         <meta-data
             android:name="io.fabric.ApiKey"
-            android:value="39f3eab4f9f7f060c8d19339c0c8cdd4d7b8bbb0"
-            />
-
-
-
+            android:value="39f3eab4f9f7f060c8d19339c0c8cdd4d7b8bbb0" />
 
         <service android:name=".Firebase.MyFirebaseInstanceIdService">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
-
-
         <service
             android:name=".Firebase.MyFirebaseMessagingService"
             android:stopWithTask="true">
@@ -227,8 +226,7 @@
         <activity
             android:name=".Online_PdfView_Activity"
             android:configChanges="orientation|screenSize|keyboardHidden" />
-
-
+        <activity android:name=".Dummy_Activity"></activity>
     </application>
 
 </manifest>

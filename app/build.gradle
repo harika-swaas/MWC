@@ -24,8 +24,8 @@ android {
         minSdkVersion 21
         targetSdkVersion 27
         buildToolsVersion "27.0.2"
-        versionCode 3
-        versionName "1.2"
+        versionCode 5
+        versionName "1.4"
         multiDexEnabled true
     }
     buildTypes {
@@ -96,4 +96,3 @@ dependencies {
     implementation project(':filepicker')
 }
 apply plugin: 'com.google.gms.google-services'
-

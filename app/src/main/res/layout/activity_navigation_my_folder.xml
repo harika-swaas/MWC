@@ -10,23 +10,19 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/navigation"
-        >
+        android:fitsSystemWindows="true">
 
         <android.support.design.widget.AppBarLayout
             android:id="@+id/appbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fitsSystemWindows="true"
+            android:layout_height="110dp"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
 
             <android.support.design.widget.CollapsingToolbarLayout
                 android:id="@+id/collapsing_toolbar"
                 android:layout_width="match_parent"
-                android:layout_height="110dp"
+                android:layout_height="match_parent"
                 android:background="@color/white"
-                app:contentScrim="?android:attr/colorPrimary"
-                app:expandedTitleMarginTop="30dp"
-                app:expandedTitleMarginBottom="30dp"
                 app:expandedTitleMarginEnd="64dp"
                 app:expandedTitleMarginStart="60dp"
                 app:expandedTitleTextAppearance="@style/TextAppearance.AppCompat.Medium"
@@ -43,17 +39,27 @@
 
             </android.support.design.widget.CollapsingToolbarLayout>
 
-            <android.support.design.widget.AppBarLayout
-                android:layout_width="wrap_content"
+        </android.support.design.widget.AppBarLayout>
+
+        <FrameLayout
+            android:id="@+id/fragment_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            >
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/white">
+                android:orientation="vertical">
+
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="top"
                     android:orientation="vertical"
                     android:padding="16dp"
-                    app:layout_collapseMode="pin"
                     android:id="@+id/sorting_layout">
 
                     <RelativeLayout
@@ -115,10 +121,8 @@
                     </RelativeLayout>
 
                 </LinearLayout>
-            </android.support.design.widget.AppBarLayout>
 
 
-        </android.support.design.widget.AppBarLayout>
 
 
         <LinearLayout
@@ -147,15 +151,18 @@
                             android:layout_marginLeft="5dp"
                             android:layout_marginRight="10dp"
                             android:clipToPadding="false"
-                            android:layout_height="wrap_content">
+                            android:layout_height="wrap_content"
+                            app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
                         </android.support.v7.widget.RecyclerView>
 
-                   <!-- </android.support.v4.widget.NestedScrollView>-->
+                    <!--</android.support.v4.widget.NestedScrollView>-->
 
             </android.support.v4.widget.SwipeRefreshLayout>
 
         </LinearLayout>
+
+
 
         <LinearLayout
             android:id="@+id/empty_view"
@@ -192,8 +199,9 @@
 
 
         </LinearLayout>
+            </LinearLayout>
 
-
+        </FrameLayout>
     </android.support.design.widget.CoordinatorLayout>
 
     <!--<android.support.design.widget.BottomNavigationView

@@ -167,8 +167,8 @@ public class Properties_Fragment extends Fragment{
                 @Override
                 public void onResponse(Response<ListPinDevicesResponse<DocumentPropertiesResponse>> response, Retrofit retrofit) {
                     ListPinDevicesResponse apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
-                        transparentProgressDialog.dismiss();
                         String message = "";
                         if(response.body().status.getMessage() != null)
                         {
@@ -212,12 +212,15 @@ public class Properties_Fragment extends Fragment{
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(mActivity, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
+                    CommonFunctions.showTimeOutError(mActivity, t);
                 }
             });
         }
@@ -336,9 +339,8 @@ public class Properties_Fragment extends Fragment{
                 @Override
                 public void onResponse(Response<ListPinDevicesResponse<LoginResponse>> response, Retrofit retrofit) {
                     ListPinDevicesResponse apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
-
-                        transparentProgressDialog.dismiss();
 
                         String message = "";
                         if(apiResponse.status.getMessage() != null)
@@ -359,12 +361,15 @@ public class Properties_Fragment extends Fragment{
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(mActivity, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
+                    CommonFunctions.showTimeOutError(mActivity, t);
                 }
             });
         }

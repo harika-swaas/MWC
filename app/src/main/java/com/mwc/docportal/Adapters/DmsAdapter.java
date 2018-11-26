@@ -529,9 +529,8 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                 @Override
                 public void onResponse(Response<PdfDocumentResponseModel> response, Retrofit retrofit) {
                     PdfDocumentResponseModel apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
-
-                        transparentProgressDialog.dismiss();
 
                         String message = "";
                         if(apiResponse.getStatus().getMessage() != null)
@@ -571,12 +570,15 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
                 }
             });
         }
@@ -978,9 +980,8 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
             call.enqueue(new Callback<SharedDocumentResponseModel>() {
                 @Override
                 public void onResponse(Response<SharedDocumentResponseModel> response, Retrofit retrofit) {
-
+                    transparentProgressDialog.dismiss();
                     if (response != null) {
-                        transparentProgressDialog.dismiss();
 
                         String message = "";
                         if(response.body().getStatus().getMessage() != null)
@@ -998,12 +999,15 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                       }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
                 }
             });
         }
@@ -1213,9 +1217,8 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                 @Override
                 public void onResponse(Response<ListPinDevicesResponse<LoginResponse>> response, Retrofit retrofit) {
                     ListPinDevicesResponse apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
-
-                        transparentProgressDialog.dismiss();
 
                         String message = "";
                         if(apiResponse.status.getMessage() != null)
@@ -1230,13 +1233,15 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                             }
                         }
 
+                    }else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
                     }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
                 }
             });
         }
@@ -1267,9 +1272,8 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                 @Override
                 public void onResponse(Response<ListPinDevicesResponse<LoginResponse>> response, Retrofit retrofit) {
                     ListPinDevicesResponse apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
-
-                        transparentProgressDialog.dismiss();
 
                         String message = "";
                         if(apiResponse.status.getMessage() != null)
@@ -1284,12 +1288,15 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                             }
                         }
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
                 }
             });
         }

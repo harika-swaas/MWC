@@ -402,12 +402,16 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
 
 
                     }
+                    else {
+                        transparentProgressDialog.dismiss();
+                        CommonFunctions.serverErrorExceptions(mActivity, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
+                    CommonFunctions.showTimeOutError(mActivity, t);
                     // Toast.makeText(mActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
@@ -434,8 +438,8 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
                 @Override
                 public void onResponse(Response<BaseApiResponse<VerifyFTLResponse>> response, Retrofit retrofit) {
                     BaseApiResponse apiResponse = response.body();
+                    dialog.dismiss();
                     if (apiResponse != null) {
-                        dialog.dismiss();
 
                         String message = "";
                         if(apiResponse.status.getMessage() != null)
@@ -448,12 +452,15 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(mActivity, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     dialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
+                    CommonFunctions.showTimeOutError(mActivity, t);
                 }
             });
         }
@@ -477,8 +484,6 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
                 public void onResponse(Response<BaseApiResponse<GetUserPreferencesResponse>> response, Retrofit retrofit) {
                     BaseApiResponse apiResponse = response.body();
                     if (apiResponse != null) {
-
-
                         String message = "";
                         if(apiResponse.status.getMessage() != null)
                         {
@@ -517,13 +522,16 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
 
                             }
                         }
+                    }else {
+                        CommonFunctions.serverErrorExceptions(mActivity, response.code());
                     }
+
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     Log.d("ErrorLog", t.getMessage());
-                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
+                    CommonFunctions.showTimeOutError(mActivity, t);
                 }
             });
         }

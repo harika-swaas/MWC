@@ -324,10 +324,8 @@ public class OffLineFilesListAdapter extends RecyclerView.Adapter<OffLineFilesLi
             call.enqueue(new Callback<SharedDocumentResponseModel>() {
                 @Override
                 public void onResponse(Response<SharedDocumentResponseModel> response, Retrofit retrofit) {
-
+                    transparentProgressDialog.dismiss();
                     if (response != null) {
-
-                        transparentProgressDialog.dismiss();
                         String message = "";
                         if(response.body().getStatus().getMessage() != null)
                         {
@@ -355,12 +353,15 @@ public class OffLineFilesListAdapter extends RecyclerView.Adapter<OffLineFilesLi
                             context.startActivity(sharingIntent);
                         }
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
                 }
             });
         }

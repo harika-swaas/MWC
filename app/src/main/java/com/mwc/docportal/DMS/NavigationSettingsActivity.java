@@ -49,6 +49,7 @@ import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Common.GlobalVariables;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Database.PushNotificatoinSettings_Respository;
+import com.mwc.docportal.Dummy_Activity;
 import com.mwc.docportal.FTL.WebviewLoaderTermsActivity;
 import com.mwc.docportal.Login.LoginActivity;
 import com.mwc.docportal.Network.NetworkUtils;
@@ -86,7 +87,6 @@ public class NavigationSettingsActivity extends BaseActivity {
     List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList<>();
     KeyguardManager keyguardManager;
     private static final int CREDENTIALS_RESULT = 4342;
-    private static final String MWC = "MWC";
     AlertDialog mAlertDialog;
     String finger_print_settings;
     int backButtonCount = 0;
@@ -476,6 +476,9 @@ public class NavigationSettingsActivity extends BaseActivity {
             public void onClick(View v) {
 
                 ShowWarningMessageForLogout();
+
+               /* Intent i = new Intent(context, Dummy_Activity.class);
+                startActivity(i);*/
             }
         });
 
@@ -674,12 +677,15 @@ public class NavigationSettingsActivity extends BaseActivity {
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
-                    Log.d("PinDevice error", t.getMessage());
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    Log.d("Message", t.getMessage());
+                    CommonFunctions.showTimeOutError(context, t);
                 }
             });
         }
@@ -804,12 +810,15 @@ public class NavigationSettingsActivity extends BaseActivity {
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
-                    Log.d("PinDevice error", t.getMessage());
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    Log.d("Message", t.getMessage());
+                    CommonFunctions.showTimeOutError(context, t);
                 }
             });
         }

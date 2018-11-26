@@ -339,14 +339,15 @@ public class UploadListActivity extends RootActivity {
                             PreferenceUtils.setupload(UploadListActivity.this, UploadList, "key");
                             upload(0);*/
                         }
+                        else {
+                            CommonFunctions.serverErrorExceptions(context, response.code());
+                        }
                     }
 
                     @Override
                     public void onFailure(Throwable t) {
                         Log.d("Message", t.getMessage());
-                        CommonFunctions.retrofitBadGatewayFailure(context, t);
-
-
+                        CommonFunctions.showTimeOutError(context, t);
                     }
                 });
             }

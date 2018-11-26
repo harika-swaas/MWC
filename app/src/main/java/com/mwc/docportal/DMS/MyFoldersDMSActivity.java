@@ -2088,10 +2088,11 @@ public class MyFoldersDMSActivity extends RootActivity {
                 @Override
                 public void onResponse(Response<ListPinDevicesResponse<DownloadDocumentResponse>> response, Retrofit retrofit) {
                     ListPinDevicesResponse apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
 
                         if (apiResponse.status.getCode() == Boolean.FALSE) {
-                            transparentProgressDialog.dismiss();
+
                             downloadDocumentResponse = response.body().getData();
 
                             download_data = downloadDocumentResponse.get(0).getData();
@@ -2110,12 +2111,15 @@ public class MyFoldersDMSActivity extends RootActivity {
                         */
                         }
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
                 }
             });
         }

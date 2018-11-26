@@ -241,9 +241,8 @@ public class GlobalSearchActivity extends RootActivity implements SearchView.OnQ
                 @Override
                 public void onResponse(Response<GlobalSearchResponseModel> response, Retrofit retrofit) {
                     GlobalSearchResponseModel apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
-
-                        transparentProgressDialog.dismiss();
 
                         String message = "";
                         if(apiResponse.getStatus().getMessage() != null)
@@ -259,12 +258,15 @@ public class GlobalSearchActivity extends RootActivity implements SearchView.OnQ
                             getEndUserGlobalSearchData();
                         }
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
                 }
             });
         }
@@ -308,9 +310,8 @@ public class GlobalSearchActivity extends RootActivity implements SearchView.OnQ
                 public void onResponse(Response<GlobalSearchDataResponseModel> response, Retrofit retrofit) {
                     GlobalSearchDataResponseModel apiResponse = response.body();
                     apiCallInProgress = false;
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
-
-                        transparentProgressDialog.dismiss();
 
                         String message = "";
                         if(apiResponse.getStatus().getMessage() != null)
@@ -391,12 +392,15 @@ public class GlobalSearchActivity extends RootActivity implements SearchView.OnQ
 
                         }
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
                 }
             });
         }

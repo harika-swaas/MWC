@@ -366,16 +366,16 @@ public class SplashScreen extends RootActivity {
                                 }
 
                             }
-                           /* else {
+                            else {
                                 CommonFunctions.serverErrorExceptions(context, response.code());
-                            }*/
+                            }
                         }
 
                         @Override
                         public void onFailure(Throwable exceptionValue) {
                             transparentProgressDialog.dismiss();
                             mAlertDialog.dismiss();
-                            CommonFunctions.retrofitBadGatewayFailure(context, exceptionValue);
+                            CommonFunctions.showTimeOutError(context, exceptionValue);
                         }
 
                     });

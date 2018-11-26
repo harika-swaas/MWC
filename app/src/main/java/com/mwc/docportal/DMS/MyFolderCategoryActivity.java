@@ -362,7 +362,7 @@ public class MyFolderCategoryActivity extends RootActivity {
                         @Override
                         public void onFailure(Throwable t) {
                             transparentProgressDialog.dismiss();
-                            CommonFunctions.retrofitBadGatewayFailure(context, t);
+                            CommonFunctions.showTimeOutError(context, t);
                         }
                     });
                 }

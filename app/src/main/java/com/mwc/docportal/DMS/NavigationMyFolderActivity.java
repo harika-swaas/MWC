@@ -569,9 +569,8 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 @Override
                 public void onResponse(Response<ListPinDevicesResponse<GetCategoryDocumentsResponse>> response, Retrofit retrofit) {
                     ListPinDevicesResponse apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
-
-                        transparentProgressDialog.dismiss();
 
                         String message = "";
                         if(apiResponse.status.getMessage() != null)
@@ -621,12 +620,16 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                         }
 
                     }
+                    else
+                    {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
                     Log.d("Message", t.getMessage());
                 }
             });
@@ -672,12 +675,15 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                             }
                         }
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     Log.d("Message", t.getMessage());
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
                 }
             });
         }
@@ -712,12 +718,15 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                             PreferenceUtils.setFileFormats(context, (ArrayList<String>) fileformat,"key");
                         }
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     Log.d("Message", t.getMessage());
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
                 }
             });
         }
@@ -978,12 +987,16 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                                     }
 
                                 }
+                                else {
+                                    transparentProgressDialog.dismiss();
+                                    CommonFunctions.serverErrorExceptions(context, response.code());
+                                }
                             }
 
                             @Override
                             public void onFailure(Throwable t) {
                                 transparentProgressDialog.dismiss();
-                                CommonFunctions.retrofitBadGatewayFailure(context, t);
+                                CommonFunctions.showTimeOutError(context, t);
                                 Log.d("Message", t.getMessage());
                             }
                         });
@@ -1236,11 +1249,8 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 @Override
                 public void onResponse(Response<ApiResponse<LoginResponse>> response, Retrofit retrofit) {
                     ApiResponse apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
-
-                        transparentProgressDialog.dismiss();
-
-
                         String message = "";
                         if(apiResponse.status.getMessage() != null)
                         {
@@ -1255,12 +1265,16 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
+
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
                 }
             });
         }
@@ -1299,10 +1313,8 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 @Override
                 public void onResponse(Response<ApiResponse> response, Retrofit retrofit) {
                     ApiResponse apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
-
-                        transparentProgressDialog.dismiss();
-
 
                         String message = "";
                         if(apiResponse.status.getMessage() != null)
@@ -1321,12 +1333,15 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
                 }
             });
         }
@@ -1365,11 +1380,8 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 @Override
                 public void onResponse(Response<ApiResponse<LoginResponse>> response, Retrofit retrofit) {
                     ApiResponse apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
-
-                        transparentProgressDialog.dismiss();
-
-
 
                         String message = "";
                         if(response.body().status.getMessage() != null)
@@ -1392,12 +1404,15 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
                 }
             });
         }
@@ -1446,9 +1461,8 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 @Override
                 public void onResponse(Response<ListPinDevicesResponse<LoginResponse>> response, Retrofit retrofit) {
                     ListPinDevicesResponse apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
-
-                        transparentProgressDialog.dismiss();
 
                         String message = "";
                         if(response.body().status.getMessage() != null)
@@ -1468,12 +1482,15 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
                 }
             });
         }
@@ -3176,9 +3193,8 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 @Override
                 public void onResponse(Response<ListPinDevicesResponse<LoginResponse>> response, Retrofit retrofit) {
                     ListPinDevicesResponse apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
-
-                        transparentProgressDialog.dismiss();
 
                         String message = "";
                         if(apiResponse.status.getMessage() != null)
@@ -3193,12 +3209,15 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
                 }
             });
         }
@@ -3230,11 +3249,8 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 @Override
                 public void onResponse(Response<ListPinDevicesResponse<LoginResponse>> response, Retrofit retrofit) {
                     ListPinDevicesResponse apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
-
-                        transparentProgressDialog.dismiss();
-
-
                         String message = "";
                         if(apiResponse.status.getMessage() != null)
                         {
@@ -3248,12 +3264,15 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
                 }
             });
         }
@@ -3297,8 +3316,9 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 @Override
                 public void onResponse(Response<ApiResponse<DownloadDocumentResponse>> response, Retrofit retrofit) {
                     ApiResponse apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
-                        transparentProgressDialog.dismiss();
+
                         String message = "";
                         if(apiResponse.status.getMessage() != null)
                         {
@@ -3350,12 +3370,15 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
                 }
             });
         }
@@ -3526,10 +3549,8 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             call.enqueue(new Callback<SharedDocumentResponseModel>() {
                 @Override
                 public void onResponse(Response<SharedDocumentResponseModel> response, Retrofit retrofit) {
-
+                    transparentProgressDialog.dismiss();
                     if (response != null) {
-
-                        transparentProgressDialog.dismiss();
 
                         String message = "";
                         if(response.body().getStatus().getMessage() != null)
@@ -3544,12 +3565,15 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                        }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
                 }
             });
         }
@@ -3581,9 +3605,9 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 @Override
                 public void onResponse(Response<ApiResponse<DownloadDocumentResponse>> response, Retrofit retrofit) {
                     ApiResponse apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
 
-                        transparentProgressDialog.dismiss();
                         String message = "";
                         if(apiResponse.status.getMessage() != null)
                         {
@@ -3612,12 +3636,15 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
                 }
             });
         }
@@ -3730,9 +3757,10 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 @Override
                 public void onResponse(Response<DeleteDocumentResponseModel> response, Retrofit retrofit) {
                     DeleteDocumentResponseModel apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
 
-                        transparentProgressDialog.dismiss();
+
                         String message = "";
                         if(apiResponse.getStatus().getMessage() != null)
                         {
@@ -3815,12 +3843,15 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
                         }
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
                 }
             });
         }
@@ -4264,9 +4295,9 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                                 @Override
                                 public void onResponse(Response<ListPinDevicesResponse<LoginResponse>> response, Retrofit retrofit) {
                                     ListPinDevicesResponse apiResponse = response.body();
+                                    transparentProgressDialog.dismiss();
                                     if (apiResponse != null) {
 
-                                        transparentProgressDialog.dismiss();
                                         String message = "";
                                         if(apiResponse.status.getMessage() != null)
                                         {
@@ -4279,12 +4310,17 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                                         }
 
                                     }
+                                    else
+                                    {
+                                        CommonFunctions.serverErrorExceptions(context, response.code());
+
+                                    }
                                 }
 
                                 @Override
                                 public void onFailure(Throwable t) {
                                     transparentProgressDialog.dismiss();
-                                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                                    CommonFunctions.showTimeOutError(context, t);
                                 }
                             });
                         }

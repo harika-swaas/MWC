@@ -102,9 +102,9 @@ public class Notes_Fragment extends android.support.v4.app.Fragment {
                 @Override
                 public void onResponse(Response<ListPinDevicesResponse<DocumentNotesResponse>> response, Retrofit retrofit) {
                     ListPinDevicesResponse apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
 
-                        transparentProgressDialog.dismiss();
                         String message = "";
                         if(response.body().status.getMessage() != null)
                         {
@@ -127,12 +127,15 @@ public class Notes_Fragment extends android.support.v4.app.Fragment {
 
                         }
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(mActivity, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
+                    CommonFunctions.showTimeOutError(mActivity, t);
                 }
             });
         }
@@ -186,13 +189,16 @@ public class Notes_Fragment extends android.support.v4.app.Fragment {
                             }
 
                         }
-
-
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(mActivity, response.code());
+                    }
+
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
+                    CommonFunctions.showTimeOutError(mActivity, t);
                 }
             });
         }

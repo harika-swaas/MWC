@@ -69,49 +69,6 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHol
         }
     }
 
-    private void getUserNotesDetails(String notes_id) {
-
-        if (NetworkUtils.isNetworkAvailable(context)) {
-
-            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
-            final GetUserNotesDetailsService userNotesDetailsService = retrofitAPI.create(GetUserNotesDetailsService.class);
-
-            GetUserNotesDetailsRequest userNotesDetailsRequest = new GetUserNotesDetailsRequest(Integer.parseInt(notes_id));
-            final String request = new Gson().toJson(userNotesDetailsRequest);
-
-            //Here the json data is add to a hash map with key data
-            Map<String, String> params = new HashMap<String, String>();
-            params.put("data", request);
-
-            Call call = userNotesDetailsService.getUserNotesDetails(params, PreferenceUtils.getAccessToken(context));
-
-            call.enqueue(new Callback<BaseApiResponse<GetUserNotesDetailsResponse>>() {
-                @Override
-                public void onResponse(Response<BaseApiResponse<GetUserNotesDetailsResponse>> response, Retrofit retrofit) {
-                    BaseApiResponse apiResponse = response.body();
-                    if (apiResponse != null) {
-
-                        String message = "";
-                        if(apiResponse.status.getMessage() != null)
-                        {
-                            message = apiResponse.status.getMessage().toString();
-                        }
-
-                        if(CommonFunctions.isApiSuccess(context, message, apiResponse.status.getCode())) {
-                            GetUserNotesDetailsResponse userNotesDetailsResponse = response.body().getData();
-                            message = userNotesDetailsResponse.getMessage();
-                        }
-
-                    }
-                }
-
-                @Override
-                public void onFailure(Throwable t) {
-                }
-            });
-        }
-
-    }
 
     @Override
     public int getItemCount() {

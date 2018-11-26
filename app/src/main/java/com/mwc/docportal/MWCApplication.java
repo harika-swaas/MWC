@@ -148,12 +148,15 @@ public class MWCApplication extends MultiDexApplication implements Application.A
                             CommonFunctions.isApiSuccess(activity, message, response.body().getStatus().getCode());
 
                         }
+                        else {
+                            CommonFunctions.serverErrorExceptions(activity, response.code());
+                        }
                     }
 
                     @Override
                     public void onFailure(Throwable t) {
-                        Log.d("PinDevice error", t.getMessage());
-                        CommonFunctions.retrofitBadGatewayFailure(activity, t);
+                        Log.d("PushNotification error", t.getMessage());
+                        CommonFunctions.showTimeOutError(activity, t);
                     }
                 });
             }

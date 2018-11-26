@@ -322,7 +322,7 @@ public class CommonFunctions
                 .setIcon(android.R.drawable.ic_dialog_alert).create();
     }
 
-    public static void retrofitBadGatewayFailure(Context context, Throwable exceptionValue)
+    public static void showTimeOutError(Context context, Throwable exceptionValue)
     {
        if (!((Activity) context).isFinishing()) {
            getDialog(context).show();
@@ -365,7 +365,7 @@ public class CommonFunctions
         mAlertDialog.show();
     }
 
-   /* public static void serverErrorExceptions(Context context, int apiResponseCode)
+    public static void serverErrorExceptions(Context context, int apiResponseCode)
     {
         if(apiResponseCode == Constants.BadGatewayStatusCode)
         {
@@ -373,7 +373,11 @@ public class CommonFunctions
                 showBadGatewayFailure(context);
             }
         }
+        else
+        {
 
-    }*/
+        }
+
+    }
 
 }

@@ -84,7 +84,7 @@ public class Pin extends RootActivity {
                 public void onFailure(Throwable t) {
                     {
                         Log.d("Pindevice error", t.getMessage());
-                        CommonFunctions.retrofitBadGatewayFailure(pinActivity, t);
+                        CommonFunctions.showTimeOutError(pinActivity, t);
                     }
                 }
 
@@ -116,6 +116,7 @@ public class Pin extends RootActivity {
                     @Override
                     public void onResponse(Response<BaseApiResponse<LoginResponse>> response, Retrofit retrofit) {
                         BaseApiResponse apiResponse = response.body();
+                        transparentProgressDialog.dismiss();
                         if (apiResponse != null) {
                             /*if (apiResponse.status.isCode() == false) {
                                 dialog.dismiss();
@@ -130,12 +131,15 @@ public class Pin extends RootActivity {
                                 dialog.dismiss();
                             }*/
                         }
+                        else {
+                            CommonFunctions.serverErrorExceptions(pinActivity, response.code());
+                        }
                     }
 
                     @Override
                     public void onFailure(Throwable t) {
                         transparentProgressDialog.dismiss();
-                        CommonFunctions.retrofitBadGatewayFailure(pinActivity, t);
+                        CommonFunctions.showTimeOutError(pinActivity, t);
                     }
                 });
             }

@@ -459,10 +459,8 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
             call.enqueue(new Callback<SharedDocumentResponseModel>() {
                 @Override
                 public void onResponse(Response<SharedDocumentResponseModel> response, Retrofit retrofit) {
-
+                    transparentProgressDialog.dismiss();
                     if (response != null) {
-
-                        transparentProgressDialog.dismiss();
                         String message = "";
                         if(response.body().getStatus().getMessage() != null)
                         {
@@ -491,13 +489,15 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
-                    Log.d("PinDevice error", t.getMessage());
+                    CommonFunctions.showTimeOutError(context, t);
                 }
             });
         }
@@ -1140,10 +1140,10 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                                 @Override
                                 public void onResponse(Response<DeleteDocumentResponseModel> response, Retrofit retrofit) {
                                     DeleteDocumentResponseModel apiResponse = response.body();
+                                    transparentProgressDialog.dismiss();
+                                    mBackDialog.dismiss();
                                     if (apiResponse != null) {
 
-                                        transparentProgressDialog.dismiss();
-                                        mBackDialog.dismiss();
                                         String message = "";
                                         if(apiResponse.getStatus().getMessage() != null)
                                         {
@@ -1166,14 +1166,17 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                                         }
 
                                     }
+                                    else {
+                                        CommonFunctions.serverErrorExceptions(context, response.code());
+                                    }
                                 }
 
                                 @Override
                                 public void onFailure(Throwable t) {
                                     transparentProgressDialog.dismiss();
                                     mBackDialog.dismiss();
-                                    CommonFunctions.retrofitBadGatewayFailure(context, t);
-                                    Log.d("PinDevice error", t.getMessage());
+                                    CommonFunctions.showTimeOutError(context, t);
+
                                 }
                             });
                         }
@@ -1220,10 +1223,10 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                                 @Override
                                 public void onResponse(Response<DeleteDocumentResponseModel> response, Retrofit retrofit) {
                                     DeleteDocumentResponseModel apiResponse = response.body();
+                                    transparentProgressDialog.dismiss();
+                                    mBackDialog.dismiss();
                                     if (apiResponse != null) {
 
-                                        transparentProgressDialog.dismiss();
-                                        mBackDialog.dismiss();
                                         String message = "";
                                         if(apiResponse.getStatus().getMessage() != null)
                                         {
@@ -1254,14 +1257,16 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
                                         }
                                     }
+                                    else {
+                                        CommonFunctions.serverErrorExceptions(context, response.code());
+                                    }
                                 }
 
                                 @Override
                                 public void onFailure(Throwable t) {
                                     transparentProgressDialog.dismiss();
                                     mBackDialog.dismiss();
-                                    CommonFunctions.retrofitBadGatewayFailure(context, t);
-                                    Log.d("PinDevice error", t.getMessage());
+                                    CommonFunctions.showTimeOutError(context, t);
                                 }
                             });
                         }
@@ -1307,10 +1312,10 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                                 @Override
                                 public void onResponse(Response<DeleteDocumentResponseModel> response, Retrofit retrofit) {
                                     DeleteDocumentResponseModel apiResponse = response.body();
-                                    if (apiResponse != null) {
+                                    transparentProgressDialog.dismiss();
+                                    mBackDialog.dismiss();
 
-                                        transparentProgressDialog.dismiss();
-                                        mBackDialog.dismiss();
+                                    if (apiResponse != null) {
                                         String message = "";
                                         if(apiResponse.getStatus().getMessage() != null)
                                         {
@@ -1336,14 +1341,17 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                                         }
 
                                     }
+                                    else {
+                                        CommonFunctions.serverErrorExceptions(context, response.code());
+                                    }
                                 }
 
                                 @Override
                                 public void onFailure(Throwable t) {
                                     transparentProgressDialog.dismiss();
                                     mBackDialog.dismiss();
-                                    CommonFunctions.retrofitBadGatewayFailure(context, t);
-                                    Log.d("Message", t.getMessage());
+                                    CommonFunctions.showTimeOutError(context, t);
+
                                 }
                             });
                         }
@@ -1553,9 +1561,8 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                 @Override
                 public void onResponse(Response<ApiResponse<DownloadDocumentResponse>> response, Retrofit retrofit) {
                     ApiResponse apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
-
-                        transparentProgressDialog.dismiss();
                         String message = "";
                         if(apiResponse.status.getMessage() != null)
                         {
@@ -1582,14 +1589,16 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                             categoryDocumentsResponse.setDownloadUrl(downloaded_url+"&token="+base64AccessToken);
                             getDownloadManagerForDownloading(categoryDocumentsResponse, isFromshare);
                         }
-
+                    }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
                     }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
                 }
             });
         }
@@ -1769,12 +1778,8 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
             call.enqueue(new Callback<SharedDocumentResponseModel>() {
                 @Override
                 public void onResponse(Response<SharedDocumentResponseModel> response, Retrofit retrofit) {
-
+                    transparentProgressDialog.dismiss();
                     if (response != null) {
-
-                        transparentProgressDialog.dismiss();
-
-
                         String message = "";
                         if(response.body().getStatus().getMessage() != null)
                         {
@@ -1796,12 +1801,15 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
                     Log.d("Message", t.getMessage());
                 }
             });
@@ -1835,9 +1843,8 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                 @Override
                 public void onResponse(Response<ListPinDevicesResponse<LoginResponse>> response, Retrofit retrofit) {
                     ListPinDevicesResponse apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
-
-                        transparentProgressDialog.dismiss();
 
                         String message = "";
                         if(apiResponse.status.getMessage() != null)
@@ -1852,12 +1859,15 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
                     Log.d("Message", t.getMessage());
                 }
             });
@@ -1924,10 +1934,8 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                 @Override
                 public void onResponse(Response<ListPinDevicesResponse<DocumentPropertiesResponse>> response, Retrofit retrofit) {
                     ListPinDevicesResponse apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
-                        transparentProgressDialog.dismiss();
-
-
                         String message = "";
                         if(response.body().status.getMessage() != null)
                         {
@@ -1974,12 +1982,15 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                         }*/
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
                 }
             });
         }
@@ -2010,9 +2021,8 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                 @Override
                 public void onResponse(Response<PdfDocumentResponseModel> response, Retrofit retrofit) {
                     PdfDocumentResponseModel apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
-
-                        transparentProgressDialog.dismiss();
                         String message = "";
                         if(apiResponse.getStatus().getMessage() != null)
                         {
@@ -2093,12 +2103,15 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
                         }
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
                     Log.d("Message", t.getMessage());
                 }
             });

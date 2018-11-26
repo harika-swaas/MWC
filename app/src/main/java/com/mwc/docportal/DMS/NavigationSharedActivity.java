@@ -281,9 +281,8 @@ public class NavigationSharedActivity extends BaseActivity {
                 @Override
                 public void onResponse(Response<ListPinDevicesResponse<GetEndUserSharedParentFoldersResponse>> response, Retrofit retrofit) {
                     ListPinDevicesResponse apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
-
-                        transparentProgressDialog.dismiss();
                         String message = "";
                         if(apiResponse.status.getMessage() != null)
                         {
@@ -316,12 +315,15 @@ public class NavigationSharedActivity extends BaseActivity {
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
                     Log.d("Message", t.getMessage());
                 }
             });
@@ -383,9 +385,9 @@ public class NavigationSharedActivity extends BaseActivity {
                 @Override
                 public void onResponse(Response<ListPinDevicesResponse<GetEndUserSharedParentFoldersResponse>> response, Retrofit retrofit) {
                     ListPinDevicesResponse apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
 
-                        transparentProgressDialog.dismiss();
                         String message = "";
                         if(apiResponse.status.getMessage() != null)
                         {
@@ -418,13 +420,16 @@ public class NavigationSharedActivity extends BaseActivity {
 
                         }
 
+                    }else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
                     }
+
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
                     Log.d("Message", t.getMessage());
                 }
             });
@@ -588,10 +593,9 @@ public class NavigationSharedActivity extends BaseActivity {
                     SharedDocumentResponseModel apiResponse = response.body();
                     GlobalVariables.sharedDocumentList.clear();
 
-
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
 
-                        transparentProgressDialog.dismiss();
 
                         String message = "";
                         if(apiResponse.getStatus().getMessage() != null)
@@ -623,12 +627,15 @@ public class NavigationSharedActivity extends BaseActivity {
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
                     Log.d("Message", t.getMessage());
                 }
             });
@@ -1423,10 +1430,8 @@ public class NavigationSharedActivity extends BaseActivity {
             call.enqueue(new Callback<com.mwc.docportal.API.Model.SharedDocumentResponseModel>() {
                 @Override
                 public void onResponse(Response<com.mwc.docportal.API.Model.SharedDocumentResponseModel> response, Retrofit retrofit) {
-
+                    transparentProgressDialog.dismiss();
                     if (response != null) {
-
-                        transparentProgressDialog.dismiss();
 
                         String message = "";
                         if(response.body().getStatus().getMessage() != null)
@@ -1495,12 +1500,15 @@ public class NavigationSharedActivity extends BaseActivity {
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
                     Log.d("Message", t.getMessage());
                 }
             });
@@ -1542,9 +1550,8 @@ public class NavigationSharedActivity extends BaseActivity {
                 @Override
                 public void onResponse(Response<ApiResponse<DownloadDocumentResponse>> response, Retrofit retrofit) {
                     ApiResponse apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
-
-                        transparentProgressDialog.dismiss();
                         String message = "";
                         if(apiResponse.status.getMessage() != null)
                         {
@@ -1594,12 +1601,15 @@ public class NavigationSharedActivity extends BaseActivity {
 
                         }
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
                 }
             });
         }
@@ -1725,9 +1735,8 @@ public class NavigationSharedActivity extends BaseActivity {
                 @Override
                 public void onResponse(Response<ApiResponse<DownloadDocumentResponse>> response, Retrofit retrofit) {
                     ApiResponse apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
-
-                        transparentProgressDialog.dismiss();
                         String message = "";
                         if(apiResponse.status.getMessage() != null)
                         {
@@ -1756,12 +1765,16 @@ public class NavigationSharedActivity extends BaseActivity {
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
+
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
                 }
             });
         }
@@ -1799,9 +1812,8 @@ public class NavigationSharedActivity extends BaseActivity {
                 public void onResponse(Response<APIResponseModel> response, Retrofit retrofit) {
 
                     // BaseApiResponse apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (response != null) {
-
-                        transparentProgressDialog.dismiss();
 
                         String message = "";
                         if(response.body().getStatus().getMessage() != null)
@@ -1832,12 +1844,15 @@ public class NavigationSharedActivity extends BaseActivity {
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
 
                 }
             });
@@ -2358,9 +2373,8 @@ public class NavigationSharedActivity extends BaseActivity {
                 @Override
                 public void onResponse(Response<ListPinDevicesResponse<GetEndUserSharedParentFoldersResponse>> response, Retrofit retrofit) {
                     ListPinDevicesResponse apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
-
-                        transparentProgressDialog.dismiss();
 
                         String message = "";
                         if(apiResponse.status.getMessage() != null)
@@ -2392,12 +2406,15 @@ public class NavigationSharedActivity extends BaseActivity {
 
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    CommonFunctions.showTimeOutError(context, t);
 
                 }
             });

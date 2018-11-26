@@ -360,9 +360,9 @@ public class FTLPinVerificationFragment extends Fragment {
                 @Override
                 public void onResponse(Response<BaseApiResponse<FTLPINResponse>> response, Retrofit retrofit) {
                     BaseApiResponse apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
 
-                        transparentProgressDialog.dismiss();
                         String message = "";
                         if(apiResponse.status.getMessage() != null)
                         {
@@ -475,12 +475,15 @@ public class FTLPinVerificationFragment extends Fragment {
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(mActivity, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
+                    CommonFunctions.showTimeOutError(mActivity, t);
                 }
             });
         }
@@ -543,11 +546,14 @@ public class FTLPinVerificationFragment extends Fragment {
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(mActivity, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
-                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
+                    CommonFunctions.showTimeOutError(mActivity, t);
                     // Toast.makeText(mActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
@@ -556,6 +562,9 @@ public class FTLPinVerificationFragment extends Fragment {
 
     private void downloadLogoImage(AccountSettingsResponse accountSettingsResponse, String imageUrl)
     {
+
+        LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
+        transparentProgressDialog.show();
         if (!TextUtils.isEmpty(imageUrl)) {
             FileDownloadManager fileDownloadManager = new FileDownloadManager(mActivity);
             GetCategoryDocumentsResponse categoryDocumentsResponse = new GetCategoryDocumentsResponse();
@@ -575,7 +584,7 @@ public class FTLPinVerificationFragment extends Fragment {
                         PreferenceUtils.setLogoImagePath(mActivity, path);
                     }
 
-
+                    transparentProgressDialog.dismiss();
                     getTermsConditionsUrlFromService(accountSettingsResponse);
 
                 }
@@ -638,11 +647,14 @@ public class FTLPinVerificationFragment extends Fragment {
                             }
                         }
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(mActivity, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
-                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
+                    CommonFunctions.showTimeOutError(mActivity, t);
                     // Toast.makeText(mActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
@@ -677,9 +689,8 @@ public class FTLPinVerificationFragment extends Fragment {
                 @Override
                 public void onResponse(Response<BaseApiResponse<LoginResponse>> response, Retrofit retrofit) {
                     BaseApiResponse apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
-
-                        transparentProgressDialog.dismiss();
                         String message = "";
                         if(apiResponse.status.getMessage() != null)
                         {
@@ -691,12 +702,15 @@ public class FTLPinVerificationFragment extends Fragment {
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(mActivity, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
+                    CommonFunctions.showTimeOutError(mActivity, t);
                 }
             });
         }
@@ -715,6 +729,7 @@ public class FTLPinVerificationFragment extends Fragment {
                 @Override
                 public void onResponse(Response<BaseApiResponse<GetUserPreferencesResponse>> response, Retrofit retrofit) {
                     BaseApiResponse apiResponse = response.body();
+
                     if (apiResponse != null) {
 
                         String message = "";
@@ -754,16 +769,17 @@ public class FTLPinVerificationFragment extends Fragment {
 
                         }
 
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            checkSecurity();
-                        }
+
+                    }
+                    else {
+                        CommonFunctions.serverErrorExceptions(mActivity, response.code());
                     }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     Log.d("Message", t.getMessage());
-                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
+                    CommonFunctions.showTimeOutError(mActivity, t);
                 }
             });
         }
@@ -819,12 +835,15 @@ public class FTLPinVerificationFragment extends Fragment {
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(mActivity, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t)
                 {
-                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
+                    CommonFunctions.showTimeOutError(mActivity, t);
                 }
             });
         }
@@ -865,14 +884,20 @@ public class FTLPinVerificationFragment extends Fragment {
 
 
                             }
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                checkSecurity();
+                            }
                         }
+                    }
+                    else {
+                        CommonFunctions.serverErrorExceptions(mActivity, response.code());
                     }
                 }
 
                 @Override
                 public void onFailure(Throwable t)
                 {
-                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
+                    CommonFunctions.showTimeOutError(mActivity, t);
                 }
             });
         }
@@ -906,8 +931,9 @@ public class FTLPinVerificationFragment extends Fragment {
                 @Override
                 public void onResponse(Response<BaseApiResponse<VerifyFTLResponse>> response, Retrofit retrofit) {
                     BaseApiResponse apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
-                        transparentProgressDialog.dismiss();
+
                         String message = "";
                         if(apiResponse.status.getMessage() != null)
                         {
@@ -921,12 +947,15 @@ public class FTLPinVerificationFragment extends Fragment {
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(mActivity, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
+                    CommonFunctions.showTimeOutError(mActivity, t);
                     Log.d("Message", t.getMessage());
                 }
             });
@@ -956,8 +985,8 @@ public class FTLPinVerificationFragment extends Fragment {
                 @Override
                 public void onResponse(Response<BaseApiResponse> response, Retrofit retrofit) {
                     BaseApiResponse apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
-                        transparentProgressDialog.dismiss();
                         String message = "";
                         if(apiResponse.status.getMessage() != null)
                         {
@@ -971,12 +1000,15 @@ public class FTLPinVerificationFragment extends Fragment {
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(mActivity, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
+                    CommonFunctions.showTimeOutError(mActivity, t);
                     // Toast.makeText(pinActivity, t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });

@@ -98,10 +98,8 @@ public class UserProfileActivity extends AppCompatActivity {
             call.enqueue(new Callback<UserProfileModel>() {
                 @Override
                 public void onResponse(Response<UserProfileModel> response, Retrofit retrofit) {
-
+                    transparentProgressDialog.dismiss();
                     if (response != null) {
-                        transparentProgressDialog.dismiss();
-
 
                         String message = "";
                         if(response.body().getStatus().getMessage() != null)
@@ -120,12 +118,16 @@ public class UserProfileActivity extends AppCompatActivity {
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
-                    Log.d("PINVerErr", t.getMessage());
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    transparentProgressDialog.dismiss();
+                    Log.d("UserProfile Message", t.getMessage());
+                    CommonFunctions.showTimeOutError(context, t);
                 }
             });
         }

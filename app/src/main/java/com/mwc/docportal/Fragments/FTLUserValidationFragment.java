@@ -501,12 +501,15 @@ public class FTLUserValidationFragment extends Fragment {
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(mActivity, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     Log.d("FTLProcessErr", t.getMessage());
-                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
+                    CommonFunctions.showTimeOutError(mActivity, t);
                 }
             });
         }

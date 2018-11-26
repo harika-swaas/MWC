@@ -120,11 +120,14 @@ public class LoginHelpUserGuideFragment extends Fragment {
                             }
                         }
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(mActivity, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
-                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
+                    CommonFunctions.showTimeOutError(mActivity, t);
                 }
             });
         }
@@ -313,8 +316,8 @@ public class LoginHelpUserGuideFragment extends Fragment {
                 @Override
                 public void onResponse(Response<BaseApiResponse<LoginResponse>> response, Retrofit retrofit) {
                     BaseApiResponse apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
-                        transparentProgressDialog.dismiss();
 
                         String message = "";
                         if(apiResponse.status.getMessage() != null)
@@ -331,12 +334,15 @@ public class LoginHelpUserGuideFragment extends Fragment {
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(mActivity, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
+                    CommonFunctions.showTimeOutError(mActivity, t);
                 }
             });
         }

@@ -241,10 +241,8 @@ public class Notifiy extends RootActivity {
             call.enqueue(new Callback<SharedDocumentResponseModel>() {
                 @Override
                 public void onResponse(Response<SharedDocumentResponseModel> response, Retrofit retrofit) {
-
+                    transparentProgressDialog.dismiss();
                     if (response != null) {
-
-                        transparentProgressDialog.dismiss();
                         String message = "";
                         if(response.body().getStatus().getMessage() != null)
                         {
@@ -312,12 +310,16 @@ public class Notifiy extends RootActivity {
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
-                    Log.d("PinDevice error", t.getMessage());
-                    CommonFunctions.retrofitBadGatewayFailure(context, t);
+                    transparentProgressDialog.dismiss();
+                    Log.d("Notification error", t.getMessage());
+                    CommonFunctions.showTimeOutError(context, t);
                 }
             });
         }

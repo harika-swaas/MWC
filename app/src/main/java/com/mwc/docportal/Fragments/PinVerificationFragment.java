@@ -160,9 +160,8 @@ public class  PinVerificationFragment extends Fragment {
                 @Override
                 public void onResponse(Response<ListPinDevicesResponse<ListPinDevices>> response, Retrofit retrofit) {
                     ListPinDevicesResponse apiResponse = response.body();
+                    loadingProgressDialog.dismiss();
                     if (apiResponse != null) {
-
-                        loadingProgressDialog.dismiss();
 
                         String message = "";
                         if(apiResponse.status.getMessage() != null)
@@ -175,12 +174,15 @@ public class  PinVerificationFragment extends Fragment {
                             setAdapter(mListPinDevices);
                         }
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(mActivity, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     loadingProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
+                    CommonFunctions.showTimeOutError(mActivity, t);
                 }
             });
         }
@@ -248,12 +250,15 @@ public class  PinVerificationFragment extends Fragment {
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(mActivity, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     transparentProgressDialog.dismiss();
-                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
+                    CommonFunctions.showTimeOutError(mActivity, t);
                 }
             });
         }

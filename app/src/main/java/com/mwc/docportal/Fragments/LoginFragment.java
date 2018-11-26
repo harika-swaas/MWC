@@ -200,9 +200,9 @@ public class LoginFragment extends Fragment {
                     @Override
                     public void onResponse(Response<ApiResponse<LoginResponse>> response, Retrofit retrofit) {
                         ApiResponse apiResponse = response.body();
+                        transparentProgressDialog.dismiss();
                         if (apiResponse != null) {
 
-                            transparentProgressDialog.dismiss();
                             String message = "";
                             if(apiResponse.status.getMessage() != null)
                             {
@@ -274,14 +274,16 @@ public class LoginFragment extends Fragment {
                             }
 
                         }
-
+                        else {
+                            CommonFunctions.serverErrorExceptions(mActivity, response.code());
+                        }
                     }
 
                     @Override
                     public void onFailure(Throwable t) {
                         Log.e("LoginErr", t.toString());
                         transparentProgressDialog.dismiss();
-                        CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
+                        CommonFunctions.showTimeOutError(mActivity, t);
                     }
                 });
             }
@@ -338,11 +340,14 @@ public class LoginFragment extends Fragment {
                             }
                         }
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(mActivity, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
-                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
+                    CommonFunctions.showTimeOutError(mActivity, t);
                 }
             });
         }
@@ -508,11 +513,14 @@ public class LoginFragment extends Fragment {
                         }
 
                     }
+                    else {
+                        CommonFunctions.serverErrorExceptions(mActivity, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
-                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
+                    CommonFunctions.showTimeOutError(mActivity, t);
                 }
             });
         }
@@ -567,17 +575,16 @@ public class LoginFragment extends Fragment {
                         }
 
 
-
-                      /*  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            checkSecurity();
-                        }*/
+                    }
+                    else {
+                        CommonFunctions.serverErrorExceptions(mActivity, response.code());
                     }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     Log.d("Message", t.getMessage());
-                    CommonFunctions.retrofitBadGatewayFailure(mActivity, t);
+                    CommonFunctions.showTimeOutError(mActivity, t);
                 }
             });
         }
