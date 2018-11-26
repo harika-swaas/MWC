@@ -144,7 +144,7 @@
     <string name="video">Video</string>
     <string name="user_name_txt">User Name</string>
     <string name="user_offline_files_txt">Offline Files</string>
-    <string name="push_notification_txt">Push Notification</string>
+    <string name="push_notification_txt">Push Notifications</string>
     <string name="finger_print_txt">Device Authentication</string>
     <string name="help_txt">Help</string>
     <string name="terms_privacy_txt">Terms &amp; Privacy Policy</string>
