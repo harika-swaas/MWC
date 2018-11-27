@@ -136,11 +136,11 @@ public class  PinVerificationFragment extends Fragment {
     private void checkPermissionForReadSMS()
     {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            int readSMSPersmission = ContextCompat.checkSelfPermission(mActivity, Manifest.permission.READ_SMS);
+            int readSMSPersmission = ContextCompat.checkSelfPermission(mActivity, Manifest.permission.RECEIVE_SMS);
             if (readSMSPersmission == PackageManager.PERMISSION_GRANTED) {
                     sendPin();
             } else {
-                requestPermissions(new String[]{Manifest.permission.READ_SMS}, REQUEST_READ_SMS_PERMISSION);
+                requestPermissions(new String[]{Manifest.permission.RECEIVE_SMS}, REQUEST_READ_SMS_PERMISSION);
             }
         } else {
             sendPin();
@@ -234,8 +234,9 @@ public class  PinVerificationFragment extends Fragment {
                 @Override
                 public void onResponse(Response<BaseApiResponse> response, Retrofit retrofit) {
                     BaseApiResponse apiResponse = response.body();
+                    transparentProgressDialog.dismiss();
                     if (apiResponse != null) {
-                        transparentProgressDialog.dismiss();
+
                         String message = "";
                         if(apiResponse.status.getMessage() != null)
                         {

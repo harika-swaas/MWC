@@ -29,7 +29,7 @@ public class ReadSms extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            int readSMSPersmission = ContextCompat.checkSelfPermission(context, android.Manifest.permission.READ_SMS);
+            int readSMSPersmission = ContextCompat.checkSelfPermission(context, Manifest.permission.RECEIVE_SMS);
             if (readSMSPersmission == PackageManager.PERMISSION_GRANTED) {
                 if (intent.getAction() == "android.provider.Telephony.SMS_RECEIVED") {
 

@@ -4,9 +4,11 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.KeyguardManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,6 +16,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.text.Editable;
@@ -73,11 +76,14 @@ import com.mwc.docportal.Login.Touchid;
 import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
+import com.mwc.docportal.ReadSms;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
 import com.mwc.docportal.Utils.Constants;
 import com.mwc.docportal.pdf.PdfViewActivity;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import retrofit.Call;
@@ -106,12 +112,18 @@ public class FTLPinVerificationFragment extends Fragment {
     String message;
     static String Otp;
     public static final int REQUEST_STORAGE_PERMISSION = 111;
+    public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 1;
     AccountSettingsResponse accountSettingsList = new AccountSettingsResponse();
     TextView pin_verification_txt;
+    BroadcastReceiver receiver;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mActivity = (FTLPinVerificationActivity) getActivity();
+
+
+
+
     }
 
     @Nullable
@@ -122,18 +134,13 @@ public class FTLPinVerificationFragment extends Fragment {
         intializeViews();
         getIntentData();
         addListenersToViews();
+
+        IntentFilter intentFilter =  new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
+        receiver = new ReadSms();
+        mActivity.registerReceiver(receiver, intentFilter);
+
         return mView;
     }
-
-    /*private BroadcastReceiver receiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equalsIgnoreCase("otp")) {
-                final String message = intent.getStringExtra("message");
-                inputPIN.setText(message);
-            }
-        }
-    };*/
 
     public static void receivedSms(final String message) {
 
@@ -412,7 +419,7 @@ public class FTLPinVerificationFragment extends Fragment {
                                         Button sendPinButton = (Button) view.findViewById(R.id.send_pin_button);
                                         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
-                                        sendPinButton.setText("SEND PIN AGAIN");
+                                        sendPinButton.setText("Send PIN again");
 
                                         sendPinButton.setOnClickListener(new View.OnClickListener() {
                                             @Override
@@ -1074,6 +1081,8 @@ public class FTLPinVerificationFragment extends Fragment {
                     getPermissionForExternalStorage(accountSettingsList);
                 }
                 break;
+
+
         }
     }
 
@@ -1147,5 +1156,10 @@ public class FTLPinVerificationFragment extends Fragment {
         mAlertDialog.show();
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        mActivity.unregisterReceiver(receiver);
+    }
 
 }
