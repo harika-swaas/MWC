@@ -155,6 +155,7 @@ public class FileDownloadManager extends RootActivity {
         String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(getDownloadUrl()));
         request.setMimeType(GetFileExtension());
         request.setDescription(getFileDescription());
+        request.setVisibleInDownloadsUi(false);
         if (getFileTile() != null) {
             request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, getFileTile());
         } else {
@@ -188,6 +189,7 @@ public class FileDownloadManager extends RootActivity {
         String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(getDownloadUrl()));
         request.setMimeType(GetFileExtension());
         request.setDescription(getFileDescription());
+        request.setVisibleInDownloadsUi(false);
         if (getFileTile() != null) {
 
             File dir = new File(new File(Environment.getExternalStorageDirectory(), Constants.Folder_Name), "");

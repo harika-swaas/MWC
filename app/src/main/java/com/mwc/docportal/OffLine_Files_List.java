@@ -1,9 +1,6 @@
 package com.mwc.docportal;
 
 import android.content.Context;
-import android.content.Intent;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,13 +10,8 @@ import android.view.View;
 import android.widget.LinearLayout;
 
 import com.mwc.docportal.API.Model.OfflineFiles;
-import com.mwc.docportal.API.Model.WhiteLabelResponse;
-import com.mwc.docportal.Adapters.DmsAdapterList;
 import com.mwc.docportal.Adapters.OffLineFilesListAdapter;
-import com.mwc.docportal.Common.GlobalVariables;
 import com.mwc.docportal.Common.SimpleDividerItemDecoration;
-import com.mwc.docportal.DMS.MyFoldersDMSActivity;
-import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Database.OffLine_Files_Repository;
 
 

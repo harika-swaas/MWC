@@ -2,6 +2,7 @@ package com.mwc.docportal.Adapters;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -18,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.mwc.docportal.API.Model.BaseApiResponse;
@@ -196,37 +198,127 @@ public class OffLineFilesListAdapter extends RecyclerView.Adapter<OffLineFilesLi
                         context.startActivity(intent);
 
                     }
-                    else if(offLineFileListData.get(position).getFiletype() != null && !offLineFileListData.get(position).getFiletype().equalsIgnoreCase("pdf"))
+                    else
                     {
-                        if(offLineFileListData.get(position).getDocumentVersionId() != null && !offLineFileListData.get(position).getDocumentVersionId().isEmpty())
-                        {
-                         //   showWarningAlertForSharingContent(offLineFileListData.get(position), offLineFileListData.get(position).getFilename(), offLineFileListData.get(position).getDocumentVersionId());
-
-                            String[] mimetypes = {"image/*", "application/*|text/*"};
-
-                            String imagePath = offLineFileListData.get(position).getFilePath();
-
-                            File imageFileToShare = new File(imagePath);
-
-                            Uri uri = Uri.fromFile(imageFileToShare);
-
-                            Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
-                            sharingIntent.setType("*/*");
-                            String shareBody = "";
-                            sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, offLineFileListData.get(position).getFilename());
-                            sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
-                            sharingIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
-                            sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
-                            Intent.createChooser(sharingIntent,"Share via");
-                            context.startActivity(sharingIntent);
-                        }
-
+                        openFile(offLineFileListData.get(position));
                     }
+
+//                    else if(offLineFileListData.get(position).getFiletype() != null && !offLineFileListData.get(position).getFiletype().equalsIgnoreCase("pdf"))
+//                    {
+//                        if(offLineFileListData.get(position).getDocumentVersionId() != null && !offLineFileListData.get(position).getDocumentVersionId().isEmpty())
+//                        {
+//                           /* showWarningAlertForSharingContent(offLineFileListData.get(position), offLineFileListData.get(position).getFilename(), offLineFileListData.get(position).getDocumentVersionId());*/
+//
+//                            String[] mimetypes = {"image/*", "application/*|text/*"};
+//
+//                            String imagePath = offLineFileListData.get(position).getFilePath();
+//
+//                            File imageFileToShare = new File(imagePath);
+//
+//                            Uri uri = Uri.fromFile(imageFileToShare);
+//
+//                            Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+//                            sharingIntent.setType("*/*");
+//                            String shareBody = "";
+//                            sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, offLineFileListData.get(position).getFilename());
+//                            sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+//                            sharingIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
+//                            sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
+//                            Intent.createChooser(sharingIntent,"Share via");
+//                            context.startActivity(sharingIntent);
+//                        }
+//
+//                    }
 
                 }
             });
         }
     }
+
+    private void openFile(OfflineFiles offlineFiles)
+    {
+
+        try {
+
+            File imageFileToShare = new File(offlineFiles.getFilePath());
+            Uri uri = Uri.fromFile(imageFileToShare);
+
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            if (offlineFiles.getFiletype().equalsIgnoreCase("doc") || offlineFiles.getFiletype().equalsIgnoreCase("docx")) {
+                // Word document
+                intent.setDataAndType(uri, "application/msword");
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
+            }  else if (offlineFiles.getFiletype().equalsIgnoreCase("ppt") || offlineFiles.getFiletype().equalsIgnoreCase("pptx")) {
+                // Powerpoint file
+                intent.setDataAndType(uri, "application/vnd.ms-powerpoint");
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
+            } else if (offlineFiles.getFiletype().equalsIgnoreCase("xls") || offlineFiles.getFiletype().equalsIgnoreCase("xlsx")) {
+                // Excel file
+                intent.setDataAndType(uri, "application/vnd.ms-excel");
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
+            } else if (offlineFiles.getFiletype().equalsIgnoreCase("wav") || offlineFiles.getFiletype().equalsIgnoreCase("mp3")) {
+                // WAV audio file
+                intent.setDataAndType(uri, "audio/x-wav");
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
+            } else if (offlineFiles.getFiletype().equalsIgnoreCase("gif")) {
+                // GIF file
+                intent.setDataAndType(uri, "image/gif");
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
+            } else if (offlineFiles.getFiletype().equalsIgnoreCase("jpg") || offlineFiles.getFiletype().equalsIgnoreCase("jpeg") ||
+                    offlineFiles.getFiletype().equalsIgnoreCase("png") || offlineFiles.getFiletype().equalsIgnoreCase("bmp")) {
+                // JPG file
+                intent.setDataAndType(uri, "image/jpeg");
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
+            } else if (offlineFiles.getFiletype().equalsIgnoreCase("txt")) {
+                // Text file
+                intent.setDataAndType(uri, "text/plain");
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
+            } else if (offlineFiles.getFiletype().equalsIgnoreCase("3gp") || offlineFiles.getFiletype().equalsIgnoreCase("mpg") ||
+                    offlineFiles.getFiletype().equalsIgnoreCase("mpeg") || offlineFiles.getFiletype().equalsIgnoreCase("mpe") ||
+                    offlineFiles.getFiletype().equalsIgnoreCase("mp4") || offlineFiles.getFiletype().equalsIgnoreCase("avi") ||
+                    offlineFiles.getFiletype().equalsIgnoreCase("mov")) {
+                // Video files
+                intent.setDataAndType(uri, "video/*");
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
+            } else {
+             //   intent.setDataAndType(uri, "*/*");
+                openExternalShareActivity(offlineFiles);
+            }
+
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(context, "No application found which can open the file", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void openExternalShareActivity(OfflineFiles offlineFiles)
+    {
+        String[] mimetypes = {"image/*", "application/*|text/*"};
+
+        String imagePath = offlineFiles.getFilePath();
+
+        File imageFileToShare = new File(imagePath);
+
+        Uri uri = Uri.fromFile(imageFileToShare);
+
+        Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+        sharingIntent.setType("*/*");
+        String shareBody = "";
+        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, offlineFiles.getFilename());
+        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+        sharingIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
+        sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
+        Intent.createChooser(sharingIntent,"Share via");
+        context.startActivity(sharingIntent);
+    }
+
 
     public void showWarningAlertForSharingContent(OfflineFiles offlineFiles, final String filename, final String documentVersionId)
     {

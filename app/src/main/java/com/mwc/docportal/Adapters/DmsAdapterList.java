@@ -8,13 +8,10 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
 import android.text.InputFilter;
 import android.text.InputType;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,17 +26,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.mwc.docportal.API.Model.ApiResponse;
-import com.mwc.docportal.API.Model.BaseApiResponse;
 import com.mwc.docportal.API.Model.ColorCodeModel;
-import com.mwc.docportal.API.Model.DeleteDocumentRequest;
-import com.mwc.docportal.API.Model.DeleteEndUserFolderRequest;
 import com.mwc.docportal.API.Model.DocumentPreviewRequest;
-import com.mwc.docportal.API.Model.DocumentPreviewResponse;
 import com.mwc.docportal.API.Model.EditDocumentPropertiesRequest;
 import com.mwc.docportal.API.Model.EditDocumentResponse;
 import com.mwc.docportal.API.Model.EndUserRenameRequest;
-import com.mwc.docportal.API.Model.GetCategoryDocumentsRequest;
 import com.mwc.docportal.API.Model.GetCategoryDocumentsResponse;
 import com.mwc.docportal.API.Model.ListPinDevicesResponse;
 import com.mwc.docportal.API.Model.LoginResponse;
@@ -47,20 +38,12 @@ import com.mwc.docportal.API.Model.PdfDocumentResponseModel;
 import com.mwc.docportal.API.Model.SharedDocumentResponseModel;
 import com.mwc.docportal.API.Model.StopSharingRequestModel;
 import com.mwc.docportal.API.Model.WhiteLabelResponse;
-import com.mwc.docportal.API.Service.DeleteDocumentService;
-import com.mwc.docportal.API.Service.DeleteEndUserFolderService;
 import com.mwc.docportal.API.Service.DocumentPreviewService;
 import com.mwc.docportal.API.Service.EditDocumentPropertiesService;
 import com.mwc.docportal.API.Service.EndUserRenameService;
-import com.mwc.docportal.API.Service.GetCategoryDocumentsService;
 import com.mwc.docportal.API.Service.GetEndUserParentSHaredFoldersService;
 import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Common.GlobalVariables;
-import com.mwc.docportal.DMS.MyFolderActivity;
-import com.mwc.docportal.DMS.MyFolderCopyActivity;
-import com.mwc.docportal.DMS.MyFolderSharedDocuments;
-import com.mwc.docportal.DMS.MyFoldersDMSActivity;
-import com.mwc.docportal.DMS.MyfolderDeleteActivity;
 import com.mwc.docportal.DMS.NavigationMyFolderActivity;
 import com.mwc.docportal.DMS.NavigationSharedActivity;
 import com.mwc.docportal.DMS.Tab_Activity;
@@ -76,7 +59,6 @@ import com.mwc.docportal.pdf.PdfViewActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -87,7 +69,7 @@ import retrofit.Retrofit;
 
 public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHolder> {
 
-    MyFoldersDMSActivity myFoldersDMSActivity;
+
     ArrayList<String> doc_id = new ArrayList<String>();
     final Activity context;
     private List<GetCategoryDocumentsResponse> mGetCategoryDocumentsResponses;

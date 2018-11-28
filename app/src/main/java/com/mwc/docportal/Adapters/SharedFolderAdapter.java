@@ -4,7 +4,6 @@ package com.mwc.docportal.Adapters;
  * Created by barath on 7/12/2018.
  */
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -13,57 +12,42 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
-import android.text.SpannableString;
-import android.text.style.StyleSpan;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.mwc.docportal.API.Model.ColorCodeModel;
 import com.mwc.docportal.API.Model.DocumentPreviewRequest;
 
-import com.mwc.docportal.API.Model.EditDocumentPropertiesRequest;
-import com.mwc.docportal.API.Model.EditDocumentResponse;
-import com.mwc.docportal.API.Model.EndUserRenameRequest;
 import com.mwc.docportal.API.Model.GetCategoryDocumentsResponse;
-import com.mwc.docportal.API.Model.ListPinDevicesResponse;
-import com.mwc.docportal.API.Model.LoginResponse;
 import com.mwc.docportal.API.Model.PdfDocumentResponseModel;
 import com.mwc.docportal.API.Model.SharedDocumentResponseModel;
 import com.mwc.docportal.API.Model.StopSharingRequestModel;
 import com.mwc.docportal.API.Model.WhiteLabelResponse;
 import com.mwc.docportal.API.Service.DocumentPreviewService;
 
-import com.mwc.docportal.API.Service.EditDocumentPropertiesService;
-import com.mwc.docportal.API.Service.EndUserRenameService;
 import com.mwc.docportal.API.Service.GetEndUserParentSHaredFoldersService;
 import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Common.GlobalVariables;
 
-import com.mwc.docportal.DMS.MyFolderSharedDocuments;
 import com.mwc.docportal.DMS.NavigationMyFolderActivity;
 import com.mwc.docportal.DMS.NavigationSharedActivity;
 import com.mwc.docportal.DMS.Tab_Activity;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Database.OffLine_Files_Repository;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
-import com.mwc.docportal.Login.LoginActivity;
 import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
@@ -71,7 +55,6 @@ import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
 import com.mwc.docportal.Utils.Constants;
 import com.mwc.docportal.pdf.PdfViewActivity;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

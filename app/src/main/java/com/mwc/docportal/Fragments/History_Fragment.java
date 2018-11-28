@@ -1,6 +1,5 @@
 package com.mwc.docportal.Fragments;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -16,9 +15,7 @@ import com.mwc.docportal.API.Model.ListPinDevicesResponse;
 import com.mwc.docportal.API.Service.DocumentHistoryService;
 import com.mwc.docportal.Adapters.HistoryAdapter;
 import com.mwc.docportal.Common.CommonFunctions;
-import com.mwc.docportal.Common.GlobalVariables;
 import com.mwc.docportal.Common.SimpleDividerItemDecoration;
-import com.mwc.docportal.DMS.MyFoldersDMSActivity;
 import com.mwc.docportal.DMS.Tab_Activity;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.Network.NetworkUtils;

@@ -623,32 +623,37 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
             }
 
             updateUnreadStatusForDocument(categoryDocumentsResponse);
-           updateUnreadCountInParentFolder(categoryDocumentsResponse);
+           updateUnreadCountInParentFolder(categoryDocumentsResponse.getCategory_id());
 
         }*/
 
     }
 
-    /*private void updateUnreadCountInParentFolder(GetCategoryDocumentsResponse categoryDocumentsResponse)
+   /* private void updateUnreadCountInParentFolder(String categoryId)
     {
-        if(GlobalVariables.sharedDocumentList != null && GlobalVariables.sharedDocumentList.size() > 0 && !categoryDocumentsResponse.getCategory_id().equals("0"))
+        if(GlobalVariables.sharedDocumentList != null && GlobalVariables.sharedDocumentList.size() > 0)
         {
             for(GetCategoryDocumentsResponse mcategoryDocumentsResponse : GlobalVariables.sharedDocumentList)
             {
-                if(mcategoryDocumentsResponse.getCategory_id() != null && mcategoryDocumentsResponse.getCategory_id().equalsIgnoreCase(categoryDocumentsResponse.getCategory_id()))
+                if(mcategoryDocumentsResponse.getType() != null && mcategoryDocumentsResponse.getType().equalsIgnoreCase("category"))
                 {
-                    int unreadCount = mcategoryDocumentsResponse.getUnread_count();
-                    if(unreadCount > 0)
+                    if(mcategoryDocumentsResponse.getCategory_id() != null && mcategoryDocumentsResponse.getCategory_id().equalsIgnoreCase(categoryId))
                     {
-                        mcategoryDocumentsResponse.setUnread_count(unreadCount--);
+                        int unreadCount = mcategoryDocumentsResponse.getUnread_count();
+                        if(unreadCount > 0)
+                        {
+                            mcategoryDocumentsResponse.setUnread_count(unreadCount--);
+                        }
+
+                        if(!mcategoryDocumentsResponse.getCategory_id().equals("0"))
+                        {
+                            updateUnreadCountInParentFolder(mcategoryDocumentsResponse.getCategory_id());
+                            break;
+                        }
+
                     }
-
-                    updateUnreadCountInParentFolder(mcategoryDocumentsResponse);
-
                 }
-                
             }
-
         }
     }*/
 
@@ -770,12 +775,16 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                         }
 
                     }
+                    else
+                    {
+                       CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     CommonFunctions.showTimeoutAlert(context);
-                    Log.d("PinDevice error", t.getMessage());
+                    Log.d("DocumentStatus error", t.getMessage());
                 }
             });
         }*/

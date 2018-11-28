@@ -671,7 +671,7 @@ public class NavigationSharedActivity extends BaseActivity {
                             categoryDocumentsResponse.setFilesize(objString.getString("filesize"));
                         }
 
-                        categoryDocumentsResponse.setFilesize(objString.getString("filesize"));
+                       // categoryDocumentsResponse.setFilesize(objString.getString("filesize"));
                         categoryDocumentsResponse.setShared_date(objString.getString("shared_date"));
                         categoryDocumentsResponse.setCreated_date(objString.getString("shared_date"));
                         categoryDocumentsResponse.setSharetype(objString.getString("sharetype"));

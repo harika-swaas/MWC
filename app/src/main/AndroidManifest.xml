@@ -105,28 +105,17 @@
             android:configChanges="orientation|screenSize|keyboardHidden" />
         <!-- android:screenOrientation="portrait" -->
         <activity
-            android:name=".DMS.MyFoldersDMSActivity"
-            android:screenOrientation="portrait" />
-        <activity android:name=".DMS.MyFolderCopyActivity" />
-        <activity android:name=".DMS.MyFolderCategoryActivity" />
-        <activity
             android:name=".DMS.UploadListActivity"
             android:configChanges="orientation|screenSize|keyboardHidden" />
         <!-- android:screenOrientation="portrait" -->
-        <activity
-            android:name=".DMS.MyFolderSharedDocuments"
-            android:screenOrientation="portrait" />
         <activity
             android:name=".DMS.Tab_Activity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:label="Document Info" />
         <!-- android:screenOrientation="portrait" -->
-        <activity android:name=".DMS.MyFolderEndUserAllowedSharedFoldersActivity" />
-        <activity android:name=".DMS.MyFolderActivity" />
         <activity
             android:name=".pdf.PdfViewActivity"
             android:configChanges="orientation|screenSize|keyboardHidden" />
-        <activity android:name=".DMS.MyfolderDeleteActivity" />
 
         <receiver android:name=".ReadSms"
             android:permission="android.permission.BROADCAST_SMS">

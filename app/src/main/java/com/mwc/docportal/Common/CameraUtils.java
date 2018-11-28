@@ -16,7 +16,6 @@ import android.support.v4.content.FileProvider;
 import android.util.Log;
 
 import com.mwc.docportal.BuildConfig;
-import com.mwc.docportal.DMS.MyFoldersDMSActivity;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -29,6 +28,11 @@ import java.util.Locale;
 
 public class CameraUtils {
 
+    public static String GALLERY_DIRECTORY_NAME = "Hello Camera";
+    public static int MEDIA_TYPE_IMAGE = 1;
+    public static int MEDIA_TYPE_VIDEO = 2;
+    public static String IMAGE_EXTENSION = "jpeg";
+    public static String VIDEO_EXTENSION = "mp4";
     /**
      * Refreshes gallery on adding new image/video. Gallery won't be refreshed
      * on older devices until device is rebooted
@@ -102,13 +106,13 @@ public class CameraUtils {
         File mediaStorageDir = new File(
                 Environment
                         .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-                MyFoldersDMSActivity.GALLERY_DIRECTORY_NAME);
+                GALLERY_DIRECTORY_NAME);
 
         // Create the storage directory if it does not exist
         if (!mediaStorageDir.exists()) {
             if (!mediaStorageDir.mkdirs()) {
-                Log.e(MyFoldersDMSActivity.GALLERY_DIRECTORY_NAME, "Oops! Failed create "
-                        + MyFoldersDMSActivity.GALLERY_DIRECTORY_NAME + " directory");
+                Log.e(GALLERY_DIRECTORY_NAME, "Oops! Failed create "
+                        + GALLERY_DIRECTORY_NAME + " directory");
                 return null;
             }
         }
@@ -118,12 +122,12 @@ public class CameraUtils {
         String timeStamp = new SimpleDateFormat("ddMMyyHHmmss",
                 Locale.getDefault()).format(new Date());
         File mediaFile;
-        if (type == MyFoldersDMSActivity.MEDIA_TYPE_IMAGE) {
+        if (type == MEDIA_TYPE_IMAGE) {
             mediaFile = new File(mediaStorageDir.getPath() + File.separator
-                    + "Image_" + timeStamp + "." + MyFoldersDMSActivity.IMAGE_EXTENSION);
-        } else if (type == MyFoldersDMSActivity.MEDIA_TYPE_VIDEO) {
+                    + "Image_" + timeStamp + "." + IMAGE_EXTENSION);
+        } else if (type == MEDIA_TYPE_VIDEO) {
             mediaFile = new File(mediaStorageDir.getPath() + File.separator
-                    + "Video_" + timeStamp + "." + MyFoldersDMSActivity.VIDEO_EXTENSION);
+                    + "Video_" + timeStamp + "." + VIDEO_EXTENSION);
         } else {
             return null;
         }
