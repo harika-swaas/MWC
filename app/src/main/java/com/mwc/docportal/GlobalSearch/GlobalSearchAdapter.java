@@ -166,8 +166,12 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
 
                 }
 
-                final String createdDate = mGetCategoryDocumentsResponses.get(position).getCreated_date();
-                if(createdDate != null && !createdDate.isEmpty())
+                String createdDate = mGetCategoryDocumentsResponses.get(position).getCreated_date();
+                if(createdDate == null || createdDate.isEmpty())
+                {
+                    holder.folder_date.setText("Uploaded on (Unknown)");
+                }
+                else
                 {
                     holder.folder_date.setText("Uploaded on "+createdDate);
                 }

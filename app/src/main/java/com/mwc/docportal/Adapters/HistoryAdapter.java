@@ -44,7 +44,15 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
             DocumentHistoryResponse documentHistoryResponse = responseList.get(position);
 
             holder.filename.setText(documentHistoryResponse.getFilename());
-            holder.date.setText("Updated on " + DateHelper.getDisplayFormat(documentHistoryResponse.getDoc_created_date(),"dd/MM/yyyy"));
+            if(documentHistoryResponse.getDoc_created_date() == null || documentHistoryResponse.getDoc_created_date().isEmpty())
+            {
+                holder.date.setText("Uploaded on (Unknown)");
+            }
+            else
+            {
+                holder.date.setText("Uploaded on " + documentHistoryResponse.getDoc_created_date());
+            }
+
             holder.version.setText("Version Number " + documentHistoryResponse.getVersion_number());
         }
     }

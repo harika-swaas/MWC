@@ -200,8 +200,16 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                     }
                 }
 
-                final String createdDate = mGetCategoryDocumentsResponses.get(position).getCreated_date();
-                holder.folder_date.setText("Uploaded on "+createdDate);
+                String createdDate = mGetCategoryDocumentsResponses.get(position).getCreated_date();
+                if(createdDate == null || createdDate.isEmpty())
+                {
+                    holder.folder_date.setText("Uploaded on (Unknown)");
+                }
+                else
+                {
+                    holder.folder_date.setText("Uploaded on "+createdDate);
+                }
+
 
             } else if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document")) {
                 holder.folderView.setVisibility(View.GONE);
@@ -217,8 +225,18 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
 
                 }
 
-                final String createdDate = mGetCategoryDocumentsResponses.get(position).getCreated_date();
-                holder.folder_date.setText("Uploaded on "+createdDate);
+                String createdDate = mGetCategoryDocumentsResponses.get(position).getCreated_date();
+
+                if(createdDate == null || createdDate.isEmpty())
+                {
+                    holder.folder_date.setText("Uploaded on (Unknown)");
+                }
+                else
+                {
+                    holder.folder_date.setText("Uploaded on "+createdDate);
+                }
+
+
 
             }
 

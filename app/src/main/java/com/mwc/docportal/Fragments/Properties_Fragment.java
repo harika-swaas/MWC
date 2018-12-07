@@ -183,9 +183,26 @@ public class Properties_Fragment extends Fragment{
                             author.setText(String.valueOf(documentPropertiesResponse.get(0).getAuthor()));
                             size.setText(String.valueOf(documentPropertiesResponse.get(0).getFilesize())+" MB");
                             type.setText(String.valueOf(documentPropertiesResponse.get(0).getFiletype()));
-                            uploaded_date.setText(String.valueOf(documentPropertiesResponse.get(0).getUploaded_date()));
+                            if(documentPropertiesResponse.get(0).getUploaded_date() == null || documentPropertiesResponse.get(0).getUploaded_date().isEmpty())
+                            {
+                                uploaded_date.setText("Uploaded on (Unknown)");
+                            }
+                            else
+                            {
+                                uploaded_date.setText(String.valueOf(documentPropertiesResponse.get(0).getUploaded_date()));
+                            }
+
                             version.setText(String.valueOf(documentPropertiesResponse.get(0).getVersion_number()));
-                            created_date.setText(String.valueOf(documentPropertiesResponse.get(0).getCreation_date()));
+
+                            if(documentPropertiesResponse.get(0).getCreation_date() == null || documentPropertiesResponse.get(0).getCreation_date().isEmpty())
+                            {
+                                created_date.setText("Uploaded on (Unknown)");
+                            }
+                            else
+                            {
+                                created_date.setText(String.valueOf(documentPropertiesResponse.get(0).getCreation_date()));
+                            }
+
 
 
                             StringBuilder sb = new StringBuilder();
