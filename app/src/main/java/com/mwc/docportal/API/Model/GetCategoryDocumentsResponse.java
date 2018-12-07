@@ -14,23 +14,13 @@ import java.util.List;
 public class GetCategoryDocumentsResponse implements Serializable{
 
     private int Is_Loading;
-
-
-
     private String object_id;
-
     private String document_version_id;
-
     private String name;
-
     private String created_date;
-
     private String filetype;
-
     private String filesize;
-
     private String unix_date;
-
     private String type;
     private String shared_date;
     private String downloadUrl;
@@ -38,12 +28,9 @@ public class GetCategoryDocumentsResponse implements Serializable{
     long download_Id;
     String version_number;
     String version_count;
-
     public boolean isMultiselect;
-
     private String is_shared;
     private String category_id;
-
     private String file_path;
     private String doc_status;
     private String filename;
@@ -52,7 +39,34 @@ public class GetCategoryDocumentsResponse implements Serializable{
     private String viewed;
     private Permission permission;
     private String share_category_id;
+    private int unread_doc_count;
+    private String document_share_id;
+    private String workspace_id;
 
+
+    public String getWorkspace_id() {
+        return workspace_id;
+    }
+
+    public void setWorkspace_id(String workspace_id) {
+        this.workspace_id = workspace_id;
+    }
+
+    public String getDocument_share_id() {
+        return document_share_id;
+    }
+
+    public void setDocument_share_id(String document_share_id) {
+        this.document_share_id = document_share_id;
+    }
+
+    public int getUnread_doc_count() {
+        return unread_doc_count;
+    }
+
+    public void setUnread_doc_count(int unread_doc_count) {
+        this.unread_doc_count = unread_doc_count;
+    }
 
     public String getShare_category_id() {
         return share_category_id;

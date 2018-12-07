@@ -59,6 +59,8 @@ import com.mwc.docportal.API.Model.LoginResponse;
 import com.mwc.docportal.API.Model.OfflineFiles;
 import com.mwc.docportal.API.Model.PdfDocumentResponseModel;
 import com.mwc.docportal.API.Model.SharedDocumentResponseModel;
+import com.mwc.docportal.API.Model.SharedFolderModel.SharedDocumentReadStatusRequest;
+import com.mwc.docportal.API.Model.SharedFolderModel.SharedDocumentReadStatusResponse;
 import com.mwc.docportal.API.Model.StopSharingRequestModel;
 import com.mwc.docportal.API.Model.WhiteLabelResponse;
 import com.mwc.docportal.API.Service.DeleteDocumentService;
@@ -316,6 +318,22 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                 }
                 else if(download_button.getText().toString().equalsIgnoreCase("View"))
                 {
+                    if(isFromDocumentShare && isFromStatus400)
+                    {
+                        if(categoryDocumentsResponse.getDocument_share_id() != null && categoryDocumentsResponse.getViewed().equalsIgnoreCase("No") &&
+                                categoryDocumentsResponse.getSharetype() != null &&  categoryDocumentsResponse.getSharetype().equalsIgnoreCase("0"))
+                        {
+                            sentDocumentReadStatus(categoryDocumentsResponse);
+                            updateUnreadStatusForDocument(categoryDocumentsResponse);
+                            updateUnreadCountInParentFolder(categoryDocumentsResponse.getCategory_id());
+                            updateRootLevelUnreadCount();
+
+                            if(GlobalVariables.totalUnreadableCount > 0)
+                            {
+                                GlobalVariables.totalUnreadableCount--;
+                            }
+                        }
+                    }
                     showWarningMessgeForExternalShare(categoryDocumentsResponse);
 
                 }
@@ -326,6 +344,25 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
 
 
+    }
+
+    private void updateRootLevelUnreadCount()
+    {
+        if(GlobalVariables.sharedRootDocumentList != null && GlobalVariables.sharedRootDocumentList.size() > 0)
+        {
+            for(GetCategoryDocumentsResponse categoryDocumentsResponse : GlobalVariables.sharedRootDocumentList)
+            {
+                if(categoryDocumentsResponse.getWorkspace_id().equals(PreferenceUtils.getRootWorkspaceid(context)))
+                {
+                    int unreadCount = categoryDocumentsResponse.getUnread_doc_count();
+                    if(unreadCount > 0)
+                    {
+                        unreadCount--;
+                        categoryDocumentsResponse.setUnread_doc_count(unreadCount);
+                    }
+                }
+            }
+        }
     }
 
     private void showWarningMessgeForExternalShare(GetCategoryDocumentsResponse categoryDocumentsResponse)
@@ -610,26 +647,31 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
     @Override
     public void onPdfDownloaded(String pdfpath) {
 
-        if (pdfpath!=null){
+        if (pdfpath!=null) {
             PdfPath = pdfpath;
             LoadOnlinePdf();
         }
 
-       /* if(isFromDocumentShare && !isFromStatus400)
+        if(isFromDocumentShare && !isFromStatus400)
         {
-            if(categoryDocumentsResponse.getDocument_share_id() != null && categoryDocumentsResponse.getViewed().equalsIgnoreCase("No"))
+            if(categoryDocumentsResponse.getDocument_share_id() != null && categoryDocumentsResponse.getViewed().equalsIgnoreCase("No") &&
+                    categoryDocumentsResponse.getSharetype() != null &&  categoryDocumentsResponse.getSharetype().equalsIgnoreCase("0"))
             {
                 sentDocumentReadStatus(categoryDocumentsResponse);
+                updateUnreadStatusForDocument(categoryDocumentsResponse);
+                updateUnreadCountInParentFolder(categoryDocumentsResponse.getCategory_id());
+                updateRootLevelUnreadCount();
+
+                if(GlobalVariables.totalUnreadableCount > 0)
+                {
+                    GlobalVariables.totalUnreadableCount--;
+                }
             }
-
-            updateUnreadStatusForDocument(categoryDocumentsResponse);
-           updateUnreadCountInParentFolder(categoryDocumentsResponse.getCategory_id());
-
-        }*/
+        }
 
     }
 
-   /* private void updateUnreadCountInParentFolder(String categoryId)
+    private void updateUnreadCountInParentFolder(String categoryId)
     {
         if(GlobalVariables.sharedDocumentList != null && GlobalVariables.sharedDocumentList.size() > 0)
         {
@@ -637,42 +679,43 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
             {
                 if(mcategoryDocumentsResponse.getType() != null && mcategoryDocumentsResponse.getType().equalsIgnoreCase("category"))
                 {
-                    if(mcategoryDocumentsResponse.getCategory_id() != null && mcategoryDocumentsResponse.getCategory_id().equalsIgnoreCase(categoryId))
+                    if(mcategoryDocumentsResponse.getObject_id() != null && mcategoryDocumentsResponse.getObject_id().equalsIgnoreCase(categoryId))
                     {
-                        int unreadCount = mcategoryDocumentsResponse.getUnread_count();
+                        int unreadCount = mcategoryDocumentsResponse.getUnread_doc_count();
                         if(unreadCount > 0)
                         {
-                            mcategoryDocumentsResponse.setUnread_count(unreadCount--);
+                            unreadCount--;
+                            mcategoryDocumentsResponse.setUnread_doc_count(unreadCount);
                         }
 
-                        if(!mcategoryDocumentsResponse.getCategory_id().equals("0"))
-                        {
+                        /*if(mcategoryDocumentsResponse.getCategory_id().equals("0"))
+                        {*/
                             updateUnreadCountInParentFolder(mcategoryDocumentsResponse.getCategory_id());
                             break;
-                        }
+                     //   }
 
                     }
                 }
             }
         }
-    }*/
+    }
 
     private void updateUnreadStatusForDocument(GetCategoryDocumentsResponse categoryDocumentsResponse)
     {
-        /*if(GlobalVariables.sharedDocumentList != null && GlobalVariables.sharedDocumentList.size() > 0)
+        if(GlobalVariables.sharedDocumentList != null && GlobalVariables.sharedDocumentList.size() > 0)
         {
             for(GetCategoryDocumentsResponse mcategoryDocumentsResponse : GlobalVariables.sharedDocumentList)
             {
 
-                if(mcategoryDocumentsResponse.getDocument_version_id() != null && mcategoryDocumentsResponse.getDocument_version_id().equalsIgnoreCase(categoryDocumentsResponse.getDocument_version_id()))
+                if(mcategoryDocumentsResponse.getType() != null && mcategoryDocumentsResponse.getType().equalsIgnoreCase("document"))
                 {
-                   // GlobalVariables.sharedDocumentList.remove(categoryDocumentsResponse);
-                    mcategoryDocumentsResponse.setViewed("Yes");
-                    break;
+                    if(mcategoryDocumentsResponse.getDocument_version_id() != null && mcategoryDocumentsResponse.getDocument_version_id().equalsIgnoreCase(categoryDocumentsResponse.getDocument_version_id()))
+                    {
+                        mcategoryDocumentsResponse.setViewed("Yes");
+                    }
                 }
             }
-
-        }*/
+        }
     }
 
     private void LoadOnlinePdf() {
@@ -735,13 +778,11 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
             singlePageShow();
             loadpdfOnlineinitial =false;
         }
-
-
     }
 
     private void sentDocumentReadStatus(GetCategoryDocumentsResponse categoryDocumentsResponse)
     {
-        /*if (NetworkUtils.isNetworkAvailable(context)) {
+        if (NetworkUtils.isNetworkAvailable(context)) {
 
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
 
@@ -771,7 +812,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                         }
 
                         if(CommonFunctions.isApiSuccess(PdfViewActivity.this, message, apiResponse.getStatus().getCode())) {
-                            Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+                       //     Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
                         }
 
                     }
@@ -783,11 +824,11 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
                 @Override
                 public void onFailure(Throwable t) {
-                    CommonFunctions.showTimeoutAlert(context);
+                    CommonFunctions.showTimeOutError(context, t);
                     Log.d("DocumentStatus error", t.getMessage());
                 }
             });
-        }*/
+        }
     }
 
 

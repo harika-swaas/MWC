@@ -14,6 +14,7 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -238,7 +239,80 @@ public class OffLineFilesListAdapter extends RecyclerView.Adapter<OffLineFilesLi
     private void openFile(OfflineFiles offlineFiles)
     {
 
-        try {
+       String fileformat = "."+offlineFiles.getFiletype();
+        String extension = MimeTypeMap.getFileExtensionFromUrl(fileformat);
+        String type = null;
+        if (extension != null) {
+            type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.toLowerCase());
+       //     Toast.makeText(context, type, Toast.LENGTH_SHORT).show();
+
+            if(type != null)
+            {
+
+                try {
+
+                    File imageFileToShare = new File(offlineFiles.getFilePath());
+                    Uri uri = Uri.fromFile(imageFileToShare);
+
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    if (offlineFiles.getFiletype().equalsIgnoreCase("doc") || offlineFiles.getFiletype().equalsIgnoreCase("docx")) {
+                        // Word document
+                        intent.setDataAndType(uri, "application/msword");
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        context.startActivity(intent);
+                    }  else if (offlineFiles.getFiletype().equalsIgnoreCase("ppt") || offlineFiles.getFiletype().equalsIgnoreCase("pptx")) {
+                        // Powerpoint file
+                        intent.setDataAndType(uri, "application/vnd.ms-powerpoint");
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        context.startActivity(intent);
+                    } else if (offlineFiles.getFiletype().equalsIgnoreCase("xls") || offlineFiles.getFiletype().equalsIgnoreCase("xlsx")) {
+                        // Excel file
+                        intent.setDataAndType(uri, "application/vnd.ms-excel");
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        context.startActivity(intent);
+                    } else if (type.contains("audio")) {
+                        // WAV audio file
+                        intent.setDataAndType(uri, "audio/x-wav");
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        context.startActivity(intent);
+                    } else if (offlineFiles.getFiletype().equalsIgnoreCase("gif")) {
+                        // GIF file
+                        intent.setDataAndType(uri, "image/gif");
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        context.startActivity(intent);
+                    } else if (type.contains("image")) {
+                        // JPG file
+                        intent.setDataAndType(uri, "image/jpeg");
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        context.startActivity(intent);
+                    } else if (offlineFiles.getFiletype().equalsIgnoreCase("txt")) {
+                        // Text file
+                        intent.setDataAndType(uri, "text/plain");
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        context.startActivity(intent);
+                    } else if (type.contains("video")) {
+                        // Video files
+                        intent.setDataAndType(uri, "video/*");
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        context.startActivity(intent);
+                    } else {
+                        openExternalShareActivity(offlineFiles);
+                    }
+
+                } catch (ActivityNotFoundException e) {
+                    openExternalShareActivity(offlineFiles);
+                }
+            }
+            else
+            {
+                openExternalShareActivity(offlineFiles);
+            }
+        }
+
+
+
+
+        /*try {
 
             File imageFileToShare = new File(offlineFiles.getFilePath());
             Uri uri = Uri.fromFile(imageFileToShare);
@@ -289,13 +363,13 @@ public class OffLineFilesListAdapter extends RecyclerView.Adapter<OffLineFilesLi
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
             } else {
-             //   intent.setDataAndType(uri, "*/*");
                 openExternalShareActivity(offlineFiles);
             }
 
         } catch (ActivityNotFoundException e) {
-            Toast.makeText(context, "No application found which can open the file", Toast.LENGTH_SHORT).show();
-        }
+            openExternalShareActivity(offlineFiles);
+         //   Toast.makeText(context, "No application found which can open the file", Toast.LENGTH_SHORT).show();
+        }*/
     }
 
     private void openExternalShareActivity(OfflineFiles offlineFiles)

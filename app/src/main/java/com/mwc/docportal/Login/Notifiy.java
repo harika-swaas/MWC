@@ -241,7 +241,7 @@ public class Notifiy extends RootActivity {
                             message = response.body().getStatus().getMessage().toString();
                         }
 
-                        if(CommonFunctions.isApiSuccess(mActivity, message, response.body().getStatus().getCode())) {
+                        if(CommonFunctions.isApiSuccess(Notifiy.this, message, response.body().getStatus().getCode())) {
 
                             AccountSettings accountSettings = new AccountSettings(context);
                             accountSettings.UpdatePushNotificatoinSettings(register_type);

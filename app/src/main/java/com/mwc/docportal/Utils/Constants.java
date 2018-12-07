@@ -7,18 +7,19 @@ package com.mwc.docportal.Utils;
 public class Constants {
 
     // ***************************** Testing ********************************************
-  /*   public static final String COMPANY_BASE_URL = "http://172.16.40.50";
-     public static final String LOGO_IMAGE_BASE_URL = "http://172.16.40.51/";*/
+ /*    public static final String COMPANY_BASE_URL = "http://172.16.40.50";
+     public static final String LOGO_IMAGE_BASE_URL = "http://172.16.40.51";*/
 
     // ***************************** UAT ********************************************
    public static final String COMPANY_BASE_URL = "https://uatapi.mywealthcloud.com";
-   public static final String LOGO_IMAGE_BASE_URL = "http://uatweb.docportal.co.uk/";
+   public static final String LOGO_IMAGE_BASE_URL = "http://uatweb.docportal.co.uk";
 
 
     // ***************************** Production ********************************************
-     // public static final String COMPANY_BASE_URL = ""; // Prod
+  /*  public static final String COMPANY_BASE_URL = "https://app1.mywealthcloud.com";
+    public static final String LOGO_IMAGE_BASE_URL = "https://app.docportal.co.uk";*/
 
-   // ***************************** Testing ********************************************
+    // ***************************** Testing ********************************************
  //   public static final String LOGO_IMAGE_BASE_URL = "http://172.16.40.51/";
 
     // ***************************** UAT ********************************************
@@ -68,7 +69,7 @@ public class Constants {
 
 
     public static final String SHARED_COMPANY_BASE_URL = "http://172.16.40.40";
-    public static final String Logo_ImagePath = "assets/images/whitelabels/";
+    public static final String Logo_ImagePath = "/assets/images/whitelabels/";
     public static final String Logo_Image_Name = "/mwc-logo.png";
 
     public static final String Folder_Name = ".Doc_Portal";
@@ -79,6 +80,7 @@ public class Constants {
    public static final int BadGatewayStatusCode = 502;
    public static final String BadGateWayMessage = "The service is temporarily unavailable. Please check back after some time.";
 
+   public static final String SecretKeyValue = "SecretKeyEncryptionDecryption";
 }
 
 

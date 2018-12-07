@@ -236,6 +236,9 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
+        getSharedDocumentsTotalUnreadCount();
+
         if(getResources().getBoolean(R.bool.portrait_only)){
             pageSize = 20;
         }
@@ -3689,6 +3692,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         else
         {
             mRecyclerView.setVisibility(View.VISIBLE);
+            empty_view.setVisibility(View.GONE);
         }
 
     }

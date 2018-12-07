@@ -15,6 +15,7 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
 import android.os.Parcelable;
 import android.os.StrictMode;
+import android.support.design.internal.BottomNavigationItemView;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.ActionBar;
@@ -679,6 +680,8 @@ public class NavigationSharedActivity extends BaseActivity {
                         categoryDocumentsResponse.setIs_shared("1");
                         categoryDocumentsResponse.setType("document");
                         categoryDocumentsResponse.setShare_category_id(objString.getString("category_id"));
+                        categoryDocumentsResponse.setViewed(objString.getString("viewed"));
+                        categoryDocumentsResponse.setDocument_share_id(objString.getString("document_share_id"));
                         GlobalVariables.sharedDocumentList.add(categoryDocumentsResponse);
                     }
                 }
@@ -702,7 +705,7 @@ public class NavigationSharedActivity extends BaseActivity {
                         categoryDocumentsResponse.setCategory_id(parentDocumentId);
                         categoryDocumentsResponse.setFilesize("0");
                         categoryDocumentsResponse.setType("category");
-
+                        categoryDocumentsResponse.setUnread_doc_count(objString.getInt("unread_doc_count"));
                         GlobalVariables.sharedDocumentList.add(categoryDocumentsResponse);
 
                         if(objString.has("nodes")){
@@ -857,6 +860,11 @@ public class NavigationSharedActivity extends BaseActivity {
 
         if (ObjectId.equals("0")){
             collapsingToolbarLayout.setTitle("Shared");
+            documentsCategoryList.clear();
+            documentsCategoryList.addAll(GlobalVariables.sharedRootDocumentList);
+            doLocalSorting(GlobalVariables.sharedDocsSortType);
+            toggleEmptyState();
+            reloadAdapter();
         }
         else
         {
@@ -917,12 +925,25 @@ public class NavigationSharedActivity extends BaseActivity {
             mRecyclerView.setVisibility(View.VISIBLE);
         }
 
+
+
+         //   showBadgeCount(navigationView, R.id.navigation_shared, GlobalVariables.totalUnreadableCount);
+
+        getSharedDocumentsTotalUnreadCount();
+
+            if (isFromList == true) {
+                mAdapterList.notifyDataSetChanged();
+            }
+            else
+            {
+                mAdapter.notifyDataSetChanged();
+            }
+
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
-
         switch (item.getItemId()) {
             case android.R.id.home:
                 onBackPressed();
@@ -1634,8 +1655,6 @@ public class NavigationSharedActivity extends BaseActivity {
         if(downloadingItemsList.size() > downloadIndex) {
             downLoadImageSeparately(downloadingItemsList.get(downloadIndex));
         }
-
-
     }
 
     private void downLoadImageSeparately(GetCategoryDocumentsResponse categoryDocumentsResponse)
@@ -1821,6 +1840,7 @@ public class NavigationSharedActivity extends BaseActivity {
                             message = response.body().getStatus().getMessage().toString();
                         }
 
+                        GlobalVariables.sharedRootDocumentList.clear();
                         if(CommonFunctions.isApiSuccess(NavigationSharedActivity.this, message, response.body().getStatus().getCode()))
                         {
                             List<APIResponseModel.Category> categoryList = response.body().getData().getCategories();
@@ -1832,7 +1852,10 @@ public class NavigationSharedActivity extends BaseActivity {
                                     getCategoryDocumentsResponse.setType(category.getType());
                                     getCategoryDocumentsResponse.setCreated_date(category.getCreatedDate());
                                     getCategoryDocumentsResponse.setFilesize("0");
+                                    getCategoryDocumentsResponse.setUnread_doc_count(category.getUnread_doc_count());
+                                    getCategoryDocumentsResponse.setWorkspace_id(category.getWorkspaceId());
                                     documentsCategoryList.add(getCategoryDocumentsResponse);
+                                    GlobalVariables.sharedRootDocumentList.add(getCategoryDocumentsResponse);
                                 }
                             }
 
@@ -2457,5 +2480,50 @@ public class NavigationSharedActivity extends BaseActivity {
 
     }
 
+    public void showSharedBadgeCount(BottomNavigationView navigationView, int itemId, int badgeCountValue)
+    {
+        BottomNavigationItemView itemView = navigationView.findViewById(itemId);
+        View badge = LayoutInflater.from(context).inflate(R.layout.badge_count_item, navigationView, false);
+
+        TextView text = badge.findViewById(R.id.unread_count);
+        RelativeLayout relativeLayout = badge.findViewById(R.id.badge_icon_linearlayout);
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)text.getLayoutParams();
+        params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+        params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        text.setLayoutParams(params);
+
+        if(badgeCountValue > 99)
+        {
+            badge.setVisibility(View.VISIBLE);
+            text.setText("99+");
+        }
+        else if(badgeCountValue == 0)
+        {
+            try
+            {
+                View view = itemView.getChildAt(2);
+                view.setVisibility(View.GONE);
+
+                /*View view1 = itemView.getChildAt(1);
+                view1.setVisibility(View.GONE);
+
+                View view2 = itemView.getChildAt(0);
+                view2.setVisibility(View.GONE);*/
+
+                badge.setVisibility(View.INVISIBLE);
+            }
+            catch (Exception e) {
+                Log.d("parm",e.getMessage());
+            }
+        }
+        else
+        {
+            badge.setVisibility(View.VISIBLE);
+            text.setText(""+badgeCountValue);
+        }
+
+        itemView.addView(badge);
+
+    }
 
 }

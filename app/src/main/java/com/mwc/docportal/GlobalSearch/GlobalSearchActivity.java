@@ -25,6 +25,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.EditText;
@@ -90,8 +91,6 @@ public class GlobalSearchActivity extends RootActivity implements SearchView.OnQ
    TextView no_search_results_txt;
    public static String searchingData;
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -104,13 +103,16 @@ public class GlobalSearchActivity extends RootActivity implements SearchView.OnQ
         {
             searchView.setQuery(GlobalVariables.searchKey, false);
             globalSearchDocumentList = GlobalVariables.globalSearchDocumentList;
+
             if(GlobalVariables.isGlobalSearchCompleted)
             {
                 search_completed_layout.setVisibility(View.VISIBLE);
+                setMargins(mRecyclerView,0,10,0, 50);
             }
             else
             {
                 search_completed_layout.setVisibility(View.GONE);
+                setMargins(mRecyclerView,0,10,0, 0);
             }
 
             loadAdapterData(true);
@@ -329,11 +331,13 @@ public class GlobalSearchActivity extends RootActivity implements SearchView.OnQ
                             {
                                 GlobalVariables.isGlobalSearchCompleted = false;
                                 search_completed_layout.setVisibility(View.GONE);
+                                setMargins(mRecyclerView,0,10,0, 0);
                             }
                             else
                             {
                                 GlobalVariables.isGlobalSearchCompleted = true;
                                 search_completed_layout.setVisibility(View.VISIBLE);
+                                setMargins(mRecyclerView,0,10,0, 50);
                             }
 
                             List<GlobalSearchDataResponseModel.Result> documentListData = apiResponse.getData().getDataResults().get(0).getResults();
@@ -501,6 +505,7 @@ public class GlobalSearchActivity extends RootActivity implements SearchView.OnQ
             mAdapterList.notifyDataSetChanged();
         }
         search_completed_layout.setVisibility(View.GONE);
+        setMargins(mRecyclerView,0,10,0, 0);
     }
 
     @Override
@@ -537,5 +542,21 @@ public class GlobalSearchActivity extends RootActivity implements SearchView.OnQ
         }
     };
 
+
+    private void setMargins (View view, int left, int top, int right, int bottom) {
+        if (view.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
+            ViewGroup.MarginLayoutParams p = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
+
+            final float scale = getBaseContext().getResources().getDisplayMetrics().density;
+            // convert the DP into pixel
+            int l =  (int)(left * scale + 0.5f);
+            int r =  (int)(right * scale + 0.5f);
+            int t =  (int)(top * scale + 0.5f);
+            int b =  (int)(bottom * scale + 0.5f);
+
+            p.setMargins(l, t, r, b);
+            view.requestLayout();
+        }
+    }
 
 }

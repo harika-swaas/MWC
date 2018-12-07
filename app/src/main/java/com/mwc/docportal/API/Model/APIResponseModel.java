@@ -236,6 +236,15 @@ public class APIResponseModel {
         @SerializedName("type")
         @Expose
         private String type;
+        private int unread_doc_count;
+
+        public int getUnread_doc_count() {
+            return unread_doc_count;
+        }
+
+        public void setUnread_doc_count(int unread_doc_count) {
+            this.unread_doc_count = unread_doc_count;
+        }
 
         public String getCategoryId() {
             return categoryId;

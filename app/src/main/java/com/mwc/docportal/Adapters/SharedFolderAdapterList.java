@@ -7,8 +7,10 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -166,23 +168,23 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
                 holder.folder_date.setText("Uploaded on "+createdDate);
 
                 
-               /* if(mGetCategoryDocumentsResponses.get(position).getUnread_count() > 0)
+                if(mGetCategoryDocumentsResponses.get(position).getUnread_doc_count() > 0)
                 {
                     holder.unread_count_txt.setVisibility(View.VISIBLE);
-                    if(mGetCategoryDocumentsResponses.get(position).getUnread_count() > 99)
+                    if(mGetCategoryDocumentsResponses.get(position).getUnread_doc_count() > 99)
                     {
                         holder.unread_count_txt.setText("99+");
                     }
                     else
                     {
-                        holder.unread_count_txt.setText(String.valueOf(mGetCategoryDocumentsResponses.get(position).getUnread_count()));
+                        holder.unread_count_txt.setText(String.valueOf(mGetCategoryDocumentsResponses.get(position).getUnread_doc_count()));
                     }
-                    holder.folder_name.setTypeface(holder.folder_name.getTypeface(), Typeface.BOLD);
+                //    holder.folder_name.setTypeface(holder.folder_name.getTypeface(), Typeface.BOLD);
                 }
                 else {
                     holder.unread_count_txt.setVisibility(View.GONE);
-                    holder.folder_name.setTypeface(holder.folder_name.getTypeface(), Typeface.NORMAL);
-                }*/
+                //    holder.folder_name.setTypeface(holder.folder_name.getTypeface(), Typeface.NORMAL);
+                }
 
 
             } else if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document")) {
@@ -202,13 +204,14 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
                 final String createdDate = mGetCategoryDocumentsResponses.get(position).getCreated_date();
                 holder.folder_date.setText("Uploaded on "+createdDate);
 
-                /*if(mGetCategoryDocumentsResponses.get(position).getViewed() != null && mGetCategoryDocumentsResponses.get(position).getViewed().equalsIgnoreCase("No"))
+                if(mGetCategoryDocumentsResponses.get(position).getViewed() != null && mGetCategoryDocumentsResponses.get(position).getViewed().equalsIgnoreCase("No") &&
+                     mGetCategoryDocumentsResponses.get(position).getSharetype() != null &&  mGetCategoryDocumentsResponses.get(position).getSharetype().equalsIgnoreCase("0"))
                 {
                     holder.folder_name.setTypeface(holder.folder_name.getTypeface(), Typeface.BOLD);
                 }
                 else {
                     holder.folder_name.setTypeface(holder.folder_name.getTypeface(), Typeface.NORMAL);
-                }*/
+                }
 
             }
 
@@ -259,6 +262,13 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
                                 return;
                             }
 
+                            //  For Badge count reduced from Root level
+                            if(!TextUtils.isEmpty(mGetCategoryDocumentsResponses.get(position).getWorkspace_id()))
+                            {
+                                PreferenceUtils.setRootWorkspaceid(context, mGetCategoryDocumentsResponses.get(position).getWorkspace_id());
+                            }
+
+
                             Intent intent = new Intent(context, NavigationSharedActivity.class);
                             if(objectId.equals("0"))
                             {
@@ -268,6 +278,7 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
                             {
                                 intent.putExtra("isSecondLevel", false);
                             }
+
                             intent.putExtra("ObjectId", mGetCategoryDocumentsResponses.get(position).getObject_id());
                             intent.putExtra("CategoryName", mGetCategoryDocumentsResponses.get(position).getName());
                             intent.putExtra("WorkSpaceId", mGetCategoryDocumentsResponses.get(position).getCategory_id());

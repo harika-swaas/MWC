@@ -29,5 +29,7 @@ public class GlobalVariables
     public static int activityFinishCount = 0;
     public static boolean refreshPage = false;
     public static boolean refreshSharedDocumentPage = false;
+    public static int totalUnreadableCount = 0;
+    public static List<GetCategoryDocumentsResponse> sharedRootDocumentList = new ArrayList<>();
 
 }

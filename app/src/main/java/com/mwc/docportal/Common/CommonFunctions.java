@@ -26,6 +26,7 @@ import com.mwc.docportal.R;
 import com.mwc.docportal.Utils.Constants;
 
 import java.io.File;
+import java.security.GeneralSecurityException;
 import java.util.List;
 
 import retrofit.Response;
@@ -378,6 +379,30 @@ public class CommonFunctions
 
         }
 
+    }
+
+
+    public static String encryption(String strNormalText){
+        String seedValue = Constants.SecretKeyValue;
+        String normalTextEnc="";
+        try {
+            normalTextEnc = AESHelper.encrypt(seedValue, strNormalText);
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+        }
+        return normalTextEnc;
+    }
+
+
+    public static String decryption(String strEncryptedText){
+        String seedValue = Constants.SecretKeyValue;
+        String strDecryptedText="";
+        try {
+            strDecryptedText = AESHelper.decrypt(seedValue, strEncryptedText);
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+        }
+        return strDecryptedText;
     }
 
 }

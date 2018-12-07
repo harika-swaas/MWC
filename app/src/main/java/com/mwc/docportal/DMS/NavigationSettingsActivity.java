@@ -97,6 +97,8 @@ public class NavigationSettingsActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        showBadgeCount(navigationView, R.id.navigation_shared, GlobalVariables.totalUnreadableCount);
+
         intiaizeViews();
         getAccountSettings();
         getWhiteLabelSettings();
@@ -133,14 +135,13 @@ public class NavigationSettingsActivity extends BaseActivity {
             logo_layout.setBackgroundDrawable(shape);
         }
 
-
-
         if(PreferenceUtils.getLogoImagePath(context) != null)
         {
+           /* String decryptedPath = CommonFunctions.decryption(PreferenceUtils.getLogoImagePath(context));
+            File imgFile = new  File(decryptedPath);*/
             File imgFile = new  File(PreferenceUtils.getLogoImagePath(context));
 
             if(imgFile.exists()){
-
                 Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
                 LOGO_image.setImageBitmap(myBitmap);
 
@@ -477,7 +478,7 @@ public class NavigationSettingsActivity extends BaseActivity {
 
                 ShowWarningMessageForLogout();
 
-               /* Intent i = new Intent(context, Dummy_Activity.class);
+                /*Intent i = new Intent(context, Dummy_Activity.class);
                 startActivity(i);*/
             }
         });

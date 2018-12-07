@@ -49,7 +49,7 @@ public class PreferenceUtils {
     private static final String LOGO_IMAGE_PATH = "logo_image_path";
     private static final String DOCUMENT_NAME = "document_Name";
     private static final String SHARETYPE_DOCUMENTVERSIONID = "shareType_documentVersionId";
-
+    private static final String ROOT_WORKSPACEID = "root_WorkSpaceId";
 
     public static void setAccessToken(Context context, String accesstoken) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
@@ -450,6 +450,19 @@ public class PreferenceUtils {
         SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
         String versionid = sharedPreferences.getString(SHARETYPE_DOCUMENTVERSIONID, null);
         return versionid;
+    }
+
+    public static void setRootWorkspaceid(Context context, String workSpaceId) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(ROOT_WORKSPACEID, workSpaceId);
+        editor.commit();
+    }
+
+    public static String getRootWorkspaceid(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        String workSpaceId = sharedPreferences.getString(ROOT_WORKSPACEID, null);
+        return workSpaceId;
     }
 
 }

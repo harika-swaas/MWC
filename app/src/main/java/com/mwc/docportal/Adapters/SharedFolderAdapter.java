@@ -12,10 +12,12 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -197,23 +199,23 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
                     }
                 }
 
-               /* if(mGetCategoryDocumentsResponses.get(position).getUnread_count() > 0)
+                if(mGetCategoryDocumentsResponses.get(position).getUnread_doc_count() > 0)
                 {
                     holder.unread_Count_txt.setVisibility(View.VISIBLE);
-                    if(mGetCategoryDocumentsResponses.get(position).getUnread_count() > 99)
+                    if(mGetCategoryDocumentsResponses.get(position).getUnread_doc_count() > 99)
                     {
                         holder.unread_Count_txt.setText("99+");
                     }
                     else
                     {
-                        holder.unread_Count_txt.setText(String.valueOf(mGetCategoryDocumentsResponses.get(position).getUnread_count()));
+                        holder.unread_Count_txt.setText(String.valueOf(mGetCategoryDocumentsResponses.get(position).getUnread_doc_count()));
                     }
-                    holder.text.setTypeface(holder.text.getTypeface(), Typeface.BOLD);
+                  //  holder.text.setTypeface(holder.text.getTypeface(), Typeface.BOLD);
                 }
                 else {
                     holder.unread_Count_txt.setVisibility(View.GONE);
-                    holder.text.setTypeface(holder.text.getTypeface(), Typeface.NORMAL);
-                }*/
+                  //  holder.text.setTypeface(holder.text.getTypeface(), Typeface.NORMAL);
+                }
 
 
             } else if (mGetCategoryDocumentsResponses.get(position).getType().equalsIgnoreCase("document")) {
@@ -228,13 +230,14 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
                     holder.thumbnailText.setText(colorCodeModel.getFileType());
                 }
 
-               /* if(mGetCategoryDocumentsResponses.get(position).getViewed() != null && mGetCategoryDocumentsResponses.get(position).getViewed().equalsIgnoreCase("No"))
+                if(mGetCategoryDocumentsResponses.get(position).getViewed() != null && mGetCategoryDocumentsResponses.get(position).getViewed().equalsIgnoreCase("No")
+                        && mGetCategoryDocumentsResponses.get(position).getSharetype() != null &&  mGetCategoryDocumentsResponses.get(position).getSharetype().equalsIgnoreCase("0"))
                 {
                     holder.text.setTypeface(holder.text.getTypeface(), Typeface.BOLD);
                 }
                 else {
                     holder.text.setTypeface(holder.text.getTypeface(), Typeface.NORMAL);
-                }*/
+                }
 
             }
 
@@ -260,6 +263,12 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
                             PreferenceUtils.setObjectId(context, mGetCategoryDocumentsResponses.get(position).getObject_id());
                             obj = mGetCategoryDocumentsResponses.get(position).getObject_id();
                             PreferenceUtils.setParentId(context,obj);
+
+                            //  For Badge count reduced from Root level
+                            if(!TextUtils.isEmpty(mGetCategoryDocumentsResponses.get(position).getWorkspace_id()))
+                            {
+                                PreferenceUtils.setRootWorkspaceid(context, mGetCategoryDocumentsResponses.get(position).getWorkspace_id());
+                            }
 
                             Intent intent = new Intent(context, NavigationSharedActivity.class);
 

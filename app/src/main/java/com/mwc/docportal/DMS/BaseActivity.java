@@ -16,15 +16,34 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+import com.mwc.docportal.API.Model.APIResponseModel;
+import com.mwc.docportal.API.Model.GetCategoryDocumentsResponse;
+import com.mwc.docportal.API.Model.GetSharedCategoryDocumentsRequest;
 import com.mwc.docportal.API.Model.WhiteLabelResponse;
+import com.mwc.docportal.API.Service.GetCategoryDocumentsService;
+import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Common.GlobalVariables;
 import com.mwc.docportal.Database.AccountSettings;
+import com.mwc.docportal.Dialogs.LoadingProgressDialog;
+import com.mwc.docportal.Network.NetworkUtils;
+import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
+import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import retrofit.Call;
+import retrofit.Callback;
+import retrofit.Response;
+import retrofit.Retrofit;
 
 public abstract class BaseActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
 
@@ -47,19 +66,113 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
             setNavMenuItemThemeColors(selectedColor);
         }
 
-        showBadgeCount(navigationView, R.id.navigation_shared, "99+");
-
+   //     getSharedDocumentsTotalUnreadCount();
 
 
     }
 
-    private void showBadgeCount(BottomNavigationView navigationView, int itemId, String badgeCountValue)
+    public void getSharedDocumentsTotalUnreadCount()
+    {
+        if (NetworkUtils.checkIfNetworkAvailable(this)) {
+
+            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+
+            final GetSharedCategoryDocumentsRequest mGetSharedDocumentsRequest;
+
+            mGetSharedDocumentsRequest = new GetSharedCategoryDocumentsRequest("0");
+
+            String request = new Gson().toJson(mGetSharedDocumentsRequest);
+
+            //Here the json data is add to a hash map with key data
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("data", request);
+
+            final GetCategoryDocumentsService mGetCategoryDocumentsService = retrofitAPI.create(GetCategoryDocumentsService.class);
+
+            Call call = mGetCategoryDocumentsService.getSharedCategoryDocumentsV2(params, PreferenceUtils.getAccessToken(context));
+
+            call.enqueue(new Callback<APIResponseModel>() {
+                @Override
+                public void onResponse(Response<APIResponseModel> response, Retrofit retrofit) {
+
+                    if (response != null) {
+
+                        String message = "";
+                        if(response.body().getStatus().getMessage() != null)
+                        {
+                            message = response.body().getStatus().getMessage().toString();
+                        }
+
+                        if(CommonFunctions.isApiSuccess(BaseActivity.this, message, response.body().getStatus().getCode()))
+                        {
+                            int totalUnreadCount = 0;
+                            List<APIResponseModel.Category> categoryList = response.body().getData().getCategories();
+                            if (categoryList != null && categoryList.size() > 0) {
+                                for (APIResponseModel.Category category : categoryList) {
+                                    totalUnreadCount = totalUnreadCount + category.getUnread_doc_count();
+                                }
+                            }
+
+                            GlobalVariables.totalUnreadableCount = totalUnreadCount;
+
+                            showBadgeCount(navigationView, R.id.navigation_shared, totalUnreadCount);
+
+                        }
+
+                    }
+                    else {
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+
+                    CommonFunctions.showTimeOutError(context, t);
+
+                }
+            });
+        }
+
+    }
+
+    public void showBadgeCount(BottomNavigationView navigationView, int itemId, int badgeCountValue)
     {
         BottomNavigationItemView itemView = navigationView.findViewById(itemId);
         View badge = LayoutInflater.from(context).inflate(R.layout.badge_count_item, navigationView, false);
 
         TextView text = badge.findViewById(R.id.unread_count);
-        text.setText(badgeCountValue);
+        RelativeLayout relativeLayout = badge.findViewById(R.id.badge_icon_linearlayout);
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)text.getLayoutParams();
+        params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+        params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        text.setLayoutParams(params);
+
+        if(badgeCountValue > 99)
+        {
+            relativeLayout.setVisibility(View.VISIBLE);
+            text.setText("99+");
+        }
+        else if(badgeCountValue == 0)
+        {
+            relativeLayout.setVisibility(View.INVISIBLE);
+            text.setText(""+badgeCountValue);
+        }
+        else
+        {
+            relativeLayout.setVisibility(View.VISIBLE);
+            text.setText(""+badgeCountValue);
+        }
+
+       /* if(badgeCountValue > 0)
+        {
+            text.setVisibility(View.VISIBLE);
+        }
+        else
+        {
+            text.setVisibility(View.GONE);
+        }*/
+
         itemView.addView(badge);
 
     }
@@ -89,6 +202,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
             } else if (itemId == R.id.navigation_shared) {
                 GlobalVariables.isMultiSelect = false;
                 GlobalVariables.selectedCountValue = 0;
+                GlobalVariables.sharedRootDocumentList.clear();
                 Intent intent = new Intent(this, NavigationSharedActivity.class);
                 startActivity(intent);
             } else if (itemId == R.id.navigation_settings) {
@@ -192,14 +306,11 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
     void selectBottomNavigationBarItem(int itemId) {
         MenuItem item = navigationView.getMenu().findItem(itemId);
         item.setChecked(true);
-
-
     }
 
     abstract int getContentViewId();
 
     abstract int getNavigationMenuItemId();
-
 
 
 }

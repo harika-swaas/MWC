@@ -147,6 +147,7 @@ public class SplashScreen extends RootActivity {
 
         if(PreferenceUtils.getLogoImagePath(context) != null)
         {
+          //  String decryptedPath = CommonFunctions.decryption(PreferenceUtils.getLogoImagePath(context));
             File imgFile = new  File(PreferenceUtils.getLogoImagePath(context));
 
             if(imgFile.exists()){
