@@ -164,9 +164,16 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
                     }
                 }
 
-                final String createdDate = mGetCategoryDocumentsResponses.get(position).getCreated_date();
-                holder.folder_date.setText("Uploaded on "+createdDate);
-
+                String createdDate = mGetCategoryDocumentsResponses.get(position).getCreated_date();
+                if(createdDate == null || createdDate.isEmpty())
+                {
+                    holder.folder_date.setText("Shared on (Unknown)");
+                }
+                else
+                {
+                    holder.folder_date.setText("Shared on "+createdDate);
+                }
+                holder.folder_date.setVisibility(View.GONE);
                 
                 if(mGetCategoryDocumentsResponses.get(position).getUnread_doc_count() > 0)
                 {
@@ -200,9 +207,16 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
                     holder.thumbnailText.setText(colorCodeModel.getFileType());
 
                 }
-
-                final String createdDate = mGetCategoryDocumentsResponses.get(position).getCreated_date();
-                holder.folder_date.setText("Uploaded on "+createdDate);
+                holder.folder_date.setVisibility(View.VISIBLE);
+                String createdDate = mGetCategoryDocumentsResponses.get(position).getCreated_date();
+                if(createdDate == null || createdDate.isEmpty())
+                {
+                    holder.folder_date.setText("Shared on (Unknown)");
+                }
+                else
+                {
+                    holder.folder_date.setText("Shared on "+createdDate);
+                }
 
                 if(mGetCategoryDocumentsResponses.get(position).getViewed() != null && mGetCategoryDocumentsResponses.get(position).getViewed().equalsIgnoreCase("No") &&
                      mGetCategoryDocumentsResponses.get(position).getSharetype() != null &&  mGetCategoryDocumentsResponses.get(position).getSharetype().equalsIgnoreCase("0"))
