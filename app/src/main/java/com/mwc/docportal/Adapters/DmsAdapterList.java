@@ -617,11 +617,14 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                             ((NavigationMyFolderActivity) context).showInternalShareAlertMessage();
                         }*/
 
-                        GlobalVariables.isMoveInitiated = true;
+                        CommonFunctions.checkMultipleSharedLevel(context, true);
+
+
+                       /* GlobalVariables.isMoveInitiated = true;
                         GlobalVariables.selectedActionName =  "share";
                         Intent intent = new Intent(context, NavigationSharedActivity.class);
                         intent.putExtra("ObjectId", "0");
-                        context.startActivity(intent);
+                        context.startActivity(intent);*/
 
                     }
 
