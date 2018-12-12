@@ -1111,11 +1111,16 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                     } else {
                         switchButton_share.setChecked(true);
                      //   showInternalShareAlertMessage();
-                        GlobalVariables.isMoveInitiated = true;
+
+                        CommonFunctions.checkMultipleSharedLevel(PdfViewActivity.this, false);
+                        categoryDocumentsResponse.setIs_shared("1");
+                        GlobalVariables.refreshDMS = true;
+
+                      /*  GlobalVariables.isMoveInitiated = true;
                         GlobalVariables.selectedActionName =  "share";
                         Intent intent = new Intent(context, NavigationSharedActivity.class);
                         intent.putExtra("ObjectId", "0");
-                        context.startActivity(intent);
+                        context.startActivity(intent);*/
 
                     }
 

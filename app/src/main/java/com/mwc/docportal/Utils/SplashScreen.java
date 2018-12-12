@@ -95,13 +95,6 @@ public class SplashScreen extends RootActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splashscreen);
 
-
-        String message = "This is test";
-        Settings.System.putString(context.getContentResolver(),
-                Settings.Secure.LOCK_PATTERN_ENABLED, message);
-
-       // Settings.Secure.getString(context.getContentResolver(),Settings.Secure.LOCK_SCREEN_OWNER_INFO);
-
         if(getResources().getBoolean(R.bool.portrait_only)){
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }

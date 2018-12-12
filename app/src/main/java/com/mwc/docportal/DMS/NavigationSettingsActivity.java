@@ -97,7 +97,15 @@ public class NavigationSettingsActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        /*if(GlobalVariables.totalUnreadableCount > 0)
+        {
+            showBadgeCount(navigationView, R.id.navigation_shared, GlobalVariables.totalUnreadableCount);
+        }
+        else {
+            removeTextLabel(navigationView, R.id.navigation_shared);
+        }*/
         showBadgeCount(navigationView, R.id.navigation_shared, GlobalVariables.totalUnreadableCount);
+
 
         intiaizeViews();
         getAccountSettings();

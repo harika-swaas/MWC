@@ -166,6 +166,8 @@ public class NavigationSharedActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        getSharedDocumentsTotalUnreadCount();
+
         initializeViews();
         OnClickListeners();
         getWhiteLabelProperities();
@@ -860,11 +862,13 @@ public class NavigationSharedActivity extends BaseActivity {
 
         if (ObjectId.equals("0")){
             collapsingToolbarLayout.setTitle("Shared");
-            documentsCategoryList.clear();
-            documentsCategoryList.addAll(GlobalVariables.sharedRootDocumentList);
-            doLocalSorting(GlobalVariables.sharedDocsSortType);
-            toggleEmptyState();
-            reloadAdapter();
+            if(!GlobalVariables.isMoveInitiated && !GlobalVariables.selectedActionName.equalsIgnoreCase("share")) {
+                documentsCategoryList.clear();
+                documentsCategoryList.addAll(GlobalVariables.sharedRootDocumentList);
+                doLocalSorting(GlobalVariables.sharedDocsSortType);
+                toggleEmptyState();
+                reloadAdapter();
+            }
         }
         else
         {
@@ -927,9 +931,17 @@ public class NavigationSharedActivity extends BaseActivity {
 
 
 
-         //   showBadgeCount(navigationView, R.id.navigation_shared, GlobalVariables.totalUnreadableCount);
+       /* if(GlobalVariables.totalUnreadableCount > 0)
+        {
+            showBadgeCount(navigationView, R.id.navigation_shared, GlobalVariables.totalUnreadableCount);
+        }
+        else
+        {
+            removeTextLabel(navigationView, R.id.navigation_shared);
+        }*/
+        showBadgeCount(navigationView, R.id.navigation_shared, GlobalVariables.totalUnreadableCount);
 
-        getSharedDocumentsTotalUnreadCount();
+      //  getSharedDocumentsTotalUnreadCount();
 
             if (isFromList == true) {
                 mAdapterList.notifyDataSetChanged();

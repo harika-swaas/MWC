@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Environment;
 import android.support.v7.widget.LinearLayoutManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -14,22 +15,41 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.load.HttpException;
+import com.google.gson.Gson;
 import com.mwc.docportal.API.Model.ColorCodeModel;
 import com.mwc.docportal.API.Model.ConfirmPasswordResponseModel;
 import com.mwc.docportal.API.Model.GetCategoryDocumentsResponse;
+import com.mwc.docportal.API.Model.GetEndUserAllowedSharedFoldersRequest;
+import com.mwc.docportal.API.Model.GetEndUserSharedParentFoldersResponse;
+import com.mwc.docportal.API.Model.ListPinDevicesResponse;
+import com.mwc.docportal.API.Model.ShareEndUserDocumentsRequest;
+import com.mwc.docportal.API.Service.GetEndUserAllowedSharedFoldersService;
+import com.mwc.docportal.API.Service.GetEndUserParentSHaredFoldersService;
+import com.mwc.docportal.API.Service.ShareEndUserDocumentsService;
+import com.mwc.docportal.DMS.NavigationMyFolderActivity;
+import com.mwc.docportal.DMS.NavigationSharedActivity;
 import com.mwc.docportal.DMS.UploadListActivity;
 import com.mwc.docportal.DMS.UploadListAdapter;
 import com.mwc.docportal.Database.AccountSettings;
+import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.Login.LoginActivity;
+import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
+import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
 import com.mwc.docportal.Utils.Constants;
 
 import java.io.File;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import retrofit.Call;
+import retrofit.Callback;
 import retrofit.Response;
+import retrofit.Retrofit;
 
 public class CommonFunctions
 {
@@ -403,6 +423,261 @@ public class CommonFunctions
             e.printStackTrace();
         }
         return strDecryptedText;
+    }
+
+    public static void checkMultipleSharedLevel(Activity mActivity, boolean isFromMyFolder)
+    {
+        if (NetworkUtils.isNetworkAvailable(mActivity)) {
+            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+
+            final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
+            transparentProgressDialog.show();
+
+            final GetEndUserParentSHaredFoldersService mGetEndUserParentSHaredFoldersService = retrofitAPI.create(GetEndUserParentSHaredFoldersService.class);
+
+            Call call = mGetEndUserParentSHaredFoldersService.getEndUserParentSharedFolders(PreferenceUtils.getAccessToken(mActivity));
+
+            call.enqueue(new Callback<ListPinDevicesResponse<GetEndUserSharedParentFoldersResponse>>() {
+                @Override
+                public void onResponse(Response<ListPinDevicesResponse<GetEndUserSharedParentFoldersResponse>> response, Retrofit retrofit) {
+                    ListPinDevicesResponse apiResponse = response.body();
+
+                    if (apiResponse != null) {
+
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
+                        }
+
+                        if(isApiSuccess(mActivity, message, apiResponse.status.getCode()))
+                        {
+                            List<GetEndUserSharedParentFoldersResponse> sharedParentList = response.body().getData();
+
+                            if(sharedParentList != null && sharedParentList.size() == 1)
+                            {
+                                checkNextSharedLevelData(mActivity,sharedParentList.get(0).getCategory_id(), sharedParentList.get(0).getWorkspace_id(),
+                                        transparentProgressDialog, isFromMyFolder);
+                            }
+                            else if(sharedParentList != null && sharedParentList.size() > 1)
+                            {
+                                transparentProgressDialog.dismiss();
+                                GlobalVariables.isMoveInitiated = true;
+                                GlobalVariables.selectedActionName =  "share";
+                                Intent intent = new Intent(mActivity, NavigationSharedActivity.class);
+                                intent.putExtra("ObjectId", "0");
+                                mActivity.startActivity(intent);
+
+                            }
+
+
+                        }
+
+                    }else {
+                        transparentProgressDialog.dismiss();
+                        serverErrorExceptions(mActivity, response.code());
+                    }
+
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    transparentProgressDialog.dismiss();
+                    showTimeOutError(mActivity, t);
+                }
+            });
+        }
+    }
+
+    private static void checkNextSharedLevelData(Activity mActivity, String category_id, String workspace_id, LoadingProgressDialog transparentProgressDialog,
+                                                 boolean isFromMyFolder)
+    {
+        if (NetworkUtils.isNetworkAvailable(mActivity)) {
+
+            Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+
+            GetEndUserAllowedSharedFoldersRequest mGetEndUserAllowedSharedFoldersRequest = new GetEndUserAllowedSharedFoldersRequest(workspace_id, category_id);
+
+            String request = new Gson().toJson(mGetEndUserAllowedSharedFoldersRequest);
+
+            //Here the json data is add to a hash map with key data
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("data", request);
+
+            final GetEndUserAllowedSharedFoldersService mGetEndUserAllowedSharedFoldersService = retrofitAPI.create(GetEndUserAllowedSharedFoldersService.class);
+
+            Call call = mGetEndUserAllowedSharedFoldersService.getEndUserAllowedSharedFolders(params, PreferenceUtils.getAccessToken(mActivity));
+
+            call.enqueue(new Callback<ListPinDevicesResponse<GetEndUserSharedParentFoldersResponse>>() {
+                @Override
+                public void onResponse(Response<ListPinDevicesResponse<GetEndUserSharedParentFoldersResponse>> response, Retrofit retrofit) {
+                    ListPinDevicesResponse apiResponse = response.body();
+
+                    if (apiResponse != null) {
+                        String message = "";
+                        if(apiResponse.status.getMessage() != null)
+                        {
+                            message = apiResponse.status.getMessage().toString();
+                        }
+
+                        if(isApiSuccess(mActivity, message, apiResponse.status.getCode()))
+                        {
+                            List<GetEndUserSharedParentFoldersResponse> sharedParentAllowedList = response.body().getData();
+
+                            if(sharedParentAllowedList != null && sharedParentAllowedList.size() == 1)
+                            {
+                                transparentProgressDialog.dismiss();
+                                showAlertMessageForQuickShare(mActivity,sharedParentAllowedList.get(0).getCategory_id(), sharedParentAllowedList.get(0).getWorkspace_id(), isFromMyFolder);
+
+                            }
+                            else if(sharedParentAllowedList != null && sharedParentAllowedList.size() > 1)
+                            {
+                                transparentProgressDialog.dismiss();
+                                GlobalVariables.isMoveInitiated = true;
+                                GlobalVariables.selectedActionName =  "share";
+                                Intent intent = new Intent(mActivity, NavigationSharedActivity.class);
+                                intent.putExtra("ObjectId", "0");
+                                mActivity.startActivity(intent);
+                            }
+
+                        }
+
+                    }
+                    else {
+                        transparentProgressDialog.dismiss();
+                        serverErrorExceptions(mActivity, response.code());
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    transparentProgressDialog.dismiss();
+                    showTimeOutError(mActivity, t);
+                    Log.d("Message", t.getMessage());
+                }
+            });
+
+        }
+    }
+
+    private static void showAlertMessageForQuickShare(Activity mActivity, String category_id, String workspace_id, boolean isFromMyFolder)
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+        LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Alert");
+
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+        AccountSettings accountSettings = new AccountSettings(mActivity);
+        String companyName = accountSettings.getCompanyName();
+
+        txtMessage.setText(Constants.QUICK_SHARE_MSG + companyName+". Are you sure?");
+
+        Button okButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+        cancelButton.setText("Cancel");
+
+        okButton.setText("Ok");
+
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+                shareEndUserDocuments(mActivity,category_id, workspace_id, isFromMyFolder);
+
+            }
+        });
+
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+
+            }
+        });
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
+    }
+
+    private static void shareEndUserDocuments(Activity mActivity, String category_id, String workspace_id, boolean isFromMyFolder)
+    {
+        Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
+
+        LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
+        transparentProgressDialog.show();
+
+        ArrayList<String> document_ids = new ArrayList<>();
+        if(GlobalVariables.selectedDocumentsList.size() > 0)
+        {
+            for(GetCategoryDocumentsResponse categoryDocumentsResponse : GlobalVariables.selectedDocumentsList)
+            {
+                document_ids.add(categoryDocumentsResponse.getObject_id());
+            }
+        }
+
+        ShareEndUserDocumentsRequest mShareEndUserDocumentsRequest = new ShareEndUserDocumentsRequest(document_ids,workspace_id, category_id);
+
+        String request = new Gson().toJson(mShareEndUserDocumentsRequest);
+
+        //Here the json data is add to a hash map with key data
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("data", request);
+
+        final ShareEndUserDocumentsService mShareEndUserDocumentsService = retrofitAPI.create(ShareEndUserDocumentsService.class);
+        Call call = mShareEndUserDocumentsService.getSharedEndUserDocuments(params,PreferenceUtils.getAccessToken(mActivity));
+
+        call.enqueue(new Callback<ListPinDevicesResponse<GetEndUserSharedParentFoldersResponse>>() {
+            @Override
+            public void onResponse(Response<ListPinDevicesResponse<GetEndUserSharedParentFoldersResponse>> response, Retrofit retrofit) {
+                ListPinDevicesResponse apiResponse = response.body();
+                transparentProgressDialog.dismiss();
+                if (apiResponse != null) {
+
+                    String message = "";
+                    if(apiResponse.status.getMessage() != null)
+                    {
+                        message = apiResponse.status.getMessage().toString();
+                    }
+
+                    if(CommonFunctions.isApiSuccess(mActivity, message, apiResponse.status.getCode()))
+                    {
+                        GlobalVariables.isMoveInitiated = false;
+                        GlobalVariables.selectedActionName = "";
+                        GlobalVariables.selectedDocumentsList.clear();
+
+                        if(isFromMyFolder)
+                        {
+                            ((NavigationMyFolderActivity)mActivity).refreshMyFolderDMS();
+                        }
+
+                        /*Intent intent = new Intent(context, NavigationMyFolderActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                        intent.putExtra("IsFromUpload", "Upload");
+                        startActivity(intent);
+                        finish();*/
+
+                    }
+
+
+                }
+                else {
+                    serverErrorExceptions(mActivity, response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                transparentProgressDialog.dismiss();
+                showTimeOutError(mActivity, t);
+            }
+        });
     }
 
 }

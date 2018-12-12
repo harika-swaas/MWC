@@ -7,11 +7,13 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.design.internal.BottomNavigationItemView;
 import android.support.design.internal.BottomNavigationMenuView;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.menu.MenuView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -40,6 +42,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import q.rorbin.badgeview.QBadgeView;
 import retrofit.Call;
 import retrofit.Callback;
 import retrofit.Response;
@@ -115,6 +118,15 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
 
                             GlobalVariables.totalUnreadableCount = totalUnreadCount;
 
+                           /* if(totalUnreadCount > 0)
+                            {
+                                showBadgeCount(navigationView, R.id.navigation_shared, totalUnreadCount);
+                            }
+                            else
+                            {
+                                removeTextLabel(navigationView, R.id.navigation_shared);
+                            }*/
+
                             showBadgeCount(navigationView, R.id.navigation_shared, totalUnreadCount);
 
                         }
@@ -136,8 +148,34 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
 
     }
 
-    public void showBadgeCount(BottomNavigationView navigationView, int itemId, int badgeCountValue)
+   /* public void removeBadge(BottomNavigationView navigationView, int itemId)
     {
+        BottomNavigationItemView itemView = navigationView.findViewById(itemId);
+        View badge = LayoutInflater.from(context).inflate(R.layout.badge_count_item, navigationView, false);
+        TextView text = badge.findViewById(R.id.unread_count);
+     //   View badge = itemView.findViewById(R.id.notifications_badge);
+        ((ViewGroup)text.getParent()).removeView(text);
+        *//*if (itemView.getChildCount() == 3) {
+            itemView.removeViewAt(1);
+        }*//*
+    }*/
+
+    public void removeBadge(BottomNavigationView navigationView, int itemId)
+    {
+       /* BottomNavigationMenuView bottomNavigationMenuView = (BottomNavigationMenuView) navigationView.getChildAt(0);
+        View v = bottomNavigationMenuView.getChildAt(index);
+        BottomNavigationItemView itemView = (BottomNavigationItemView) v;
+        itemView.removeViewAt(itemView.getChildCount()-1);*/
+
+       /* BottomNavigationItemView itemView = navigationView.findViewById(itemId);
+        View badge = LayoutInflater.from(context).inflate(R.layout.badge_count_item, navigationView, false);
+
+        TextView text = badge.findViewById(R.id.unread_count);
+
+    //    badge.setVisibility(View.GONE);
+
+        ((ViewGroup)text.getParent()).removeView(text);*/
+
         BottomNavigationItemView itemView = navigationView.findViewById(itemId);
         View badge = LayoutInflater.from(context).inflate(R.layout.badge_count_item, navigationView, false);
 
@@ -148,34 +186,78 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
         params.addRule(RelativeLayout.CENTER_HORIZONTAL);
         text.setLayoutParams(params);
 
-        if(badgeCountValue > 99)
-        {
-            relativeLayout.setVisibility(View.VISIBLE);
-            text.setText("99+");
-        }
-        else if(badgeCountValue == 0)
-        {
-            relativeLayout.setVisibility(View.INVISIBLE);
-            text.setText(""+badgeCountValue);
-        }
-        else
-        {
-            relativeLayout.setVisibility(View.VISIBLE);
-            text.setText(""+badgeCountValue);
-        }
-
-       /* if(badgeCountValue > 0)
-        {
-            text.setVisibility(View.VISIBLE);
-        }
-        else
-        {
-            text.setVisibility(View.GONE);
-        }*/
+        relativeLayout.setVisibility(View.GONE);
 
         itemView.addView(badge);
 
+
+
+
     }
+
+    public void showBadgeCount(BottomNavigationView navigationView, int itemId, int badgeCountValue)
+    {
+
+        BottomNavigationItemView itemView = navigationView.findViewById(itemId);
+        View badge = LayoutInflater.from(context).inflate(R.layout.badge_count_item, navigationView, false);
+
+        TextView text = badge.findViewById(R.id.unread_count);
+        RelativeLayout relativeLayout = badge.findViewById(R.id.badge_icon_linearlayout);
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)text.getLayoutParams();
+        params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+        params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        text.setLayoutParams(params);
+
+
+        navigationView.removeView(navigationView.getChildAt(2));
+
+        if(badgeCountValue > 0)
+        {
+            if(badgeCountValue > 99)
+            {
+                relativeLayout.setVisibility(View.VISIBLE);
+                text.setText("99+");
+                navigationView.addView(badge);
+            }
+            else
+            {
+                relativeLayout.setVisibility(View.VISIBLE);
+                text.setText(""+badgeCountValue);
+                navigationView.addView(badge);
+            }
+        }
+        else
+        {
+            relativeLayout.setVisibility(View.VISIBLE);
+            text.setText(""+badgeCountValue);
+            navigationView.removeView(badge);
+
+                View view2 = navigationView.getChildAt(1);
+
+                if(view2 != null)
+                {
+                    view2.setVisibility(View.GONE);
+                }
+        }
+
+    }
+
+    public void removeTextLabel(@NonNull BottomNavigationView bottomNavigationView, @IdRes int menuItemId) {
+        View view = bottomNavigationView.findViewById(menuItemId);
+        if (view == null) return;
+        if (view instanceof MenuView.ItemView) {
+            ViewGroup viewGroup = (ViewGroup) view;
+            for (int i = 0; i < viewGroup.getChildCount(); i++) {
+                View v = viewGroup.getChildAt(i);
+                if (v instanceof ViewGroup) {
+                    viewGroup.removeViewAt(i);
+                }
+            }
+          //  viewGroup.setPadding(view.getPaddingLeft(), (viewGroup.getPaddingTop() + padding) / 2, view.getPaddingRight(), view.getPaddingBottom());
+        }
+    }
+
+
 
     @Override
     protected void onStart() {

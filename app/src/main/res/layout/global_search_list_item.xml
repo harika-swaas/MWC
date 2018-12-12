@@ -84,7 +84,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_toRightOf="@+id/fileorfolder"
-                    android:layout_toLeftOf="@+id/moreactions"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="0dp">
 
@@ -138,6 +137,7 @@
                     </LinearLayout>
 
                 </RelativeLayout>
+            </RelativeLayout>
 
                 <RelativeLayout
                     android:id="@+id/moreactions"
@@ -173,7 +173,7 @@
 
                 </RelativeLayout>
 
-            </RelativeLayout>
+
 
     </RelativeLayout>
 
