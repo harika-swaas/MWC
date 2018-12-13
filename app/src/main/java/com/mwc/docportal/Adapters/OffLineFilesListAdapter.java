@@ -182,6 +182,9 @@ public class OffLineFilesListAdapter extends RecyclerView.Adapter<OffLineFilesLi
                 @Override
                 public void onClick(View v) {
 
+                    StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+                    StrictMode.setVmPolicy(builder.build());
+
                     if(offLineFileListData.get(position).getFiletype() != null && offLineFileListData.get(position).getFiletype().equalsIgnoreCase("pdf"))
                     {
                         GetCategoryDocumentsResponse categoryDocumentsResponse = new GetCategoryDocumentsResponse();
@@ -203,6 +206,7 @@ public class OffLineFilesListAdapter extends RecyclerView.Adapter<OffLineFilesLi
                     {
                         openFile(offLineFileListData.get(position));
                     }
+
 
 //                    else if(offLineFileListData.get(position).getFiletype() != null && !offLineFileListData.get(position).getFiletype().equalsIgnoreCase("pdf"))
 //                    {

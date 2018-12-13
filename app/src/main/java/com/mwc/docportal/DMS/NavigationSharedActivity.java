@@ -752,14 +752,14 @@ public class NavigationSharedActivity extends BaseActivity {
     {
         if (GlobalVariables.isSharedTileView && !GlobalVariables.isMoveInitiated)
         {
-            toggle.setImageResource(R.mipmap.ic_grid);
+            toggle.setImageResource(R.mipmap.ic_list);
             setGridAdapterToView(documentsCategoryList);
             mAdapter.notifyDataSetChanged();
             isFromList = false;
         }
         else
         {
-            toggle.setImageResource(R.mipmap.ic_list);
+            toggle.setImageResource(R.mipmap.ic_grid);
             setListAdapterToView(documentsCategoryList);
             isFromList = true;
             mAdapterList.notifyDataSetChanged();
@@ -786,7 +786,7 @@ public class NavigationSharedActivity extends BaseActivity {
 
     private void setGridAdapterToView(List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses) {
 
-        toggle.setImageResource(R.mipmap.ic_grid);
+        toggle.setImageResource(R.mipmap.ic_list);
         int mNoOfColumns = GridAutofitLayoutManager.calculateNoOfColumns(getApplicationContext());
         mRecyclerView.setLayoutManager(new GridLayoutManager(context, mNoOfColumns));
         while (mRecyclerView.getItemDecorationCount() > 0) {

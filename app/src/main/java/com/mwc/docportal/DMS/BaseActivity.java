@@ -41,8 +41,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import q.rorbin.badgeview.QBadgeView;
 import retrofit.Call;
 import retrofit.Callback;
 import retrofit.Response;

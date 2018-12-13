@@ -109,7 +109,7 @@
                                 android:layout_alignParentRight="true"
                                 android:layout_alignParentEnd="true"
                                 android:layout_centerInParent="true"
-                                android:src="@mipmap/ic_grid" />
+                                android:src="@mipmap/ic_list" />
 
                         </RelativeLayout>
                     </RelativeLayout>
