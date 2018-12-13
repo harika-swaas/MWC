@@ -7,8 +7,8 @@ package com.mwc.docportal.Utils;
 public class Constants {
 
     // ***************************** Testing ********************************************
-  /*   public static final String COMPANY_BASE_URL = "http://172.16.40.50";
-     public static final String LOGO_IMAGE_BASE_URL = "http://172.16.40.51/";*/
+   /*  public static final String COMPANY_BASE_URL = "http://172.16.40.50";
+     public static final String LOGO_IMAGE_BASE_URL = "http://172.16.40.51";*/
 
     // ***************************** UAT ********************************************
    public static final String COMPANY_BASE_URL = "https://uatapi.mywealthcloud.com";
@@ -20,11 +20,9 @@ public class Constants {
     public static final String LOGO_IMAGE_BASE_URL = "https://app.docportal.co.uk";*/
 
 
-   // ***************************** Testing ********************************************
- //   public static final String LOGO_IMAGE_BASE_URL = "http://172.16.40.51/";
-
-    // ***************************** UAT ********************************************
- //   public static final String LOGO_IMAGE_BASE_URL = "http://uatweb.docportal.co.uk/";
+ // ***************************** Development ********************************************
+   /* public static final String COMPANY_BASE_URL = "http://172.16.40.40";
+    public static final String LOGO_IMAGE_BASE_URL = "http://172.16.40.41";*/
 
 
     public static final String EMAIL = "email";

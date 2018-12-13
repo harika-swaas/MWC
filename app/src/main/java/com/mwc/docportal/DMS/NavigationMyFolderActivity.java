@@ -1483,7 +1483,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
     {
         if (GlobalVariables.isTileView && !GlobalVariables.isMoveInitiated)
         {
-            toggle.setImageResource(R.mipmap.ic_grid);
+            toggle.setImageResource(R.mipmap.ic_list);
             if(isFromNewData)
             {
                 mAdapter.notifyDataSetChanged();
@@ -1499,7 +1499,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         }
         else
         {
-            toggle.setImageResource(R.mipmap.ic_list);
+            toggle.setImageResource(R.mipmap.ic_grid);
 
             if(isFromNewData)
             {
@@ -2180,7 +2180,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
     private void setGridAdapterToView(List<GetCategoryDocumentsResponse> getCategoryDocumentsResponses) {
 
-        toggle.setImageResource(R.mipmap.ic_grid);
+        toggle.setImageResource(R.mipmap.ic_list);
         int mNoOfColumns = GridAutofitLayoutManager.calculateNoOfColumns(getApplicationContext());
         mRecyclerView.setLayoutManager(new GridLayoutManager(context, mNoOfColumns));
         while (mRecyclerView.getItemDecorationCount() > 0) {
@@ -2494,14 +2494,14 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                     if (!isChecked) {
                         switchButton_share.setChecked(false);
                         ArrayList<String> documentIdslist = new ArrayList<>();
-                        for(GetCategoryDocumentsResponse categoryDocumentsResponse : mSelectedDocumentList)
+                        for(GetCategoryDocumentsResponse categoryDocumentsResponse : GlobalVariables.selectedDocumentsList)
                         {
                             documentIdslist.add(categoryDocumentsResponse.getObject_id());
                         }
 
                         if(documentIdslist !=null && documentIdslist.size() > 0)
                         {
-                            showWarningMessageAlertForSharingContent(documentIdslist, mSelectedDocumentList);
+                            showWarningMessageAlertForSharingContent(documentIdslist, GlobalVariables.selectedDocumentsList);
                         }
 
                     } else {

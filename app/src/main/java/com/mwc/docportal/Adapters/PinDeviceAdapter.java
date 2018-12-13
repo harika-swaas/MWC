@@ -44,12 +44,16 @@ public class PinDeviceAdapter extends RecyclerView.Adapter<PinDeviceAdapter.PinD
     public void onBindViewHolder(final PinDeviceViewHolder holder, final int position) {
         holder.name.setText(mListPinDevices.get(position).getDevice_name());
 
-        if (mListPinDevices.get(position).getDevice_type().equalsIgnoreCase(context.getResources().getString(R.string.Mobile))) {
-            holder.icon.setImageResource(R.mipmap.ic_mobile);
-        }
 
         if (mListPinDevices.get(position).getDevice_type().equalsIgnoreCase(context.getResources().getString(R.string.Email))) {
             holder.icon.setImageResource(R.mipmap.ic_mail);
+        }
+        else if (mListPinDevices.get(position).getDevice_type().equalsIgnoreCase(context.getResources().getString(R.string.Mobile))) {
+            holder.icon.setImageResource(R.mipmap.ic_mobile);
+        }
+        else
+        {
+            holder.icon.setImageResource(R.mipmap.ic_mobile);
         }
 
         holder.radioButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {

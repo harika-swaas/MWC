@@ -198,6 +198,9 @@ public class OffLineFilesListAdapter extends RecyclerView.Adapter<OffLineFilesLi
                     }
                     else if(offLineFileListData.get(position).getFiletype() != null && !offLineFileListData.get(position).getFiletype().equalsIgnoreCase("pdf"))
                     {
+                        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+                        StrictMode.setVmPolicy(builder.build());
+
                         if(offLineFileListData.get(position).getDocumentVersionId() != null && !offLineFileListData.get(position).getDocumentVersionId().isEmpty())
                         {
                          //   showWarningAlertForSharingContent(offLineFileListData.get(position), offLineFileListData.get(position).getFilename(), offLineFileListData.get(position).getDocumentVersionId());

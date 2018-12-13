@@ -185,7 +185,7 @@ public class Properties_Fragment extends Fragment{
                             type.setText(String.valueOf(documentPropertiesResponse.get(0).getFiletype()));
                             if(documentPropertiesResponse.get(0).getUploaded_date() == null || documentPropertiesResponse.get(0).getUploaded_date().isEmpty())
                             {
-                                uploaded_date.setText("Uploaded on (Unknown)");
+                                uploaded_date.setText("(Unknown)");
                             }
                             else
                             {
@@ -196,7 +196,7 @@ public class Properties_Fragment extends Fragment{
 
                             if(documentPropertiesResponse.get(0).getCreation_date() == null || documentPropertiesResponse.get(0).getCreation_date().isEmpty())
                             {
-                                created_date.setText("Uploaded on (Unknown)");
+                                created_date.setText("(Unknown)");
                             }
                             else
                             {
