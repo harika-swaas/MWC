@@ -29,6 +29,17 @@
         tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
 
+    <uses-feature android:name="android.hardware.telephony" android:required="false" />
+
+    <!--<supports-screens
+        android:smallScreens="true"
+        android:normalScreens="true"
+        android:largeScreens="true"
+        android:xlargeScreens="true"
+        android:anyDensity="true"
+        android:resizeable="true"
+        />-->
+
     <application
         android:name=".MWCApplication"
         android:allowBackup="true"
@@ -183,7 +194,7 @@
 
         <!-- Testing fabric key-->
 
-       <!-- <meta-data
+        <!--<meta-data
             android:name="io.fabric.ApiKey"
             android:value="39f3eab4f9f7f060c8d19339c0c8cdd4d7b8bbb0"
             />-->
