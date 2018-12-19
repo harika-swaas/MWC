@@ -588,11 +588,51 @@ public class FTLPinVerificationFragment extends Fragment {
 
                     if(path != null && !path.isEmpty())
                     {
-                        PreferenceUtils.setLogoImagePath(mActivity, path);
+                        PreferenceUtils.setSplashLogoImagePath(mActivity, path);
                     }
 
+                    downloadSettingsLogoImage(Constants.LOGO_IMAGE_BASE_URL+Constants.Logo_ImagePath+accountSettingsResponse.getCompany_Name()+
+                            Constants.Settings_Logo_Image_Name, transparentProgressDialog, accountSettingsResponse);
+
+
+                    /*transparentProgressDialog.dismiss();
+                    getTermsConditionsUrlFromService(accountSettingsResponse);*/
+
+                }
+
+                @Override
+                public void fileDownloadFailure() {
+
+                }
+            });
+            fileDownloadManager.downloadTheFile();
+        }
+    }
+
+    private void downloadSettingsLogoImage(String imageUrl, LoadingProgressDialog transparentProgressDialog, AccountSettingsResponse accountSettingsResponse1)
+    {
+        if (!TextUtils.isEmpty(imageUrl)) {
+            FileDownloadManager fileDownloadManager = new FileDownloadManager(mActivity);
+            GetCategoryDocumentsResponse categoryDocumentsResponse = new GetCategoryDocumentsResponse();
+            categoryDocumentsResponse.setDownloadUrl(imageUrl);
+            categoryDocumentsResponse.setDocument_version_id("67890");
+            categoryDocumentsResponse.setName("Logo");
+
+            fileDownloadManager.setFileTitle("Logo");
+            fileDownloadManager.setDownloadUrl(imageUrl);
+            fileDownloadManager.setDigitalAssets(categoryDocumentsResponse);
+            fileDownloadManager.setmFileDownloadListener(new FileDownloadManager.FileDownloadListener() {
+                @Override
+                public void fileDownloadSuccess(String path) {
+
+                    if(path != null && !path.isEmpty())
+                    {
+                        PreferenceUtils.setSettingsLogoImagePath(mActivity, path);
+                    }
+
+
                     transparentProgressDialog.dismiss();
-                    getTermsConditionsUrlFromService(accountSettingsResponse);
+                    getTermsConditionsUrlFromService(accountSettingsResponse1);
 
                 }
 
@@ -797,12 +837,12 @@ public class FTLPinVerificationFragment extends Fragment {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             int storagePermission = ContextCompat.checkSelfPermission(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
             if (storagePermission == PackageManager.PERMISSION_GRANTED) {
-                downloadLogoImage(accountSettingsResponse, Constants.LOGO_IMAGE_BASE_URL+Constants.Logo_ImagePath+accountSettingsResponse.getCompany_Name()+Constants.Logo_Image_Name);
+                downloadLogoImage(accountSettingsResponse, Constants.LOGO_IMAGE_BASE_URL+Constants.Logo_ImagePath+accountSettingsResponse.getCompany_Name()+Constants.Splash_Logo_Image_Name);
             } else {
                 requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_STORAGE_PERMISSION);
             }
         } else {
-            downloadLogoImage(accountSettingsResponse, Constants.LOGO_IMAGE_BASE_URL+Constants.Logo_ImagePath+accountSettingsResponse.getCompany_Name()+Constants.Logo_Image_Name);
+            downloadLogoImage(accountSettingsResponse, Constants.LOGO_IMAGE_BASE_URL+Constants.Logo_ImagePath+accountSettingsResponse.getCompany_Name()+Constants.Splash_Logo_Image_Name);
         }
     }
 
@@ -885,10 +925,8 @@ public class FTLPinVerificationFragment extends Fragment {
                                 String mHelpGuideURL = mGetAssistancePopupContentResponse.getHelp_guide_url();
 
                                 accountSettingsResponse.setHelp_Guide_URL(mHelpGuideURL);
-
                                 AccountSettings accountSettings = new AccountSettings(mActivity);
                                 accountSettings.InsertAccountSettings(accountSettingsResponse);
-
 
                             }
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -1159,7 +1197,11 @@ public class FTLPinVerificationFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        mActivity.unregisterReceiver(receiver);
+        try {
+            mActivity.unregisterReceiver(receiver);
+        } catch (Exception e){
+            // already unregistered
+        }
     }
 
 }

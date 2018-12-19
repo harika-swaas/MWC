@@ -143,10 +143,19 @@ public class NavigationSettingsActivity extends BaseActivity {
             logo_layout.setBackgroundDrawable(shape);
         }
 
-        if(PreferenceUtils.getLogoImagePath(context) != null)
+        if(PreferenceUtils.getSettingsLogoImagePath(context) != null)
         {
            /* String decryptedPath = CommonFunctions.decryption(PreferenceUtils.getLogoImagePath(context));
             File imgFile = new  File(decryptedPath);*/
+            File imgFile = new  File(PreferenceUtils.getSettingsLogoImagePath(context));
+
+            if(imgFile.exists()){
+                Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                LOGO_image.setImageBitmap(myBitmap);
+
+            }
+        }
+        else if(PreferenceUtils.getLogoImagePath(context) != null) {
             File imgFile = new  File(PreferenceUtils.getLogoImagePath(context));
 
             if(imgFile.exists()){

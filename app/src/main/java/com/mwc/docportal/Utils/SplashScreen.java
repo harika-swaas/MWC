@@ -138,13 +138,22 @@ public class SplashScreen extends RootActivity {
         AQuery aq = new AQuery(this); // intsialze aquery
         aq.id(logo).image(myUrl);*/
 
-        if(PreferenceUtils.getLogoImagePath(context) != null)
+        if(PreferenceUtils.getSplashLogoImagePath(context) != null)
         {
           //  String decryptedPath = CommonFunctions.decryption(PreferenceUtils.getLogoImagePath(context));
-            File imgFile = new  File(PreferenceUtils.getLogoImagePath(context));
+            File imgFile = new  File(PreferenceUtils.getSplashLogoImagePath(context));
 
             if(imgFile.exists()){
 
+                Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                logo.setImageBitmap(myBitmap);
+
+            }
+        }
+        else if(PreferenceUtils.getLogoImagePath(context) != null) {
+            File imgFile = new  File(PreferenceUtils.getLogoImagePath(context));
+
+            if(imgFile.exists()){
                 Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
                 logo.setImageBitmap(myBitmap);
 

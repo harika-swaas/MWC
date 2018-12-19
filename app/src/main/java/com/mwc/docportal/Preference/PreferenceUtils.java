@@ -51,6 +51,10 @@ public class PreferenceUtils {
     private static final String SHARETYPE_DOCUMENTVERSIONID = "shareType_documentVersionId";
     private static final String ROOT_WORKSPACEID = "root_WorkSpaceId";
 
+    // Logo files download
+    private static final String SPLASH_LOGO_IMAGE_PATH = "splash_logo_image_path";
+    private static final String SETTINGS_LOGO_IMAGE_PATH = "settings_logo_image_path";
+
     public static void setAccessToken(Context context, String accesstoken) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -464,5 +468,33 @@ public class PreferenceUtils {
         String workSpaceId = sharedPreferences.getString(ROOT_WORKSPACEID, null);
         return workSpaceId;
     }
+
+    public static void setSplashLogoImagePath(Context context, String imagePath) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(SPLASH_LOGO_IMAGE_PATH, imagePath);
+        editor.commit();
+    }
+
+    public static String getSplashLogoImagePath(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        String imagePath = sharedPreferences.getString(SPLASH_LOGO_IMAGE_PATH, null);
+        return imagePath;
+    }
+
+    public static void setSettingsLogoImagePath(Context context, String imagePath) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(SETTINGS_LOGO_IMAGE_PATH, imagePath);
+        editor.commit();
+    }
+
+    public static String getSettingsLogoImagePath(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        String imagePath = sharedPreferences.getString(SETTINGS_LOGO_IMAGE_PATH, null);
+        return imagePath;
+    }
+
+
 
 }

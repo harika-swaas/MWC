@@ -30,6 +30,17 @@
         tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
 
+    <!--<supports-screens
+        android:smallScreens="true"
+        android:normalScreens="true"
+        android:largeScreens="true"
+        android:xlargeScreens="true"
+        android:anyDensity="true"
+        android:resizeable="true"
+        />-->
+
+    <uses-feature android:name="android.hardware.telephony" android:required="false" />
+
     <application
         android:name=".MWCApplication"
         android:allowBackup="true"
@@ -217,6 +228,9 @@
             android:name=".Online_PdfView_Activity"
             android:configChanges="orientation|screenSize|keyboardHidden" />
         <activity android:name=".Dummy_Activity"></activity>
+
     </application>
+
+
 
 </manifest>

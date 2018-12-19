@@ -707,7 +707,15 @@ public class NavigationSharedActivity extends BaseActivity {
                         categoryDocumentsResponse.setCategory_id(parentDocumentId);
                         categoryDocumentsResponse.setFilesize("0");
                         categoryDocumentsResponse.setType("category");
-                        categoryDocumentsResponse.setUnread_doc_count(objString.getInt("unread_doc_count"));
+                        if(objString.has("unread_doc_count"))
+                        {
+                            categoryDocumentsResponse.setUnread_doc_count(objString.getInt("unread_doc_count"));
+                        }
+                        else
+                        {
+                            categoryDocumentsResponse.setUnread_doc_count(0);
+                        }
+
                         GlobalVariables.sharedDocumentList.add(categoryDocumentsResponse);
 
                         if(objString.has("nodes")){

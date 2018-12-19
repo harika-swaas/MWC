@@ -7,12 +7,12 @@ package com.mwc.docportal.Utils;
 public class Constants {
 
     // ***************************** Testing ********************************************
-     public static final String COMPANY_BASE_URL = "http://172.16.40.50";
-     public static final String LOGO_IMAGE_BASE_URL = "http://172.16.40.51";
+ /*    public static final String COMPANY_BASE_URL = "http://172.16.40.50";
+     public static final String LOGO_IMAGE_BASE_URL = "http://172.16.40.51";*/
 
     // ***************************** UAT ********************************************
-  /* public static final String COMPANY_BASE_URL = "https://uatapi.mywealthcloud.com";
-   public static final String LOGO_IMAGE_BASE_URL = "http://uatweb.docportal.co.uk";*/
+   public static final String COMPANY_BASE_URL = "https://uatapi.mywealthcloud.com";
+   public static final String LOGO_IMAGE_BASE_URL = "http://uatweb.docportal.co.uk";
 
 
     // ***************************** Production ********************************************
@@ -64,12 +64,13 @@ public class Constants {
 
     public static final String CHANNEL_ID = "my_channel_01";
 
-
-
-
-    public static final String SHARED_COMPANY_BASE_URL = "http://172.16.40.40";
     public static final String Logo_ImagePath = "/assets/images/whitelabels/";
-    public static final String Logo_Image_Name = "/mwc-logo.png";
+
+    // Splash logo download
+    public static final String Splash_Logo_Image_Name = "/mob-splash-logo.png";
+
+    // Settings logo download
+    public static final String Settings_Logo_Image_Name = "/mob-settings-logo.png";
 
     public static final String Folder_Name = ".Doc_Portal";
     public static final String DOCUMENT_NAME = "Document_Name";

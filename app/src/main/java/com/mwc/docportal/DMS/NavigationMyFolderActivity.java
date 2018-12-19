@@ -8,7 +8,6 @@ import android.content.ClipData;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -16,7 +15,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
 import android.net.Uri;
@@ -33,7 +31,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -226,6 +223,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
     public static final int REQUEST_STORAGE_PERMISSION = 111;
     public static final int REQUEST_CAMERA_PERMISSION = 222;
+    public static final int IMAGE_DOWNLOAD_PERMISSION = 333;
 
     boolean isVideo = false;
     boolean isFromSearchData = false;
@@ -625,6 +623,13 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                             {
                                 getMaxUploadSize();
                             }
+
+                            if(PreferenceUtils.getSplashLogoImagePath(context) == null || PreferenceUtils.getSplashLogoImagePath(context).isEmpty())
+                            {
+                                AccountSettings accountSettings = new AccountSettings(NavigationMyFolderActivity.this);
+                                String companyName = accountSettings.getCompanyName();
+                                getPermissionForExternalStorage(companyName);
+                            }
                         }
 
                     }
@@ -645,6 +650,20 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         else
         {
             internetUnAvailableWithMessage();
+        }
+    }
+
+    private void getPermissionForExternalStorage(String companyName)
+    {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            int storagePermission = ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            if (storagePermission == PackageManager.PERMISSION_GRANTED) {
+                downloadLogoImage(Constants.LOGO_IMAGE_BASE_URL+Constants.Logo_ImagePath+companyName+Constants.Splash_Logo_Image_Name, companyName);
+            } else {
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, IMAGE_DOWNLOAD_PERMISSION);
+            }
+        } else {
+            downloadLogoImage(Constants.LOGO_IMAGE_BASE_URL+Constants.Logo_ImagePath+companyName+Constants.Splash_Logo_Image_Name, companyName);
         }
     }
 
@@ -4020,6 +4039,15 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                     Toast.makeText(context, "Storage access permission denied", Toast.LENGTH_LONG).show();
                 }
                 break;
+            case IMAGE_DOWNLOAD_PERMISSION:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    AccountSettings accountSettings = new AccountSettings(NavigationMyFolderActivity.this);
+                    String companyName = accountSettings.getCompanyName();
+                    downloadLogoImage(Constants.LOGO_IMAGE_BASE_URL+Constants.Logo_ImagePath+companyName+Constants.Splash_Logo_Image_Name, companyName);
+                } else {
+                    Toast.makeText(context, "Storage access permission denied", Toast.LENGTH_LONG).show();
+                }
+                break;
         }
     }
 
@@ -4694,4 +4722,74 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             }
         });
     }
+
+    public void downloadLogoImage(String imageUrl, String companyName)
+    {
+        if (!TextUtils.isEmpty(imageUrl)) {
+            FileDownloadManager fileDownloadManager = new FileDownloadManager(NavigationMyFolderActivity.this);
+            GetCategoryDocumentsResponse categoryDocumentsResponse = new GetCategoryDocumentsResponse();
+            categoryDocumentsResponse.setDownloadUrl(imageUrl);
+            categoryDocumentsResponse.setDocument_version_id("123456");
+            categoryDocumentsResponse.setName("Logo");
+
+            fileDownloadManager.setFileTitle("Logo");
+            fileDownloadManager.setDownloadUrl(imageUrl);
+            fileDownloadManager.setDigitalAssets(categoryDocumentsResponse);
+            fileDownloadManager.setmFileDownloadListener(new FileDownloadManager.FileDownloadListener() {
+                @Override
+                public void fileDownloadSuccess(String path) {
+
+                    if(path != null && !path.isEmpty())
+                    {
+                        PreferenceUtils.setSplashLogoImagePath(context, path);
+                    }
+
+                    if(PreferenceUtils.getSettingsLogoImagePath(context) == null || PreferenceUtils.getSettingsLogoImagePath(context).isEmpty())
+                    {
+                        downloadSettingsLogoImage(Constants.LOGO_IMAGE_BASE_URL+Constants.Logo_ImagePath+companyName+
+                                Constants.Settings_Logo_Image_Name);
+                    }
+                }
+
+                @Override
+                public void fileDownloadFailure() {
+
+                }
+            });
+            fileDownloadManager.downloadTheFile();
+        }
+    }
+
+    private void downloadSettingsLogoImage(String imageUrl)
+    {
+        if (!TextUtils.isEmpty(imageUrl)) {
+            FileDownloadManager fileDownloadManager = new FileDownloadManager(NavigationMyFolderActivity.this);
+            GetCategoryDocumentsResponse categoryDocumentsResponse = new GetCategoryDocumentsResponse();
+            categoryDocumentsResponse.setDownloadUrl(imageUrl);
+            categoryDocumentsResponse.setDocument_version_id("67890");
+            categoryDocumentsResponse.setName("Logo");
+
+            fileDownloadManager.setFileTitle("Logo");
+            fileDownloadManager.setDownloadUrl(imageUrl);
+            fileDownloadManager.setDigitalAssets(categoryDocumentsResponse);
+            fileDownloadManager.setmFileDownloadListener(new FileDownloadManager.FileDownloadListener() {
+                @Override
+                public void fileDownloadSuccess(String path) {
+
+                    if(path != null && !path.isEmpty())
+                    {
+                        PreferenceUtils.setSettingsLogoImagePath(context, path);
+                    }
+                }
+
+                @Override
+                public void fileDownloadFailure() {
+
+                }
+            });
+            fileDownloadManager.downloadTheFile();
+        }
+    }
+
+
 }

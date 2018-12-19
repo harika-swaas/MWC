@@ -308,12 +308,12 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             int storagePermission = ContextCompat.checkSelfPermission(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
             if (storagePermission == PackageManager.PERMISSION_GRANTED) {
-                downloadLogoImage(Constants.LOGO_IMAGE_BASE_URL+Constants.Logo_ImagePath+company_name+Constants.Logo_Image_Name);
+                downloadLogoImage(Constants.LOGO_IMAGE_BASE_URL+Constants.Logo_ImagePath+company_name+Constants.Splash_Logo_Image_Name);
             } else {
                 requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_STORAGE_PERMISSION);
             }
         } else {
-            downloadLogoImage(Constants.LOGO_IMAGE_BASE_URL+Constants.Logo_ImagePath+company_name+Constants.Logo_Image_Name);
+            downloadLogoImage(Constants.LOGO_IMAGE_BASE_URL+Constants.Logo_ImagePath+company_name+Constants.Splash_Logo_Image_Name);
         }
     }
 
@@ -335,8 +335,59 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
 
                     if(path != null && !path.isEmpty())
                     {
-                        PreferenceUtils.setLogoImagePath(mActivity, path);
+                    //    PreferenceUtils.setLogoImagePath(mActivity, path);
+                        PreferenceUtils.setSplashLogoImagePath(mActivity, path);
                     }
+
+
+                    downloadSettingsLogoImage(Constants.LOGO_IMAGE_BASE_URL+Constants.Logo_ImagePath+company_name+Constants.Settings_Logo_Image_Name);
+
+                   /* KeyguardManager keyguardManager = (KeyguardManager) mActivity.getSystemService(Context.KEYGUARD_SERVICE);
+                    if (keyguardManager.isKeyguardSecure() == true) {
+                        Intent intent = new Intent(mActivity, Touchid.class);
+                        intent.putExtra(Constants.IS_FROM_FTL, true);
+                        startActivity(intent);
+                        mActivity.finish();
+                    } else {
+                        Intent intent = new Intent(mActivity, Notifiy.class);
+                        intent.putExtra(Constants.IS_FROM_FTL, true);
+                        startActivity(intent);
+                        mActivity.finish();
+                    }*/
+
+                }
+
+                @Override
+                public void fileDownloadFailure() {
+
+                }
+            });
+            fileDownloadManager.downloadTheFile();
+        }
+
+    }
+
+    private void downloadSettingsLogoImage(String imageUrl)
+    {
+        if (!TextUtils.isEmpty(imageUrl)) {
+            FileDownloadManager fileDownloadManager = new FileDownloadManager(mActivity);
+            GetCategoryDocumentsResponse categoryDocumentsResponse = new GetCategoryDocumentsResponse();
+            categoryDocumentsResponse.setDownloadUrl(imageUrl);
+            categoryDocumentsResponse.setDocument_version_id("67890");
+            categoryDocumentsResponse.setName("Logo");
+
+            fileDownloadManager.setFileTitle("Logo");
+            fileDownloadManager.setDownloadUrl(imageUrl);
+            fileDownloadManager.setDigitalAssets(categoryDocumentsResponse);
+            fileDownloadManager.setmFileDownloadListener(new FileDownloadManager.FileDownloadListener() {
+                @Override
+                public void fileDownloadSuccess(String path) {
+
+                    if(path != null && !path.isEmpty())
+                    {
+                        PreferenceUtils.setSettingsLogoImagePath(mActivity, path);
+                    }
+
 
                     KeyguardManager keyguardManager = (KeyguardManager) mActivity.getSystemService(Context.KEYGUARD_SERVICE);
                     if (keyguardManager.isKeyguardSecure() == true) {
@@ -360,7 +411,6 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
             });
             fileDownloadManager.downloadTheFile();
         }
-
     }
 
     private void addFTLDetails() {
