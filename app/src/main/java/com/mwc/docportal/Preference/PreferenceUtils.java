@@ -55,6 +55,9 @@ public class PreferenceUtils {
     private static final String SPLASH_LOGO_IMAGE_PATH = "splash_logo_image_path";
     private static final String SETTINGS_LOGO_IMAGE_PATH = "settings_logo_image_path";
 
+    private static final String ISFROM_PUSHNOTIFICATION = "isFrom_PushNotification";
+
+
     public static void setAccessToken(Context context, String accesstoken) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -493,6 +496,19 @@ public class PreferenceUtils {
         SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
         String imagePath = sharedPreferences.getString(SETTINGS_LOGO_IMAGE_PATH, null);
         return imagePath;
+    }
+
+    public static void setIsfromPushnotification(Context context, String pushNotificationvalue) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(ISFROM_PUSHNOTIFICATION, pushNotificationvalue);
+        editor.commit();
+    }
+
+    public static String getIsfromPushnotification(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        String pushNotificationValue = sharedPreferences.getString(ISFROM_PUSHNOTIFICATION, null);
+        return pushNotificationValue;
     }
 
 

@@ -171,5 +171,7 @@
     <string name="internal_share_txt">Please choose a location to share into</string>
     <string name="upload_failed_txt">One or more files not uploaded. Tap here to see details</string>
     <string name="internet_failure_txt">Please check that you are connected to the internet. Click here to view files you have made available offline.</string>
+    <string name="default_notification_channel_id">default_channel_id</string>
+    <string name="default_notification_channel_title">Default Channel</string>
 
 </resources>

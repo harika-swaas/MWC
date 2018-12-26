@@ -67,15 +67,14 @@ import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
 
-public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapter.ViewHolder> {
+public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapter.SharedItemHolder> {
 
     private Activity context;
     public List<GetCategoryDocumentsResponse> mGetCategoryDocumentsResponses;
     PdfDocumentResponseModel getDocumentPreviewResponses;
     List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList<>();
   //  public List<GetCategoryDocumentsResponse> selectedList = new ArrayList<>();
-    private static final int GRID_ITEM = 0;
-    private static final int LIST_ITEM = 1;
+
     String obj = "0";
     String categoryr;
     String document;
@@ -120,16 +119,15 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
 
 
 
-    public class ViewHolder extends RecyclerView.ViewHolder  {
+    public class SharedItemHolder extends RecyclerView.ViewHolder  {
 
         public LinearLayout parentLayout;
         public RelativeLayout gridClick, thumbnailLayout;
         public ImageView imageView, selectedItemIv, thumbnailIcon, thumbnailCornerIcon, moreIcon;
         public TextView text, thumbnailText, unread_Count_txt;
         public View layout;
-        ViewHolder vh;
 
-        public ViewHolder(View itemView) {
+        public SharedItemHolder(View itemView) {
             super(itemView);
             layout = itemView;
             parentLayout = (LinearLayout) itemView.findViewById(R.id.linearLayout_parent);
@@ -148,21 +146,14 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public SharedItemHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View v = inflater.inflate(R.layout.file_item_grid, parent, false);
-        ViewHolder vh = new ViewHolder(v);
+        SharedItemHolder vh = new SharedItemHolder(v);
         return vh;
     }
 
-    @Override
-    public int getItemViewType(int position) {
-        if (!isSwitchView) {
-            return LIST_ITEM;
-        } else {
-            return GRID_ITEM;
-        }
-    }
+
 
     @Override
     public int getItemCount() {
@@ -175,9 +166,19 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, final int position) {
+    public long getItemId(int position) {
+        return position;
+    }
 
+    @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
 
+    @Override
+    public void onBindViewHolder(final SharedItemHolder holder, final int position) {
+
+        final GetCategoryDocumentsResponse resp = mGetCategoryDocumentsResponses.get(position);
         if (mGetCategoryDocumentsResponses != null && mGetCategoryDocumentsResponses.size() > 0) {
             PreferenceUtils.setCategoryId(context, mGetCategoryDocumentsResponses.get(position).getParent_id());
             PreferenceUtils.setDocumentVersionId(context, mGetCategoryDocumentsResponses.get(position).getDocument_version_id());
@@ -199,22 +200,22 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
                     }
                 }
 
-                if(mGetCategoryDocumentsResponses.get(position).getUnread_doc_count() > 0)
+                if(resp.getUnread_doc_count() > 0)
                 {
                     holder.unread_Count_txt.setVisibility(View.VISIBLE);
-                    if(mGetCategoryDocumentsResponses.get(position).getUnread_doc_count() > 99)
+                    if(resp.getUnread_doc_count() > 99)
                     {
                         holder.unread_Count_txt.setText("99+");
                     }
                     else
                     {
-                        holder.unread_Count_txt.setText(String.valueOf(mGetCategoryDocumentsResponses.get(position).getUnread_doc_count()));
+                        holder.unread_Count_txt.setText(String.valueOf(resp.getUnread_doc_count()));
                     }
-                  //  holder.text.setTypeface(holder.text.getTypeface(), Typeface.BOLD);
+                    holder.text.setTypeface(holder.text.getTypeface(), Typeface.NORMAL);
                 }
                 else {
                     holder.unread_Count_txt.setVisibility(View.GONE);
-                  //  holder.text.setTypeface(holder.text.getTypeface(), Typeface.NORMAL);
+                    holder.text.setTypeface(holder.text.getTypeface(), Typeface.NORMAL);
                 }
 
 
@@ -633,7 +634,7 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
         switchButton_download.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(buttonView.isPressed() == true) {
+                if(buttonView.isClickable() == true) {
                     if (isChecked) {
 
                         switchButton_download.setChecked(true);
@@ -669,7 +670,7 @@ public class SharedFolderAdapter extends RecyclerView.Adapter<SharedFolderAdapte
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
             {
-                if(buttonView.isPressed() == true) {
+                if(buttonView.isClickable() == true) {
                     mBottomSheetDialog.dismiss();
                     switchButton_share.setChecked(false);
                     showWarningMessageAlertForSharingContent(mGetCategoryDocumentsResponses);

@@ -71,14 +71,16 @@
                         android:id="@+id/logo_layout"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:layout_marginBottom="5dp"
                         android:gravity="center"
                         android:orientation="vertical">
 
 
                         <ImageView
                             android:id="@+id/LOGO_image"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:src="@mipmap/ic_settings_gear"
                             android:gravity="center"
                             />
 
@@ -188,16 +190,23 @@
                                     android:textColor="@android:color/black"
                                     android:textSize="16sp" />
 
-
-                                <android.support.v7.widget.SwitchCompat
-                                    android:id="@+id/push_notification_Switch"
+                                <LinearLayout
+                                    android:id="@+id/push_notification_switch_layout"
                                     android:layout_width="0dp"
                                     android:layout_weight="1"
-                                    android:layout_gravity="center"
-                                    android:layout_height="wrap_content"
-                                    android:checked="false"
                                     android:layout_marginRight="20dp"
-                                    android:visibility="visible"/>
+                                    android:gravity="center"
+                                    android:layout_gravity="center"
+                                    android:layout_height="wrap_content">
+
+                                    <android.support.v7.widget.SwitchCompat
+                                        android:id="@+id/push_notification_Switch"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:checked="false"
+                                        android:visibility="visible"/>
+
+                                </LinearLayout>
 
 
                             </LinearLayout>
@@ -228,18 +237,23 @@
                                     android:textColor="@android:color/black"
                                     android:textSize="16sp" />
 
+                                <LinearLayout
+                                    android:id="@+id/finger_print_switch_layout"
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
+                                    android:layout_marginRight="20dp"
+                                    android:gravity="center"
+                                    android:layout_gravity="center"
+                                    android:layout_height="wrap_content">
 
                                 <android.support.v7.widget.SwitchCompat
                                     android:id="@+id/finger_print_Switch"
-                                    android:layout_width="0dp"
-                                    android:layout_weight="1"
-                                    android:layout_gravity="center"
+                                    android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginRight="20dp"
                                     android:checked="false"
                                     android:visibility="visible"/>
 
-
+                                </LinearLayout>
                             </LinearLayout>
 
 

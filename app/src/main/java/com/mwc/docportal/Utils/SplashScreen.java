@@ -22,6 +22,7 @@ import android.support.annotation.RequiresApi;
 
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -89,6 +90,7 @@ public class SplashScreen extends RootActivity {
     AlertDialog mAlertDialog;
     boolean isFromForeground = false;
     String activityName = "";
+    ImageView logo;
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -105,7 +107,7 @@ public class SplashScreen extends RootActivity {
             activityName = getIntent().getStringExtra("ActivityName");
         }
 
-        ImageView logo = (ImageView) findViewById(R.id.LOGO);
+        logo = (ImageView) findViewById(R.id.LOGO);
         RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.BG);
         getAccountSettings();
         getWhiteLabelSettings();
@@ -147,6 +149,7 @@ public class SplashScreen extends RootActivity {
 
                 Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
                 logo.setImageBitmap(myBitmap);
+                setOriginalImageSize(myBitmap);
 
             }
         }
@@ -156,7 +159,7 @@ public class SplashScreen extends RootActivity {
             if(imgFile.exists()){
                 Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
                 logo.setImageBitmap(myBitmap);
-
+                setOriginalImageSize(myBitmap);
             }
         }
 
@@ -171,6 +174,17 @@ public class SplashScreen extends RootActivity {
 
 
 
+    }
+
+    private void setOriginalImageSize(Bitmap myBitmap)
+    {
+        if(myBitmap != null){
+            int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, myBitmap.getWidth(), this.getResources().getDisplayMetrics());
+            int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, myBitmap.getHeight(), this.getResources().getDisplayMetrics());
+
+            logo.setMinimumWidth(width);
+            logo.setMinimumHeight(height);
+        }
     }
 
     private void checkTouchIdEnabledOrNot()

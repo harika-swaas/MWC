@@ -148,7 +148,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
     ImageView external_share_imgage, pdf_info_imgage;
 
     GetCategoryDocumentsResponse categoryDocumentsResponse;
-    boolean isFromOffLine, isFromStatus400, isFromDocumentShare;
+    boolean isFromOffLine, isFromStatus400, isFromDocumentShare, isFromPushNotification;
     LinearLayout document_preview_linearlayout;
     Button download_button;
     MenuItem  menuItemMore;
@@ -206,7 +206,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
             isFromOffLine = getIntent().getBooleanExtra("IsFromOffline", false);
             isFromStatus400 = getIntent().getBooleanExtra("isFrom_Status400", false);
             isFromDocumentShare = getIntent().getBooleanExtra("IsFromShare", false);
-
+            isFromPushNotification =  getIntent().getBooleanExtra("IsFromPushNotification", false);
 
             if(getIntent().getSerializableExtra("documentDetails") != null)
             {
@@ -320,6 +320,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                 {
                     if(isFromDocumentShare && isFromStatus400)
                     {
+
                         if(categoryDocumentsResponse.getDocument_share_id() != null && categoryDocumentsResponse.getViewed().equalsIgnoreCase("No") &&
                                 categoryDocumentsResponse.getSharetype() != null &&  categoryDocumentsResponse.getSharetype().equalsIgnoreCase("0"))
                         {
@@ -333,7 +334,15 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                                 GlobalVariables.totalUnreadableCount--;
                             }
                         }
+
+                        if(isFromPushNotification)
+                        {
+                            PreferenceUtils.setIsfromPushnotification(context, "IsFromPushNotificationDAta");
+                        }
                     }
+
+
+
                     showWarningMessgeForExternalShare(categoryDocumentsResponse);
 
                 }
@@ -654,6 +663,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
         if(isFromDocumentShare && !isFromStatus400)
         {
+
             if(categoryDocumentsResponse.getDocument_share_id() != null && categoryDocumentsResponse.getViewed().equalsIgnoreCase("No") &&
                     categoryDocumentsResponse.getSharetype() != null &&  categoryDocumentsResponse.getSharetype().equalsIgnoreCase("0"))
             {
@@ -666,6 +676,11 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                 {
                     GlobalVariables.totalUnreadableCount--;
                 }
+            }
+
+            if(isFromPushNotification)
+            {
+                PreferenceUtils.setIsfromPushnotification(context, "IsFromPushNotificationDAta");
             }
         }
 
@@ -1102,7 +1117,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
             {
-                if(buttonView.isPressed() == true) {
+                if(buttonView.isClickable() == true) {
                     mBottomSheetDialog.dismiss();
                     if (!isChecked) {
                         switchButton_share.setChecked(false);
@@ -1441,7 +1456,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
             {
-                if(buttonView.isPressed() == true) {
+                if(buttonView.isClickable() == true) {
 
                     if (isChecked) {
                         switchButton_download.setChecked(true);
@@ -2104,6 +2119,11 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                                     categoryDocumentsResponse.setIs_shared(documentPropertiesResponse.get(0).getIs_shared());
                                     categoryDocumentsResponse.setVersion_count(documentPropertiesResponse.get(0).getVersion_count());
 
+                                    categoryDocumentsResponse.setDocument_share_id(documentPropertiesResponse.get(0).getDocument_share_id());
+                                    categoryDocumentsResponse.setViewed(documentPropertiesResponse.get(0).getViewed());
+                                    categoryDocumentsResponse.setSharetype("0");
+                                    categoryDocumentsResponse.setShare_category_id(documentPropertiesResponse.get(0).getCategory_id());
+
                                     boolean isFromShare = false;
                                     if(documentShare.equalsIgnoreCase("document_share"))
                                     {
@@ -2115,6 +2135,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                                     intent.putExtra("url", document_preview_url);
                                     intent.putExtra("documentDetails", categoryDocumentsResponse);
                                     intent.putExtra("IsFromShare", isFromShare);
+                                    intent.putExtra("IsFromPushNotification", true);
                                     context.startActivity(intent);
                                     finish();
                                 }
@@ -2145,11 +2166,16 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                                     categoryDocumentsResponse.setIs_shared(documentPropertiesResponse.get(0).getIs_shared());
                                     categoryDocumentsResponse.setVersion_count(documentPropertiesResponse.get(0).getVersion_count());
 
+                                    categoryDocumentsResponse.setDocument_share_id(documentPropertiesResponse.get(0).getDocument_share_id());
+                                    categoryDocumentsResponse.setViewed(documentPropertiesResponse.get(0).getViewed());
+                                    categoryDocumentsResponse.setSharetype("0");
+                                    categoryDocumentsResponse.setShare_category_id(documentPropertiesResponse.get(0).getCategory_id());
 
                                     Intent intent = new Intent(context, PdfViewActivity.class);
                                     intent.putExtra("isFrom_Status400",true);
                                     intent.putExtra("documentDetails", categoryDocumentsResponse);
                                     intent.putExtra("IsFromShare", isFromShare);
+                                    intent.putExtra("IsFromPushNotification", true);
                                     context.startActivity(intent);
                                     finish();
 

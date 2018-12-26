@@ -157,6 +157,12 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
     }
 
     @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
+
+
+    @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
 
         final GetCategoryDocumentsResponse resp = mGetCategoryDocumentsResponses.get(position);
@@ -571,7 +577,7 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
         switchButton_download.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(buttonView.isPressed() == true) {
+                if(buttonView.isClickable() == true) {
                     if (isChecked) {
 
                         switchButton_download.setChecked(true);
@@ -606,7 +612,7 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
             {
-                if(buttonView.isPressed() == true) {
+                if(buttonView.isClickable() == true) {
                     mBottomSheetDialog.dismiss();
                     if (!isChecked) {
                         switchButton_share.setChecked(false);

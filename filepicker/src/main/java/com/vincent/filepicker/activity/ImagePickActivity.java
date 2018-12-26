@@ -217,7 +217,8 @@ public class ImagePickActivity extends BaseActivity {
 
         List<ImageFile> list = new ArrayList<>();
         for (Directory<ImageFile> directory : directories) {
-            if(directory.getName().equalsIgnoreCase("Logo12345") || directory.getName().equalsIgnoreCase(".Doc_Portal"))  {
+            if(directory.getName().equalsIgnoreCase("Logo12345") || directory.getName().equalsIgnoreCase(".Doc_Portal") ||
+                    directory.getName().equalsIgnoreCase("Logo67890") || directory.getName().equalsIgnoreCase("Logo123456"))  {
             }
             else {
                 list.addAll(directory.getFiles());

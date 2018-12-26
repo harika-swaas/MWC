@@ -7,7 +7,6 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -19,18 +18,16 @@ import android.support.annotation.RequiresApi;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -49,9 +46,7 @@ import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Common.GlobalVariables;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Database.PushNotificatoinSettings_Respository;
-import com.mwc.docportal.Dummy_Activity;
 import com.mwc.docportal.FTL.WebviewLoaderTermsActivity;
-import com.mwc.docportal.Login.LoginActivity;
 import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.OffLine_Files_List;
 import com.mwc.docportal.Online_PdfView_Activity;
@@ -60,8 +55,6 @@ import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
 import com.mwc.docportal.UserProfileActivity;
 import com.mwc.docportal.Utils.Constants;
-import com.mwc.docportal.pdf.PdfViewActivity;
-import com.vincent.filepicker.Constant;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -93,6 +86,7 @@ public class NavigationSettingsActivity extends BaseActivity {
     Toolbar toolbar;
     CollapsingToolbarLayout collapsingToolbarLayout;
     View finger_print_view;
+    LinearLayout push_notification_switch_layout,finger_print_switch_layout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -104,7 +98,7 @@ public class NavigationSettingsActivity extends BaseActivity {
         else {
             removeTextLabel(navigationView, R.id.navigation_shared);
         }*/
-        showBadgeCount(navigationView, R.id.navigation_shared, GlobalVariables.totalUnreadableCount);
+        showBadgeCount(navigationView, R.id.navigation_shared, GlobalVariables.totalUnreadableCount, NavigationSettingsActivity.this);
 
 
         intiaizeViews();
@@ -153,6 +147,8 @@ public class NavigationSettingsActivity extends BaseActivity {
                 Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
                 LOGO_image.setImageBitmap(myBitmap);
 
+                setOriginalImageSize(myBitmap);
+
             }
         }
         else if(PreferenceUtils.getLogoImagePath(context) != null) {
@@ -161,8 +157,19 @@ public class NavigationSettingsActivity extends BaseActivity {
             if(imgFile.exists()){
                 Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
                 LOGO_image.setImageBitmap(myBitmap);
-
+                setOriginalImageSize(myBitmap);
             }
+        }
+    }
+
+    private void setOriginalImageSize(Bitmap myBitmap)
+    {
+        if(myBitmap != null){
+            int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, myBitmap.getWidth(), this.getResources().getDisplayMetrics());
+            int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, myBitmap.getHeight(), this.getResources().getDisplayMetrics());
+
+            LOGO_image.setMinimumWidth(width);
+            LOGO_image.setMinimumHeight(height);
         }
     }
 
@@ -216,9 +223,14 @@ public class NavigationSettingsActivity extends BaseActivity {
         logo_layout = (LinearLayout) findViewById(R.id.logo_layout);
         push_notification_Switch = (SwitchCompat) findViewById(R.id.push_notification_Switch);
         finger_print_Switch = (SwitchCompat) findViewById(R.id.finger_print_Switch);
+        finger_print_Switch.setClickable(false);
+        push_notification_Switch.setClickable(false);
         finger_print_layout = (LinearLayout) findViewById(R.id.finger_print_layout);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         finger_print_view = (View) findViewById(R.id.finger_print_view);
+
+        push_notification_switch_layout = findViewById(R.id.push_notification_switch_layout);
+        finger_print_switch_layout = findViewById(R.id.finger_print_switch_layout);
 
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
@@ -340,6 +352,53 @@ public class NavigationSettingsActivity extends BaseActivity {
 
 
     private void OnClickListeners() {
+
+        push_notification_switch_layout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (push_notification_Switch.isChecked()) {
+                    push_notification_Switch.setChecked(false);
+                } else {
+                    push_notification_Switch.setChecked(true);
+                }
+
+
+                Intent intent = new Intent();
+                if (android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.N_MR1) {
+                    intent.setAction("android.settings.APP_NOTIFICATION_SETTINGS");
+                    intent.putExtra("android.provider.extra.APP_PACKAGE", context.getPackageName());
+                } else if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    intent.setAction("android.settings.APP_NOTIFICATION_SETTINGS");
+                    intent.putExtra("app_package", context.getPackageName());
+                    intent.putExtra("app_uid", context.getApplicationInfo().uid);
+                } else {
+                    intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                    intent.addCategory(Intent.CATEGORY_DEFAULT);
+                    intent.setData(Uri.parse("package:" + context.getPackageName()));
+                }
+
+                startActivity(intent);
+            }
+        });
+
+
+        finger_print_switch_layout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (finger_print_Switch.isChecked()) {
+                    finger_print_Switch.setChecked(false);
+                } else {
+                    finger_print_Switch.setChecked(true);
+                }
+
+
+                checkCredentials();
+
+            }
+        });
+
+
         offline_layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -359,7 +418,7 @@ public class NavigationSettingsActivity extends BaseActivity {
             }
         });
 
-        push_notification_Switch.setOnTouchListener(new View.OnTouchListener() {
+        /*push_notification_Switch.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 push_notification_Switch.performClick();
@@ -420,7 +479,7 @@ public class NavigationSettingsActivity extends BaseActivity {
                 }
 
             }
-        });
+        });*/
 
 
         help_layout.setOnClickListener(new View.OnClickListener() {

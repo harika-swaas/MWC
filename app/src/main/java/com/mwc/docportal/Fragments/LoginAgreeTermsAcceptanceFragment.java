@@ -20,6 +20,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
+import com.mwc.docportal.API.Model.AccountSettingsResponse;
 import com.mwc.docportal.API.Model.BaseApiResponse;
 import com.mwc.docportal.API.Model.GetTermsPageContentResponse;
 import com.mwc.docportal.API.Model.SetTermsAcceptanceRequest;
@@ -28,6 +29,7 @@ import com.mwc.docportal.API.Model.WhiteLabelResponse;
 import com.mwc.docportal.API.Service.GetTermsPageContentService;
 import com.mwc.docportal.API.Service.SetTermsAcceptanceService;
 import com.mwc.docportal.Common.CommonFunctions;
+import com.mwc.docportal.DMS.NavigationMyFolderActivity;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.FTL.WebviewLoaderTermsActivity;
@@ -64,7 +66,7 @@ public class LoginAgreeTermsAcceptanceFragment extends Fragment {
     TextView cancel;
     String mTermsBody, mTermsURL;
     List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList<>();
-
+    List<AccountSettingsResponse> mAccountSettingsResponses = new ArrayList<>();
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,11 +78,32 @@ public class LoginAgreeTermsAcceptanceFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         mView = inflater.inflate(R.layout.login_terms_acceptance_fragment, container, false);
 
+        getHelpUserGuideStatus();
         intializeViews();
         getTermsPageContent();
         setButtonBackgroundColor();
         addListenersToViews();
         return mView;
+    }
+
+    private void getHelpUserGuideStatus()
+    {
+        AccountSettings accountSettings = new AccountSettings(mActivity);
+        accountSettings.SetLoggedInCB(new AccountSettings.GetLoggedInCB() {
+            @Override
+            public void getLoggedInSuccessCB(List<AccountSettingsResponse> accountSettingsResponse) {
+                if (accountSettingsResponse != null && accountSettingsResponse.size() > 0) {
+                    mAccountSettingsResponses = accountSettingsResponse;
+                }
+            }
+
+            @Override
+            public void getLoggedInFailureCB(String message) {
+
+            }
+        });
+
+        accountSettings.getLoggedInStatusDetails();
     }
 
     private void getTermsPageContent() {
@@ -255,7 +278,6 @@ public class LoginAgreeTermsAcceptanceFragment extends Fragment {
         mIAgreeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 acceptTerms();
             }
         });
@@ -308,9 +330,22 @@ public class LoginAgreeTermsAcceptanceFragment extends Fragment {
                             updateIsTermsAcceptedAndLoggedInStatus();
                             //update help user guide status
 
-                            Intent mIntent = new Intent(mActivity, LoginHelpUserGuideActivity.class);
-                            startActivity(mIntent);
-                            mActivity.finish();
+                            if(mAccountSettingsResponses != null && mAccountSettingsResponses.size() > 0)
+                            {
+                                if(mAccountSettingsResponses.get(0).getIs_Help_Accepted().equals("1"))
+                                {
+                                    Intent mIntent = new Intent(mActivity, LoginHelpUserGuideActivity.class);
+                                    startActivity(mIntent);
+                                    mActivity.finish();
+                                }
+                                else
+                                {
+                                    Intent mIntent = new Intent(mActivity, NavigationMyFolderActivity.class);
+                                    startActivity(mIntent);
+                                    mActivity.finish();
+                                }
+                            }
+
                         }
 
                     }

@@ -240,7 +240,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         super.onCreate(savedInstanceState);
 
 
-        getSharedDocumentsTotalUnreadCount();
+        getSharedDocumentsTotalUnreadCount(NavigationMyFolderActivity.this);
 
         if(getResources().getBoolean(R.bool.portrait_only)){
             pageSize = 20;
@@ -2533,7 +2533,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             {
                 clearSelectedListAfterOperation();
                 GlobalVariables.isMultiSelect = false;
-                if(buttonView.isPressed() == true) {
+                if(buttonView.isClickable() == true) {
                     mBottomSheetDialog.dismiss();
                     if (!isChecked) {
                         switchButton_share.setChecked(false);
@@ -3719,6 +3719,12 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         {
             mRecyclerView.setVisibility(View.VISIBLE);
             empty_view.setVisibility(View.GONE);
+        }
+
+        if(PreferenceUtils.getIsfromPushnotification(context) != null)
+        {
+            getSharedDocumentsTotalUnreadCount(NavigationMyFolderActivity.this);
+            PreferenceUtils.setIsfromPushnotification(context, null);
         }
 
     }

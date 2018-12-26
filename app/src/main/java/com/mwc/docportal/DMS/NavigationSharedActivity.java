@@ -1,7 +1,5 @@
 package com.mwc.docportal.DMS;
 
-import android.annotation.SuppressLint;
-import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -13,7 +11,6 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
-import android.os.Parcelable;
 import android.os.StrictMode;
 import android.support.design.internal.BottomNavigationItemView;
 import android.support.design.widget.BottomNavigationView;
@@ -42,11 +39,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -58,7 +53,6 @@ import com.mwc.docportal.API.Model.DownloadDocumentRequest;
 import com.mwc.docportal.API.Model.DownloadDocumentResponse;
 import com.mwc.docportal.API.Model.GetCategoryDocumentsResponse;
 import com.mwc.docportal.API.Model.GetEndUserAllowedSharedFoldersRequest;
-import com.mwc.docportal.API.Model.GetEndUserCategoriesResponse;
 import com.mwc.docportal.API.Model.GetEndUserSharedParentFoldersResponse;
 import com.mwc.docportal.API.Model.GetSharedCategoryDocumentsRequest;
 import com.mwc.docportal.API.Model.ListPinDevicesResponse;
@@ -72,8 +66,6 @@ import com.mwc.docportal.API.Service.GetCategoryDocumentsService;
 import com.mwc.docportal.API.Service.GetEndUserAllowedSharedFoldersService;
 import com.mwc.docportal.API.Service.GetEndUserParentSHaredFoldersService;
 import com.mwc.docportal.API.Service.ShareEndUserDocumentsService;
-import com.mwc.docportal.Adapters.DmsAdapter;
-import com.mwc.docportal.Adapters.DmsAdapterList;
 import com.mwc.docportal.Adapters.SharedFolderAdapter;
 import com.mwc.docportal.Adapters.SharedFolderAdapterList;
 import com.mwc.docportal.Common.CommonFunctions;
@@ -97,14 +89,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -166,7 +154,7 @@ public class NavigationSharedActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        getSharedDocumentsTotalUnreadCount();
+        getSharedDocumentsTotalUnreadCount(NavigationSharedActivity.this);
 
         initializeViews();
         OnClickListeners();
@@ -947,7 +935,7 @@ public class NavigationSharedActivity extends BaseActivity {
         {
             removeTextLabel(navigationView, R.id.navigation_shared);
         }*/
-        showBadgeCount(navigationView, R.id.navigation_shared, GlobalVariables.totalUnreadableCount);
+        showBadgeCount(navigationView, R.id.navigation_shared, GlobalVariables.totalUnreadableCount, NavigationSharedActivity.this);
 
       //  getSharedDocumentsTotalUnreadCount();
 
@@ -1259,7 +1247,7 @@ public class NavigationSharedActivity extends BaseActivity {
             {
 
                 GlobalVariables.isMultiSelect = false;
-                if(buttonView.isPressed() == true) {
+                if(buttonView.isClickable() == true) {
                     mBottomSheetDialog.dismiss();
                         switchButton_share.setChecked(false);
                        /* ArrayList<String> documentIdslist = new ArrayList<>();

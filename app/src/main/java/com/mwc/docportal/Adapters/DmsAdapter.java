@@ -116,9 +116,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
 
     private HashSet<Integer> mSelected;
  //   public List<GetCategoryDocumentsResponse> selectedList = new ArrayList<>();
-    int lastItemPosition ;
-    private static final int GRID_ITEM = 0;
-    private static final int LIST_ITEM = 1;
+
     int pageNumber=1;
     int totalPage=1;
     String obj = "0";
@@ -248,6 +246,12 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
     }
 
     @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
+
+
+    @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View v = inflater.inflate(R.layout.file_item_grid, parent, false);
@@ -255,14 +259,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         return vh;
     }
 
-    @Override
-    public int getItemViewType(int position) {
-        if (!isSwitchView) {
-            return LIST_ITEM;
-        } else {
-            return GRID_ITEM;
-        }
-    }
+
 
     @Override
     public int getItemCount() {
@@ -711,7 +708,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
         switchButton_download.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(buttonView.isPressed() == true) {
+                if(buttonView.isClickable() == true) {
                     if (isChecked) {
 
                         switchButton_download.setChecked(true);
@@ -745,7 +742,7 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
             {
-                if(buttonView.isPressed() == true) {
+                if(buttonView.isClickable() == true) {
                     mBottomSheetDialog.dismiss();
                     if (!isChecked) {
                       showWarningMessageAlertForSharingContent(mGetCategoryDocumentsResponses, switchButton_share);

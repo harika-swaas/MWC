@@ -425,7 +425,7 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
         switchButton_download.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(buttonView.isPressed() == true) {
+                if(buttonView.isClickable() == true) {
                     mBottomSheetDialog.dismiss();
                     if (isChecked) {
                         switchButton_download.setChecked(true);
@@ -455,7 +455,7 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
             {
-                if(buttonView.isPressed() == true) {
+                if(buttonView.isClickable() == true) {
                     mBottomSheetDialog.dismiss();
                     if (!isChecked) {
                         switchButton_share.setChecked(false);

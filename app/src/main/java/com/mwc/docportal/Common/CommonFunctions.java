@@ -576,7 +576,7 @@ public class CommonFunctions
         AccountSettings accountSettings = new AccountSettings(mActivity);
         String companyName = accountSettings.getCompanyName();
 
-        txtMessage.setText(Constants.QUICK_SHARE_MSG + companyName+". Are you sure?");
+        txtMessage.setText(Constants.QUICK_SHARE_MSG);
 
         Button okButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);

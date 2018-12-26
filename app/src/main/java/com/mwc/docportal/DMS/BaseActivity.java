@@ -1,21 +1,18 @@
 package com.mwc.docportal.DMS;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.design.internal.BottomNavigationItemView;
-import android.support.design.internal.BottomNavigationMenuView;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.menu.MenuView;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,14 +21,12 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.mwc.docportal.API.Model.APIResponseModel;
-import com.mwc.docportal.API.Model.GetCategoryDocumentsResponse;
 import com.mwc.docportal.API.Model.GetSharedCategoryDocumentsRequest;
 import com.mwc.docportal.API.Model.WhiteLabelResponse;
 import com.mwc.docportal.API.Service.GetCategoryDocumentsService;
 import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Common.GlobalVariables;
 import com.mwc.docportal.Database.AccountSettings;
-import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
@@ -72,9 +67,9 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
 
     }
 
-    public void getSharedDocumentsTotalUnreadCount()
+    public void getSharedDocumentsTotalUnreadCount(Activity activity)
     {
-        if (NetworkUtils.checkIfNetworkAvailable(this)) {
+        if (NetworkUtils.checkIfNetworkAvailable(activity)) {
 
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
 
@@ -90,7 +85,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
 
             final GetCategoryDocumentsService mGetCategoryDocumentsService = retrofitAPI.create(GetCategoryDocumentsService.class);
 
-            Call call = mGetCategoryDocumentsService.getSharedCategoryDocumentsV2(params, PreferenceUtils.getAccessToken(context));
+            Call call = mGetCategoryDocumentsService.getSharedCategoryDocumentsV2(params, PreferenceUtils.getAccessToken(activity));
 
             call.enqueue(new Callback<APIResponseModel>() {
                 @Override
@@ -125,7 +120,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
                                 removeTextLabel(navigationView, R.id.navigation_shared);
                             }*/
 
-                            showBadgeCount(navigationView, R.id.navigation_shared, totalUnreadCount);
+                            showBadgeCount(navigationView, R.id.navigation_shared, totalUnreadCount, activity);
 
                         }
 
@@ -193,11 +188,11 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
 
     }
 
-    public void showBadgeCount(BottomNavigationView navigationView, int itemId, int badgeCountValue)
+    public void showBadgeCount(BottomNavigationView navigationView, int itemId, int badgeCountValue, Activity activity)
     {
 
         BottomNavigationItemView itemView = navigationView.findViewById(itemId);
-        View badge = LayoutInflater.from(context).inflate(R.layout.badge_count_item, navigationView, false);
+        View badge = LayoutInflater.from(activity).inflate(R.layout.badge_count_item, navigationView, false);
 
         TextView text = badge.findViewById(R.id.unread_count);
         RelativeLayout relativeLayout = badge.findViewById(R.id.badge_icon_linearlayout);

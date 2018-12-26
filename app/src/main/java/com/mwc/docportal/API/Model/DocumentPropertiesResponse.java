@@ -62,6 +62,43 @@ public class DocumentPropertiesResponse {
     @Expose
     String version_count;
 
+    private String sharetype;
+    private String viewed;
+    private String document_share_id;
+    private String share_category_id;
+
+
+    public String getSharetype() {
+        return sharetype;
+    }
+
+    public void setSharetype(String sharetype) {
+        this.sharetype = sharetype;
+    }
+
+    public String getViewed() {
+        return viewed;
+    }
+
+    public void setViewed(String viewed) {
+        this.viewed = viewed;
+    }
+
+    public String getDocument_share_id() {
+        return document_share_id;
+    }
+
+    public void setDocument_share_id(String document_share_id) {
+        this.document_share_id = document_share_id;
+    }
+
+    public String getShare_category_id() {
+        return share_category_id;
+    }
+
+    public void setShare_category_id(String share_category_id) {
+        this.share_category_id = share_category_id;
+    }
 
     public String getVersion_count() {
         return version_count;

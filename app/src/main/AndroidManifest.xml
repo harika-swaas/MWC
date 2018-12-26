@@ -170,8 +170,8 @@
         -->
 
         <meta-data
-            android:name="com.google.firebase.messaging.default_notification_icon"
-            android:resource="@mipmap/ic_notification_icon" />
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="@string/default_notification_channel_id" />
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/notification_icon_color" />
@@ -193,18 +193,28 @@
             android:name="io.fabric.ApiKey"
             android:value="39f3eab4f9f7f060c8d19339c0c8cdd4d7b8bbb0" />
 
+        <service
+            android:name=".Firebase.MyFirebaseMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
         <service android:name=".Firebase.MyFirebaseInstanceIdService">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
-        <service
-            android:name=".Firebase.MyFirebaseMessagingService"
-            android:stopWithTask="true">
+
+
+        <receiver
+            android:name=".Firebase.FirebaseDataReceiver"
+            android:exported="true"
+            android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
             </intent-filter>
-        </service>
+        </receiver>
 
         <activity
             android:name=".OffLine_Files_List"

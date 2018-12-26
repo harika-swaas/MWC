@@ -576,7 +576,7 @@ public class FTLPinVerificationFragment extends Fragment {
             FileDownloadManager fileDownloadManager = new FileDownloadManager(mActivity);
             GetCategoryDocumentsResponse categoryDocumentsResponse = new GetCategoryDocumentsResponse();
             categoryDocumentsResponse.setDownloadUrl(imageUrl);
-            categoryDocumentsResponse.setDocument_version_id("12345");
+            categoryDocumentsResponse.setDocument_version_id("123456");
             categoryDocumentsResponse.setName("Logo");
 
             fileDownloadManager.setFileTitle("Logo");

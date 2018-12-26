@@ -58,7 +58,7 @@ import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
 
-public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAdapterList.ViewHolder> {
+public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAdapterList.SharedItemHolder> {
 
 
     ArrayList<String> doc_id = new ArrayList<String>();
@@ -92,18 +92,17 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
 
 
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class SharedItemHolder extends RecyclerView.ViewHolder {
 
         public ImageView imageView, selectedItemIv, thumbnailIcon, thumbnailCornerIcon, imageMore;
         public TextView folder_name, unread_count_txt;
         public View layout;
         public TextView folder_date, thumbnailText;
-        ViewHolder vh;
         RelativeLayout indicatorParentView, folderView, thumbnailView,foldernext, list_item_click;
         TextView indicatorTextValue;
 
 
-        public ViewHolder(View mView) {
+        public SharedItemHolder(View mView) {
 
             super(mView);
             layout = mView;
@@ -130,16 +129,22 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public SharedItemHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View v = inflater.inflate(R.layout.file_items, parent, false);
-        ViewHolder vh = new ViewHolder(v);
+        SharedItemHolder vh = new SharedItemHolder(v);
         return vh;
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, final int position) {
+    public long getItemId(int position) {
+        return position;
+    }
+
+
+    @Override
+    public void onBindViewHolder(SharedItemHolder holder, final int position) {
 
         final GetCategoryDocumentsResponse resp = mGetCategoryDocumentsResponses.get(position);
 
@@ -175,22 +180,22 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
                 }
                 holder.folder_date.setVisibility(View.GONE);
                 
-                if(mGetCategoryDocumentsResponses.get(position).getUnread_doc_count() > 0)
+                if(resp.getUnread_doc_count() > 0)
                 {
                     holder.unread_count_txt.setVisibility(View.VISIBLE);
-                    if(mGetCategoryDocumentsResponses.get(position).getUnread_doc_count() > 99)
+                    if(resp.getUnread_doc_count() > 99)
                     {
                         holder.unread_count_txt.setText("99+");
                     }
                     else
                     {
-                        holder.unread_count_txt.setText(String.valueOf(mGetCategoryDocumentsResponses.get(position).getUnread_doc_count()));
+                        holder.unread_count_txt.setText(String.valueOf(resp.getUnread_doc_count()));
                     }
-                //    holder.folder_name.setTypeface(holder.folder_name.getTypeface(), Typeface.BOLD);
+                    holder.folder_name.setTypeface(holder.folder_name.getTypeface(), Typeface.NORMAL);
                 }
                 else {
                     holder.unread_count_txt.setVisibility(View.GONE);
-                //    holder.folder_name.setTypeface(holder.folder_name.getTypeface(), Typeface.NORMAL);
+                    holder.folder_name.setTypeface(holder.folder_name.getTypeface(), Typeface.NORMAL);
                 }
 
 
@@ -669,7 +674,7 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
         switchButton_download.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(buttonView.isPressed() == true) {
+                if(buttonView.isClickable() == true) {
                     if (isChecked) {
                         switchButton_download.setChecked(true);
                         if (context instanceof NavigationSharedActivity) {
@@ -704,7 +709,7 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
             {
-                if(buttonView.isPressed() == true) {
+                if(buttonView.isClickable() == true) {
                     mBottomSheetDialog.dismiss();
                     switchButton_share.setChecked(false);
                    showWarningMessageAlertForSharingContent(categoryDocumentsResponse);
@@ -908,6 +913,11 @@ public class SharedFolderAdapterList extends RecyclerView.Adapter<SharedFolderAd
                 }
             });
         }
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
     }
 
 }
