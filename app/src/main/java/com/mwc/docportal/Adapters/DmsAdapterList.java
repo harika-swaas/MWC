@@ -910,7 +910,7 @@ public class DmsAdapterList extends RecyclerView.Adapter<DmsAdapterList.ViewHold
                 @Override
                 public void onResponse(Response<SharedDocumentResponseModel> response, Retrofit retrofit) {
                     transparentProgressDialog.dismiss();
-                    if (response != null) {
+                    if (response.body() != null) {
 
                         String message = "";
                         if(response.body().getStatus().getMessage() != null)

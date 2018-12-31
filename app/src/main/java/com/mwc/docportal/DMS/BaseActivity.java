@@ -91,7 +91,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
                 @Override
                 public void onResponse(Response<APIResponseModel> response, Retrofit retrofit) {
 
-                    if (response != null) {
+                    if (response.body() != null) {
 
                         String message = "";
                         if(response.body().getStatus().getMessage() != null)

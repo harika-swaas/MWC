@@ -128,7 +128,7 @@ public class Touchid extends Activity {
                 @Override
                 public void onResponse(Response<SharedDocumentResponseModel> response, Retrofit retrofit) {
                     transparentProgressDialog.dismiss();
-                    if (response != null) {
+                    if (response.body() != null) {
                         String response_message = "";
                         if(response.body().getStatus().getMessage() != null)
                         {

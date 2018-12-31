@@ -237,7 +237,9 @@ public class CommonFunctions
         });
 
         mAlertDialog = builder.create();
-        mAlertDialog.show();
+        if(!mAlertDialog.isShowing()) {
+            mAlertDialog.show();
+        }
     }
 
     private static void showAlertDialogForAccessDenied(Context context, String message)
@@ -272,7 +274,9 @@ public class CommonFunctions
         });
 
         mAlertDialog = builder.create();
-        mAlertDialog.show();
+        if(!mAlertDialog.isShowing()) {
+            mAlertDialog.show();
+        }
     }
 
 
@@ -309,7 +313,9 @@ public class CommonFunctions
             });
 
             mAlertDialog = builder.create();
-            mAlertDialog.show();
+            if(!mAlertDialog.isShowing()) {
+                mAlertDialog.show();
+            }
         }
     }
 
@@ -383,7 +389,9 @@ public class CommonFunctions
         });
 
         mAlertDialog = builder.create();
-        mAlertDialog.show();
+        if(!mAlertDialog.isShowing()) {
+            mAlertDialog.show();
+        }
     }
 
     public static void serverErrorExceptions(Context context, int apiResponseCode)
@@ -603,7 +611,9 @@ public class CommonFunctions
         });
 
         mAlertDialog = builder.create();
-        mAlertDialog.show();
+        if(!mAlertDialog.isShowing()) {
+            mAlertDialog.show();
+        }
     }
 
     private static void shareEndUserDocuments(Activity mActivity, String category_id, String workspace_id, boolean isFromMyFolder)

@@ -137,7 +137,7 @@ public class MWCApplication extends MultiDexApplication implements Application.A
                     @Override
                     public void onResponse(Response<SharedDocumentResponseModel> response, Retrofit retrofit) {
 
-                        if (response != null) {
+                        if (response.body() != null) {
 
                             String message = "";
                             if(response.body().getStatus().getMessage() != null)
