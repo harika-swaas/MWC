@@ -554,8 +554,6 @@ public class NavigationSettingsActivity extends BaseActivity {
 
                 ShowWarningMessageForLogout();
 
-                /*Intent i = new Intent(context, Dummy_Activity.class);
-                startActivity(i);*/
             }
         });
 

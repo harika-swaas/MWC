@@ -237,7 +237,6 @@
         <activity
             android:name=".Online_PdfView_Activity"
             android:configChanges="orientation|screenSize|keyboardHidden" />
-        <activity android:name=".Dummy_Activity"></activity>
 
     </application>
 
