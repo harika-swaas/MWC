@@ -96,6 +96,7 @@ import com.mwc.docportal.API.Model.OfflineFiles;
 import com.mwc.docportal.API.Model.ShareEndUserDocumentsRequest;
 import com.mwc.docportal.API.Model.SharedDocumentResponseModel;
 import com.mwc.docportal.API.Model.StopSharingRequestModel;
+import com.mwc.docportal.API.Model.UploadModel;
 import com.mwc.docportal.API.Model.UploadNewFolderRequest;
 import com.mwc.docportal.API.Model.WhiteLabelResponse;
 import com.mwc.docportal.API.Service.CopyDocumentService;
@@ -185,7 +186,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
     public static final int REQUEST_GALLERY_CODE = 200;
     public static final int REQUEST_CAPTURE_IMAGE_CODE = 300;
     public static final int CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE = 400;
-    ArrayList<String> list_upload = new ArrayList<>();
+    List<UploadModel> list_upload;
     CollapsingToolbarLayout collapsingToolbarLayout;
     Toolbar toolbar;
     RelativeLayout toggleView;
@@ -239,6 +240,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        list_upload = new ArrayList<>();
 
         getSharedDocumentsTotalUnreadCount(NavigationMyFolderActivity.this);
 
@@ -296,7 +298,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             showBottomView();
         }
 
-        if(PreferenceUtils.getupload(context, "key") != null && PreferenceUtils.getupload(context, "key").size() > 0)
+        if(PreferenceUtils.getImageUploadList(context, "key") != null && PreferenceUtils.getImageUploadList(context, "key").size() > 0)
         {
             showFailedUploadList();
         }
@@ -1982,10 +1984,10 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
                             //  File file = new File(filePath);
 
-
-
-                            list_upload.add(String.valueOf(filePath));
-                            PreferenceUtils.setupload(context,list_upload,"key");
+                            UploadModel uploadModel = new UploadModel();
+                            uploadModel.setFilePath(String.valueOf(filePath));
+                            list_upload.add(uploadModel);
+                            PreferenceUtils.setImageUploadList(context,list_upload,"key");
                             //   PreferenceUtils.setupload(getContext(),list_upload,"key");
 
 
@@ -1999,9 +2001,11 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
                       /*  ArrayList<String> filePathList = new ArrayList<String>();
                         filePathList.add(filePath);*/
-                        list_upload = PreferenceUtils.getupload(context,"key");
-                        list_upload.add(String.valueOf(filePath));
-                        PreferenceUtils.setupload(context,list_upload,"key");
+                        list_upload = PreferenceUtils.getImageUploadList(context,"key");
+                        UploadModel uploadModel = new UploadModel();
+                        uploadModel.setFilePath(String.valueOf(filePath));
+                        list_upload.add(uploadModel);
+                        PreferenceUtils.setImageUploadList(context,list_upload,"key");
 
                         //   uploadGalleryImage(file, filePathList);
                     }
@@ -2009,14 +2013,13 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 if((list_upload == null )||(list_upload.size()==0))
                 {
                     String filepath = getRealPathFromURIPath(fileUri, context);
-                    list_upload.add(filepath);
-                    PreferenceUtils.setupload(context,list_upload,"key");
+                    UploadModel uploadModel = new UploadModel();
+                    uploadModel.setFilePath(filepath);
+                    list_upload.add(uploadModel);
+                    PreferenceUtils.setImageUploadList(context,list_upload,"key");
                 }
             }
             Intent intent = new Intent (context,UploadListActivity.class);
-            //  PreferenceUtils.setupload(MyFoldersDMSActivity.this,list_upload,"key");
-            // list_upload.clear();
-
             startActivity(intent);
 
         }
@@ -2027,16 +2030,14 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
                 String filePath = fileUri.getPath();
 
-                ArrayList<String> filePathList = new ArrayList<String>();
-                filePathList.add(filePath);
-                //  list_upload = PreferenceUtils.getupload(MyFoldersDMSActivity.this,"key");
-                list_upload.add(String.valueOf(filePath));
-                PreferenceUtils.setupload(context,list_upload,"key");
-                // list_upload.clear();
+                UploadModel uploadModel = new UploadModel();
+                uploadModel.setFilePath(String.valueOf(filePath));
+                list_upload.add(uploadModel);
+                PreferenceUtils.setImageUploadList(context,list_upload,"key");
+
 
                 Intent intent = new Intent (context,UploadListActivity.class);
                 startActivity(intent);
-              //  GlobalVariables.isFromCamerOrVideo = false;
 
 
             } else if (resultCode == RESULT_CANCELED) {
@@ -2047,29 +2048,21 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             }
         } else if (requestCode == CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
 
-            // uriVideo = data.getData();
-            // uploadVideo(imageStoragePath);
-
-
-
             String filePath =imageStoragePath;
 
-
-            ArrayList<String> filePathList = new ArrayList<String>();
-            filePathList.add(filePath);
-
-            if(PreferenceUtils.getupload(context,"key") != null && PreferenceUtils.getupload(context,"key").size() > 0)
+            if(PreferenceUtils.getImageUploadList(context,"key") != null && PreferenceUtils.getImageUploadList(context,"key").size() > 0)
             {
-                list_upload = PreferenceUtils.getupload(context,"key");
+                list_upload = PreferenceUtils.getImageUploadList(context,"key");
             }
             else
             {
                 list_upload = new ArrayList<>();
             }
 
-
-            list_upload.add(String.valueOf(filePath));
-            PreferenceUtils.setupload(context,list_upload,"key");
+            UploadModel uploadModel = new UploadModel();
+            uploadModel.setFilePath(String.valueOf(filePath));
+            list_upload.add(uploadModel);
+            PreferenceUtils.setImageUploadList(context,list_upload,"key");
             list_upload.clear();
 
             Intent intent = new Intent (context,UploadListActivity.class);
@@ -2083,14 +2076,17 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             ArrayList<ImageFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_IMAGE);
             for (ImageFile file : list) {
                 String path = file.getPath();
-                list_upload = PreferenceUtils.getupload(NavigationMyFolderActivity.this, "key");
+                list_upload = PreferenceUtils.getImageUploadList(NavigationMyFolderActivity.this, "key");
                 if(list_upload == null)
                 {
                     list_upload = new ArrayList<>();
                 }
-                list_upload.add(path);
 
-                PreferenceUtils.setupload(NavigationMyFolderActivity.this,list_upload,"key");
+                UploadModel uploadModel = new UploadModel();
+                uploadModel.setFilePath(path);
+                list_upload.add(uploadModel);
+
+                PreferenceUtils.setImageUploadList(NavigationMyFolderActivity.this,list_upload,"key");
                 Intent intent = new Intent (context,UploadListActivity.class);
                 startActivity(intent);
             }
@@ -2103,17 +2099,19 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             ArrayList<VideoFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_VIDEO);
             for (VideoFile file : list) {
                 String path = file.getPath();
-                list_upload = PreferenceUtils.getupload(NavigationMyFolderActivity.this, "key");
+                list_upload = PreferenceUtils.getImageUploadList(NavigationMyFolderActivity.this, "key");
                 if(list_upload == null)
                 {
                     list_upload = new ArrayList<>();
                 }
                 if(path != null)
                 {
-                    list_upload.add(path);
+                    UploadModel uploadModel = new UploadModel();
+                    uploadModel.setFilePath(path);
+                    list_upload.add(uploadModel);
                 }
 
-                PreferenceUtils.setupload(NavigationMyFolderActivity.this,list_upload,"key");
+                PreferenceUtils.setImageUploadList(NavigationMyFolderActivity.this,list_upload,"key");
                 Intent intent = new Intent (context,UploadListActivity.class);
                 startActivity(intent);
             }
@@ -2125,16 +2123,18 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             ArrayList<NormalFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_FILE);
             for (NormalFile file : list) {
                 String path = file.getPath();
-                list_upload = PreferenceUtils.getupload(NavigationMyFolderActivity.this, "key");
+                list_upload = PreferenceUtils.getImageUploadList(NavigationMyFolderActivity.this, "key");
                 if(list_upload == null)
                 {
                     list_upload = new ArrayList<>();
                 }
                 if(path != null)
                 {
-                    list_upload.add(path);
+                    UploadModel uploadModel = new UploadModel();
+                    uploadModel.setFilePath(path);
+                    list_upload.add(uploadModel);
                 }
-                PreferenceUtils.setupload(NavigationMyFolderActivity.this,list_upload,"key");
+                PreferenceUtils.setImageUploadList(NavigationMyFolderActivity.this,list_upload,"key");
                 Intent intent = new Intent (context,UploadListActivity.class);
                 startActivity(intent);
             }
@@ -2172,10 +2172,10 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
     }
 
 
-    @Override
+    /*@Override
     protected void onRestart() {
         super.onRestart();
-        list_upload = PreferenceUtils.getArrayList(NavigationMyFolderActivity.this,"key");
+        list_upload = PreferenceUtils.getImageUploadList(NavigationMyFolderActivity.this,"key");
         if ((list_upload!=null)&&(list_upload.size()>0)){
             final AlertDialog.Builder builder = new AlertDialog.Builder(NavigationMyFolderActivity.this);
             LayoutInflater inflater = (LayoutInflater) NavigationMyFolderActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -2207,7 +2207,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
 
         }
-    }
+    }*/
 
 
 
@@ -3579,7 +3579,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 @Override
                 public void onResponse(Response<SharedDocumentResponseModel> response, Retrofit retrofit) {
                     transparentProgressDialog.dismiss();
-                    if (response != null) {
+                    if (response.body() != null) {
 
                         String message = "";
                         if(response.body().getStatus().getMessage() != null)
@@ -3949,6 +3949,8 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         BtnAllow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Create a click listener for separate like Implementing clickListener
+
                 mCustomAlertDialog.dismiss();
                 Intent intent = new Intent(NavigationMyFolderActivity.this, UploadListActivity.class);
                 startActivity(intent);
@@ -3962,7 +3964,6 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
     public void cameraAccess()
     {
         floatingActionMenu.close(true);
-      //  GlobalVariables.isFromCamerOrVideo = true;
 
         if(Build.VERSION.SDK_INT>=24){
             try{

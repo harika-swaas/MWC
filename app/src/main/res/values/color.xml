@@ -153,5 +153,6 @@
     <color name="notification_icon_color">#25a3dd</color>
     <color name="button_default_color">#717171</color>
     <color name="magenta">#FF0000</color>
+    <color name="upload_success_color">#00ff00</color>
 
 </resources>

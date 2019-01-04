@@ -197,6 +197,13 @@ public class FileDownloadManager extends RootActivity {
                 dir.mkdir();
             }
 
+           /* File subDir = new File(dir, "Sub");
+            if(!subDir.exists())
+            {
+                subDir.mkdir();
+            }*/
+
+
            /* final File file = new File(context.getCacheDir().getAbsolutePath() + File.separator + digitalAssets.getDocument_version_id());
             file.mkdirs();*/
             String[] array = getDownloadUrl().split("/");
@@ -204,26 +211,26 @@ public class FileDownloadManager extends RootActivity {
             String fileName = "";
             if(digitalAssets.getFilename() != null && !digitalAssets.getFilename().isEmpty())
             {
-                fileName = digitalAssets.getDocument_version_id()+"-"+digitalAssets.getFilename();
+                fileName = digitalAssets.getFilename();
             }
             else
             {
-                fileName = digitalAssets.getDocument_version_id()+"-"+digitalAssets.getName();
+                fileName = digitalAssets.getName();
             }
 
 
 
 
-            File FILE = new File(new File(Environment.getExternalStorageDirectory(), Constants.Folder_Name), fileName);
+            File FILE = new File(new File(Environment.getExternalStorageDirectory(), Constants.Folder_Name+"/"+digitalAssets.getDocument_version_id()), fileName);
             //File FILE = new File(Environment.getExternalStorageDirectory().toString()+"/"+Constants.Foldername+"/"+fileName);
 
             if (FILE.exists()){
                 FILE.delete();
-                FILE = new File(new File(Environment.getExternalStorageDirectory(), Constants.Folder_Name), fileName);
+                FILE = new File(new File(Environment.getExternalStorageDirectory(), Constants.Folder_Name+"/"+digitalAssets.getDocument_version_id()), fileName);
             }
 
 
-            request.setDestinationInExternalPublicDir("/"+Constants.Folder_Name, fileName);
+            request.setDestinationInExternalPublicDir("/"+Constants.Folder_Name+"/"+digitalAssets.getDocument_version_id(), fileName);
             String finalFileName = fileName;
             BroadcastReceiver onComplete = new BroadcastReceiver() {
                 @Override
@@ -233,7 +240,7 @@ public class FileDownloadManager extends RootActivity {
                     if (getDownloadUrl().endsWith("zip")) {
 
                         if(unpackZip(Environment.getExternalStorageDirectory()
-                                .getAbsolutePath() + Constants.Folder_Name, finalFileName)){
+                                .getAbsolutePath() + Constants.Folder_Name+"/"+digitalAssets.getDocument_version_id(), finalFileName)){
 
                             digitalAssets.setIs_Downloaded(1);
                             if (!getDownloadUrl().endsWith("zip")) {
@@ -244,9 +251,9 @@ public class FileDownloadManager extends RootActivity {
                                 }*/
                                // outputfilepath = Environment.getExternalStorageDirectory()+"/"+Constants.Folder_Name+"/"+fileName;
 
-                                digitalAssets.setDownloadUrl(Environment.getExternalStorageDirectory()+"/"+Constants.Folder_Name+"/"+ finalFileName);
+                                digitalAssets.setDownloadUrl(Environment.getExternalStorageDirectory()+"/"+Constants.Folder_Name+"/"+digitalAssets.getDocument_version_id()+"/"+finalFileName);
                             } else {
-                                digitalAssets.setDownloadUrl(Environment.getExternalStorageDirectory()+"/"+Constants.Folder_Name+"/"+ finalFileName);
+                                digitalAssets.setDownloadUrl(Environment.getExternalStorageDirectory()+"/"+Constants.Folder_Name+"/"+digitalAssets.getDocument_version_id()+"/"+finalFileName);
                             }
 
                             if (mFileDownloadListener != null) {
@@ -263,9 +270,9 @@ public class FileDownloadManager extends RootActivity {
 
                         digitalAssets.setIs_Downloaded(1);
                         if (!getDownloadUrl().endsWith("zip")) {
-                            digitalAssets.setDownloadUrl(Environment.getExternalStorageDirectory()+"/"+Constants.Folder_Name+"/"+ finalFileName);
+                            digitalAssets.setDownloadUrl(Environment.getExternalStorageDirectory()+"/"+Constants.Folder_Name+"/"+digitalAssets.getDocument_version_id()+"/"+finalFileName);
                         } else {
-                            digitalAssets.setDownloadUrl(Environment.getExternalStorageDirectory()+"/"+Constants.Folder_Name+"/"+ finalFileName);
+                            digitalAssets.setDownloadUrl(Environment.getExternalStorageDirectory()+"/"+Constants.Folder_Name+"/"+digitalAssets.getDocument_version_id()+"/"+finalFileName);
                         }
 
 

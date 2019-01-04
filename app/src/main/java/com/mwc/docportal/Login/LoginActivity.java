@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -28,8 +29,10 @@ import com.google.gson.Gson;
 import com.mwc.docportal.API.Model.AccountSettingsResponse;
 import com.mwc.docportal.API.Model.ConfirmPasswordRequestModel;
 import com.mwc.docportal.API.Model.ConfirmPasswordResponseModel;
+import com.mwc.docportal.API.Model.UploadModel;
 import com.mwc.docportal.API.Service.UploadNewFolderService;
 import com.mwc.docportal.DMS.NavigationMyFolderActivity;
+import com.mwc.docportal.DMS.UploadListActivity;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.Fragments.LoginFragment;
@@ -38,6 +41,7 @@ import com.mwc.docportal.R;
 import com.mwc.docportal.RootActivity;
 import com.mwc.docportal.Utils.Constants;
 import com.mwc.docportal.Utils.SplashScreen;
+import com.vincent.filepicker.filter.entity.ImageFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,9 +69,49 @@ public class LoginActivity extends RootActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-
         if(getResources().getBoolean(R.bool.portrait_only)){
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
+
+        Intent intent = getIntent();
+        String action = intent.getAction();
+        String type = intent.getType();
+
+        if (Intent.ACTION_SEND.equals(action) && type != null) {
+            Uri imageUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
+            List<UploadModel> fileUploadList;
+            if (imageUri != null) {
+                fileUploadList = PreferenceUtils.getImageUploadList(LoginActivity.this, "key");
+                if(fileUploadList == null)
+                {
+                    fileUploadList = new ArrayList<>();
+                }
+
+                String filePath = imageUri.getPath();
+                UploadModel uploadModel = new UploadModel();
+                uploadModel.setFilePath(String.valueOf(filePath));
+                fileUploadList.add(uploadModel);
+                PreferenceUtils.setImageUploadList(context,fileUploadList,"key");
+            }
+        }
+        else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
+            List<UploadModel> fileUploadList;
+            ArrayList<Uri> imageUrisList = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+            if (imageUrisList != null) {
+                for (Uri file : imageUrisList) {
+                    String path = file.getPath();
+                    fileUploadList = PreferenceUtils.getImageUploadList(LoginActivity.this, "key");
+                    if(fileUploadList == null)
+                    {
+                        fileUploadList = new ArrayList<>();
+                    }
+
+                    UploadModel uploadModel = new UploadModel();
+                    uploadModel.setFilePath(path);
+                    fileUploadList.add(uploadModel);
+                    PreferenceUtils.setImageUploadList(LoginActivity.this,fileUploadList,"key");
+                }
+            }
         }
 
 

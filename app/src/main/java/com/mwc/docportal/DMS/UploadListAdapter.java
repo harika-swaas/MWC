@@ -3,6 +3,7 @@ package com.mwc.docportal.DMS;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -15,11 +16,13 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.mwc.docportal.API.Model.ColorCodeModel;
+import com.mwc.docportal.API.Model.UploadModel;
 import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static android.view.View.VISIBLE;
 
@@ -31,26 +34,12 @@ public class UploadListAdapter extends RecyclerView.Adapter<UploadListAdapter.Vi
 
 
     Context context;
-    ArrayList<String> uploadList;
-    private boolean activateDone;
-    private boolean activateLoad;
+    List<UploadModel> uploadList;
     int pos;
     AlertDialog mCustomAlertDialog;
-    public UploadListAdapter(UploadListActivity context, ArrayList<String> uploadList) {
-        this.context=context;
-        this.uploadList=uploadList;
-    }
-
-    public void ActivateDone(boolean activate,int position) {
-        this.activateDone = activate;
-        this.pos = position;
-        notifyItemChanged(position);
-    }
-
-    public void ActivateLoad(boolean activate,int position) {
-        this.activateLoad = activate;
-        this.pos = position;
-        notifyItemChanged(position);
+    public UploadListAdapter(UploadListActivity context, List<UploadModel> uploadList) {
+        this.context = context;
+        this.uploadList = uploadList;
     }
 
 
@@ -69,8 +58,8 @@ public class UploadListAdapter extends RecyclerView.Adapter<UploadListAdapter.Vi
 
         if(uploadList!=null && uploadList.size()>0) {
             /*uploadList = PreferenceUtils.getupload(context,"key");*/
-            String filename = uploadList.get(position).substring(uploadList.get(position).lastIndexOf("/") + 1);
-            String extension = uploadList.get(position).substring(uploadList.get(position).lastIndexOf(".")+1);
+            String filename = uploadList.get(position).getFilePath().substring(uploadList.get(position).getFilePath().lastIndexOf("/") + 1);
+            String extension = uploadList.get(position).getFilePath().substring(uploadList.get(position).getFilePath().lastIndexOf(".")+1);
             holder.name.setText(filename);
 
             holder.thumbnailView.setVisibility(View.VISIBLE);
@@ -83,7 +72,10 @@ public class UploadListAdapter extends RecyclerView.Adapter<UploadListAdapter.Vi
                 holder.thumbnailText.setText(colorCodeModel.getFileType());
             }
 
-            for(int i= 0;i<uploadList.size();i++) {
+            holder.done.setBackgroundTintList(ColorStateList.valueOf(context.getResources().getColor(R.color.upload_success_color)));
+            holder.failureIcon.setBackgroundTintList(ColorStateList.valueOf(context.getResources().getColor(R.color.magenta)));
+
+           /* for(int i= 0;i<uploadList.size();i++) {
                     if(i==pos) {
                         if (activateDone) {
                             holder.done.setVisibility(View.VISIBLE);
@@ -103,8 +95,44 @@ public class UploadListAdapter extends RecyclerView.Adapter<UploadListAdapter.Vi
 
                         }
                     }
-            }
+            }*/
 
+            if(uploadList.get(position).isSuccess() == true)
+            {
+                holder.done.setVisibility(View.VISIBLE);
+                holder.progress.setVisibility(View.INVISIBLE);
+                holder.delete.setVisibility(View.INVISIBLE);
+                holder.failureIcon.setVisibility(View.INVISIBLE);
+            }
+            else if(uploadList.get(position).isInProgress() == true)
+            {
+                holder.done.setVisibility(View.INVISIBLE);
+                holder.progress.setVisibility(View.VISIBLE);
+                holder.delete.setVisibility(View.INVISIBLE);
+                holder.failureIcon.setVisibility(View.INVISIBLE);
+            }
+            else if(uploadList.get(position).isYetToStart() == true)
+            {
+                holder.done.setVisibility(View.INVISIBLE);
+                holder.progress.setVisibility(View.INVISIBLE);
+                holder.delete.setVisibility(View.INVISIBLE);
+                holder.failureIcon.setVisibility(View.INVISIBLE);
+            }
+            else if(uploadList.get(position).isFailure() == true)
+            {
+                holder.done.setVisibility(View.INVISIBLE);
+                holder.progress.setVisibility(View.INVISIBLE);
+                holder.delete.setVisibility(View.INVISIBLE);
+                holder.failureIcon.setVisibility(View.VISIBLE);
+
+            }
+            else
+            {
+                holder.done.setVisibility(View.INVISIBLE);
+                holder.progress.setVisibility(View.INVISIBLE);
+                holder.failureIcon.setVisibility(View.INVISIBLE);
+                holder.delete.setVisibility(View.VISIBLE);
+            }
 
 
 
@@ -135,9 +163,9 @@ public class UploadListAdapter extends RecyclerView.Adapter<UploadListAdapter.Vi
                             @Override
                             public void onClick(View v) {
                                 mCustomAlertDialog.dismiss();
-                                uploadList= PreferenceUtils.getupload(context,"key");
+                                uploadList= PreferenceUtils.getImageUploadList(context,"key");
                                 uploadList.remove(position);
-                                PreferenceUtils.setupload(context,uploadList,"key");
+                                PreferenceUtils.setImageUploadList(context,uploadList,"key");
                                 Intent intent = new Intent(context,UploadListActivity.class);
                                 context.startActivity(intent);
                             }
@@ -161,7 +189,7 @@ public class UploadListAdapter extends RecyclerView.Adapter<UploadListAdapter.Vi
         TextView name;// init the item view's
         RelativeLayout thumbnailView;
         ProgressBar progress;
-        ImageView done;
+        ImageView done, failureIcon;;
         ImageView thumbnailIcon;
         ImageView thumbnailCornerIcon;
         TextView thumbnailText;
@@ -181,6 +209,8 @@ public class UploadListAdapter extends RecyclerView.Adapter<UploadListAdapter.Vi
             thumbnailCornerIcon=(ImageView)itemView.findViewById(R.id.thumbnail_corner_image);
             thumbnailText=(TextView) itemView.findViewById(R.id.thumbnail_text);
             delete=(ImageView) itemView.findViewById(R.id.delete);
+            failureIcon = (ImageView)itemView.findViewById(R.id.failure);
+            failureIcon.setVisibility(View.INVISIBLE);
         }
 
     }

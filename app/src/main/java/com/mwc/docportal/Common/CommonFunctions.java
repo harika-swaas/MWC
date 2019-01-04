@@ -207,79 +207,11 @@ public class CommonFunctions
 
     private static void showAlertDialogForSessionExpiry(Context context, String message)
     {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-        builder.setView(view);
-        builder.setCancelable(false);
+        if(mAlertDialog != null && mAlertDialog.isShowing())
+        {
 
-        TextView title = (TextView) view.findViewById(R.id.title);
-        title.setText("Session Expired");
-
-        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-        txtMessage.setText(message);
-
-        Button okButton = (Button) view.findViewById(R.id.send_pin_button);
-        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-        cancelButton.setVisibility(View.GONE);
-
-        okButton.setText("Ok");
-
-        okButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mAlertDialog.dismiss();
-                AccountSettings accountSettings = new AccountSettings(context);
-                accountSettings.LogouData();
-            }
-        });
-
-        mAlertDialog = builder.create();
-        mAlertDialog.show();
-    }
-
-    private static void showAlertDialogForAccessDenied(Context context, String message)
-    {
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-        builder.setView(view);
-        builder.setCancelable(false);
-
-        TextView title = (TextView) view.findViewById(R.id.title);
-        title.setText("Alert");
-
-        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-        txtMessage.setText(message);
-
-        Button okButton = (Button) view.findViewById(R.id.send_pin_button);
-        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-        cancelButton.setVisibility(View.GONE);
-
-        okButton.setText("Ok");
-
-        okButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mAlertDialog.dismiss();
-
-            }
-        });
-
-        mAlertDialog = builder.create();
-        mAlertDialog.show();
-    }
-
-
-    public static void showSuccessfullyDownloaded(Context context)
-    {
-        if (!((Activity) context).isFinishing()) {
-
+        }
+        else {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
@@ -287,11 +219,53 @@ public class CommonFunctions
             builder.setCancelable(false);
 
             TextView title = (TextView) view.findViewById(R.id.title);
-            title.setText("Success");
+            title.setText("Session Expired");
 
             TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 
-            txtMessage.setText("Download completed. You can view these in Offline Files.");
+            txtMessage.setText(message);
+
+            Button okButton = (Button) view.findViewById(R.id.send_pin_button);
+            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+            cancelButton.setVisibility(View.GONE);
+
+            okButton.setText("Ok");
+
+            okButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mAlertDialog.dismiss();
+                    AccountSettings accountSettings = new AccountSettings(context);
+                    accountSettings.LogouData();
+                }
+            });
+
+            mAlertDialog = builder.create();
+            mAlertDialog.show();
+        }
+    }
+
+    private static void showAlertDialogForAccessDenied(Context context, String message)
+    {
+
+        if(mAlertDialog != null && mAlertDialog.isShowing())
+        {
+
+        }
+        else {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+            builder.setView(view);
+            builder.setCancelable(false);
+
+            TextView title = (TextView) view.findViewById(R.id.title);
+            title.setText("Alert");
+
+            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+            txtMessage.setText(message);
 
             Button okButton = (Button) view.findViewById(R.id.send_pin_button);
             Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
@@ -310,6 +284,51 @@ public class CommonFunctions
 
             mAlertDialog = builder.create();
             mAlertDialog.show();
+        }
+    }
+
+
+    public static void showSuccessfullyDownloaded(Context context)
+    {
+        if (!((Activity) context).isFinishing()) {
+
+            if(mAlertDialog != null && mAlertDialog.isShowing())
+            {
+
+            }
+            else {
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+                builder.setView(view);
+                builder.setCancelable(false);
+
+                TextView title = (TextView) view.findViewById(R.id.title);
+                title.setText("Success");
+
+                TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+                txtMessage.setText("Download completed. You can view these in Offline Files.");
+
+                Button okButton = (Button) view.findViewById(R.id.send_pin_button);
+                Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+                cancelButton.setVisibility(View.GONE);
+
+                okButton.setText("Ok");
+
+                okButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mAlertDialog.dismiss();
+
+                    }
+                });
+
+                mAlertDialog = builder.create();
+                mAlertDialog.show();
+            }
         }
     }
 
@@ -354,43 +373,50 @@ public class CommonFunctions
 
     private static void showBadGatewayFailure(Context context)
     {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-        builder.setView(view);
-        builder.setCancelable(false);
+        if(mAlertDialog != null && mAlertDialog.isShowing())
+        {
 
-        TextView title = (TextView) view.findViewById(R.id.title);
-        title.setText("Alert");
+        }
+        else {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+            builder.setView(view);
+            builder.setCancelable(false);
 
-        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+            TextView title = (TextView) view.findViewById(R.id.title);
+            title.setText("Alert");
 
-        txtMessage.setText(Constants.BadGateWayMessage);
+            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 
-        Button okButton = (Button) view.findViewById(R.id.send_pin_button);
-        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+            txtMessage.setText(Constants.BadGateWayMessage);
 
-        cancelButton.setVisibility(View.GONE);
+            Button okButton = (Button) view.findViewById(R.id.send_pin_button);
+            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
-        okButton.setText("Ok");
+            cancelButton.setVisibility(View.GONE);
 
-        okButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mAlertDialog.dismiss();
+            okButton.setText("Ok");
 
-            }
-        });
+            okButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mAlertDialog.dismiss();
 
-        mAlertDialog = builder.create();
-        mAlertDialog.show();
+                }
+            });
+
+            mAlertDialog = builder.create();
+            mAlertDialog.show();
+        }
+
     }
 
     public static void serverErrorExceptions(Context context, int apiResponseCode)
     {
         if(apiResponseCode == Constants.BadGatewayStatusCode)
         {
-            if (!((Activity) context).isFinishing()) {
+            if (!((Activity) context).isFinishing() ) {
                 showBadGatewayFailure(context);
             }
         }
@@ -562,48 +588,54 @@ public class CommonFunctions
 
     private static void showAlertMessageForQuickShare(Activity mActivity, String category_id, String workspace_id, boolean isFromMyFolder)
     {
-        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-        LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-        builder.setView(view);
-        builder.setCancelable(false);
+        if(mAlertDialog != null && mAlertDialog.isShowing())
+        {
 
-        TextView title = (TextView) view.findViewById(R.id.title);
-        title.setText("Alert");
+        }
+        else {
+            AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+            LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+            builder.setView(view);
+            builder.setCancelable(false);
 
-        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+            TextView title = (TextView) view.findViewById(R.id.title);
+            title.setText("Alert");
 
-        AccountSettings accountSettings = new AccountSettings(mActivity);
-        String companyName = accountSettings.getCompanyName();
+            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 
-        txtMessage.setText(Constants.QUICK_SHARE_MSG);
+            AccountSettings accountSettings = new AccountSettings(mActivity);
+            String companyName = accountSettings.getCompanyName();
 
-        Button okButton = (Button) view.findViewById(R.id.send_pin_button);
-        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+            txtMessage.setText(Constants.QUICK_SHARE_MSG);
 
-        cancelButton.setText("Cancel");
+            Button okButton = (Button) view.findViewById(R.id.send_pin_button);
+            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
-        okButton.setText("Ok");
+            cancelButton.setText("Cancel");
 
-        okButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mAlertDialog.dismiss();
-                shareEndUserDocuments(mActivity,category_id, workspace_id, isFromMyFolder);
+            okButton.setText("Ok");
 
-            }
-        });
+            okButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mAlertDialog.dismiss();
+                    shareEndUserDocuments(mActivity, category_id, workspace_id, isFromMyFolder);
 
-        cancelButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mAlertDialog.dismiss();
+                }
+            });
 
-            }
-        });
+            cancelButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mAlertDialog.dismiss();
 
-        mAlertDialog = builder.create();
-        mAlertDialog.show();
+                }
+            });
+
+            mAlertDialog = builder.create();
+            mAlertDialog.show();
+        }
     }
 
     private static void shareEndUserDocuments(Activity mActivity, String category_id, String workspace_id, boolean isFromMyFolder)

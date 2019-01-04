@@ -5,16 +5,8 @@ public class UploadModel
     String filePath;
     boolean success;
     boolean failure;
-    boolean yetToStarted;
-    boolean started;
-
-    public boolean isStarted() {
-        return started;
-    }
-
-    public void setStarted(boolean started) {
-        this.started = started;
-    }
+    boolean yetToStart;
+    boolean inProgress;
 
     public String getFilePath() {
         return filePath;
@@ -40,11 +32,20 @@ public class UploadModel
         this.failure = failure;
     }
 
-    public boolean isYetToStarted() {
-        return yetToStarted;
+
+    public boolean isYetToStart() {
+        return yetToStart;
     }
 
-    public void setYetToStarted(boolean yetToStarted) {
-        this.yetToStarted = yetToStarted;
+    public void setYetToStart(boolean yetToStart) {
+        this.yetToStart = yetToStart;
+    }
+
+    public boolean isInProgress() {
+        return inProgress;
+    }
+
+    public void setInProgress(boolean inProgress) {
+        this.inProgress = inProgress;
     }
 }

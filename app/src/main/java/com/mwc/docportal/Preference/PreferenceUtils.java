@@ -8,9 +8,11 @@ import com.google.gson.reflect.TypeToken;
 import com.mwc.docportal.API.Model.FTLPINResponse;
 import com.mwc.docportal.API.Model.GetCategoryDocumentsResponse;
 import com.mwc.docportal.API.Model.LoginResponse;
+import com.mwc.docportal.API.Model.UploadModel;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by harika on 22-06-2018.
@@ -511,6 +513,22 @@ public class PreferenceUtils {
         return pushNotificationValue;
     }
 
+    public static void setImageUploadList(Context context, List<UploadModel> list, String key){
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(list);
+        editor.putString(key, json);
+        editor.apply();     // This line is IMPORTANT !!!
+    }
+
+    public static List<UploadModel> getImageUploadList(Context context,String key){
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        Gson gson = new Gson();
+        String json = sharedPreferences.getString(key, null);
+        Type type = new TypeToken<List<UploadModel>>() {}.getType();
+        return gson.fromJson(json, type);
+    }
 
 
 }

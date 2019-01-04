@@ -124,7 +124,17 @@
                         android:layout_height="30dp"
                         android:layout_alignParentEnd="true"
                         android:layout_alignParentRight="true"
+                        android:tint="@color/upload_success_color"
                         android:background="@mipmap/baseline_cloud_done_black_48" />
+
+                    <ImageView
+                        android:id="@+id/failure"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentRight="true"
+                        android:tint="@color/magenta"
+                        android:background="@mipmap/baseline_cloud_off_black_48" />
 
                     <ProgressBar
                         android:id="@+id/progressBar12"

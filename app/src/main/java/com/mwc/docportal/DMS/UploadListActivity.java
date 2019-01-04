@@ -47,8 +47,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.gson.Gson;
+import com.mwc.docportal.API.Model.UploadModel;
 import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Database.AccountSettings;
+import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.Login.LoginActivity;
 import com.mwc.docportal.RootActivity;
 import com.squareup.okhttp.MediaType;
@@ -95,8 +97,8 @@ public class UploadListActivity extends RootActivity {
     RecyclerView upload_list;
     Uri fileUri;
     TextView camera,video,cancel, pick_image, pick_video, pick_documents, folder_creation;
-    ArrayList<String> UploadList = new ArrayList<>();
-    ArrayList<String> uploadFailedList = new ArrayList<>();
+    List<UploadModel> UploadList;
+    List<UploadModel> uploadFailedList;
     private  String imageStoragePath;
     String path;
     UploadListAdapter customAdapter;
@@ -107,7 +109,7 @@ public class UploadListActivity extends RootActivity {
 
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final int MEDIA_TYPE_VIDEO = 2;
-    int fileindex;
+
 
     AlertDialog mCustomAlertDialog;
     Context context = this;
@@ -119,16 +121,23 @@ public class UploadListActivity extends RootActivity {
     Toolbar toolbar;
     MenuItem menuItemUpload, menuItemAdd;
     LinearLayout empty_view;
-    ArrayList<String> filteredUploadList = new ArrayList<>();
+    List<UploadModel> filteredUploadList;
     private boolean firstConnect = true;
     RelativeLayout upload_layout;
     TextView upload_textview, cancel_textview;
+    int index = 0;
+    List<UploadModel> uploadDataList;
+    LoadingProgressDialog transparentProgressDialog;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.upload_list);
 
-
+        filteredUploadList = new ArrayList<>();
+        UploadList = new ArrayList<>();
+        uploadFailedList = new ArrayList<>();
+        uploadDataList = new ArrayList<>();
+        transparentProgressDialog = new LoadingProgressDialog(context);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -147,18 +156,20 @@ public class UploadListActivity extends RootActivity {
 
         upload_list.setNestedScrollingEnabled(false);
 
-        filteredUploadList = PreferenceUtils.getupload(UploadListActivity.this, "key");
+        filteredUploadList = PreferenceUtils.getImageUploadList(UploadListActivity.this, "key");
 
 
         if(filteredUploadList != null && filteredUploadList.size() > 0)
         {
-            ArrayList<String> filteredDataList = new ArrayList<>();
-            for(String fileName : filteredUploadList)
+            List<UploadModel> filteredDataList = new ArrayList<>();
+            for(UploadModel fileName : filteredUploadList)
             {
-                String pathName = fileName.substring(fileName.lastIndexOf(".")+1);
-                if(pathName != null && !pathName.equalsIgnoreCase(fileName))
+                String pathName = fileName.getFilePath().substring(fileName.getFilePath().lastIndexOf(".")+1);
+                if(pathName != null && !pathName.equalsIgnoreCase(fileName.getFilePath()))
                 {
-                    filteredDataList.add(fileName);
+                    UploadModel uploadModel = new UploadModel();
+                    uploadModel.setFilePath(fileName.getFilePath());
+                    filteredDataList.add(uploadModel);
 
                 }
 
@@ -166,30 +177,32 @@ public class UploadListActivity extends RootActivity {
 
             ArrayList<String> fileFormatList = PreferenceUtils.getFileFormats(UploadListActivity.this, "key");
 
-            ArrayList<String> OriginalUploadList = new ArrayList<>();
+            List<UploadModel> OriginalUploadList = new ArrayList<>();
             if(filteredDataList != null && filteredDataList.size() > 0)
             {
-                for(String fileItem : filteredDataList)
+                for(UploadModel fileItem : filteredDataList)
                 {
-                    String[] fileParts = fileItem.split("\\.");
+                    String[] fileParts = fileItem.getFilePath().split("\\.");
                     String fileExtension = fileParts[fileParts.length - 1];
 
                     for(String fileFormat : fileFormatList)
                     {
                         if(fileExtension.equalsIgnoreCase(fileFormat))
                         {
-                            OriginalUploadList.add(fileItem);
+                            UploadModel uploadModel = new UploadModel();
+                            uploadModel.setFilePath(fileItem.getFilePath());
+                            OriginalUploadList.add(uploadModel);
                         }
                     }
                 }
 
             }
 
-            PreferenceUtils.setupload(context, OriginalUploadList, "key");
+            PreferenceUtils.setImageUploadList(context, OriginalUploadList, "key");
 
         }
 
-        UploadList = PreferenceUtils.getupload(UploadListActivity.this, "key");
+        UploadList = PreferenceUtils.getImageUploadList(UploadListActivity.this, "key");
 
 
         customAdapter = new UploadListAdapter(UploadListActivity.this, UploadList);
@@ -205,6 +218,8 @@ public class UploadListActivity extends RootActivity {
             empty_view.setVisibility(View.VISIBLE);
             upload_layout.setVisibility(View.GONE);
 
+            List<UploadModel> uploadlist = new ArrayList<>();
+            PreferenceUtils.setImageUploadList(context, uploadlist, "key");
             Intent intent=new Intent(UploadListActivity.this,NavigationMyFolderActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             intent.putExtra("IsFromUpload", "Upload");
@@ -221,6 +236,26 @@ public class UploadListActivity extends RootActivity {
         upload_textview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                if(transparentProgressDialog != null)
+                {
+                    transparentProgressDialog.show();
+                }
+                else
+                {
+                    transparentProgressDialog = new LoadingProgressDialog(context);
+                    transparentProgressDialog.show();
+                }
+
+                if(UploadList != null && UploadList.size() > 0)
+                {
+                    for(UploadModel uploadItem : UploadList)
+                    {
+                        uploadItem.setYetToStart(true);
+                        customAdapter.notifyDataSetChanged();
+                    }
+                }
+
                 uploadDocuments();
                 upload_layout.setVisibility(View.GONE);
             }
@@ -234,177 +269,173 @@ public class UploadListActivity extends RootActivity {
         });
     }
 
-    public void upload(final int i)
-    {
-        customAdapter.ActivateLoad(true,fileindex);
-        customAdapter.notifyDataSetChanged();
-    //    customAdapter.notifyItemChanged(fileindex);
-        UploadList = PreferenceUtils.getupload(UploadListActivity.this, "key");
-        int size = UploadList.size();
-
-        if (size > fileindex) {
-
-            path = String.valueOf(UploadList.get(fileindex));
-
-            if (NetworkUtils.isNetworkAvailable(UploadListActivity.this)) {
-
-                File file = new File(path);
-
-                Retrofit retrofitAPI = RetrofitAPIBuilder.getUploadInstance();
-
-                final UploadEndUserDocumentsRequest mUploadEndUserDocumentsRequest = new UploadEndUserDocumentsRequest(PreferenceUtils.getObjectId(UploadListActivity.this),
-                        file.getName(), "", "", "");
-
-                String request = new Gson().toJson(mUploadEndUserDocumentsRequest);
-
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("data", request);
-
-                //RequestBody converted Json string data request to API Call
-                RequestBody dataRequest = RequestBody.create(MediaType.parse("text/plain"), request);
-
-                //RequestBody filename to API Call
-                Map<String, RequestBody> requestBodyMap = new HashMap<>();
-                RequestBody reqBody = RequestBody.create(MediaType.parse("*/*"), file);
-                requestBodyMap.put("file\"; filename=\"" + file.getName(), reqBody);
-
-                final UploadEndUsersDocumentService mUploadEndUsersDocumentService = retrofitAPI.create(UploadEndUsersDocumentService.class);
-
-                Call call = mUploadEndUsersDocumentService.getUploadEndUsersDocument(dataRequest, requestBodyMap, PreferenceUtils.getAccessToken(UploadListActivity.this));
-
-                call.enqueue(new Callback<UploadDocumentResponse>() {
-                    @Override
-                    public void onResponse(Response<UploadDocumentResponse> response, Retrofit retrofit) {
-                        UploadDocumentResponse apiResponse = response.body();
-                        if (apiResponse != null)
-                        {
-                            Log.d("Upload status", apiResponse.toString());
-
-                            String message = "";
-                            if(apiResponse.getStatus().getMessage() != null)
-                            {
-                                message = apiResponse.getStatus().getMessage().toString();
-                            }
-
-                            if(apiResponse.getStatus().getCode() instanceof Double)
-                            {
-                                double status_value = new Double(response.body().getStatus().getCode().toString());
-                                if (status_value == 401.3)
-                                {
-                                    showAlertDialogForAccessDenied(context, message);
-                                }
-                                else if(status_value ==  401 || status_value ==  401.0)
-                                {
-                                    showAlertDialogForSessionExpiry(context, message);
-                                }
-                            }
-                            else if(response.body().getStatus().getCode() instanceof Integer)
-                            {
-                                int integerValue = new Integer(response.body().getStatus().getCode().toString());
-                                if(integerValue ==  401)
-                                {
-                                    showAlertDialogForSessionExpiry(context, message);
-                                }
-                            }
-                            else if(response.body().getStatus().getCode() instanceof Boolean)
-                            {
-                                if (response.body().getStatus().getCode() == Boolean.TRUE)
-                                {
-                                    if(!((Activity) context ).isFinishing())
-                                    {
-                                        showAlertMessage(apiResponse.getStatus().getMessage(), false, "");
-                                    }
-                                    uploadFailedList.add(UploadList.get(i));
-                                    PreferenceUtils.setupload(context, uploadFailedList, "key");
-                                }
-
-                                UploadList.remove(i);
-                                PreferenceUtils.setupload(UploadListActivity.this, UploadList, "key");
-                                upload(0);
-
-                            }
-
-
-                           /* if (apiResponse.getStatus().getCode() == true)
-                            {
-                                if(!((Activity) context ).isFinishing())
-                                {
-                                    showAlertMessage(apiResponse.getStatus().getMessage(), false, "");
-                                }
-                                uploadFailedList.add(UploadList.get(i));
-                                PreferenceUtils.setupload(context, uploadFailedList, "key");
-                            }
-
-                            UploadList.remove(i);
-                            PreferenceUtils.setupload(UploadListActivity.this, UploadList, "key");
-                            upload(0);*/
-                        }
-                        else {
-                            CommonFunctions.serverErrorExceptions(context, response.code());
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Throwable t) {
-                        Log.d("Message", t.getMessage());
-                        CommonFunctions.showTimeOutError(context, t);
-                    }
-                });
-            }
-        } else {
-
-            PreferenceUtils.setupload(context, uploadFailedList, "key");
-            customAdapter = new UploadListAdapter(UploadListActivity.this, uploadFailedList);
-            upload_list.setAdapter(customAdapter);
-
-            if (uploadFailedList.size() == 0)
-            {
-                if(!((Activity) context ).isFinishing()) {
-                    showAlertMessage(getString(R.string.upload_txt), true, "");
-                 //   showAlertMessage("Your file(s) are being uploaded. You will receive a notification when they are ready to view.", true, "");
-                }
-                empty_view.setVisibility(View.VISIBLE);
-                upload_layout.setVisibility(View.GONE);
-            }
-            else
-            {
-                empty_view.setVisibility(View.GONE);
-                upload_layout.setVisibility(View.VISIBLE);
-                uploadFailedList.clear();
-
-                final AlertDialog.Builder builder = new AlertDialog.Builder(UploadListActivity.this);
-                LayoutInflater inflater = (LayoutInflater) UploadListActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                View view = inflater.inflate(R.layout.custom_dialog, null);
-                builder.setView(view);
-                builder.setCancelable(false);
-
-                final Button BtnAllow = (Button) view.findViewById(R.id.allow_button);
-                BtnAllow.setText("Retry");
-                final Button BtnCancel = (Button) view.findViewById(R.id.cancel_button);
-                TextView textView =(TextView) view.findViewById(R.id.txt_message);
-                textView.setVisibility(View.GONE);
-                TextView text = (TextView) view.findViewById(R.id.message);
-                text.setText("Some Documents failed to upload");
-                mCustomAlertDialog = builder.create();
-                mCustomAlertDialog.show();
-                BtnAllow.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mCustomAlertDialog.dismiss();
-                        upload(0);
-                    }
-                });
-
-                BtnCancel.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mCustomAlertDialog.dismiss();
-
-                    }
-                });
-            }
-        }
-    }
+//    public void upload(final int i)
+//    {
+//
+//        UploadList = PreferenceUtils.getImageUploadList(UploadListActivity.this, "key");
+//        int size = UploadList.size();
+//
+//        if (size > fileindex) {
+//
+//            UploadList.get(fileindex).setInProgress(true);
+//            customAdapter.notifyDataSetChanged();
+//            path = String.valueOf(UploadList.get(fileindex).getFilePath());
+//
+//            if (NetworkUtils.isNetworkAvailable(UploadListActivity.this)) {
+//
+//                File file = new File(path);
+//
+//                Retrofit retrofitAPI = RetrofitAPIBuilder.getUploadInstance();
+//
+//                final UploadEndUserDocumentsRequest mUploadEndUserDocumentsRequest = new UploadEndUserDocumentsRequest(PreferenceUtils.getObjectId(UploadListActivity.this),
+//                        file.getName(), "", "", "");
+//
+//                String request = new Gson().toJson(mUploadEndUserDocumentsRequest);
+//
+//                Map<String, String> params = new HashMap<String, String>();
+//                params.put("data", request);
+//
+//                //RequestBody converted Json string data request to API Call
+//                RequestBody dataRequest = RequestBody.create(MediaType.parse("text/plain"), request);
+//
+//                //RequestBody filename to API Call
+//                Map<String, RequestBody> requestBodyMap = new HashMap<>();
+//                RequestBody reqBody = RequestBody.create(MediaType.parse("*/*"), file);
+//                requestBodyMap.put("file\"; filename=\"" + file.getName(), reqBody);
+//
+//                UploadEndUsersDocumentService mUploadEndUsersDocumentService = retrofitAPI.create(UploadEndUsersDocumentService.class);
+//
+//                Call call = mUploadEndUsersDocumentService.getUploadEndUsersDocument(dataRequest, requestBodyMap, PreferenceUtils.getAccessToken(UploadListActivity.this));
+//
+//                call.enqueue(new Callback<UploadDocumentResponse>() {
+//                    @Override
+//                    public void onResponse(Response<UploadDocumentResponse> response, Retrofit retrofit) {
+//                        UploadDocumentResponse apiResponse = response.body();
+//                        if (apiResponse != null)
+//                        {
+//                            Log.d("Upload status", apiResponse.toString());
+//
+//                            String message = "";
+//                            if(apiResponse.getStatus().getMessage() != null)
+//                            {
+//                                message = apiResponse.getStatus().getMessage().toString();
+//                            }
+//
+//                            if(apiResponse.getStatus().getCode() instanceof Double)
+//                            {
+//                                double status_value = new Double(response.body().getStatus().getCode().toString());
+//                                if (status_value == 401.3)
+//                                {
+//                                    showAlertDialogForAccessDenied(context, message);
+//                                }
+//                                else if(status_value ==  401 || status_value ==  401.0)
+//                                {
+//                                    showAlertDialogForSessionExpiry(context, message);
+//                                }
+//                            }
+//                            else if(response.body().getStatus().getCode() instanceof Integer)
+//                            {
+//                                int integerValue = new Integer(response.body().getStatus().getCode().toString());
+//                                if(integerValue ==  401)
+//                                {
+//                                    showAlertDialogForSessionExpiry(context, message);
+//                                }
+//                            }
+//                            else if(response.body().getStatus().getCode() instanceof Boolean)
+//                            {
+//                                if (response.body().getStatus().getCode() == Boolean.TRUE)
+//                                {
+//                                    if(!((Activity) context ).isFinishing())
+//                                    {
+//                                        showAlertMessage(apiResponse.getStatus().getMessage(), false, "");
+//                                    }
+//
+//                                    UploadModel uploadModel = new UploadModel();
+//                                    uploadModel.setFilePath(UploadList.get(fileindex).getFilePath());
+//                                    uploadFailedList.add(uploadModel);
+//                                    PreferenceUtils.setImageUploadList(context, uploadFailedList, "key");
+//
+//                                    UploadList.get(fileindex).setFailure(true);
+//                                    customAdapter.notifyDataSetChanged();
+//                                }
+//                                else {
+//                                    UploadList.get(fileindex).setSuccess(true);
+//                                    customAdapter.notifyDataSetChanged();
+//                                }
+//
+//                                UploadList.remove(i);
+//                                PreferenceUtils.setImageUploadList(UploadListActivity.this, UploadList, "key");
+//                                upload(0);
+//
+//                            }
+//
+//                        }
+//                        else {
+//                            CommonFunctions.serverErrorExceptions(context, response.code());
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onFailure(Throwable t) {
+//                        Log.d("Message", t.getMessage());
+//                        CommonFunctions.showTimeOutError(context, t);
+//                    }
+//                });
+//            }
+//        } else {
+//
+//            PreferenceUtils.setImageUploadList(context, uploadFailedList, "Key");
+//            customAdapter = new UploadListAdapter(UploadListActivity.this, uploadFailedList);
+//            upload_list.setAdapter(customAdapter);
+//
+//            if (uploadFailedList.size() == 0)
+//            {
+//                if(!((Activity) context ).isFinishing()) {
+//                    showAlertMessage(getString(R.string.upload_txt), true, "");
+//                    //   showAlertMessage("Your file(s) are being uploaded. You will receive a notification when they are ready to view.", true, "");
+//                }
+//                empty_view.setVisibility(View.VISIBLE);
+//                upload_layout.setVisibility(View.GONE);
+//            }
+//            else
+//            {
+//                empty_view.setVisibility(View.GONE);
+//                upload_layout.setVisibility(View.VISIBLE);
+//                uploadFailedList.clear();
+//
+//                AlertDialog.Builder builder = new AlertDialog.Builder(UploadListActivity.this);
+//                LayoutInflater inflater = (LayoutInflater) UploadListActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//                View view = inflater.inflate(R.layout.custom_dialog, null);
+//                builder.setView(view);
+//                builder.setCancelable(false);
+//
+//                Button BtnAllow = (Button) view.findViewById(R.id.allow_button);
+//                BtnAllow.setText("Retry");
+//                final Button BtnCancel = (Button) view.findViewById(R.id.cancel_button);
+//                TextView textView =(TextView) view.findViewById(R.id.txt_message);
+//                textView.setVisibility(View.GONE);
+//                TextView text = (TextView) view.findViewById(R.id.message);
+//                text.setText("Some Documents failed to upload");
+//                mCustomAlertDialog = builder.create();
+//                mCustomAlertDialog.show();
+//                BtnAllow.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        mCustomAlertDialog.dismiss();
+//                        upload(0);
+//                    }
+//                });
+//
+//                BtnCancel.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        mCustomAlertDialog.dismiss();
+//
+//                    }
+//                });
+//            }
+//        }
+//    }
 
     private void openBottomSheet() {
 
@@ -612,7 +643,6 @@ public class UploadListActivity extends RootActivity {
 
     private void cameraAccess()
     {
-     //   GlobalVariables.isFromCamerOrVideo = true;
         if(Build.VERSION.SDK_INT>=24){
             try{
                 Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
@@ -625,7 +655,7 @@ public class UploadListActivity extends RootActivity {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         fileUri = getOutputMediaFileUri(1);
         takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
-        UploadList =  PreferenceUtils.getupload(UploadListActivity.this, "key");
+        UploadList =  PreferenceUtils.getImageUploadList(UploadListActivity.this, "key");
         startActivityForResult(takePictureIntent, REQUEST_CAPTURE_IMAGE_CODE);
         upload_list.setAdapter(customAdapter);
     }
@@ -664,15 +694,7 @@ public class UploadListActivity extends RootActivity {
     public Uri getOutputMediaFileUri(int type) {
         return Uri.fromFile(getOutputMediaFile(type));
     }
-  /*  public void requestRuntimePermission() {
-        if (Build.VERSION.SDK_INT >= 23) {
-            if (ContextCompat.checkSelfPermission(UploadListActivity.this,android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(UploadListActivity.this,
-                        new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-            }
-        }
-    }*/
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -710,9 +732,12 @@ public class UploadListActivity extends RootActivity {
 
                             //ArrayList<String> filePathList = new ArrayList<String>();
                             //filePathList.add(String.valueOf(filePath));
-                            UploadList =  PreferenceUtils.getupload(UploadListActivity.this, "key");
-                            UploadList.add(filePath);
-                            PreferenceUtils.setupload(UploadListActivity.this,UploadList,"key");
+
+                            UploadList =  PreferenceUtils.getImageUploadList(UploadListActivity.this, "key");
+                            UploadModel uploadModel = new UploadModel();
+                            uploadModel.setFilePath(filePath);
+                            UploadList.add(uploadModel);
+                            PreferenceUtils.setImageUploadList(UploadListActivity.this,UploadList,"key");
                         }
 
                     } else {
@@ -722,9 +747,11 @@ public class UploadListActivity extends RootActivity {
 
                         //ArrayList<String> filePathList = new ArrayList<String>();
                         //filePathList.add(filePath);
-                        UploadList =  PreferenceUtils.getupload(UploadListActivity.this, "key");
-                        UploadList.add(filePath);
-                        PreferenceUtils.setupload(UploadListActivity.this,UploadList,"key");
+                        UploadList =  PreferenceUtils.getImageUploadList(UploadListActivity.this, "key");
+                        UploadModel uploadModel = new UploadModel();
+                        uploadModel.setFilePath(filePath);
+                        UploadList.add(uploadModel);
+                        PreferenceUtils.setImageUploadList(UploadListActivity.this,UploadList,"key");
 
 
                         //uploadGalleryImage(file, filePathList);
@@ -734,42 +761,30 @@ public class UploadListActivity extends RootActivity {
                 if((UploadList == null )||(UploadList.size()==0))
                 {
                     String filepath = getRealPathFromURIPath(fileUri, UploadListActivity.this);
-                    UploadList = PreferenceUtils.getupload(UploadListActivity.this,"key");
-                    UploadList.add(filepath);
-                    PreferenceUtils.setupload(UploadListActivity.this,UploadList,"key");
+                    UploadList = PreferenceUtils.getImageUploadList(UploadListActivity.this,"key");
+                    UploadModel uploadModel = new UploadModel();
+                    uploadModel.setFilePath(filepath);
+                    UploadList.add(uploadModel);
+                    PreferenceUtils.setImageUploadList(UploadListActivity.this,UploadList,"key");
                 }
             }
 
-
-            UploadList =  PreferenceUtils.getupload(UploadListActivity.this, "key");
+            UploadList =  PreferenceUtils.getImageUploadList(UploadListActivity.this, "key");
             UploadListAdapter customAdapter = new UploadListAdapter(UploadListActivity.this, UploadList);
             upload_list.setAdapter(customAdapter);
         }
         else if (requestCode == REQUEST_CAPTURE_IMAGE_CODE && resultCode == RESULT_OK) {
 
             if (resultCode == RESULT_OK) {
-                // uploadImage(fileUri.getPath());
-
-               /* Uri uri = data.getData();
-
-                String filePath = getRealPathFromURIPath(uri, MyFoldersDMSActivity.this);
-                File file = new File(filePath);
-
-                ArrayList<String> filePathList = new ArrayList<String>();
-                filePathList.add(filePath);*/
 
                 String filePath = fileUri.getPath();
-/*
-                File file = new File(filePath);
-*/
 
-                // ArrayList<String> filePathList = new ArrayList<String>();
-                //  filePathList.add(filePath);
-                UploadList =  PreferenceUtils.getupload(UploadListActivity.this, "key");
-                UploadList.add(String.valueOf(filePath));
-                PreferenceUtils.setupload(UploadListActivity.this,UploadList,"key");
+                UploadList =  PreferenceUtils.getImageUploadList(UploadListActivity.this, "key");
+                UploadModel uploadModel = new UploadModel();
+                uploadModel.setFilePath(String.valueOf(filePath));
+                UploadList.add(uploadModel);
+                PreferenceUtils.setImageUploadList(UploadListActivity.this,UploadList,"key");
                 upload_list.setAdapter(customAdapter);
-
 
 
             } else if (resultCode == RESULT_CANCELED) {
@@ -782,18 +797,12 @@ public class UploadListActivity extends RootActivity {
         }
         else if (requestCode == CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
 
-            // uriVideo = data.getData();
-            // uploadVideo(imageStoragePath);
             String filePath = imageStoragePath;
-/*
-                File file = new File(filePath);
-*/
-
-            //  ArrayList<String> filePathList = new ArrayList<String>();
-            // filePathList.add(filePath);
-            UploadList = PreferenceUtils.getupload(UploadListActivity.this,"key");
-            UploadList.add(String.valueOf(filePath));
-            PreferenceUtils.setupload(UploadListActivity.this,UploadList,"key");
+            UploadList = PreferenceUtils.getImageUploadList(UploadListActivity.this,"key");
+            UploadModel uploadModel = new UploadModel();
+            uploadModel.setFilePath(String.valueOf(filePath));
+            UploadList.add(uploadModel);
+            PreferenceUtils.setImageUploadList(UploadListActivity.this,UploadList,"key");
             upload_list.setAdapter(customAdapter);
 
         }
@@ -802,22 +811,24 @@ public class UploadListActivity extends RootActivity {
             ArrayList<ImageFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_IMAGE);
             for (ImageFile file : list) {
                 String path = file.getPath();
-                UploadList =  PreferenceUtils.getupload(UploadListActivity.this, "key");
-                UploadList.add(path);
-                PreferenceUtils.setupload(UploadListActivity.this,UploadList,"key");
+                UploadList = PreferenceUtils.getImageUploadList(UploadListActivity.this,"key");
+                UploadModel uploadModel = new UploadModel();
+                uploadModel.setFilePath(path);
+                UploadList.add(uploadModel);
+                PreferenceUtils.setImageUploadList(UploadListActivity.this,UploadList,"key");
                 upload_list.setAdapter(customAdapter);
             }
-
-
         }
         else if (requestCode == Constant.REQUEST_CODE_PICK_VIDEO && resultCode == RESULT_OK)
         {
             ArrayList<VideoFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_VIDEO);
             for (VideoFile file : list) {
                 String path = file.getPath();
-                UploadList =  PreferenceUtils.getupload(UploadListActivity.this, "key");
-                UploadList.add(path);
-                PreferenceUtils.setupload(UploadListActivity.this,UploadList,"key");
+                UploadList = PreferenceUtils.getImageUploadList(UploadListActivity.this,"key");
+                UploadModel uploadModel = new UploadModel();
+                uploadModel.setFilePath(path);
+                UploadList.add(uploadModel);
+                PreferenceUtils.setImageUploadList(UploadListActivity.this,UploadList,"key");
                 upload_list.setAdapter(customAdapter);
             }
 
@@ -827,9 +838,11 @@ public class UploadListActivity extends RootActivity {
             ArrayList<NormalFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_FILE);
             for (NormalFile file : list) {
                 String path = file.getPath();
-                UploadList =  PreferenceUtils.getupload(UploadListActivity.this, "key");
-                UploadList.add(path);
-                PreferenceUtils.setupload(UploadListActivity.this,UploadList,"key");
+                UploadList = PreferenceUtils.getImageUploadList(UploadListActivity.this,"key");
+                UploadModel uploadModel = new UploadModel();
+                uploadModel.setFilePath(path);
+                UploadList.add(uploadModel);
+                PreferenceUtils.setImageUploadList(UploadListActivity.this,UploadList,"key");
                 upload_list.setAdapter(customAdapter);
             }
         }
@@ -852,7 +865,6 @@ public class UploadListActivity extends RootActivity {
             String[] projection = {MediaStore.Images.Media.DATA};
             final Cursor cursor = context.getContentResolver().query(uri,
                     projection, null, null, null);
-            //  final Cursor cursor = context.getContentResolver().query(uri, new String[]{MediaStore.Images.ImageColumns.DATA}, null, null, null);
             if (null != cursor) {
                 if (cursor.moveToFirst()) {
                     final int index = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
@@ -869,20 +881,20 @@ public class UploadListActivity extends RootActivity {
     @Override
     public void onBackPressed() {
 
-          if(PreferenceUtils.getupload(context, "key") != null && PreferenceUtils.getupload(context, "key").size() > 0)
+          if(PreferenceUtils.getImageUploadList(context, "key") != null && PreferenceUtils.getImageUploadList(context, "key").size() > 0)
            {
                showUploadWarningMessage();
            }
            else
            {
+               List<UploadModel> uploadlist = new ArrayList<>();
+               PreferenceUtils.setImageUploadList(context, uploadlist, "key");
               Intent intent=new Intent(UploadListActivity.this,NavigationMyFolderActivity.class);
               intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
               intent.putExtra("IsFromUpload", "Upload");
               startActivity(intent);
               finish();
            }
-
-
     }
 
     private void showUploadWarningMessage()
@@ -913,14 +925,13 @@ public class UploadListActivity extends RootActivity {
         BtnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ArrayList<String> uploadlist = new ArrayList<>();
-                PreferenceUtils.setupload(context, uploadlist, "key");
+                List<UploadModel> uploadlist = new ArrayList<>();
+                PreferenceUtils.setImageUploadList(context, uploadlist, "key");
                 Intent intent=new Intent(UploadListActivity.this,NavigationMyFolderActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 intent.putExtra("IsFromUpload", "Upload");
                 startActivity(intent);
                 finish();
-
             }
         });
 
@@ -933,6 +944,7 @@ public class UploadListActivity extends RootActivity {
 
     public void showAlertMessage(String message, boolean buttonEnabled, String unsupported)
     {
+        transparentProgressDialog.dismiss();
         final AlertDialog.Builder builder = new AlertDialog.Builder(UploadListActivity.this);
         LayoutInflater inflater = (LayoutInflater) UploadListActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.custom_dialog, null);
@@ -952,8 +964,6 @@ public class UploadListActivity extends RootActivity {
         TextView text = (TextView) view.findViewById(R.id.message);
         text.setText(message);
 
-
-     //   getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         BtnCancel.setVisibility(View.GONE);
         BtnAllow.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -969,6 +979,8 @@ public class UploadListActivity extends RootActivity {
                 if(buttonEnabled == true)
                 {
                     menuItemAdd.setVisible(true);
+                    List<UploadModel> uploadlist = new ArrayList<>();
+                    PreferenceUtils.setImageUploadList(context, uploadlist, "key");
                     Intent intent=new Intent(UploadListActivity.this,NavigationMyFolderActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     intent.putExtra("IsFromUpload", "Upload");
@@ -1019,19 +1031,6 @@ public class UploadListActivity extends RootActivity {
         }
     }
 
-  /*  private void showImageOrdocumentUpload()
-    {
-        if(isDocumentAccess)
-        {
-            storageAccessPermissionForDocumentsPick();
-        }
-        else
-        {
-            storageAccessPermissionForImagesPick();
-
-        }
-    }*/
-
     private void showVideoOrCameraAccess()
     {
         if(isVideo)
@@ -1079,7 +1078,7 @@ public class UploadListActivity extends RootActivity {
     private void uploadDocuments()
     {
         if (NetworkUtils.isNetworkAvailable(context)) {
-            int choosenFilesCount = PreferenceUtils.getupload(UploadListActivity.this, "key").size();
+            int choosenFilesCount = PreferenceUtils.getImageUploadList(UploadListActivity.this, "key").size();
             menuItemAdd.setVisible(false);
             menuItemUpload.setVisible(false);
             upload_textview.setVisibility(View.GONE);
@@ -1092,7 +1091,7 @@ public class UploadListActivity extends RootActivity {
                 isError = true;
             } else {*/
                 for (int i = 0; i < choosenFilesCount; i++) {
-                    File file = new File(UploadList.get(i));
+                    File file = new File(UploadList.get(i).getFilePath());
                     float file_size = Float.parseFloat(String.valueOf(file.length() / 1024 / 1024));
                     String size = PreferenceUtils.getMaxSizeUpload(UploadListActivity.this);
                     float sizeAPI = Float.parseFloat(size);
@@ -1104,7 +1103,7 @@ public class UploadListActivity extends RootActivity {
                         isError = true;
                         break;
                     } else {
-                        String[] fileParts = UploadList.get(i).split("\\.");
+                        String[] fileParts = UploadList.get(i).getFilePath().split("\\.");
                         String fileExtension = fileParts[fileParts.length - 1];
                         Boolean validFormat = false;
 
@@ -1132,13 +1131,226 @@ public class UploadListActivity extends RootActivity {
                     uploadFailedList.clear();
 
                     if (choosenFilesCount > 0) {
-                        upload(0);
+                        uploadDataList = UploadList;
+                        if(uploadDataList.size()> index) {
+                            uploadData(uploadDataList.get(index).getFilePath());
+                        }
+
                     }
                 } else {
                     menuItemUpload.setVisible(true);
                     upload_textview.setVisibility(View.VISIBLE);
                 }
         //    }
+        }
+
+    }
+
+    private void uploadData(String filePath)
+    {
+        if (NetworkUtils.isNetworkAvailable(UploadListActivity.this)) {
+
+            UploadList.get(index).setInProgress(true);
+            customAdapter.notifyDataSetChanged();
+
+            File file = new File(filePath);
+
+            Retrofit retrofitAPI = RetrofitAPIBuilder.getUploadInstance();
+
+            final UploadEndUserDocumentsRequest mUploadEndUserDocumentsRequest = new UploadEndUserDocumentsRequest(PreferenceUtils.getObjectId(UploadListActivity.this),
+                    file.getName(), "", "", "");
+
+            String request = new Gson().toJson(mUploadEndUserDocumentsRequest);
+
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("data", request);
+
+            //RequestBody converted Json string data request to API Call
+            RequestBody dataRequest = RequestBody.create(MediaType.parse("text/plain"), request);
+
+            //RequestBody filename to API Call
+            Map<String, RequestBody> requestBodyMap = new HashMap<>();
+            RequestBody reqBody = RequestBody.create(MediaType.parse("*/*"), file);
+            requestBodyMap.put("file\"; filename=\"" + file.getName(), reqBody);
+
+            UploadEndUsersDocumentService mUploadEndUsersDocumentService = retrofitAPI.create(UploadEndUsersDocumentService.class);
+
+            Call call = mUploadEndUsersDocumentService.getUploadEndUsersDocument(dataRequest, requestBodyMap, PreferenceUtils.getAccessToken(UploadListActivity.this));
+
+            call.enqueue(new Callback<UploadDocumentResponse>() {
+                @Override
+                public void onResponse(Response<UploadDocumentResponse> response, Retrofit retrofit) {
+                    UploadDocumentResponse apiResponse = response.body();
+                    if (apiResponse != null)
+                    {
+                        Log.d("Upload status", apiResponse.toString());
+
+                        String message = "";
+                        if(apiResponse.getStatus().getMessage() != null)
+                        {
+                            message = apiResponse.getStatus().getMessage().toString();
+                        }
+
+                        if(apiResponse.getStatus().getCode() instanceof Double)
+                        {
+                            if(transparentProgressDialog.isShowing())
+                            {
+                                transparentProgressDialog.dismiss();
+                            }
+                            double status_value = new Double(response.body().getStatus().getCode().toString());
+                            if (status_value == 401.3)
+                            {
+                                showAlertDialogForAccessDenied(context, message);
+                            }
+                            else if(status_value ==  401 || status_value ==  401.0)
+                            {
+                                showAlertDialogForSessionExpiry(context, message);
+                            }
+                        }
+                        else if(response.body().getStatus().getCode() instanceof Integer)
+                        {
+                            if(transparentProgressDialog.isShowing())
+                            {
+                                transparentProgressDialog.dismiss();
+                            }
+                            int integerValue = new Integer(response.body().getStatus().getCode().toString());
+                            if(integerValue ==  401)
+                            {
+                                showAlertDialogForSessionExpiry(context, message);
+                            }
+                        }
+                        else if(response.body().getStatus().getCode() instanceof Boolean)
+                        {
+                            if (response.body().getStatus().getCode() == Boolean.TRUE)
+                            {
+                                if(!((Activity) context ).isFinishing())
+                                {
+                                    showAlertMessage(apiResponse.getStatus().getMessage(), false, "");
+                                }
+
+                                UploadModel uploadModel = new UploadModel();
+                                uploadModel.setFilePath(UploadList.get(index).getFilePath());
+                                uploadFailedList.add(uploadModel);
+                                PreferenceUtils.setImageUploadList(context, uploadFailedList, "key");
+
+                                UploadList.get(index).setFailure(true);
+                                customAdapter.notifyDataSetChanged();
+
+                                index++;
+
+                                if(uploadDataList.size()> index) {
+                                    uploadData(uploadDataList.get(index).getFilePath());
+                                }
+                                else
+                                {
+                                    index = 0;
+                                    failedListDataMessage();
+                                }
+
+                            }
+                            else {
+                                UploadList.get(index).setSuccess(true);
+                                customAdapter.notifyDataSetChanged();
+
+                                List<UploadModel> removeingList = new ArrayList<>();
+                                removeingList = PreferenceUtils.getImageUploadList(context, "key");
+                                removeingList.remove(0);
+                                PreferenceUtils.setImageUploadList(context, removeingList,"key");
+
+                                index++;
+
+                                if(uploadDataList.size()> index) {
+                                    uploadData(uploadDataList.get(index).getFilePath());
+
+                                }
+                                else
+                                {
+                                    index = 0;
+                                    failedListDataMessage();
+                                }
+                            }
+
+                        }
+
+                    }
+                    else {
+                        if(transparentProgressDialog.isShowing())
+                        {
+                            transparentProgressDialog.dismiss();
+                        }
+                        CommonFunctions.serverErrorExceptions(context, response.code());
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    Log.d("Message", t.getMessage());
+                    if(transparentProgressDialog.isShowing())
+                    {
+                        transparentProgressDialog.dismiss();
+                    }
+                    CommonFunctions.showTimeOutError(context, t);
+                }
+            });
+        }
+    }
+
+    private void failedListDataMessage()
+    {
+        PreferenceUtils.setImageUploadList(context, uploadFailedList, "Key");
+        customAdapter = new UploadListAdapter(UploadListActivity.this, uploadFailedList);
+        upload_list.setAdapter(customAdapter);
+
+        if (uploadFailedList.size() == 0)
+        {
+            if(!((Activity) context ).isFinishing()) {
+                showAlertMessage(getString(R.string.upload_txt), true, "");
+                //   showAlertMessage("Your file(s) are being uploaded. You will receive a notification when they are ready to view.", true, "");
+            }
+            empty_view.setVisibility(View.VISIBLE);
+            upload_layout.setVisibility(View.GONE);
+        }
+        else
+        {
+            transparentProgressDialog.dismiss();
+            empty_view.setVisibility(View.GONE);
+            upload_layout.setVisibility(View.VISIBLE);
+            uploadFailedList.clear();
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(UploadListActivity.this);
+            LayoutInflater inflater = (LayoutInflater) UploadListActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View view = inflater.inflate(R.layout.custom_dialog, null);
+            builder.setView(view);
+            builder.setCancelable(false);
+
+            Button BtnAllow = (Button) view.findViewById(R.id.allow_button);
+            BtnAllow.setText("Retry");
+            final Button BtnCancel = (Button) view.findViewById(R.id.cancel_button);
+            TextView textView =(TextView) view.findViewById(R.id.txt_message);
+            textView.setVisibility(View.GONE);
+            TextView text = (TextView) view.findViewById(R.id.message);
+            text.setText("Some Documents failed to upload");
+            mCustomAlertDialog = builder.create();
+            mCustomAlertDialog.show();
+            BtnAllow.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mCustomAlertDialog.dismiss();
+                    uploadDataList = PreferenceUtils.getImageUploadList(context, "key");
+                    index = 0;
+                    if(uploadDataList.size()> index) {
+                        uploadData(uploadDataList.get(index).getFilePath());
+                    }
+                }
+            });
+
+            BtnCancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mCustomAlertDialog.dismiss();
+
+                }
+            });
         }
     }
 
@@ -1229,7 +1441,6 @@ public class UploadListActivity extends RootActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
         this.registerReceiver(this.networkReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
     }
 
@@ -1249,7 +1460,6 @@ public class UploadListActivity extends RootActivity {
             {
                 firstConnect= true;
             }
-
         }
     };
 
@@ -1265,20 +1475,29 @@ public class UploadListActivity extends RootActivity {
                 .getState() == NetworkInfo.State.CONNECTED)) {
 
         } else {
+            if(transparentProgressDialog != null)
+            {
+                if(transparentProgressDialog.isShowing())
+                {
+                    transparentProgressDialog.dismiss();
+                }
+            }
             getDialog(context).show();
-
         }
     }
 
     public AlertDialog getDialog(Context context) {
+
+
         return new AlertDialog.Builder(context)
              //   .setMessage("Network is disabled in your device. Would you like to enable it?")
                 .setMessage(context.getString(R.string.check_network_txt))
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
+
                         upload_list.setLayoutManager(new LinearLayoutManager(context));
-                        UploadList = PreferenceUtils.getupload(UploadListActivity.this, "key");
+                        UploadList =  PreferenceUtils.getImageUploadList(UploadListActivity.this, "key");
                         customAdapter = new UploadListAdapter(UploadListActivity.this, UploadList);
                         upload_list.setAdapter(customAdapter);
                         menuItemAdd.setVisible(true);
@@ -1301,8 +1520,9 @@ public class UploadListActivity extends RootActivity {
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
+
                         upload_list.setLayoutManager(new LinearLayoutManager(context));
-                        UploadList = PreferenceUtils.getupload(UploadListActivity.this, "key");
+                        UploadList = PreferenceUtils.getImageUploadList(UploadListActivity.this, "key");
                         customAdapter = new UploadListAdapter(UploadListActivity.this, UploadList);
                         upload_list.setAdapter(customAdapter);
                         menuItemAdd.setVisible(true);

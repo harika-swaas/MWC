@@ -1460,7 +1460,7 @@ public class NavigationSharedActivity extends BaseActivity {
                 @Override
                 public void onResponse(Response<com.mwc.docportal.API.Model.SharedDocumentResponseModel> response, Retrofit retrofit) {
                     transparentProgressDialog.dismiss();
-                    if (response != null) {
+                    if (response.body() != null) {
 
                         String message = "";
                         if(response.body().getStatus().getMessage() != null)
@@ -1840,7 +1840,7 @@ public class NavigationSharedActivity extends BaseActivity {
 
                     // BaseApiResponse apiResponse = response.body();
                     transparentProgressDialog.dismiss();
-                    if (response != null) {
+                    if (response.body() != null) {
 
                         String message = "";
                         if(response.body().getStatus().getMessage() != null)
