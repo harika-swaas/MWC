@@ -149,6 +149,7 @@
     <string name="help_txt">Help</string>
     <string name="terms_privacy_txt">Terms &amp; Privacy Policy</string>
     <string name="logout_txt">Logout</string>
+    <string name="version_txt">Version No:</string>
     <string name="username_txt">Username</string>
     <string name="title_txt">Title</string>
     <string name="first_name_txt">First Name</string>

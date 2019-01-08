@@ -5,13 +5,16 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.KeyguardManager;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v4.content.ContextCompat;
@@ -86,8 +89,9 @@ public class LoginActivity extends RootActivity {
                 {
                     fileUploadList = new ArrayList<>();
                 }
+                String filePath = getRealPathFromURIPath(imageUri, context);
 
-                String filePath = imageUri.getPath();
+               // String filePath = imageUri.getPath();
                 UploadModel uploadModel = new UploadModel();
                 uploadModel.setFilePath(String.valueOf(filePath));
                 fileUploadList.add(uploadModel);
@@ -98,8 +102,10 @@ public class LoginActivity extends RootActivity {
             List<UploadModel> fileUploadList;
             ArrayList<Uri> imageUrisList = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
             if (imageUrisList != null) {
-                for (Uri file : imageUrisList) {
-                    String path = file.getPath();
+                for (Uri fileUri : imageUrisList) {
+
+                    String path = getRealPathFromURIPath(fileUri, context);
+                 //   String path = file.getPath();
                     fileUploadList = PreferenceUtils.getImageUploadList(LoginActivity.this, "key");
                     if(fileUploadList == null)
                     {
@@ -487,6 +493,32 @@ public class LoginActivity extends RootActivity {
                 }
                 break;
         }
+    }
+    private String getRealPathFromURIPath(Uri uri, Context context) {
+
+        if (null == uri) return null;
+        final String scheme = uri.getScheme();
+        String data = null;
+        if (scheme == null)
+            data = uri.getPath();
+        else if (ContentResolver.SCHEME_FILE.equals(scheme)) {
+            data = uri.getPath();
+        } else if (ContentResolver.SCHEME_CONTENT.equals(scheme)) {
+            String[] projection = {MediaStore.Images.Media.DATA};
+            final Cursor cursor = context.getContentResolver().query(uri,
+                    projection, null, null, null);
+            //  final Cursor cursor = context.getContentResolver().query(uri, new String[]{MediaStore.Images.ImageColumns.DATA}, null, null, null);
+            if (null != cursor) {
+                if (cursor.moveToFirst()) {
+                    final int index = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+                    if (index > -1) {
+                        data = cursor.getString(index);
+                    }
+                }
+                cursor.close();
+            }
+        }
+        return data;
     }
 
 

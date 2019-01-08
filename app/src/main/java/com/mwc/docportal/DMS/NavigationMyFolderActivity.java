@@ -119,6 +119,7 @@ import com.mwc.docportal.API.Service.ShareEndUserDocumentsService;
 import com.mwc.docportal.API.Service.UploadNewFolderService;
 import com.mwc.docportal.Adapters.DmsAdapter;
 import com.mwc.docportal.Adapters.DmsAdapterList;
+import com.mwc.docportal.BuildConfig;
 import com.mwc.docportal.Common.CameraUtils;
 import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Common.FileDownloadManager;
@@ -357,19 +358,49 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
         if (GlobalVariables.selectedActionName.equalsIgnoreCase("move") || GlobalVariables.selectedActionName.equalsIgnoreCase("delete"))
         {
-            if(!objectId.equals("0"))
+            List<GetCategoryDocumentsResponse> documentList = new ArrayList<>();
+            for(GetCategoryDocumentsResponse cate : GlobalVariables.selectedDocumentsList)
+            {
+                if(cate.getType().equalsIgnoreCase("document"))
+                {
+                    documentList.add(cate);
+                }
+
+            }
+
+            if(documentList != null && documentList.size() > 0)
+            {
+                if(!objectId.equals("0"))
+                {
+                    move_textview.setText("Move Here");
+                }
+            }
+            else
             {
                 move_textview.setText("Move Here");
             }
-
         }
         else if(GlobalVariables.selectedActionName.equalsIgnoreCase("copy") || GlobalVariables.selectedActionName.equalsIgnoreCase("share_copy"))
         {
-            if(!objectId.equals("0"))
+            List<GetCategoryDocumentsResponse> documentList = new ArrayList<>();
+            for(GetCategoryDocumentsResponse cate : GlobalVariables.selectedDocumentsList)
+            {
+                if(cate.getType().equalsIgnoreCase("document"))
+                {
+                    documentList.add(cate);
+                }
+            }
+
+            if(documentList != null && documentList.size() > 0) {
+                if(!objectId.equals("0"))
+                {
+                    move_textview.setText("Copy Here");
+                }
+            }
+            else
             {
                 move_textview.setText("Copy Here");
             }
-
         }
     }
 
@@ -3937,7 +3968,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
         Button BtnAllow = (Button) view.findViewById(R.id.allow_button);
         BtnAllow.setText("Ok");
-        final Button BtnCancel = (Button) view.findViewById(R.id.cancel_button);
+        Button BtnCancel = (Button) view.findViewById(R.id.cancel_button);
         BtnCancel.setText("Cancel");
         BtnCancel.setVisibility(View.GONE);
         TextView textView =(TextView) view.findViewById(R.id.txt_message);
@@ -3951,14 +3982,24 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             public void onClick(View v) {
                 // Create a click listener for separate like Implementing clickListener
 
-                mCustomAlertDialog.dismiss();
-                Intent intent = new Intent(NavigationMyFolderActivity.this, UploadListActivity.class);
-                startActivity(intent);
+                if(mCustomAlertDialog != null)
+                {
+                    mCustomAlertDialog.dismiss();
+                }
+
+                gotoUploadListActivity();
+
             }
         });
 
         mCustomAlertDialog = builder.create();
         mCustomAlertDialog.show();
+    }
+
+    private void gotoUploadListActivity()
+    {
+        Intent intent = new Intent(NavigationMyFolderActivity.this, UploadListActivity.class);
+        startActivity(intent);
     }
 
     public void cameraAccess()
@@ -4797,6 +4838,8 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             fileDownloadManager.downloadTheFile();
         }
     }
+
+
 
 
 }

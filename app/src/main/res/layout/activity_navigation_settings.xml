@@ -345,6 +345,30 @@
 
                         </LinearLayout>
 
+                        <LinearLayout
+                            android:id="@+id/build_version_layout"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:layout_marginTop="30dp"
+                            android:background="@color/white"
+                            android:orientation="horizontal"
+                            >
+
+                            <TextView
+                                android:id="@+id/build_version_txt"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:alpha="0.87"
+                                android:layout_marginLeft="20dp"
+                                android:text="@string/version_txt"
+                                android:textColor="@android:color/black"
+                                android:textSize="16sp" />
+
+
+
+                        </LinearLayout>
+
 
                         <LinearLayout
                             android:id="@+id/logout_layout"

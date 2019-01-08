@@ -42,6 +42,7 @@ import com.mwc.docportal.API.Model.PushNotificationRequestModel;
 import com.mwc.docportal.API.Model.SharedDocumentResponseModel;
 import com.mwc.docportal.API.Model.WhiteLabelResponse;
 import com.mwc.docportal.API.Service.ShareEndUserDocumentsService;
+import com.mwc.docportal.BuildConfig;
 import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Common.GlobalVariables;
 import com.mwc.docportal.Database.AccountSettings;
@@ -87,6 +88,7 @@ public class NavigationSettingsActivity extends BaseActivity {
     CollapsingToolbarLayout collapsingToolbarLayout;
     View finger_print_view;
     LinearLayout push_notification_switch_layout,finger_print_switch_layout;
+    TextView build_version_txt;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,6 +107,7 @@ public class NavigationSettingsActivity extends BaseActivity {
         getAccountSettings();
         getWhiteLabelSettings();
         OnClickListeners();
+        loadVersionNumberSettings();
 
         keyguardManager = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
         if (keyguardManager.isKeyguardSecure() == true) {
@@ -160,6 +163,11 @@ public class NavigationSettingsActivity extends BaseActivity {
                 setOriginalImageSize(myBitmap);
             }
         }
+    }
+
+    private void loadVersionNumberSettings()
+    {
+        build_version_txt.setText("Version No: "+BuildConfig.VERSION_NAME+"("+BuildConfig.VERSION_CODE+")");
     }
 
     private void setOriginalImageSize(Bitmap myBitmap)
@@ -231,6 +239,7 @@ public class NavigationSettingsActivity extends BaseActivity {
 
         push_notification_switch_layout = findViewById(R.id.push_notification_switch_layout);
         finger_print_switch_layout = findViewById(R.id.finger_print_switch_layout);
+        build_version_txt = (TextView) findViewById(R.id.build_version_txt);
 
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();

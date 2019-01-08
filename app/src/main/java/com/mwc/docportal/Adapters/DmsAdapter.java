@@ -473,8 +473,6 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
             if (context instanceof NavigationMyFolderActivity) {
                 ((NavigationMyFolderActivity) context).updateToolbarMenuItems(selectedUpdateList);
             }
-
-
     }
 
 
