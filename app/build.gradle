@@ -24,8 +24,8 @@ android {
         minSdkVersion 21
         targetSdkVersion 27
         buildToolsVersion "27.0.2"
-        versionCode 7
-        versionName "1.6"
+        versionCode 8
+        versionName "1.7"
         multiDexEnabled true
     }
     buildTypes {

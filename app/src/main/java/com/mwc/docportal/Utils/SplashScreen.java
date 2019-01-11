@@ -275,6 +275,9 @@ public class SplashScreen extends RootActivity {
 
 
             } else {
+                GlobalVariables.isMoveInitiated = false;
+                GlobalVariables.otherAppDocumentList.clear();
+                GlobalVariables.selectedActionName = "";
                 Toast.makeText(context, "You have cancelled this action", Toast.LENGTH_SHORT).show();
                 finish();
                 moveTaskToBack(true);
@@ -404,6 +407,9 @@ public class SplashScreen extends RootActivity {
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                GlobalVariables.isMoveInitiated = false;
+                GlobalVariables.otherAppDocumentList.clear();
+                GlobalVariables.selectedActionName = "";
                 mAlertDialog.dismiss();
                 Toast.makeText(context, "You have cancelled this action.", Toast.LENGTH_SHORT).show();
                 finish();

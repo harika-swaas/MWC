@@ -2,12 +2,15 @@ package com.vincent.filepicker.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
+import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,6 +30,8 @@ import com.vincent.filepicker.filter.callback.FilterResultCallback;
 import com.vincent.filepicker.filter.entity.Directory;
 import com.vincent.filepicker.filter.entity.NormalFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -170,31 +175,85 @@ public class NormalFilePickActivity extends BaseActivity {
         List<NormalFile> list = new ArrayList<>();
         for (Directory<NormalFile> directory : directories) {
 
-            if(directory.getName().equalsIgnoreCase(".Doc_Portal")) {
+           /* if(directory.getName().equalsIgnoreCase(".Doc_Portal")) {
             }
             else {
                 list.addAll(directory.getFiles());
-            }
-          //  list.addAll(directory.getFiles());
+            }*/
+            list.addAll(directory.getFiles());
         }
+
+
+        List<NormalFile> filesList = new ArrayList<>();
+        File directoryData = new File(Environment.getExternalStorageDirectory().toString()+"/.Doc_Portal");
+
+        File[] files = directoryData.listFiles();
+        Log.d("Files", "Size: "+ files.length);
+
+        List<File> getFilePathsList = new ArrayList<>();
+        if(files != null && files.length > 0)
+        {
+            for(File fileData : files)
+            {
+                List<File> localFilelist = getListFiles(fileData);
+                getFilePathsList.addAll(localFilelist);
+            }
+        }
+
+        if(getFilePathsList != null && getFilePathsList.size() > 0 && list.size() >0)
+        {
+            for(NormalFile filedata : list)
+            {
+                boolean isFound = false;
+
+                for(File originalData : getFilePathsList)
+                {
+                    if(originalData.getPath() != null && filedata.getPath().equalsIgnoreCase(originalData.getPath()))
+                    {
+                        isFound = true;
+                    }
+                }
+
+                if (!isFound) {
+                    filesList.add(filedata);
+                }
+            }
+        }
+        else
+        {
+            filesList.addAll(list);
+        }
+
 
         for (NormalFile file : mSelectedList) {
-            int index = list.indexOf(file);
+            int index = filesList.indexOf(file);
             if (index != -1) {
-                list.get(index).setSelected(true);
+                filesList.get(index).setSelected(true);
             }
         }
 
-        if(list != null && list.size() > 0)
+        if(filesList != null && filesList.size() > 0)
         {
             emptyView.setVisibility(View.GONE);
-            mAdapter.refresh(list);
+            mAdapter.refresh(filesList);
         }
         else
         {
             emptyView.setVisibility(View.VISIBLE);
         }
-
-
     }
+
+    List<File> getListFiles(File parentDir) {
+        ArrayList<File> inFiles = new ArrayList<File>();
+        File[] files = parentDir.listFiles();
+        for (File file : files) {
+            if (file.isDirectory()) {
+                inFiles.addAll(getListFiles(file));
+            } else {
+                inFiles.add(file);
+            }
+        }
+        return inFiles;
+    }
+
 }

@@ -801,12 +801,9 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                     @Override
                     public void onClick(View v) {
                         mBackDialog.dismiss();
-
                         if (context instanceof NavigationMyFolderActivity) {
                             ((NavigationMyFolderActivity) context).deleteDocumentsService( "0");
                         }
-
-
                     }
                 });
 
@@ -844,9 +841,6 @@ public class DmsAdapter extends RecyclerView.Adapter<DmsAdapter.ViewHolder> {
                 });
 
             }
-
-
-
 
         });
 

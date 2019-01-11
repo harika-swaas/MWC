@@ -34,6 +34,7 @@ import com.mwc.docportal.API.Model.ConfirmPasswordRequestModel;
 import com.mwc.docportal.API.Model.ConfirmPasswordResponseModel;
 import com.mwc.docportal.API.Model.UploadModel;
 import com.mwc.docportal.API.Service.UploadNewFolderService;
+import com.mwc.docportal.Common.GlobalVariables;
 import com.mwc.docportal.DMS.NavigationMyFolderActivity;
 import com.mwc.docportal.DMS.UploadListActivity;
 import com.mwc.docportal.Database.AccountSettings;
@@ -84,7 +85,7 @@ public class LoginActivity extends RootActivity {
             Uri imageUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
             List<UploadModel> fileUploadList;
             if (imageUri != null) {
-                fileUploadList = PreferenceUtils.getImageUploadList(LoginActivity.this, "key");
+                fileUploadList = GlobalVariables.otherAppDocumentList;
                 if(fileUploadList == null)
                 {
                     fileUploadList = new ArrayList<>();
@@ -95,18 +96,19 @@ public class LoginActivity extends RootActivity {
                 UploadModel uploadModel = new UploadModel();
                 uploadModel.setFilePath(String.valueOf(filePath));
                 fileUploadList.add(uploadModel);
-                PreferenceUtils.setImageUploadList(context,fileUploadList,"key");
+                GlobalVariables.otherAppDocumentList.addAll(fileUploadList);
+             //   PreferenceUtils.setImageUploadList(context,fileUploadList,"key");
             }
         }
         else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
-            List<UploadModel> fileUploadList;
+            List<UploadModel> fileUploadList = null;
             ArrayList<Uri> imageUrisList = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
             if (imageUrisList != null) {
                 for (Uri fileUri : imageUrisList) {
 
                     String path = getRealPathFromURIPath(fileUri, context);
                  //   String path = file.getPath();
-                    fileUploadList = PreferenceUtils.getImageUploadList(LoginActivity.this, "key");
+                 //   fileUploadList = GlobalVariables.otherAppDocumentList;
                     if(fileUploadList == null)
                     {
                         fileUploadList = new ArrayList<>();
@@ -115,9 +117,18 @@ public class LoginActivity extends RootActivity {
                     UploadModel uploadModel = new UploadModel();
                     uploadModel.setFilePath(path);
                     fileUploadList.add(uploadModel);
-                    PreferenceUtils.setImageUploadList(LoginActivity.this,fileUploadList,"key");
+                    
+                 //   PreferenceUtils.setImageUploadList(LoginActivity.this,fileUploadList,"key");
                 }
+                GlobalVariables.otherAppDocumentList.addAll(fileUploadList);
+                
             }
+        }
+
+        if(GlobalVariables.otherAppDocumentList != null && GlobalVariables.otherAppDocumentList.size() > 0)
+        {
+            GlobalVariables.isMoveInitiated = true;
+            GlobalVariables.selectedActionName =  "upload";
         }
 
 

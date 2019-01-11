@@ -1,6 +1,8 @@
 package com.mwc.docportal.Common;
 
 import com.mwc.docportal.API.Model.GetCategoryDocumentsResponse;
+import com.mwc.docportal.API.Model.UploadModel;
+import com.mwc.docportal.Utils.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +10,7 @@ import java.util.List;
 public class GlobalVariables
 {
     public static boolean isTileView = true;
-    public static String sortType = "type";
+    public static String sortType = Constants.NO_SORTING_TEXT;
     public static boolean isAscending = true;
     public static boolean isMoveInitiated = false;
     public static String selectedActionName = "";
@@ -31,5 +33,5 @@ public class GlobalVariables
     public static boolean refreshSharedDocumentPage = false;
     public static int totalUnreadableCount = 0;
     public static List<GetCategoryDocumentsResponse> sharedRootDocumentList = new ArrayList<>();
-
+    public static List<UploadModel> otherAppDocumentList = new ArrayList<>();
 }

@@ -499,7 +499,7 @@ public class AccountSettings {
         // clear Global variables Data
 
         GlobalVariables.isTileView = true;
-        GlobalVariables.sortType = "type";
+        GlobalVariables.sortType = Constants.NO_SORTING_TEXT;
         GlobalVariables.isAscending = true;
         GlobalVariables.isMoveInitiated = false;
         GlobalVariables.selectedActionName = "";
@@ -521,6 +521,7 @@ public class AccountSettings {
         GlobalVariables.refreshSharedDocumentPage = false;
         GlobalVariables.totalUnreadableCount = 0;
         GlobalVariables.sharedRootDocumentList.clear();
+        GlobalVariables.otherAppDocumentList.clear();
 
         Intent intent = new Intent(mContext, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);

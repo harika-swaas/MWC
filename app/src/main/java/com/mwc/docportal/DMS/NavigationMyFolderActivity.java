@@ -171,7 +171,6 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
     DmsAdapter mAdapter;
     DmsAdapterList mAdapterList;
     RecyclerView mRecyclerView;
-  //  NestedScrollView scrollView;
     AlertDialog mCustomAlertDialog;
     AlertDialog mAlertDialog;
     MenuItem menuItemSearch, menuItemDelete, menuItemShare, menuItemMove, menuItemMore;
@@ -240,7 +239,6 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         list_upload = new ArrayList<>();
 
         getSharedDocumentsTotalUnreadCount(NavigationMyFolderActivity.this);
@@ -252,7 +250,6 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         {
             pageSize = 40;
         }
-
 
         incrementActivityCount();
 
@@ -345,16 +342,20 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         bottomNavigationLayout.setVisibility(View.GONE);
         sorting_layout.setVisibility(View.GONE);
         move_layout.setVisibility(View.VISIBLE);
-   //     floatingActionMenu.setVisibility(View.GONE);
         actionCamera.setVisibility(View.GONE);
         actionUpload.setVisibility(View.GONE);
         actionVideo.setVisibility(View.GONE);
-        GlobalVariables.sortType = "type";
+
+     //   GlobalVariables.sortType = "type";
+
+        if(!GlobalVariables.sortType.equalsIgnoreCase(Constants.NO_SORTING_TEXT))
+        {
+            GlobalVariables.sortType = "type";
+        }
+
 
         setMargins(floatingActionMenu,11,0,11, 75);
-
         setMargins(bottom_linearlayout,0,0,0,122);
-
 
         if (GlobalVariables.selectedActionName.equalsIgnoreCase("move") || GlobalVariables.selectedActionName.equalsIgnoreCase("delete"))
         {
@@ -368,7 +369,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
             }
 
-            if(documentList != null && documentList.size() > 0)
+            if((documentList != null && documentList.size() > 0) || (GlobalVariables.selectedActionName.equalsIgnoreCase("delete")))
             {
                 if(!objectId.equals("0"))
                 {
@@ -402,6 +403,13 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 move_textview.setText("Copy Here");
             }
         }
+        else if(GlobalVariables.selectedActionName.equalsIgnoreCase("upload"))
+        {
+            if(!objectId.equals("0"))
+            {
+                move_textview.setText("Upload");
+            }
+        }
     }
 
     private void hideBottomView()
@@ -417,8 +425,6 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         }
 
         move_layout.setVisibility(View.GONE);
-   //     floatingActionMenu.setVisibility(View.VISIBLE);
-
         setMargins(floatingActionMenu,11,0,11, 65);
         setMargins(bottom_linearlayout,0,0,0,90);
 
@@ -601,8 +607,15 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 sorting = "-"+GlobalVariables.sortType;
             }
 
-         //   Call call = mGetCategoryDocumentsService.getCategoryDocumentsV2(params, PreferenceUtils.getAccessToken(context),page);
-            Call call = mGetCategoryDocumentsService.getCategoryDocuments(params, PreferenceUtils.getAccessToken(context),String.valueOf(pageNumber+1), String.valueOf(pageSize),sorting );
+            Call call = null;
+            if(GlobalVariables.sortType.equalsIgnoreCase(Constants.NO_SORTING_TEXT))
+            {
+                call = mGetCategoryDocumentsService.getCategoryDocumentsWithoutSortType(params, PreferenceUtils.getAccessToken(context),String.valueOf(pageNumber+1), String.valueOf(pageSize));
+            }
+            else
+            {
+                call = mGetCategoryDocumentsService.getCategoryDocuments(params, PreferenceUtils.getAccessToken(context),String.valueOf(pageNumber+1), String.valueOf(pageSize),sorting );
+            }
 
             call.enqueue(new Callback<ListPinDevicesResponse<GetCategoryDocumentsResponse>>() {
                 @Override
@@ -815,11 +828,19 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
         if(GlobalVariables.isAscending)
         {
+            sort_image.setVisibility(View.VISIBLE);
             sort_image.setImageResource(R.mipmap.ic_sortup);
         }
         else
         {
+            sort_image.setVisibility(View.VISIBLE);
             sort_image.setImageResource(R.mipmap.ic_sort);
+        }
+
+        if(GlobalVariables.sortType.equalsIgnoreCase(Constants.NO_SORTING_TEXT))
+        {
+            sort_image.setVisibility(View.GONE);
+            sort.setText(Constants.NO_SORTING_TEXT);
         }
 
     }
@@ -912,6 +933,18 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
                     }
                 }
+                else if(GlobalVariables.selectedActionName.equalsIgnoreCase("upload"))
+                {
+                    if(GlobalVariables.otherAppDocumentList.size() > 0)
+                    {
+                        PreferenceUtils.setImageUploadList(context, GlobalVariables.otherAppDocumentList,"key");
+                        GlobalVariables.isMoveInitiated = false;
+                        GlobalVariables.otherAppDocumentList.clear();
+                        GlobalVariables.selectedActionName = "";
+                        Intent intent = new Intent(NavigationMyFolderActivity.this, UploadListActivity.class);
+                        startActivity(intent);
+                    }
+                }
             }
         });
 
@@ -921,6 +954,8 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
                 GlobalVariables.isMoveInitiated = false;
                 GlobalVariables.selectedDocumentsList.clear();
+                GlobalVariables.otherAppDocumentList.clear();
+                GlobalVariables.selectedActionName = "";
                 mAdapterList.clearAll();
                 hideBottomView();
                 reloadAdapterData(false);
@@ -1807,7 +1842,27 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
              {
                  sortDateImage.setImageResource(R.mipmap.ic_sort_down);
              }
-        }
+        } else if (GlobalVariables.sortType.equalsIgnoreCase(Constants.NO_SORTING_TEXT)) {
+             sortNameImage.setVisibility(View.INVISIBLE);
+             sortNewestImage.setVisibility(View.INVISIBLE);
+             sortSizeImage.setVisibility(View.INVISIBLE);
+             sortDateImage.setVisibility(View.INVISIBLE);
+
+             sortNameDoneImage.setVisibility(View.INVISIBLE);
+             sortNewestDoneImage.setVisibility(View.INVISIBLE);
+             sortSizeDoneImage.setVisibility(View.INVISIBLE);
+             sortDateDoneImage.setVisibility(View.INVISIBLE);
+
+             if (GlobalVariables.isAscending)
+             {
+                 sortDateImage.setImageResource(R.mipmap.ic_sort_up);
+             }
+             else
+             {
+                 sortDateImage.setImageResource(R.mipmap.ic_sort_down);
+             }
+         }
+
 /*
 
         if(GlobalVariables.isAscending == false && GlobalVariables.sortType.equalsIgnoreCase("name"))
@@ -4150,7 +4205,6 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
     @Override
     public void onRefresh() {
 
-
         GlobalVariables.isMultiSelect = false;
         if (NetworkUtils.checkIfNetworkAvailable(this)) {
             List<GetCategoryDocumentsResponse> dummyList = new ArrayList<>();
@@ -4164,8 +4218,6 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             mRefreshLayout.setVisibility(View.GONE);
             internetUnAvailableWithMessage();
         }
-
-
     }
 
 

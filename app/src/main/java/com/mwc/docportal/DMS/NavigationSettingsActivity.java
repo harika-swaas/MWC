@@ -167,7 +167,21 @@ public class NavigationSettingsActivity extends BaseActivity {
 
     private void loadVersionNumberSettings()
     {
-        build_version_txt.setText("Version No: "+BuildConfig.VERSION_NAME+"("+BuildConfig.VERSION_CODE+")");
+        if(Constants.COMPANY_BASE_URL.equalsIgnoreCase("http://172.16.40.50"))      // QC
+        {
+            build_version_txt.setText("Version No: "+BuildConfig.VERSION_NAME+"("+BuildConfig.VERSION_CODE+")_qc");
+        }
+        else if(Constants.COMPANY_BASE_URL.equalsIgnoreCase("https://uatapi.mywealthcloud.com"))    // UAT
+        {
+            build_version_txt.setText("Version No: "+BuildConfig.VERSION_NAME+"("+BuildConfig.VERSION_CODE+")_uat");
+        }
+        else if(Constants.COMPANY_BASE_URL.equalsIgnoreCase("http://172.16.40.40"))     // DEV
+        {
+            build_version_txt.setText("Version No: "+BuildConfig.VERSION_NAME+"("+BuildConfig.VERSION_CODE+")_dev");
+        }
+        else {              // Production
+            build_version_txt.setText("Version No: "+BuildConfig.VERSION_NAME+"("+BuildConfig.VERSION_CODE+")");
+        }
     }
 
     private void setOriginalImageSize(Bitmap myBitmap)

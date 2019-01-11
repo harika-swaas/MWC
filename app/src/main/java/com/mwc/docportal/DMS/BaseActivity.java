@@ -141,52 +141,6 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
 
     }
 
-   /* public void removeBadge(BottomNavigationView navigationView, int itemId)
-    {
-        BottomNavigationItemView itemView = navigationView.findViewById(itemId);
-        View badge = LayoutInflater.from(context).inflate(R.layout.badge_count_item, navigationView, false);
-        TextView text = badge.findViewById(R.id.unread_count);
-     //   View badge = itemView.findViewById(R.id.notifications_badge);
-        ((ViewGroup)text.getParent()).removeView(text);
-        *//*if (itemView.getChildCount() == 3) {
-            itemView.removeViewAt(1);
-        }*//*
-    }*/
-
-    public void removeBadge(BottomNavigationView navigationView, int itemId)
-    {
-       /* BottomNavigationMenuView bottomNavigationMenuView = (BottomNavigationMenuView) navigationView.getChildAt(0);
-        View v = bottomNavigationMenuView.getChildAt(index);
-        BottomNavigationItemView itemView = (BottomNavigationItemView) v;
-        itemView.removeViewAt(itemView.getChildCount()-1);*/
-
-       /* BottomNavigationItemView itemView = navigationView.findViewById(itemId);
-        View badge = LayoutInflater.from(context).inflate(R.layout.badge_count_item, navigationView, false);
-
-        TextView text = badge.findViewById(R.id.unread_count);
-
-    //    badge.setVisibility(View.GONE);
-
-        ((ViewGroup)text.getParent()).removeView(text);*/
-
-        BottomNavigationItemView itemView = navigationView.findViewById(itemId);
-        View badge = LayoutInflater.from(context).inflate(R.layout.badge_count_item, navigationView, false);
-
-        TextView text = badge.findViewById(R.id.unread_count);
-        RelativeLayout relativeLayout = badge.findViewById(R.id.badge_icon_linearlayout);
-        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)text.getLayoutParams();
-        params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-        params.addRule(RelativeLayout.CENTER_HORIZONTAL);
-        text.setLayoutParams(params);
-
-        relativeLayout.setVisibility(View.GONE);
-
-        itemView.addView(badge);
-
-
-
-
-    }
 
     public void showBadgeCount(BottomNavigationView navigationView, int itemId, int badgeCountValue, Activity activity)
     {
@@ -200,8 +154,6 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
         params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
         params.addRule(RelativeLayout.CENTER_HORIZONTAL);
         text.setLayoutParams(params);
-
-
         navigationView.removeView(navigationView.getChildAt(2));
 
         if(badgeCountValue > 0)
@@ -235,20 +187,6 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
 
     }
 
-    public void removeTextLabel(@NonNull BottomNavigationView bottomNavigationView, @IdRes int menuItemId) {
-        View view = bottomNavigationView.findViewById(menuItemId);
-        if (view == null) return;
-        if (view instanceof MenuView.ItemView) {
-            ViewGroup viewGroup = (ViewGroup) view;
-            for (int i = 0; i < viewGroup.getChildCount(); i++) {
-                View v = viewGroup.getChildAt(i);
-                if (v instanceof ViewGroup) {
-                    viewGroup.removeViewAt(i);
-                }
-            }
-          //  viewGroup.setPadding(view.getPaddingLeft(), (viewGroup.getPaddingTop() + padding) / 2, view.getPaddingRight(), view.getPaddingBottom());
-        }
-    }
 
 
 
