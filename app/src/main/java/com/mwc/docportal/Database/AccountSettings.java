@@ -521,7 +521,7 @@ public class AccountSettings {
         GlobalVariables.refreshSharedDocumentPage = false;
         GlobalVariables.totalUnreadableCount = 0;
         GlobalVariables.sharedRootDocumentList.clear();
-        GlobalVariables.otherAppDocumentList.clear();
+   //     GlobalVariables.otherAppDocumentList.clear();
 
         Intent intent = new Intent(mContext, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);

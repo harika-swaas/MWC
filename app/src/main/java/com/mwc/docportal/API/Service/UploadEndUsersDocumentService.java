@@ -26,9 +26,5 @@ public interface UploadEndUsersDocumentService {
     Call<UploadDocumentResponse> getUploadEndUsersDocument(@Part("data") RequestBody data,
                                                            @PartMap Map<String, RequestBody> fileParams,
                                                            @Header("access-token") String accessToken);
-    @Multipart
-    @POST("/upload-end-users-document")
-    Call<UploadDocumentResponse> getUploadUsersDocument(@Part("data") RequestBody data,
-                                                        @PartMap Map<String, RequestBody> fileParams,
-                                                        @Header("access-token") String accessToken);
+
 }

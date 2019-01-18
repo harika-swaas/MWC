@@ -77,7 +77,7 @@ public class LoginActivity extends RootActivity {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
 
-        Intent intent = getIntent();
+   /*     Intent intent = getIntent();
         String action = intent.getAction();
         String type = intent.getType();
 
@@ -128,8 +128,8 @@ public class LoginActivity extends RootActivity {
         if(GlobalVariables.otherAppDocumentList != null && GlobalVariables.otherAppDocumentList.size() > 0)
         {
             GlobalVariables.isMoveInitiated = true;
-            GlobalVariables.selectedActionName =  "upload";
-        }
+            GlobalVariables.selectedActionName = "upload";
+        }*/
 
 
         if(getIntent().getStringExtra("document_version_id") != null)

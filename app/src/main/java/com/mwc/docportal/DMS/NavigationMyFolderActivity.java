@@ -59,6 +59,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -119,7 +120,7 @@ import com.mwc.docportal.API.Service.ShareEndUserDocumentsService;
 import com.mwc.docportal.API.Service.UploadNewFolderService;
 import com.mwc.docportal.Adapters.DmsAdapter;
 import com.mwc.docportal.Adapters.DmsAdapterList;
-import com.mwc.docportal.BuildConfig;
+import com.mwc.docportal.Common.BackgroundUploadService;
 import com.mwc.docportal.Common.CameraUtils;
 import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Common.FileDownloadManager;
@@ -166,7 +167,7 @@ import retrofit.Retrofit;
 import static com.vincent.filepicker.activity.BaseActivity.IS_NEED_FOLDER_LIST;
 import static com.vincent.filepicker.activity.ImagePickActivity.IS_NEED_CAMERA;
 
-public class NavigationMyFolderActivity extends BaseActivity implements SwipeRefreshLayout.OnRefreshListener {
+public class NavigationMyFolderActivity extends BaseActivity implements SwipeRefreshLayout.OnRefreshListener{
 
     DmsAdapter mAdapter;
     DmsAdapterList mAdapterList;
@@ -839,7 +840,8 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
         if(GlobalVariables.sortType.equalsIgnoreCase(Constants.NO_SORTING_TEXT))
         {
-            sort_image.setVisibility(View.GONE);
+            sort_image.setVisibility(View.VISIBLE);
+            sort_image.setImageResource(R.mipmap.ic_sortup);
             sort.setText(Constants.NO_SORTING_TEXT);
         }
 
@@ -933,18 +935,24 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
                     }
                 }
-                else if(GlobalVariables.selectedActionName.equalsIgnoreCase("upload"))
+                /*else if(GlobalVariables.selectedActionName.equalsIgnoreCase("upload"))
                 {
                     if(GlobalVariables.otherAppDocumentList.size() > 0)
                     {
-                        PreferenceUtils.setImageUploadList(context, GlobalVariables.otherAppDocumentList,"key");
+                        *//*PreferenceUtils.setImageUploadList(context, GlobalVariables.otherAppDocumentList,"key");
                         GlobalVariables.isMoveInitiated = false;
                         GlobalVariables.otherAppDocumentList.clear();
                         GlobalVariables.selectedActionName = "";
                         Intent intent = new Intent(NavigationMyFolderActivity.this, UploadListActivity.class);
-                        startActivity(intent);
+                        startActivity(intent);*//*
+
+                        GlobalVariables.isMoveInitiated = false;
+                        GlobalVariables.selectedActionName = "";
+                        Intent intent1 = new Intent(NavigationMyFolderActivity.this, BackgroundUploadService.class);
+                        intent1.putExtra("UploadedList", (ArrayList<UploadModel>)GlobalVariables.otherAppDocumentList);
+                        startService(intent1);
                     }
-                }
+                }*/
             }
         });
 
@@ -954,8 +962,8 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
                 GlobalVariables.isMoveInitiated = false;
                 GlobalVariables.selectedDocumentsList.clear();
-                GlobalVariables.otherAppDocumentList.clear();
-                GlobalVariables.selectedActionName = "";
+            //    GlobalVariables.otherAppDocumentList.clear();
+            //    GlobalVariables.selectedActionName = "";
                 mAdapterList.clearAll();
                 hideBottomView();
                 reloadAdapterData(false);

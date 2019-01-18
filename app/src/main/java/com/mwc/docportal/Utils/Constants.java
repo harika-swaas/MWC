@@ -7,12 +7,12 @@ package com.mwc.docportal.Utils;
 public class Constants {
 
     // ***************************** Testing ********************************************
- /*    public static final String COMPANY_BASE_URL = "http://172.16.40.50";
+    /* public static final String COMPANY_BASE_URL = "http://172.16.40.50";
      public static final String LOGO_IMAGE_BASE_URL = "http://172.16.40.51";*/
 
     // ***************************** UAT ********************************************
-   public static final String COMPANY_BASE_URL = "https://uatapi.mywealthcloud.com";
-   public static final String LOGO_IMAGE_BASE_URL = "http://uatweb.docportal.co.uk";
+    public static final String COMPANY_BASE_URL = "https://uatapi.mywealthcloud.com";
+    public static final String LOGO_IMAGE_BASE_URL = "http://uatweb.docportal.co.uk";
 
 
     // ***************************** Production ********************************************
@@ -85,7 +85,7 @@ public class Constants {
    // Default Alert messages
 
     public static final String QUICK_SHARE_MSG = "You are about to share the selected file(s). Do you wish to proceed?";
-    public static final String NO_SORTING_TEXT = "No text";
+    public static final String NO_SORTING_TEXT = "Sort";
 
 }
 

@@ -48,7 +48,7 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <intent-filter>
+           <!-- <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="image/*" />
@@ -63,7 +63,8 @@
                 <data android:mimeType="text/*" />
                 <data android:mimeType="application/*" />
                 <data android:mimeType="video/*" />
-            </intent-filter>
+            </intent-filter>-->
+
 
         </activity>
         <activity
@@ -201,6 +202,8 @@
             android:name="io.fabric.ApiKey"
             android:value="39f3eab4f9f7f060c8d19339c0c8cdd4d7b8bbb0" />
 
+
+
         <service
             android:name=".Firebase.MyFirebaseMessagingService">
             <intent-filter>
@@ -214,6 +217,11 @@
             </intent-filter>
         </service>
 
+
+       <!-- <service
+            android:name=".Common.BackgroundUploadService"
+            android:enabled="true"
+            android:exported="false" />-->
 
         <receiver
             android:name=".Firebase.FirebaseDataReceiver"

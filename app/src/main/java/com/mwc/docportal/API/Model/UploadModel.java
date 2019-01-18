@@ -1,6 +1,8 @@
 package com.mwc.docportal.API.Model;
 
-public class UploadModel
+import java.io.Serializable;
+
+public class UploadModel implements Serializable
 {
     String filePath;
     boolean success;
