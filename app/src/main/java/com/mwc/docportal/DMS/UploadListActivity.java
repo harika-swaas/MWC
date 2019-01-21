@@ -1141,7 +1141,7 @@ public class UploadListActivity extends RootActivity {
 
                     if (file_size > sizeAPI) {
                         if(!((Activity) context ).isFinishing()) {
-                            showAlertMessage(UploadList.get(i) + " can't exceed" + PreferenceUtils.getMaxSizeUpload(UploadListActivity.this) + " MB", false, "");
+                            showAlertMessage(UploadList.get(i).getFilePath() + " can't exceed" + PreferenceUtils.getMaxSizeUpload(UploadListActivity.this) + " MB", false, "");
                         }
                         isError = true;
                         break;

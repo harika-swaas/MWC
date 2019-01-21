@@ -2,12 +2,15 @@ package com.mwc.docportal.DMS;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -236,11 +239,17 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
     LinearLayout bottom_linearlayout;
     Button refreshButton;
 
+    /*public static final String mBroadcastStringAction = "com.mwc.docportal.DMS.Receiver";
+    private IntentFilter mIntentFilter;*/
+
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         list_upload = new ArrayList<>();
+
+       /* mIntentFilter = new IntentFilter();
+        mIntentFilter.addAction(mBroadcastStringAction);*/
 
         getSharedDocumentsTotalUnreadCount(NavigationMyFolderActivity.this);
 
@@ -935,40 +944,34 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
                     }
                 }
-                /*else if(GlobalVariables.selectedActionName.equalsIgnoreCase("upload"))
+                else if(GlobalVariables.selectedActionName.equalsIgnoreCase("upload"))
                 {
                     if(GlobalVariables.otherAppDocumentList.size() > 0)
                     {
-                        *//*PreferenceUtils.setImageUploadList(context, GlobalVariables.otherAppDocumentList,"key");
-                        GlobalVariables.isMoveInitiated = false;
-                        GlobalVariables.otherAppDocumentList.clear();
-                        GlobalVariables.selectedActionName = "";
-                        Intent intent = new Intent(NavigationMyFolderActivity.this, UploadListActivity.class);
-                        startActivity(intent);*//*
-
-                        GlobalVariables.isMoveInitiated = false;
-                        GlobalVariables.selectedActionName = "";
-                        Intent intent1 = new Intent(NavigationMyFolderActivity.this, BackgroundUploadService.class);
-                        intent1.putExtra("UploadedList", (ArrayList<UploadModel>)GlobalVariables.otherAppDocumentList);
-                        startService(intent1);
+                        uploadValidation();
                     }
-                }*/
+                }
             }
         });
 
         cancel_textview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 GlobalVariables.isMoveInitiated = false;
                 GlobalVariables.selectedDocumentsList.clear();
-            //    GlobalVariables.otherAppDocumentList.clear();
-            //    GlobalVariables.selectedActionName = "";
+                GlobalVariables.selectedActionName = "";
                 mAdapterList.clearAll();
                 hideBottomView();
                 reloadAdapterData(false);
                 GlobalVariables.activityFinishCount = (GlobalVariables.activityCount - GlobalVariables.moveOriginIndex) - 1;
                 finish();
+
+                if( GlobalVariables.otherAppDocumentList.size() > 0)
+                {
+                    GlobalVariables.otherAppDocumentList.clear();
+                    finishAffinity();
+                    System.exit(0);
+                }
 
             }
         });
@@ -1174,6 +1177,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
 
     }
+
 
 
 
@@ -2464,6 +2468,10 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         if(objectId.equals("0"))
         {
                 if (backButtonCount >= 1) {
+                    if(GlobalVariables.otherAppDocumentList.size() > 0)
+                    {
+                       cancel_textview.performClick();
+                    }
                     backButtonCount = 0;
                     moveTaskToBack(true);
                 } else {
@@ -2482,8 +2490,6 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             updateToolbarMenuItems(dummyList);
             finish();
         }
-
-
     }
 
     private void decrementActivityCount()
@@ -3821,6 +3827,8 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             PreferenceUtils.setIsfromPushnotification(context, null);
         }
 
+    //    registerReceiver(mReceiver,mIntentFilter);
+
     }
 
     private void clearingMoveOrCopyActivity()
@@ -4900,6 +4908,198 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
     }
 
 
+   /* private BroadcastReceiver mReceiver = new BroadcastReceiver() {
 
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(mBroadcastStringAction)) {
+                Toast.makeText(NavigationMyFolderActivity.this,"Upload completed", Toast.LENGTH_LONG).show();
+                stopService(new Intent(NavigationMyFolderActivity.this, BackgroundUploadService.class));
+            }
+
+           *//* Bundle bundle = intent.getExtras();
+            if (bundle != null) {
+                //  String string = bundle.getString(DownloadService.FILEPATH);
+                int resultCode = bundle.getInt("Result");
+                if (resultCode == RESULT_OK) {
+                    Toast.makeText(NavigationMyFolderActivity.this,"Upload completed", Toast.LENGTH_LONG).show();
+
+                } else {
+                    Toast.makeText(NavigationMyFolderActivity.this, "Upload failed", Toast.LENGTH_LONG).show();
+                    stopService(new Intent(NavigationMyFolderActivity.this, BackgroundUploadService.class));
+                }
+            }*//*
+        }
+    };*/
+
+    /*@Override
+    protected void onStop() {
+        super.onStop();
+        unregisterReceiver(mReceiver);
+    }
+*/
+
+
+    private void uploadValidation()
+    {
+        List<UploadModel> userSharedDocList =  GlobalVariables.otherAppDocumentList;
+        List<String> fileSizeExceedList = new ArrayList<>();
+        List<UploadModel> belowSizeFileList = new ArrayList<>();
+        if(userSharedDocList != null && userSharedDocList.size() > 0)
+        {
+            String size = PreferenceUtils.getMaxSizeUpload(NavigationMyFolderActivity.this);
+            float sizeAPI = Float.parseFloat(size);
+            for(UploadModel fileItem : userSharedDocList)
+            {
+                File file = new File(fileItem.getFilePath());
+                float file_size = Float.parseFloat(String.valueOf(file.length() / 1024 / 1024));
+                if (file_size > sizeAPI) {
+                    fileSizeExceedList.add(fileItem.getFilePath());
+                }
+                else
+                {
+                    UploadModel uploadModel = new UploadModel();
+                    uploadModel.setFilePath(fileItem.getFilePath());
+                    belowSizeFileList.add(uploadModel);
+                }
+            }
+        }
+
+
+      //  List<UploadModel> filteredUploadList = GlobalVariables.otherAppDocumentList;
+
+        if(belowSizeFileList != null && belowSizeFileList.size() > 0)
+        {
+            if(fileSizeExceedList != null && fileSizeExceedList.size() > 0)
+            {
+                List<String> fileNameList = new ArrayList<>();
+                for(String filePath : fileSizeExceedList)
+                {
+                    File fileData = new File(filePath);
+                    fileNameList.add(fileData.getName());
+
+                }
+                String joinedString = TextUtils.join(", ", fileNameList);
+                Toast.makeText(context, joinedString+ " file(s) exceed more than "+PreferenceUtils.getMaxSizeUpload(context) + " MB", Toast.LENGTH_SHORT).show();
+            }
+
+            List<UploadModel> filteredDataList = new ArrayList<>();
+            for(UploadModel fileName : belowSizeFileList)
+            {
+                String pathName = fileName.getFilePath().substring(fileName.getFilePath().lastIndexOf(".")+1);
+                if(pathName != null && !pathName.equalsIgnoreCase(fileName.getFilePath()))
+                {
+                    UploadModel uploadModel = new UploadModel();
+                    uploadModel.setFilePath(fileName.getFilePath());
+                    filteredDataList.add(uploadModel);
+
+                }
+
+            }
+
+            ArrayList<String> fileFormatList = PreferenceUtils.getFileFormats(NavigationMyFolderActivity.this, "key");
+
+            List<UploadModel> OriginalUploadList = new ArrayList<>();
+            List<String> unSupportedFormatList = new ArrayList<>();
+            if(filteredDataList != null && filteredDataList.size() > 0)
+            {
+                for(UploadModel fileItem : filteredDataList)
+                {
+                    String[] fileParts = fileItem.getFilePath().split("\\.");
+                    String fileExtension = fileParts[fileParts.length - 1];
+
+                    for(String fileFormat : fileFormatList)
+                    {
+                        if(fileExtension.equalsIgnoreCase(fileFormat))
+                        {
+                            UploadModel uploadModel = new UploadModel();
+                            uploadModel.setFilePath(fileItem.getFilePath());
+                            OriginalUploadList.add(uploadModel);
+                        }
+                        else
+                        {
+                            unSupportedFormatList.add(fileExtension);
+                        }
+                    }
+                }
+
+            }
+
+            if(OriginalUploadList != null && OriginalUploadList.size() > 0)
+            {
+                if(unSupportedFormatList != null && unSupportedFormatList.size() > 0)
+                {
+                    List<String> fileNameList = new ArrayList<>();
+                    for(String filePath : unSupportedFormatList)
+                    {
+                        File fileData = new File(filePath);
+                        fileNameList.add(fileData.getName());
+
+                    }
+                    String joinedString = TextUtils.join(", ", fileNameList);
+                    Toast.makeText(context, joinedString +" file format(s) not supported", Toast.LENGTH_SHORT).show();
+                }
+
+                List<UploadModel> uploadedDAta = OriginalUploadList;
+                Intent intent1 = new Intent(NavigationMyFolderActivity.this, BackgroundUploadService.class);
+                intent1.putExtra("UploadedList", (ArrayList<UploadModel>)uploadedDAta);
+                startService(intent1);
+                cancel_textview.performClick();
+                finishAffinity();
+                System.exit(0);
+
+            }
+            else if(unSupportedFormatList != null && unSupportedFormatList.size() > 0)
+            {
+
+                List<String> fileNameList = new ArrayList<>();
+                for(String filePath : unSupportedFormatList)
+                {
+                    File fileData = new File(filePath);
+                    fileNameList.add(fileData.getName());
+
+                }
+
+                String joinedString = TextUtils.join(", ", fileNameList);
+                Toast.makeText(context, joinedString +" file format(s) not supported", Toast.LENGTH_SHORT).show();
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        //Do something after 5000ms
+                        callExitApp();
+                    }
+                }, 5000);
+
+            }
+        }
+        else if(fileSizeExceedList != null && fileSizeExceedList.size() > 0)
+        {
+            List<String> fileNameList = new ArrayList<>();
+            for(String filePath : fileSizeExceedList)
+            {
+                File fileData = new File(filePath);
+                fileNameList.add(fileData.getName());
+
+            }
+            String joinedString = TextUtils.join(", ", fileNameList);
+            Toast.makeText(context, joinedString+ " file(s) exceed more than "+PreferenceUtils.getMaxSizeUpload(context) + " MB", Toast.LENGTH_SHORT).show();
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    //Do something after 5000ms
+                    callExitApp();
+                }
+            }, 5000);
+
+        }
+    }
+
+    private void callExitApp() {
+        cancel_textview.performClick();
+        finishAffinity();
+        System.exit(0);
+    }
 
 }

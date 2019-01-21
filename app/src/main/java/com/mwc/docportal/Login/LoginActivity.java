@@ -77,27 +77,17 @@ public class LoginActivity extends RootActivity {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
 
-   /*     Intent intent = getIntent();
+        Intent intent = getIntent();
         String action = intent.getAction();
         String type = intent.getType();
 
         if (Intent.ACTION_SEND.equals(action) && type != null) {
             Uri imageUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
-            List<UploadModel> fileUploadList;
             if (imageUri != null) {
-                fileUploadList = GlobalVariables.otherAppDocumentList;
-                if(fileUploadList == null)
-                {
-                    fileUploadList = new ArrayList<>();
-                }
+                UploadModel fileUploadModel = new UploadModel();
                 String filePath = getRealPathFromURIPath(imageUri, context);
-
-               // String filePath = imageUri.getPath();
-                UploadModel uploadModel = new UploadModel();
-                uploadModel.setFilePath(String.valueOf(filePath));
-                fileUploadList.add(uploadModel);
-                GlobalVariables.otherAppDocumentList.addAll(fileUploadList);
-             //   PreferenceUtils.setImageUploadList(context,fileUploadList,"key");
+                fileUploadModel.setFilePath(filePath);
+                GlobalVariables.otherAppDocumentList.add(fileUploadModel);
             }
         }
         else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
@@ -107,8 +97,6 @@ public class LoginActivity extends RootActivity {
                 for (Uri fileUri : imageUrisList) {
 
                     String path = getRealPathFromURIPath(fileUri, context);
-                 //   String path = file.getPath();
-                 //   fileUploadList = GlobalVariables.otherAppDocumentList;
                     if(fileUploadList == null)
                     {
                         fileUploadList = new ArrayList<>();
@@ -117,8 +105,7 @@ public class LoginActivity extends RootActivity {
                     UploadModel uploadModel = new UploadModel();
                     uploadModel.setFilePath(path);
                     fileUploadList.add(uploadModel);
-                    
-                 //   PreferenceUtils.setImageUploadList(LoginActivity.this,fileUploadList,"key");
+
                 }
                 GlobalVariables.otherAppDocumentList.addAll(fileUploadList);
                 
@@ -129,7 +116,7 @@ public class LoginActivity extends RootActivity {
         {
             GlobalVariables.isMoveInitiated = true;
             GlobalVariables.selectedActionName = "upload";
-        }*/
+        }
 
 
         if(getIntent().getStringExtra("document_version_id") != null)

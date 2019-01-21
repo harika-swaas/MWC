@@ -268,16 +268,13 @@ public class SplashScreen extends RootActivity {
         if (requestCode == CREDENTIALS_RESULT) {
 
             if (resultCode == RESULT_OK) {
-
                 Intent intent = new Intent(context, NavigationMyFolderActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
-
-
             } else {
-              /*  GlobalVariables.isMoveInitiated = false;
+                GlobalVariables.isMoveInitiated = false;
                 GlobalVariables.otherAppDocumentList.clear();
-                GlobalVariables.selectedActionName = "";*/
+                GlobalVariables.selectedActionName = "";
                 Toast.makeText(context, "You have cancelled this action", Toast.LENGTH_SHORT).show();
                 finish();
                 moveTaskToBack(true);
@@ -407,9 +404,9 @@ public class SplashScreen extends RootActivity {
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               /* GlobalVariables.isMoveInitiated = false;
+                GlobalVariables.isMoveInitiated = false;
                 GlobalVariables.otherAppDocumentList.clear();
-                GlobalVariables.selectedActionName = "";*/
+                GlobalVariables.selectedActionName = "";
                 mAlertDialog.dismiss();
                 Toast.makeText(context, "You have cancelled this action.", Toast.LENGTH_SHORT).show();
                 finish();
