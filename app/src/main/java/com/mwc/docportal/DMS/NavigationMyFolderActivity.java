@@ -4973,6 +4973,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             if(fileSizeExceedList != null && fileSizeExceedList.size() > 0)
             {
                 List<String> fileNameList = new ArrayList<>();
+                fileNameList.clear();
                 for(String filePath : fileSizeExceedList)
                 {
                     File fileData = new File(filePath);
@@ -5000,7 +5001,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             ArrayList<String> fileFormatList = PreferenceUtils.getFileFormats(NavigationMyFolderActivity.this, "key");
 
             List<UploadModel> OriginalUploadList = new ArrayList<>();
-            List<String> unSupportedFormatList = new ArrayList<>();
+          //  List<String> unSupportedFormatList = new ArrayList<>();
             if(filteredDataList != null && filteredDataList.size() > 0)
             {
                 for(UploadModel fileItem : filteredDataList)
@@ -5016,10 +5017,6 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                             uploadModel.setFilePath(fileItem.getFilePath());
                             OriginalUploadList.add(uploadModel);
                         }
-                        else
-                        {
-                            unSupportedFormatList.add(fileExtension);
-                        }
                     }
                 }
 
@@ -5027,9 +5024,10 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
             if(OriginalUploadList != null && OriginalUploadList.size() > 0)
             {
-                if(unSupportedFormatList != null && unSupportedFormatList.size() > 0)
+               /* if(unSupportedFormatList != null && unSupportedFormatList.size() > 0)
                 {
                     List<String> fileNameList = new ArrayList<>();
+                    fileNameList.clear();
                     for(String filePath : unSupportedFormatList)
                     {
                         File fileData = new File(filePath);
@@ -5038,30 +5036,27 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                     }
                     String joinedString = TextUtils.join(", ", fileNameList);
                     Toast.makeText(context, joinedString +" file format(s) not supported", Toast.LENGTH_SHORT).show();
-                }
+                }*/
 
                 List<UploadModel> uploadedDAta = OriginalUploadList;
                 Intent intent1 = new Intent(NavigationMyFolderActivity.this, BackgroundUploadService.class);
                 intent1.putExtra("UploadedList", (ArrayList<UploadModel>)uploadedDAta);
                 startService(intent1);
-                cancel_textview.performClick();
-                finishAffinity();
-                System.exit(0);
+                callExitApp();
 
             }
-            else if(unSupportedFormatList != null && unSupportedFormatList.size() > 0)
+            else
             {
-
-                List<String> fileNameList = new ArrayList<>();
+                /*List<String> fileNameList = new ArrayList<>();
+                fileNameList.clear();
                 for(String filePath : unSupportedFormatList)
                 {
                     File fileData = new File(filePath);
                     fileNameList.add(fileData.getName());
-
                 }
 
-                String joinedString = TextUtils.join(", ", fileNameList);
-                Toast.makeText(context, joinedString +" file format(s) not supported", Toast.LENGTH_SHORT).show();
+                String joinedString = TextUtils.join(", ", fileNameList);*/
+                Toast.makeText(context, "File format(s) not supported", Toast.LENGTH_SHORT).show();
                 final Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {
                     @Override
@@ -5076,6 +5071,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         else if(fileSizeExceedList != null && fileSizeExceedList.size() > 0)
         {
             List<String> fileNameList = new ArrayList<>();
+            fileNameList.clear();
             for(String filePath : fileSizeExceedList)
             {
                 File fileData = new File(filePath);

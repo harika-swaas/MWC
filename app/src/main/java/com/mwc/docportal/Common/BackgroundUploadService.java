@@ -1,19 +1,29 @@
 package com.mwc.docportal.Common;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.Button;
 import android.widget.RemoteViews;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -27,8 +37,10 @@ import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
+import com.mwc.docportal.Utils.Constants;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.RequestBody;
+import com.vincent.filepicker.Constant;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -41,26 +53,20 @@ import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
 
-import static com.mwc.docportal.Utils.Constants.CHANNEL_ID;
 
 public class BackgroundUploadService extends IntentService
 {
     int index = 0;
     List<UploadModel> uploadDataList;
-
     int notificationId = 1234;
     private NotificationManager mNotifyManager;
     private NotificationCompat.Builder mBuilder;
-
-
-    /**
-     * Creates an IntentService.  Invoked by your subclass's constructor.
-     *
-     * @param name Used to name the worker thread, important only for debugging.
-     */
+    List<UploadModel> uploadFailedList;
+    private Context mContext;
+    public static final String TAG = "FCMNotification";
+  //  UploadNotificationReceiver uploadNotificationReceiver;
     public BackgroundUploadService(String name) {
         super(name);
-
     }
 
     public BackgroundUploadService() {
@@ -70,17 +76,30 @@ public class BackgroundUploadService extends IntentService
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
         uploadDataList = (ArrayList<UploadModel>)intent.getSerializableExtra("UploadedList");
-        startInForeground();
-        if(uploadDataList.size()> index) {
-            uploadData(uploadDataList.get(index).getFilePath());
+        if(uploadDataList != null && uploadDataList.size() > 0)
+        {
+            List<UploadModel> removeingList;
+            removeingList = PreferenceUtils.getImageUploadList(mContext, "key");
+            if(removeingList ==  null)
+            {
+                removeingList = new ArrayList<>();
+            }
+            removeingList.addAll(uploadDataList);
+            PreferenceUtils.setImageUploadList(mContext, removeingList,"key");
+
+            uploadFailedList = new ArrayList<>();
+            uploadFailedList.clear();
+            startNotification();
+            if(uploadDataList.size()> index) {
+                uploadData(uploadDataList.get(index).getFilePath());
+            }
         }
     }
 
-    private void startInForeground()
+    private void startNotification()
     {
         mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        int notificationId = 123456;
         String channelId = "channel-01";
         String channelName = "Channel Name";
         int importance = NotificationManager.IMPORTANCE_HIGH;
@@ -94,12 +113,21 @@ public class BackgroundUploadService extends IntentService
             }
         }
 
-        mBuilder = new NotificationCompat.Builder(BackgroundUploadService.this, channelId);
-        mBuilder.setContentTitle("Uploading to Doc Portal")
+        Intent snoozeIntent = new Intent();
+        snoozeIntent.setAction(Constants.ACTION_CANCEL);
+        snoozeIntent.setClass(this, UploadNotificationReceiver.class);
+     //   snoozeIntent.putExtra("notificationId", "COM.MWC.DOCPORTAL.NOTIFICATON");
+      //  snoozeIntent.putExtra("notificationChannelId", channelId);
+        PendingIntent snoozePendingIntent =
+                PendingIntent.getBroadcast(this, notificationId, snoozeIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+
+
+        mBuilder = new NotificationCompat.Builder(mContext, channelId);
+        mBuilder.setContentTitle("Uploading to "+getResources().getString(R.string.app_name))
                 .setContentText(uploadDataList.size()+" file(s)")
                 .setSmallIcon(R.mipmap.ic_notification_icon)
-                .setOnlyAlertOnce(true);
-
+                .setOnlyAlertOnce(true)
+                .addAction(R.mipmap.ic_cancel_btn, "CANCEL", snoozePendingIntent);
 
         if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             mBuilder.setLargeIcon(BitmapFactory.decodeResource(getResources(),
@@ -107,51 +135,26 @@ public class BackgroundUploadService extends IntentService
         }
         // must set color for notification icon
         mBuilder.setColor(getResources().getColor(R.color.notification_icon_color));
+        mBuilder.setProgress(uploadDataList.size(), index, false);
+        if(uploadDataList.size() == 1)
+        {
+            mBuilder.setContentText(uploadDataList.size()+" file remaining");
+        }
+        else
+        {
+            mBuilder.setContentText(uploadDataList.size()+" files remaining");
+        }
 
-
-
-        mBuilder.setProgress(100, 5, false);
         // Displays the progress bar for the first time.
         assert mNotifyManager != null;
-        mNotifyManager.notify(notificationId, mBuilder.build());
-
-        // Start a the operation in a background thread
-      /*  new Thread(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        int incr;
-                        // Do the "lengthy" operation 20 times
-                        for (incr = 0; incr <= 100; incr+=5) {
-                            // Sets the progress indicator to a max value, the current completion percentage and "determinate" state
-                            mBuilder.setProgress(100, incr, false);
-                            // Displays the progress bar for the first time.
-                            mNotifyManager.notify(notificationId, mBuilder.build());
-                            // Sleeps the thread, simulating an operation
-                            try {
-                                // Sleep for 1 second
-                                Thread.sleep(1*1000);
-                            } catch (InterruptedException e) {
-                                Log.d("TAG", "sleep failure");
-                            }
-                        }
-                        // When the loop is finished, updates the notification
-                        mBuilder.setContentTitle("Upload complete")
-                                .setContentText(uploadDataList.size()+" file(s) uploaded")
-                                // Removes the progress bar
-                                .setProgress(0,0,false);
-                        mNotifyManager.notify(notificationId, mBuilder.build());
-                    }
-                }
-                // Starts the thread by calling the run() method in its Runnable
-        ).start();*/
+        mNotifyManager.notify(TAG,notificationId, mBuilder.build());
     }
 
 
     private void uploadData(String filePath)
     {
-        if (NetworkUtils.isNetworkAvailable(BackgroundUploadService.this)) {
-
+        if(checkIfNetworkAvailable(BackgroundUploadService.this))
+        {
             File file = new File(filePath);
 
             Retrofit retrofitAPI = RetrofitAPIBuilder.getUploadInstance();
@@ -195,11 +198,11 @@ public class BackgroundUploadService extends IntentService
                             double status_value = new Double(response.body().getStatus().getCode().toString());
                             if (status_value == 401.3)
                             {
-                            //    showAlertDialogForAccessDenied(context, message);
+                                uploadFailedMessage("Access denied");
                             }
                             else if(status_value ==  401 || status_value ==  401.0)
                             {
-                            //    showAlertDialogForSessionExpiry(context, message);
+                                uploadFailedMessage("Session expired");
                             }
                         }
                         else if(response.body().getStatus().getCode() instanceof Integer)
@@ -207,103 +210,172 @@ public class BackgroundUploadService extends IntentService
                             int integerValue = new Integer(response.body().getStatus().getCode().toString());
                             if(integerValue ==  401)
                             {
-                            //  showAlertDialogForSessionExpiry(context, message);
+                                uploadFailedMessage("Session expired");
                             }
                         }
                         else if(response.body().getStatus().getCode() instanceof Boolean)
                         {
                             if (response.body().getStatus().getCode() == Boolean.TRUE)
                             {
-                                /*if(!((Activity) context ).isFinishing())
-                                {
-                                    showAlertMessage(apiResponse.getStatus().getMessage(), false, "");
-                                }
+                                if(PreferenceUtils.getNotificationDelete(mContext) == null || PreferenceUtils.getNotificationDelete(mContext).isEmpty()) {
+                                    UploadModel uploadModel = new UploadModel();
+                                    uploadModel.setFilePath(uploadDataList.get(index).getFilePath());
+                                    uploadFailedList.add(uploadModel);
+                                    PreferenceUtils.setImageUploadList(BackgroundUploadService.this, uploadFailedList, "key");
 
-                                UploadModel uploadModel = new UploadModel();
-                                uploadModel.setFilePath(UploadList.get(index).getFilePath());
-                                uploadFailedList.add(uploadModel);
-                                PreferenceUtils.setImageUploadList(context, uploadFailedList, "key");
 
-                                UploadList.get(index).setFailure(true);
-                                customAdapter.notifyDataSetChanged();
+                                    index++;
+                                    mBuilder.setProgress(uploadDataList.size(), index, false);
+                                    // Displays the progress bar for the first time.
 
-                                index++;
+                                    assert mNotifyManager != null;
+                                    mNotifyManager.notify(TAG, notificationId, mBuilder.build());
 
-                                if(uploadDataList.size()> index) {
-                                    uploadData(uploadDataList.get(index).getFilePath());
+                                    if (uploadDataList.size() > index) {
+                                        uploadData(uploadDataList.get(index).getFilePath());
+                                    } else {
+                                        index = 0;
+                                        mBuilder.setContentTitle("Upload complete")
+                                                .setContentText(uploadDataList.size() + " file(s) uploaded")
+                                                .setProgress(0, 0, false)
+                                                .mActions.clear();
+                                        assert mNotifyManager != null;
+                                        mNotifyManager.notify(TAG, notificationId, mBuilder.build());
+                                        stopSelf();
+                                    }
                                 }
                                 else
                                 {
-                                    index = 0;
-                                    failedListDataMessage();
-                                }*/
+                                   clearNotification();
+                                }
 
                             }
                             else {
-                                index++;
-                               int progress = (int)((index / (float) uploadDataList.size()) * 100);
-                                mBuilder.setProgress(100, progress, false);
-                                // Displays the progress bar for the first time.
-                                assert mNotifyManager != null;
-                                mNotifyManager.notify(notificationId, mBuilder.build());
-                                // Sleeps the thread, simulating an operation
 
-                                     if(uploadDataList.size()> index) {
-                                     uploadData(uploadDataList.get(index).getFilePath());
+                                if(PreferenceUtils.getNotificationDelete(mContext) == null || PreferenceUtils.getNotificationDelete(mContext).isEmpty())
+                                {
+                                    List<UploadModel> removeingList = new ArrayList<>();
+                                    removeingList = PreferenceUtils.getImageUploadList(mContext, "key");
+                                    if (removeingList.size() > 0) {
+                                        removeingList.remove(0);
+                                        PreferenceUtils.setImageUploadList(mContext, removeingList, "key");
+                                    }
+
+
+                                    index++;
+                                    mBuilder.setProgress(uploadDataList.size(), index, false);
+
+                                    if (uploadDataList.size() > 1) {
+                                        if (index == 1) {
+                                            mBuilder.setContentText(uploadDataList.size() - index + " file(s) remaining; " + index + " file added");
+                                        } else {
+                                            mBuilder.setContentText(uploadDataList.size() - index + " file(s) remaining; " + index + " files added");
+                                        }
+                                    } else {
+                                        mBuilder.setContentText("1 file remaining");
+                                    }
+
+                                    assert mNotifyManager != null;
+                                    mNotifyManager.notify(TAG, notificationId, mBuilder.build());
+
+                                    if (uploadDataList.size() > index) {
+                                        uploadData(uploadDataList.get(index).getFilePath());
+                                    } else {
+                                        index = 0;
+                                        mBuilder.setContentTitle("Upload complete")
+                                                .setContentText(uploadDataList.size() + " file(s) uploaded")
+                                                .setProgress(0, 0, false)
+                                                .mActions.clear();
+                                        assert mNotifyManager != null;
+                                        mNotifyManager.notify(TAG, notificationId, mBuilder.build());
+                                        stopSelf();
+                                    }
                                 }
                                 else
                                 {
-                                    index = 0;
-
-                                    mBuilder.setContentTitle("Upload complete")
-                                            .setContentText(uploadDataList.size()+" file(s) uploaded")
-                                            // Removes the progress bar
-                                            .setProgress(0,0,false);
-                                    assert mNotifyManager != null;
-                                    mNotifyManager.notify(notificationId, mBuilder.build());
-
-                                //    uploadCompleted();
-                                    stopSelf();
+                                    clearNotification();
                                 }
                             }
 
                         }
 
                     }
-                   /* else {
-                        if(transparentProgressDialog.isShowing())
-                        {
-                            transparentProgressDialog.dismiss();
-                        }
-                        CommonFunctions.serverErrorExceptions(context, response.code());
-                    }*/
+                    else {
+                        uploadFailedMessage("Error");
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     Log.d("Message", t.getMessage());
-                    /*if(transparentProgressDialog.isShowing())
-                    {
-                        transparentProgressDialog.dismiss();
-                    }*/
-                    CommonFunctions.showTimeOutError(BackgroundUploadService.this, t);
+                    uploadFailedMessage("Error");
                 }
             });
         }
+
     }
 
-   /* private void uploadCompleted()
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        mContext = getApplicationContext();
+        return super.onStartCommand(intent, flags, startId);
+    }
+
+
+    public  boolean checkIfNetworkAvailable(final Context ctx) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) ctx
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        if ((connectivityManager
+                .getNetworkInfo(ConnectivityManager.TYPE_MOBILE) != null && connectivityManager
+                .getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED)
+                || (connectivityManager
+                .getNetworkInfo(ConnectivityManager.TYPE_WIFI) != null && connectivityManager
+                .getNetworkInfo(ConnectivityManager.TYPE_WIFI)
+                .getState() == NetworkInfo.State.CONNECTED)) {
+            return true;
+        }
+        return false;
+    }
+
+    public void uploadFailedMessage(String uploadMessage)
     {
-       *//* Intent intent = new Intent(NOTIFICATION);
-        intent.putExtra("Result", Activity.RESULT_OK);
-        sendBroadcast(intent);*//*
+        mBuilder.setContentTitle("Upload failed")
+                .setContentText(uploadMessage)
+                .setProgress(0,0,false);
 
-        Intent broadcastIntent = new Intent();
-        broadcastIntent.setAction(NavigationMyFolderActivity.mBroadcastStringAction);
-      //  broadcastIntent.putExtra("Data", "Broadcast Data");
-        sendBroadcast(broadcastIntent);
+        assert mNotifyManager != null;
+        mNotifyManager.notify(TAG, notificationId, mBuilder.build());
+        stopSelf();
     }
-*/
+
+
+    /*@Override
+    public void onCreate(){
+        super.onCreate();
+
+        uploadNotificationReceiver = new UploadNotificationReceiver();
+        IntentFilter intentFilter =  new IntentFilter();
+        intentFilter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
+        intentFilter.addAction(Constants.ACTION_CANCEL);
+        this.registerReceiver(uploadNotificationReceiver, intentFilter);
+    }*/
+
+   /* @Override
+    public void onDestroy() {
+        super.onDestroy();
+        try {
+            this.unregisterReceiver(uploadNotificationReceiver);
+        } catch (Exception e){
+            // already unregistered
+        }
+    }*/
+
+    public void clearNotification()
+    {
+        index = 0;
+        stopSelf();
+        PreferenceUtils.setNotificationDelete(mContext, null);
+    }
 
 
 }

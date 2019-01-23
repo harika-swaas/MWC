@@ -149,6 +149,12 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name=".Common.UploadNotificationReceiver">
+            <intent-filter>
+                <action android:name="com.mwc.docportal.CANCEL"/>
+            </intent-filter>
+        </receiver>
+
         <!--
         <provider
             android:name="android.support.v4.content.FileProvider"

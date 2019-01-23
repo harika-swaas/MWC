@@ -7,7 +7,7 @@ package com.mwc.docportal.Utils;
 public class Constants {
 
     // ***************************** Testing ********************************************
-    /* public static final String COMPANY_BASE_URL = "http://172.16.40.50";
+   /*  public static final String COMPANY_BASE_URL = "http://172.16.40.50";
      public static final String LOGO_IMAGE_BASE_URL = "http://172.16.40.51";*/
 
     // ***************************** UAT ********************************************
@@ -86,6 +86,8 @@ public class Constants {
 
     public static final String QUICK_SHARE_MSG = "You are about to share the selected file(s). Do you wish to proceed?";
     public static final String NO_SORTING_TEXT = "Sort";
+
+    public static final String ACTION_CANCEL = "com.mwc.docportal.CANCEL";
 
 }
 

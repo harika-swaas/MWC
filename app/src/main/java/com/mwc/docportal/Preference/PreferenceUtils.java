@@ -58,6 +58,7 @@ public class PreferenceUtils {
     private static final String SETTINGS_LOGO_IMAGE_PATH = "settings_logo_image_path";
 
     private static final String ISFROM_PUSHNOTIFICATION = "isFrom_PushNotification";
+    private static final String NOTIFICATION_DELETE = "Notification_Delete";
 
 
     public static void setAccessToken(Context context, String accesstoken) {
@@ -529,6 +530,21 @@ public class PreferenceUtils {
         Type type = new TypeToken<List<UploadModel>>() {}.getType();
         return gson.fromJson(json, type);
     }
+
+
+    public static void setNotificationDelete(Context context, String notificationDelete) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(NOTIFICATION_DELETE, notificationDelete);
+        editor.commit();
+    }
+
+    public static String getNotificationDelete(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        String notificationDelete = sharedPreferences.getString(NOTIFICATION_DELETE, null);
+        return notificationDelete;
+    }
+
 
 
 }
