@@ -2,7 +2,6 @@ package com.mwc.docportal.Login;
 
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.KeyguardManager;
 import android.content.ContentResolver;
@@ -15,37 +14,28 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
 import com.mwc.docportal.API.Model.AccountSettingsResponse;
-import com.mwc.docportal.API.Model.ConfirmPasswordRequestModel;
-import com.mwc.docportal.API.Model.ConfirmPasswordResponseModel;
 import com.mwc.docportal.API.Model.UploadModel;
-import com.mwc.docportal.API.Service.UploadNewFolderService;
 import com.mwc.docportal.Common.GlobalVariables;
-import com.mwc.docportal.DMS.NavigationMyFolderActivity;
-import com.mwc.docportal.DMS.UploadListActivity;
+import com.mwc.docportal.Common.PathUtil;
 import com.mwc.docportal.Database.AccountSettings;
-import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.Fragments.LoginFragment;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
 import com.mwc.docportal.RootActivity;
 import com.mwc.docportal.Utils.Constants;
 import com.mwc.docportal.Utils.SplashScreen;
-import com.vincent.filepicker.filter.entity.ImageFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,10 +74,22 @@ public class LoginActivity extends RootActivity {
         if (Intent.ACTION_SEND.equals(action) && type != null) {
             Uri imageUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
             if (imageUri != null) {
-                UploadModel fileUploadModel = new UploadModel();
-                String filePath = getRealPathFromURIPath(imageUri, context);
-                fileUploadModel.setFilePath(filePath);
-                GlobalVariables.otherAppDocumentList.add(fileUploadModel);
+                String filePath;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    filePath = getRealImagePathFromURI(imageUri);
+                }
+                else
+                {
+                 //   filePath = getRealPathFromURIPath(imageUri, context);
+                    filePath = PathUtil.getPath(context, imageUri);
+                }
+
+                if(filePath != null)
+                {
+                    UploadModel fileUploadModel = new UploadModel();
+                    fileUploadModel.setFilePath(filePath);
+                    GlobalVariables.otherAppDocumentList.add(fileUploadModel);
+                }
             }
         }
         else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
@@ -95,20 +97,33 @@ public class LoginActivity extends RootActivity {
             ArrayList<Uri> imageUrisList = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
             if (imageUrisList != null) {
                 for (Uri fileUri : imageUrisList) {
-
-                    String path = getRealPathFromURIPath(fileUri, context);
+                    String path;
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                        path = getRealImagePathFromURI(fileUri);
+                    }
+                    else
+                    {
+                        path = PathUtil.getPath(context, fileUri);
+                    }
+                 //   String path = getRealPathFromURIPath(fileUri, context);
                     if(fileUploadList == null)
                     {
                         fileUploadList = new ArrayList<>();
                     }
 
-                    UploadModel uploadModel = new UploadModel();
-                    uploadModel.setFilePath(path);
-                    fileUploadList.add(uploadModel);
+                    if(path != null)
+                    {
+                        UploadModel uploadModel = new UploadModel();
+                        uploadModel.setFilePath(path);
+                        fileUploadList.add(uploadModel);
+                    }
 
                 }
-                GlobalVariables.otherAppDocumentList.addAll(fileUploadList);
-                
+
+                if(fileUploadList != null && fileUploadList.size() >0)
+                {
+                    GlobalVariables.otherAppDocumentList.addAll(fileUploadList);
+                }
             }
         }
 
@@ -517,6 +532,51 @@ public class LoginActivity extends RootActivity {
             }
         }
         return data;
+    }
+
+
+    public String getRealImagePathFromURI(final Uri uri)
+    {
+        Uri queryUri = MediaStore.Files.getContentUri("external");
+        String columnData = MediaStore.Files.FileColumns.DATA;
+        String columnSize = MediaStore.Files.FileColumns.SIZE;
+
+        String[] projectionData = {MediaStore.Files.FileColumns.DATA};
+
+        String name = null;
+        String size = null;
+        String path = null;
+
+        Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+        if ((cursor != null)&&(cursor.getCount()>0)) {
+            int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+            int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
+
+            cursor.moveToFirst();
+
+            name = cursor.getString(nameIndex);
+            size = cursor.getString(sizeIndex);
+
+            cursor.close();
+        }
+
+        if ((name!=null)&&(size!=null)){
+            String selectionNS = columnData + " LIKE '%" + name + "' AND " +columnSize + "='" + size +"'";
+
+            Cursor cursorLike = getContentResolver().query(queryUri, projectionData, selectionNS, null, null);
+
+            if ((cursorLike != null)&&(cursorLike.getCount()>0)) {
+                cursorLike.moveToFirst();
+                int indexData = cursorLike.getColumnIndex(columnData);
+                if (cursorLike.getString(indexData) != null) {
+                    path = cursorLike.getString(indexData);
+                }
+                cursorLike.close();
+            }
+        }
+
+        return path;
+
     }
 
 

@@ -33,6 +33,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -48,6 +49,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.google.gson.Gson;
 import com.mwc.docportal.API.Model.UploadModel;
+import com.mwc.docportal.Common.BackgroundUploadService;
 import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
@@ -277,7 +279,7 @@ public class UploadListActivity extends RootActivity {
             @Override
             public void onClick(View v) {
                 mAlertDialog.dismiss();
-                if(transparentProgressDialog != null)
+               /* if(transparentProgressDialog != null)
                 {
                     transparentProgressDialog.show();
                 }
@@ -294,7 +296,7 @@ public class UploadListActivity extends RootActivity {
                         uploadItem.setYetToStart(true);
                         customAdapter.notifyDataSetChanged();
                     }
-                }
+                }*/
 
                 uploadDocuments();
                 upload_layout.setVisibility(View.GONE);
@@ -924,7 +926,7 @@ public class UploadListActivity extends RootActivity {
     @Override
     public void onBackPressed() {
 
-          if(PreferenceUtils.getImageUploadList(context, "key") != null && PreferenceUtils.getImageUploadList(context, "key").size() > 0)
+         /* if(PreferenceUtils.getImageUploadList(context, "key") != null && PreferenceUtils.getImageUploadList(context, "key").size() > 0)
            {
                showUploadWarningMessage();
            }
@@ -937,7 +939,14 @@ public class UploadListActivity extends RootActivity {
               intent.putExtra("IsFromUpload", "Upload");
               startActivity(intent);
               finish();
-           }
+           }*/
+        gotoPreviousPage();
+
+      /*  Intent intent=new Intent(UploadListActivity.this,NavigationMyFolderActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intent.putExtra("IsFromUpload", "Upload");
+        startActivity(intent);
+        finish();*/
     }
 
     private void showUploadWarningMessage()
@@ -1120,19 +1129,96 @@ public class UploadListActivity extends RootActivity {
 
     private void uploadDocuments()
     {
-        if (NetworkUtils.isNetworkAvailable(context)) {
+        List<String> fileSizeExceedList = new ArrayList<>();
+        List<UploadModel> belowSizeFileList = new ArrayList<>();
+        List<UploadModel> uploadDocumentList;
+
+        uploadDocumentList = PreferenceUtils.getImageUploadList(context, "key");
+        if(uploadDocumentList == null)
+        {
+            uploadDocumentList = new ArrayList<>();
+        }
+
+        List<UploadModel> uploadlist = new ArrayList<>();
+        PreferenceUtils.setImageUploadList(context, uploadlist, "key");
+
+        if(uploadDocumentList != null && uploadDocumentList.size() > 0)
+        {
+            String size = PreferenceUtils.getMaxSizeUpload(UploadListActivity.this);
+            float sizeAPI = Float.parseFloat(size);
+            for(UploadModel fileItem : uploadDocumentList)
+            {
+                File file = new File(fileItem.getFilePath());
+                float file_size = Float.parseFloat(String.valueOf(file.length() / 1024 / 1024));
+                if (file_size > sizeAPI) {
+                    fileSizeExceedList.add(fileItem.getFilePath());
+                }
+                else
+                {
+                    UploadModel uploadModel = new UploadModel();
+                    uploadModel.setFilePath(fileItem.getFilePath());
+                    belowSizeFileList.add(uploadModel);
+                }
+            }
+        }
+
+        if(belowSizeFileList != null && belowSizeFileList.size() > 0)
+        {
+            if(fileSizeExceedList != null && fileSizeExceedList.size() > 0)
+            {
+                List<String> fileNameList = new ArrayList<>();
+                fileNameList.clear();
+                for(String filePath : fileSizeExceedList)
+                {
+                    File fileData = new File(filePath);
+                    fileNameList.add(fileData.getName());
+
+                }
+                String joinedString = TextUtils.join(", ", fileNameList);
+                Toast.makeText(context, joinedString+ " file(s) exceed more than "+PreferenceUtils.getMaxSizeUpload(context) + " MB", Toast.LENGTH_SHORT).show();
+            }
+
+            Intent intent1 = new Intent(UploadListActivity.this, BackgroundUploadService.class);
+            intent1.putExtra("UploadedList", (ArrayList<UploadModel>)belowSizeFileList);
+            startService(intent1);
+            gotoPreviousPage();
+
+        }
+        else if(fileSizeExceedList != null && fileSizeExceedList.size() > 0)
+        {
+            List<String> fileNameList = new ArrayList<>();
+            fileNameList.clear();
+            for(String filePath : fileSizeExceedList)
+            {
+                File fileData = new File(filePath);
+                fileNameList.add(fileData.getName());
+
+            }
+            String joinedString = TextUtils.join(", ", fileNameList);
+            Toast.makeText(context, joinedString+ " file(s) exceed more than "+PreferenceUtils.getMaxSizeUpload(context) + " MB", Toast.LENGTH_SHORT).show();
+
+            customAdapter = new UploadListAdapter(UploadListActivity.this, UploadList);
+            upload_list.setAdapter(customAdapter);
+
+            empty_view.setVisibility(View.VISIBLE);
+            upload_layout.setVisibility(View.GONE);
+        }
+
+
+
+       /* if (NetworkUtils.isNetworkAvailable(context)) {
             int choosenFilesCount = PreferenceUtils.getImageUploadList(UploadListActivity.this, "key").size();
             menuItemAdd.setVisible(false);
             menuItemUpload.setVisible(false);
             upload_textview.setVisibility(View.GONE);
             Boolean isError = false;
 
-           /* if (choosenFilesCount > 10) {
+           *//* if (choosenFilesCount > 10) {
                 if(!((Activity) context ).isFinishing()) {
                     showAlertMessage("Please select less then 10 documents", false, "");
                 }
                 isError = true;
-            } else {*/
+            } else {*//*
                 for (int i = 0; i < choosenFilesCount; i++) {
                     File file = new File(UploadList.get(i).getFilePath());
                     float file_size = Float.parseFloat(String.valueOf(file.length() / 1024 / 1024));
@@ -1185,7 +1271,7 @@ public class UploadListActivity extends RootActivity {
                     upload_textview.setVisibility(View.VISIBLE);
                 }
         //    }
-        }
+        }*/
 
     }
 
@@ -1585,6 +1671,15 @@ public class UploadListActivity extends RootActivity {
                     }
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert).create();
+    }
+
+    public void gotoPreviousPage()
+    {
+        Intent intent=new Intent(UploadListActivity.this,NavigationMyFolderActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intent.putExtra("IsFromUpload", "Upload");
+        startActivity(intent);
+        finish();
     }
 
 }

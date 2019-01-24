@@ -348,28 +348,6 @@ public class BackgroundUploadService extends IntentService
         stopSelf();
     }
 
-
-    /*@Override
-    public void onCreate(){
-        super.onCreate();
-
-        uploadNotificationReceiver = new UploadNotificationReceiver();
-        IntentFilter intentFilter =  new IntentFilter();
-        intentFilter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
-        intentFilter.addAction(Constants.ACTION_CANCEL);
-        this.registerReceiver(uploadNotificationReceiver, intentFilter);
-    }*/
-
-   /* @Override
-    public void onDestroy() {
-        super.onDestroy();
-        try {
-            this.unregisterReceiver(uploadNotificationReceiver);
-        } catch (Exception e){
-            // already unregistered
-        }
-    }*/
-
     public void clearNotification()
     {
         index = 0;
