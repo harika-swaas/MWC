@@ -852,7 +852,6 @@ public class NavigationSettingsActivity extends BaseActivity {
             case android.R.id.home:
                 onBackPressed();
                 break;
-
         }
         return super.onOptionsItemSelected(item);
     }
@@ -922,8 +921,5 @@ public class NavigationSettingsActivity extends BaseActivity {
                 }
             });
         }
-
     }
-
-
 }

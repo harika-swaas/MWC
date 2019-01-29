@@ -7,6 +7,7 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -33,6 +34,7 @@ import com.mwc.docportal.API.Model.UploadModel;
 import com.mwc.docportal.API.Service.UploadEndUsersDocumentService;
 import com.mwc.docportal.DMS.NavigationMyFolderActivity;
 import com.mwc.docportal.DMS.UploadListActivity;
+import com.mwc.docportal.Login.LoginActivity;
 import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
@@ -113,21 +115,31 @@ public class BackgroundUploadService extends IntentService
             }
         }
 
+        mBuilder = new NotificationCompat.Builder(mContext, channelId);
+        // This is for cancel action Click
         Intent snoozeIntent = new Intent();
         snoozeIntent.setAction(Constants.ACTION_CANCEL);
         snoozeIntent.setClass(this, UploadNotificationReceiver.class);
-     //   snoozeIntent.putExtra("notificationId", "COM.MWC.DOCPORTAL.NOTIFICATON");
-      //  snoozeIntent.putExtra("notificationChannelId", channelId);
         PendingIntent snoozePendingIntent =
                 PendingIntent.getBroadcast(this, notificationId, snoozeIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
 
-        mBuilder = new NotificationCompat.Builder(mContext, channelId);
+        // This is for Notification Click
+        Intent  intent = new Intent(this,LoginActivity.class);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addNextIntent(intent);
+        PendingIntent pendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        mBuilder.setContentIntent(pendingIntent);
+
+
+
         mBuilder.setContentTitle("Uploading to "+getResources().getString(R.string.app_name))
                 .setContentText(uploadDataList.size()+" file(s)")
                 .setSmallIcon(R.mipmap.ic_notification_icon)
                 .setOnlyAlertOnce(true)
                 .addAction(R.mipmap.ic_cancel_btn, "CANCEL", snoozePendingIntent);
+
+
 
         if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             mBuilder.setLargeIcon(BitmapFactory.decodeResource(getResources(),
@@ -234,14 +246,7 @@ public class BackgroundUploadService extends IntentService
                                     if (uploadDataList.size() > index) {
                                         uploadData(uploadDataList.get(index).getFilePath());
                                     } else {
-                                        index = 0;
-                                        mBuilder.setContentTitle("Upload complete")
-                                                .setContentText(uploadDataList.size() + " file(s) uploaded")
-                                                .setProgress(0, 0, false)
-                                                .mActions.clear();
-                                        assert mNotifyManager != null;
-                                        mNotifyManager.notify(TAG, notificationId, mBuilder.build());
-                                        stopSelf();
+                                        uploadCompleteMessage();
                                     }
                                 }
                                 else
@@ -281,14 +286,7 @@ public class BackgroundUploadService extends IntentService
                                     if (uploadDataList.size() > index) {
                                         uploadData(uploadDataList.get(index).getFilePath());
                                     } else {
-                                        index = 0;
-                                        mBuilder.setContentTitle("Upload complete")
-                                                .setContentText(uploadDataList.size() + " file(s) uploaded")
-                                                .setProgress(0, 0, false)
-                                                .mActions.clear();
-                                        assert mNotifyManager != null;
-                                        mNotifyManager.notify(TAG, notificationId, mBuilder.build());
-                                        stopSelf();
+                                        uploadCompleteMessage();
                                     }
                                 }
                                 else
@@ -308,11 +306,33 @@ public class BackgroundUploadService extends IntentService
                 @Override
                 public void onFailure(Throwable t) {
                     Log.d("Message", t.getMessage());
-                    uploadFailedMessage("Error");
+                    uploadFailedMessage("Try again after sometime");
                 }
             });
         }
 
+    }
+
+    private void uploadCompleteMessage()
+    {
+        index = 0;
+        if(uploadDataList.size() == 1)
+        {
+            mBuilder.setContentTitle("Upload completed")
+                    .setContentText(uploadDataList.size() + " file uploaded.")
+                    .setProgress(0, 0, false)
+                    .mActions.clear();
+        }
+        else
+        {
+            mBuilder.setContentTitle("Upload completed")
+                    .setContentText(uploadDataList.size() + " files uploaded.")
+                    .setProgress(0, 0, false)
+                    .mActions.clear();
+        }
+        assert mNotifyManager != null;
+        mNotifyManager.notify(TAG, notificationId, mBuilder.build());
+        stopSelf();
     }
 
     @Override
@@ -341,8 +361,8 @@ public class BackgroundUploadService extends IntentService
     {
         mBuilder.setContentTitle("Upload failed")
                 .setContentText(uploadMessage)
-                .setProgress(0,0,false);
-
+                .setProgress(0,0,false)
+                .mActions.clear();
         assert mNotifyManager != null;
         mNotifyManager.notify(TAG, notificationId, mBuilder.build());
         stopSelf();

@@ -1654,8 +1654,6 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                                 StrictMode.ThreadPolicy policy =  new StrictMode.ThreadPolicy.Builder().permitAll().build();
                                 StrictMode.setThreadPolicy(policy);
                             }
-
-
                             categoryDocumentsResponse.setDownloadUrl(downloaded_url+"&token="+base64AccessToken);
                             getDownloadManagerForDownloading(categoryDocumentsResponse, isFromshare);
                         }
@@ -1686,7 +1684,6 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                 fileDownloadManager.setmFileDownloadListener(new FileDownloadManager.FileDownloadListener() {
                     @Override
                     public void fileDownloadSuccess(String path) {
-
                         if(isFromStatus400)
                         {
                             if(isFromDocumentShare)
@@ -1728,7 +1725,6 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                         {
                             CommonFunctions.showSuccessfullyDownloaded(context);
                         }
-
 
                     }
 

@@ -547,7 +547,6 @@ public class FTLPinVerificationFragment extends Fragment {
                                 mActivity.startActivity(mIntent);
                                 mActivity.finish();
 
-
                             }
 
                         }

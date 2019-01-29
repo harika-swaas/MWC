@@ -493,11 +493,29 @@ public class AccountSettings {
         editor.clear();
         editor.commit();
 
-          File dir = new File(Environment.getExternalStorageDirectory() + "/"+Constants.Folder_Name);
-          deleteRecursive(dir);
+        File dir = new File(Environment.getExternalStorageDirectory() + "/"+Constants.Folder_Name);
+        deleteRecursive(dir);
+
+    }
+
+    public void deleteRecursive(File dir) {
+
+        if (dir.isDirectory()) {
+            if (dir.listFiles() != null && dir.listFiles().length > 0) {
+                for (File child : dir.listFiles()) {
+                    if (child != null) {
+                        deleteRecursive(child);
+                    }
+
+                }
+            }
+
+        }
+        // if(dir.isFile())
+        dir.delete();
+
 
         // clear Global variables Data
-
         GlobalVariables.isTileView = true;
         GlobalVariables.sortType = Constants.NO_SORTING_TEXT;
         GlobalVariables.isAscending = true;
@@ -527,24 +545,6 @@ public class AccountSettings {
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         mContext.startActivity(intent);
-
-    }
-
-    public void deleteRecursive(File dir) {
-
-        if (dir.isDirectory()) {
-            if (dir.listFiles() != null && dir.listFiles().length > 0) {
-                for (File child : dir.listFiles()) {
-                    if (child != null) {
-                        deleteRecursive(child);
-                    }
-
-                }
-            }
-
-        }
-        // if(dir.isFile())
-        dir.delete();
 
     }
 

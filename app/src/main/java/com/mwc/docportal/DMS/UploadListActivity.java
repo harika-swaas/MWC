@@ -201,7 +201,6 @@ public class UploadListActivity extends RootActivity {
             }
 
             PreferenceUtils.setImageUploadList(context, OriginalUploadList, "key");
-
         }
 
         UploadList = PreferenceUtils.getImageUploadList(UploadListActivity.this, "key");
@@ -239,8 +238,9 @@ public class UploadListActivity extends RootActivity {
             @Override
             public void onClick(View v) {
 
-                showUploadBeginningMessage();
-
+              //  showUploadBeginningMessage();
+                uploadDocuments();
+                upload_layout.setVisibility(View.GONE);
 
             }
         });
@@ -248,9 +248,58 @@ public class UploadListActivity extends RootActivity {
         cancel_textview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onBackPressed();
+                showCancelAlert();
             }
         });
+    }
+
+    private void showCancelAlert()
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Alert");
+
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+        txtMessage.setText("Are you sure want to cancel all the uploads?");
+
+        Button okButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+        cancelButton.setText("Cancel");
+
+        okButton.setText("Ok");
+
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+
+                List<UploadModel> uploadlist = new ArrayList<>();
+                PreferenceUtils.setImageUploadList(context, uploadlist, "key");
+                Intent intent=new Intent(UploadListActivity.this,NavigationMyFolderActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                intent.putExtra("IsFromUpload", "Upload");
+                startActivity(intent);
+                finish();
+
+            }
+        });
+
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+            }
+        });
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
     }
 
     private void showUploadBeginningMessage()

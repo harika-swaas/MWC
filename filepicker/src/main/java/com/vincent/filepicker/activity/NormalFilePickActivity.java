@@ -246,11 +246,14 @@ public class NormalFilePickActivity extends BaseActivity {
     List<File> getListFiles(File parentDir) {
         ArrayList<File> inFiles = new ArrayList<File>();
         File[] files = parentDir.listFiles();
-        for (File file : files) {
-            if (file.isDirectory()) {
-                inFiles.addAll(getListFiles(file));
-            } else {
-                inFiles.add(file);
+        if(files.length > 0)
+        {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    inFiles.addAll(getListFiles(file));
+                } else {
+                    inFiles.add(file);
+                }
             }
         }
         return inFiles;

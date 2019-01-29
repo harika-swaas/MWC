@@ -15,15 +15,15 @@ apply plugin: 'io.fabric'
 
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 28
     dexOptions {
         jumboMode true
     }
     defaultConfig {
         applicationId "com.mwc.docportal"
         minSdkVersion 21
-        targetSdkVersion 27
-        buildToolsVersion "27.0.2"
+        targetSdkVersion 28
+        buildToolsVersion "28.0.2"
         versionCode 9
         versionName "1.8"
         multiDexEnabled true
@@ -37,7 +37,7 @@ android {
     dexOptions {
         javaMaxHeapSize "4g"
     }
-    buildToolsVersion '27.0.3'
+    buildToolsVersion '28.0.3'
     compileOptions {
         targetCompatibility 1.8
         sourceCompatibility 1.8
@@ -74,17 +74,17 @@ dependencies {
     compile 'com.facebook.stetho:stetho-okhttp:1.5.0'
     //noinspection GradleCompatible
     implementation 'com.android.support:appcompat-v7:27.0.2'
-    compile 'com.android.support:design:27.0.2'
-    compile 'com.android.support:recyclerview-v7:27.0.2'
+    compile 'com.android.support:design:28.0.0'
+    compile 'com.android.support:recyclerview-v7:28.0.0'
     compile 'com.google.code.gson:gson:2.8.0'
     compile 'com.squareup.retrofit2:retrofit:2.0.2'
     compile 'com.squareup.retrofit:retrofit:2.0.0-beta2'
     compile 'com.squareup.retrofit:converter-gson:2.0.0-beta2'
     compile 'com.android.support:multidex:1.0.3'
     compile 'com.android.support.constraint:constraint-layout:1.1.2'
-    compile 'com.android.support:support-v4:27.0.2'
+    compile 'com.android.support:support-v4:28.0.0'
     compile 'com.koushikdutta.ion:ion:2.2.1'
-    compile 'com.android.support:percent:27.0.2'
+    compile 'com.android.support:percent:28.0.0'
     compile 'com.github.d-max:spots-dialog:0.7@aar'
     compile 'com.github.javiersantos:MaterialStyledDialogs:2.1'
     compile 'com.github.stfalcon:smsverifycatcher:0.3.1'
