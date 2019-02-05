@@ -302,7 +302,17 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
             @Override
             public void onClick(View v) {
 
-                showWarningAlertForSharingContent(categoryDocumentsResponse.getName(), categoryDocumentsResponse.getDocument_version_id());
+                String documentName = null;
+                if(categoryDocumentsResponse.getName() != null)
+                {
+                    documentName = categoryDocumentsResponse.getName();
+                }
+                else
+                {
+                    documentName = "";
+                }
+
+                showWarningAlertForSharingContent(documentName, categoryDocumentsResponse.getDocument_version_id());
             }
         });
 
@@ -1474,6 +1484,12 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                         offLine_files_repository.deleteAlreadydownloadedFile(PdfViewActivity.this.categoryDocumentsResponse.getDocument_version_id());
                         switchButton_download.setChecked(false);
                         mBottomSheetDialog.dismiss();
+
+                        if(download_button.getText().toString().equalsIgnoreCase("View"))
+                        {
+                            finish();
+                            startActivity(getIntent());
+                        }
                     }
 
 
@@ -1677,6 +1693,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
         LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
         transparentProgressDialog.show();
             if (!TextUtils.isEmpty(digitalAsset.getDownloadUrl())) {
+                digitalAsset.setIs_Downloaded(0);
                 FileDownloadManager fileDownloadManager = new FileDownloadManager(PdfViewActivity.this);
                 fileDownloadManager.setFileTitle(digitalAsset.getName());
                 fileDownloadManager.setDownloadUrl(digitalAsset.getDownloadUrl());

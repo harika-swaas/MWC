@@ -3538,6 +3538,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
     private void downLoadImageSeparately(GetCategoryDocumentsResponse categoryDocumentsResponse)
     {
         if (!TextUtils.isEmpty(categoryDocumentsResponse.getDownloadUrl())) {
+            categoryDocumentsResponse.setIs_Downloaded(0);
             FileDownloadManager fileDownloadManager = new FileDownloadManager(NavigationMyFolderActivity.this);
             fileDownloadManager.setFileTitle(categoryDocumentsResponse.getName());
             fileDownloadManager.setDownloadUrl(categoryDocumentsResponse.getDownloadUrl());
