@@ -977,6 +977,7 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
         transparentProgressDialog.show();
         for (final GetCategoryDocumentsResponse digitalAsset : downloadingUrlDataList) {
             if (!TextUtils.isEmpty(digitalAsset.getDownloadUrl())) {
+                digitalAsset.setIs_Downloaded(0);
                 FileDownloadManager fileDownloadManager = new FileDownloadManager(context);
                 fileDownloadManager.setFileTitle(digitalAsset.getName());
                 fileDownloadManager.setDownloadUrl(digitalAsset.getDownloadUrl());

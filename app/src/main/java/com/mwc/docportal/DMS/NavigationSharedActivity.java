@@ -1668,6 +1668,7 @@ public class NavigationSharedActivity extends BaseActivity {
     private void downLoadImageSeparately(GetCategoryDocumentsResponse categoryDocumentsResponse)
     {
         if (!TextUtils.isEmpty(categoryDocumentsResponse.getDownloadUrl())) {
+            categoryDocumentsResponse.setIs_Downloaded(0);
             FileDownloadManager fileDownloadManager = new FileDownloadManager(NavigationSharedActivity.this);
             fileDownloadManager.setFileTitle(categoryDocumentsResponse.getName());
             fileDownloadManager.setDownloadUrl(categoryDocumentsResponse.getDownloadUrl());

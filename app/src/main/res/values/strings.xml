@@ -32,7 +32,7 @@
     <string name="enter_password">Password</string>
     <string name="confirm_password">Confirm password</string>
     <string name="shr_button_next">Sign In</string>
-    <string name="not_logged_in_before">Not logged in before?</string>
+    <string name="not_logged_in_before">Activate your account?</string>
     <string name="almost_done">Almost Done!</string>
     <string name="set_terms_acceptance_txt">By clicking Let\'s Start, You are agreeing to our Terms and Privacy Policy</string>
     <!-- <string name="set_terms_acceptance_txt">By tapping Let\'s start, You agree to our Terms, Data Policy.There are many variations of passages of Lorel Ipsum available,but the majority have suffered alteration in some form believable.</string>-->
@@ -48,7 +48,7 @@
     <string name="welcome">Welcome</string>
     <string name="shr_hint_password">Password</string>
     <string name="shr_hint_username">Username</string>
-    <string name="ftl_text">Not logged in before?</string>
+    <string name="ftl_text">Activate your account?</string>
     <string name="send_pin_code_to">Send PIN code to?</string>
     <string name="personal_email">Personal Email</string>
     <string name="personal_number">Personal Number</string>
