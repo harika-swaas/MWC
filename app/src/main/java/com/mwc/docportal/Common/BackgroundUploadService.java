@@ -66,6 +66,7 @@ public class BackgroundUploadService extends IntentService
     List<UploadModel> uploadFailedList;
     private Context mContext;
     public static final String TAG = "FCMNotification";
+    NotificationCompat.BigTextStyle bigText;
   //  UploadNotificationReceiver uploadNotificationReceiver;
     public BackgroundUploadService(String name) {
         super(name);
@@ -122,6 +123,11 @@ public class BackgroundUploadService extends IntentService
         snoozeIntent.setClass(this, UploadNotificationReceiver.class);
         PendingIntent snoozePendingIntent =
                 PendingIntent.getBroadcast(this, notificationId, snoozeIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+
+        // Long notification text
+
+        bigText = new NotificationCompat.BigTextStyle();
+        bigText.bigText("("+uploadDataList.size()+") file(s) have been uploaded and are being processed. They will be available in a few minutes.");
 
 
         // This is for Notification Click
@@ -299,7 +305,7 @@ public class BackgroundUploadService extends IntentService
 
                     }
                     else {
-                        uploadFailedMessage("Error");
+                        uploadFailedMessage("Uploading Error");
                     }
                 }
 
@@ -316,7 +322,12 @@ public class BackgroundUploadService extends IntentService
     private void uploadCompleteMessage()
     {
         index = 0;
-        if(uploadDataList.size() == 1)
+        mBuilder.setContentTitle("Upload completed")
+                .setProgress(0, 0, false)
+                .setStyle(bigText)
+                .mActions.clear();
+
+       /* if(uploadDataList.size() == 1)
         {
             mBuilder.setContentTitle("Upload completed")
                     .setContentText(uploadDataList.size() + " file uploaded.")
@@ -329,7 +340,7 @@ public class BackgroundUploadService extends IntentService
                     .setContentText(uploadDataList.size() + " files uploaded.")
                     .setProgress(0, 0, false)
                     .mActions.clear();
-        }
+        }*/
         assert mNotifyManager != null;
         mNotifyManager.notify(TAG, notificationId, mBuilder.build());
         stopSelf();

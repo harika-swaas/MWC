@@ -92,6 +92,11 @@ public class LoginActivity extends RootActivity {
                     filePath = PathUtil.getPath(context, imageUri);
                 }
 
+                if(filePath == null)
+                {
+                    filePath = PathUtil.getPath(context, imageUri);
+                }
+
                 if(filePath != null)
                 {
                     UploadModel fileUploadModel = new UploadModel();

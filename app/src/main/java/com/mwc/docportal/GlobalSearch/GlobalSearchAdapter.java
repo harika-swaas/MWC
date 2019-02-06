@@ -872,8 +872,19 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<GlobalSearchAdapte
             //DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(PreferenceUtils.getDocumentVersionId(this));
             List<String> strlist = new ArrayList<>();
             strlist.add(documentsResponse.getObject_id());
-            DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist, documentsResponse.getIs_shared());
-            final String request = new Gson().toJson(downloadDocumentRequest);
+            String request;
+            if(documentsResponse.getDoc_status() != null && documentsResponse.getDoc_status().equalsIgnoreCase("shared"))
+            {
+                DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist, "1");
+                request = new Gson().toJson(downloadDocumentRequest);
+            }
+            else
+            {
+                DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist);
+                request = new Gson().toJson(downloadDocumentRequest);
+            }
+
+
 
             //Here the json data is add to a hash map with key data
             Map<String, String> params = new HashMap<String, String>();

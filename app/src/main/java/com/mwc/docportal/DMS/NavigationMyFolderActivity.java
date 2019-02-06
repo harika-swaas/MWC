@@ -3432,7 +3432,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
             List<String> strlist = new ArrayList<>();
             strlist.add(document_version_id);
-            DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist, is_Shared);
+            DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist);
             final String request = new Gson().toJson(downloadDocumentRequest);
 
             //Here the json data is add to a hash map with key data
@@ -3722,7 +3722,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             //DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(PreferenceUtils.getDocumentVersionId(this));
             List<String> strlist = new ArrayList<>();
             strlist.add(documentsResponse.getObject_id());
-            DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist, documentsResponse.getIs_shared());
+            DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist);
             final String request = new Gson().toJson(downloadDocumentRequest);
 
             //Here the json data is add to a hash map with key data
