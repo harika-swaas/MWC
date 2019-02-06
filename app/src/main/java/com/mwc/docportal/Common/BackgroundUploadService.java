@@ -387,4 +387,24 @@ public class BackgroundUploadService extends IntentService
     }
 
 
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        if (Build.VERSION.SDK_INT >= 26) {
+            String channelId = "channel-01";
+            String channelName = "Channel Name";
+            NotificationChannel channel = new NotificationChannel(channelId,
+                    channelName,
+                    NotificationManager.IMPORTANCE_DEFAULT);
+
+            ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(channel);
+
+            Notification notification = new NotificationCompat.Builder(this, channelId)
+                    .setContentTitle("")
+                    .setContentText("").build();
+
+            startForeground(notificationId, notification);
+        }
+    }
+
 }

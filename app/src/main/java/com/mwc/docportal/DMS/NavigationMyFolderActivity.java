@@ -5039,11 +5039,19 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                     Toast.makeText(context, joinedString +" file format(s) not supported", Toast.LENGTH_SHORT).show();
                 }*/
 
-                List<UploadModel> uploadedDAta = OriginalUploadList;
-                Intent intent1 = new Intent(NavigationMyFolderActivity.this, BackgroundUploadService.class);
-                intent1.putExtra("UploadedList", (ArrayList<UploadModel>)uploadedDAta);
-                startService(intent1);
-                callExitApp();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    List<UploadModel> uploadedDAta = OriginalUploadList;
+                    Intent intent1 = new Intent(NavigationMyFolderActivity.this, BackgroundUploadService.class);
+                    intent1.putExtra("UploadedList", (ArrayList<UploadModel>)uploadedDAta);
+                    NavigationMyFolderActivity.this.startForegroundService(intent1);
+                    callExitApp();
+                } else {
+                    List<UploadModel> uploadedDAta = OriginalUploadList;
+                    Intent intent1 = new Intent(NavigationMyFolderActivity.this, BackgroundUploadService.class);
+                    intent1.putExtra("UploadedList", (ArrayList<UploadModel>)uploadedDAta);
+                    startService(intent1);
+                    callExitApp();
+                }
 
             }
             else
