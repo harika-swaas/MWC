@@ -540,6 +540,7 @@ public class AccountSettings {
         GlobalVariables.totalUnreadableCount = 0;
         GlobalVariables.sharedRootDocumentList.clear();
         GlobalVariables.otherAppDocumentList.clear();
+        GlobalVariables.isBackgroundProcessRunning = false;
 
         Intent intent = new Intent(mContext, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);

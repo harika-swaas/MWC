@@ -308,7 +308,10 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
         if(PreferenceUtils.getImageUploadList(context, "key") != null && PreferenceUtils.getImageUploadList(context, "key").size() > 0)
         {
-            showFailedUploadList();
+            if(!GlobalVariables.isBackgroundProcessRunning)
+            {
+                showFailedUploadList();
+            }
         }
 
 
@@ -2053,8 +2056,6 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
     {
         pageNumber = 0;
         totalPages = 1;
-
-
     }
 
 
@@ -5056,16 +5057,30 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             }
             else
             {
-                /*List<String> fileNameList = new ArrayList<>();
+                List<String> unSupportedFormatList = new ArrayList<>();
+                for(UploadModel fileItem : filteredDataList)
+                {
+                    String[] fileParts = fileItem.getFilePath().split("\\.");
+                    String fileExtension = fileParts[fileParts.length - 1];
+                    if(!unSupportedFormatList.contains(fileExtension))
+                    {
+                        unSupportedFormatList.add(fileExtension);
+                    }
+
+                }
+
+
+               /* List<String> fileNameList = new ArrayList<>();
                 fileNameList.clear();
                 for(String filePath : unSupportedFormatList)
                 {
                     File fileData = new File(filePath);
                     fileNameList.add(fileData.getName());
-                }
+                }*/
 
-                String joinedString = TextUtils.join(", ", fileNameList);*/
-                Toast.makeText(context, "File format(s) not supported", Toast.LENGTH_SHORT).show();
+
+                String joinedString = TextUtils.join(", ", unSupportedFormatList);
+                Toast.makeText(context, joinedString+" file format(s) not supported", Toast.LENGTH_SHORT).show();
                 final Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {
                     @Override

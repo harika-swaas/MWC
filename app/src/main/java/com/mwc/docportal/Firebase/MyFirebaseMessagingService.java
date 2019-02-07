@@ -406,7 +406,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         int notificationId = 123456;
         String channelId = "channel-01";
-        String channelName = "Channel Name";
+        String channelName = getResources().getString(R.string.app_name)+" Channel";
         int importance = NotificationManager.IMPORTANCE_HIGH;
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {

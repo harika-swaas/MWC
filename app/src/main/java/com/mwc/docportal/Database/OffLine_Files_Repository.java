@@ -253,7 +253,7 @@ public class OffLine_Files_Repository
 
     public void getOfflineDocumentList()
     {
-        String selectQuery = "SELECT * FROM tbl_Offline_Files";
+        String selectQuery = "SELECT * FROM tbl_Offline_Files ORDER BY filename COLLATE NOCASE ASC";
         try {
             DBConnectionOpen();
             Cursor cursor = database.rawQuery(selectQuery, null);

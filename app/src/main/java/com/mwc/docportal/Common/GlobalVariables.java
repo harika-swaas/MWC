@@ -34,4 +34,5 @@ public class GlobalVariables
     public static int totalUnreadableCount = 0;
     public static List<GetCategoryDocumentsResponse> sharedRootDocumentList = new ArrayList<>();
     public static List<UploadModel> otherAppDocumentList = new ArrayList<>();
+    public static boolean isBackgroundProcessRunning = false;
 }

@@ -169,18 +169,18 @@ public class NavigationSettingsActivity extends BaseActivity {
     {
         if(Constants.COMPANY_BASE_URL.equalsIgnoreCase("http://172.16.40.50"))      // QC
         {
-            build_version_txt.setText("Version No: "+BuildConfig.VERSION_NAME+"("+BuildConfig.VERSION_CODE+")_qc");
+            build_version_txt.setText("Version: "+BuildConfig.VERSION_NAME+"("+BuildConfig.VERSION_CODE+")_qc");
         }
         else if(Constants.COMPANY_BASE_URL.equalsIgnoreCase("https://uatapi.mywealthcloud.com"))    // UAT
         {
-            build_version_txt.setText("Version No: "+BuildConfig.VERSION_NAME+"("+BuildConfig.VERSION_CODE+")_uat");
+            build_version_txt.setText("Version: "+BuildConfig.VERSION_NAME+"("+BuildConfig.VERSION_CODE+")_uat");
         }
         else if(Constants.COMPANY_BASE_URL.equalsIgnoreCase("http://172.16.40.40"))     // DEV
         {
-            build_version_txt.setText("Version No: "+BuildConfig.VERSION_NAME+"("+BuildConfig.VERSION_CODE+")_dev");
+            build_version_txt.setText("Version: "+BuildConfig.VERSION_NAME+"("+BuildConfig.VERSION_CODE+")_dev");
         }
         else {              // Production
-            build_version_txt.setText("Version No: "+BuildConfig.VERSION_NAME+"("+BuildConfig.VERSION_CODE+")");
+            build_version_txt.setText("Version: "+BuildConfig.VERSION_NAME+"("+BuildConfig.VERSION_CODE+")");
         }
     }
 

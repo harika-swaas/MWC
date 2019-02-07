@@ -81,6 +81,7 @@ public class BackgroundUploadService extends IntentService
         uploadDataList = (ArrayList<UploadModel>)intent.getSerializableExtra("UploadedList");
         if(uploadDataList != null && uploadDataList.size() > 0)
         {
+            GlobalVariables.isBackgroundProcessRunning = true;
             List<UploadModel> removeingList;
             removeingList = PreferenceUtils.getImageUploadList(mContext, "key");
             if(removeingList ==  null)
@@ -104,7 +105,7 @@ public class BackgroundUploadService extends IntentService
         mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         String channelId = "channel-01";
-        String channelName = "Channel Name";
+        String channelName = getResources().getString(R.string.app_name)+"Channel";
         int importance = NotificationManager.IMPORTANCE_HIGH;
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -321,6 +322,7 @@ public class BackgroundUploadService extends IntentService
 
     private void uploadCompleteMessage()
     {
+        GlobalVariables.isBackgroundProcessRunning = false;
         index = 0;
         mBuilder.setContentTitle("Upload completed")
                 .setProgress(0, 0, false)
@@ -377,6 +379,7 @@ public class BackgroundUploadService extends IntentService
         assert mNotifyManager != null;
         mNotifyManager.notify(TAG, notificationId, mBuilder.build());
         stopSelf();
+        GlobalVariables.isBackgroundProcessRunning = false;
     }
 
     public void clearNotification()
@@ -384,6 +387,7 @@ public class BackgroundUploadService extends IntentService
         index = 0;
         stopSelf();
         PreferenceUtils.setNotificationDelete(mContext, null);
+        GlobalVariables.isBackgroundProcessRunning = false;
     }
 
 
@@ -392,7 +396,7 @@ public class BackgroundUploadService extends IntentService
         super.onCreate();
         if (Build.VERSION.SDK_INT >= 26) {
             String channelId = "channel-01";
-            String channelName = "Channel Name";
+            String channelName = getResources().getString(R.string.app_name)+" Channel";
             NotificationChannel channel = new NotificationChannel(channelId,
                     channelName,
                     NotificationManager.IMPORTANCE_DEFAULT);
