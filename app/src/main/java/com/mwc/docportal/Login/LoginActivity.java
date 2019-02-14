@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
@@ -21,8 +22,10 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,15 +42,20 @@ import com.mwc.docportal.RootActivity;
 import com.mwc.docportal.Utils.Constants;
 import com.mwc.docportal.Utils.SplashScreen;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 /**
@@ -75,34 +83,87 @@ public class LoginActivity extends RootActivity {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
 
+
         Intent intent = getIntent();
         String action = intent.getAction();
         String type = intent.getType();
 
         if (Intent.ACTION_SEND.equals(action) && type != null) {
             Uri imageUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
+
             if (imageUri != null) {
-                String filePath;
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                    filePath = getRealImagePathFromURI(imageUri);
-                }
-                else
+
+                if(imageUri.getScheme().contains("file"))
                 {
-                 //   filePath = getRealPathFromURIPath(imageUri, context);
-                    filePath = PathUtil.getPath(context, imageUri);
+                    String filePath = imageUri.getPath();
+
+                    if (filePath != null && !filePath.isEmpty()) {
+                        UploadModel fileUploadModel = new UploadModel();
+                        fileUploadModel.setFilePath(filePath);
+                        GlobalVariables.otherAppDocumentList.add(fileUploadModel);
+                    }
+                }
+                else {
+
+                    String fileName = getFileNameFromUri(imageUri);
+
+                    if (fileName == null) {
+                        fileName = " ";
+                    }
+                    String filePath = storeAllDataInLocalFromUri(imageUri, fileName);
+
+                    if (filePath != null && !filePath.isEmpty()) {
+                        UploadModel fileUploadModel = new UploadModel();
+                        fileUploadModel.setFilePath(filePath);
+                        GlobalVariables.otherAppDocumentList.add(fileUploadModel);
+                    }
+
+                    Log.d("FilePath", filePath);
                 }
 
-                if(filePath == null)
+/*
+                if(imageUri.toString().contains("com.google.android.apps.docs.storage"))
                 {
-                    filePath = PathUtil.getPath(context, imageUri);
-                }
+                    String fileName = getFileNameFromUri(imageUri);
+                    if(fileName != null && !fileName.isEmpty())
+                    {
+                        String filePath = storeAllDataInLocalFromUri(imageUri, fileName);
 
-                if(filePath != null)
-                {
-                    UploadModel fileUploadModel = new UploadModel();
-                    fileUploadModel.setFilePath(filePath);
-                    GlobalVariables.otherAppDocumentList.add(fileUploadModel);
+                        if (filePath != null && !filePath.isEmpty()) {
+                            UploadModel fileUploadModel = new UploadModel();
+                            fileUploadModel.setFilePath(filePath);
+                            GlobalVariables.otherAppDocumentList.add(fileUploadModel);
+                        }
+
+                        Log.d("FilePath", filePath);
+
+                    }
+
                 }
+                else {
+
+                    String filePath;
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                        filePath = getRealImagePathFromURI(imageUri);
+                    } else {
+                        //   filePath = getRealPathFromURIPath(imageUri, context);
+                        filePath = PathUtil.getPath(context, imageUri);
+                    }
+
+                    if (filePath == null) {
+                        filePath = getVideoUriRealPath(imageUri);
+
+                        //  filePath = imageUri.getPath();
+
+                        //        getImgaeRealPathFromUri(imageUri);
+                    }
+
+                    if (filePath != null && !filePath.isEmpty()) {
+                        UploadModel fileUploadModel = new UploadModel();
+                        fileUploadModel.setFilePath(filePath);
+                        GlobalVariables.otherAppDocumentList.add(fileUploadModel);
+                    }
+                }*/
             }
         }
         else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
@@ -110,26 +171,65 @@ public class LoginActivity extends RootActivity {
             ArrayList<Uri> imageUrisList = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
             if (imageUrisList != null) {
                 for (Uri fileUri : imageUrisList) {
-                    String path;
+
+                    if(fileUri.getScheme().contains("file"))
+                    {
+                        String filePath = fileUri.getPath();
+                        if(fileUploadList == null)
+                        {
+                            fileUploadList = new ArrayList<>();
+                        }
+
+                        if (filePath != null && !filePath.isEmpty()) {
+                            UploadModel uploadModel = new UploadModel();
+                            uploadModel.setFilePath(filePath);
+                            fileUploadList.add(uploadModel);
+                        }
+                    }
+                    else
+                    {
+                        String fileName = getFileNameFromUri(fileUri);
+                        if(fileName == null)
+                        {
+                            fileName = " ";
+                        }
+
+                        String filePath = storeAllDataInLocalFromUri(fileUri, fileName);
+                        if(fileUploadList == null)
+                        {
+                            fileUploadList = new ArrayList<>();
+                        }
+
+                        if (filePath != null && !filePath.isEmpty()) {
+                            UploadModel uploadModel = new UploadModel();
+                            uploadModel.setFilePath(filePath);
+                            fileUploadList.add(uploadModel);
+                        }
+
+                        Log.d("FilePath", filePath);
+
+                    }
+
+
+
+
+                    /*String path;
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                         path = getRealImagePathFromURI(fileUri);
                     }
                     else
                     {
                         path = PathUtil.getPath(context, fileUri);
-                    }
+                    }*/
                  //   String path = getRealPathFromURIPath(fileUri, context);
-                    if(fileUploadList == null)
-                    {
-                        fileUploadList = new ArrayList<>();
-                    }
 
-                    if(path != null)
+
+                   /* if(path != null && !path.isEmpty())
                     {
                         UploadModel uploadModel = new UploadModel();
                         uploadModel.setFilePath(path);
                         fileUploadList.add(uploadModel);
-                    }
+                    }*/
 
                 }
 
@@ -144,6 +244,7 @@ public class LoginActivity extends RootActivity {
         {
             GlobalVariables.isMoveInitiated = true;
             GlobalVariables.selectedActionName = "upload";
+            GlobalVariables.activityFinishCount = 0;
         }
 
 
@@ -614,6 +715,291 @@ public class LoginActivity extends RootActivity {
         return path;
     }
 
+    public String getImgaeRealPathFromUri(Uri contenturi)
+    {
+        String path = "";
+        if (contenturi == null) {
+            return path;
+        }
+        final ContentResolver resolver = context.getContentResolver();
 
+        Cursor cursor = resolver.query(contenturi, null, null, null, null);
+       // Cursor cursor = resolver.query(MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI,
+         //       projection, selection, null, null);
+        if (cursor == null) {
+            path = contenturi.getPath();
+        } else if(cursor.getCount() > 0){
+            cursor.moveToFirst();
+            int idx = 0;
+            int i = cursor.getCount();
+            int colCount = cursor.getColumnCount();
+
+            int colpos = 0;
+
+            String[] columnNames = cursor.getColumnNames();
+
+
+
+            if(idx > 0)
+            path = cursor.getString(idx);
+            else
+                path = "";
+
+        }
+        if (cursor != null) {
+            cursor.close();
+        }
+        return path;
+    }
+
+
+    public String handleContentUri(Uri beamUri) {
+        String filePath = null;
+        // Position of the filename in the query Cursor
+        int filenameIndex;
+        // File object for the filename
+        File copiedFile;
+        // The filename stored in MediaStore
+        String fileName;
+        // Test the authority of the URI
+        if (!TextUtils.equals(beamUri.getAuthority(), MediaStore.AUTHORITY)) {
+            /*
+             * Handle content URIs for other content providers
+             */
+            // For a MediaStore content URI
+        } else {
+            // Get the column that contains the file name
+            String[] projection = { MediaStore.MediaColumns.DATA };
+            Cursor pathCursor =
+                    getContentResolver().query(beamUri, projection,
+                            null, null, null);
+            // Check for a valid cursor
+            if (pathCursor != null &&
+                    pathCursor.moveToFirst()) {
+                // Get the column index in the Cursor
+                filenameIndex = pathCursor.getColumnIndex(
+                        MediaStore.MediaColumns.DATA);
+                // Get the full file name including path
+                fileName = pathCursor.getString(filenameIndex);
+                // Create a File object for the filename
+                copiedFile = new File(fileName);
+                // Return the parent directory of the file
+                filePath = copiedFile.getParentFile().getPath();
+            } else {
+                // The query didn't work; return null
+                return null;
+            }
+        }
+        return filePath;
+    }
+
+
+    protected String getVideoUriRealPath(Uri contentURI) {
+        String filePath = "";
+
+        Pattern p = Pattern.compile("(\\d+)$");
+        Matcher m = p.matcher(contentURI.toString());
+        if (!m.find()) {
+         //   Log.e(ImageConverter.class.getSimpleName(), "ID for requested image not found: " + uri.toString());
+            return filePath;
+        }
+        String imgId = m.group();
+
+        String[] column = { MediaStore.Images.Media.DATA };
+        String sel = MediaStore.Images.Media._ID + "=?";
+
+        Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                column, sel, new String[]{ imgId }, null);
+
+        int columnIndex = cursor.getColumnIndex(column[0]);
+
+        if (cursor.moveToFirst()) {
+            filePath = cursor.getString(columnIndex);
+        }
+        cursor.close();
+
+        return filePath;
+    }
+
+    public String storeAllDataInLocalFromUri(Uri uri, String fileName) {
+
+        String path = null;
+        if (uri != null) {
+            File file = new File(getCacheDir(), fileName);
+            try
+            {
+                InputStream inputStream=getContentResolver().openInputStream(uri);
+                try {
+
+                    OutputStream output = new FileOutputStream(file);
+                    try {
+                        byte[] buffer = new byte[4 * 1024]; // or other buffer size
+                        int read;
+
+                        while ((read = inputStream.read(buffer)) != -1) {
+                            output.write(buffer, 0, read);
+                        }
+
+                        output.flush();
+                    } finally {
+                        output.close();
+                    }
+                } finally {
+                    inputStream.close();
+                    path = file.getPath();
+                  //  byte[] bytes = getFileFromPath(file);
+                    //Upload Bytes.
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+
+        return path;
+
+       /* String sourceFilename= uri.getPath();
+        File file = new File(new File(Environment.getExternalStorageDirectory(), "DriveTestData"), fileName);
+
+        BufferedInputStream bis = null;
+        BufferedOutputStream bos = null;
+
+        try {
+            bis = new BufferedInputStream(new FileInputStream(sourceFilename));
+            bos = new BufferedOutputStream(new FileOutputStream(file, false));
+            byte[] buf = new byte[1024];
+            bis.read(buf);
+            do {
+                bos.write(buf);
+            } while(bis.read(buf) != -1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (bis != null) bis.close();
+                if (bos != null) bos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }*/
+
+        /*FileOutputStream fos = null;
+        File fildData = new File(new File(Environment.getExternalStorageDirectory(), "DriveTestData"), fileName);
+        try {
+            fos = new FileOutputStream(fildData);
+            try (BufferedOutputStream out = new BufferedOutputStream(fos);
+                 InputStream in = context.getContentResolver().openInputStream(uri))
+            {
+                byte[] buffer = new byte[8192];
+                int len = 0;
+
+                while ((len = in.read(buffer)) >= 0) {
+                    out.write(buffer, 0, len);
+                }
+
+                out.flush();
+            } finally {
+                fos.getFD().sync();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }*/
+    }
+
+    public static byte[] getFileFromPath(File file) {
+        int size = (int) file.length();
+        byte[] bytes = new byte[size];
+        try {
+            BufferedInputStream buf = new BufferedInputStream(new FileInputStream(file));
+            buf.read(bytes, 0, bytes.length);
+            buf.close();
+        } catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return bytes;
+    }
+
+    public String getFileNameFromUri(Uri contentUri)
+    {
+
+        String fileName = "";
+        if (contentUri == null) {
+            return fileName;
+        }
+        final ContentResolver resolver = context.getContentResolver();
+
+        Cursor cursor = resolver.query(contentUri, null, null, null, null);
+        if(cursor != null && cursor.getCount() > 0){
+            cursor.moveToFirst();
+
+         //   String[] columnNames = cursor.getColumnNames();
+            int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+            fileName = cursor.getString(nameIndex).trim();
+
+            String fileExtensionData = fileName.substring( fileName.lastIndexOf(".") + 1);
+            String extension = "." + GetFileExtension(contentUri);
+            if(!fileName.contains(extension))
+            {
+              fileName = fileName + extension;
+            }
+
+            /*String extension = "." + GetFileExtension(contentUri);
+            if(!fileName.contains("."))
+            {
+                String fileExtensionData = fileName.substring(fileName.lastIndexOf(".")).trim();
+                if (fileExtensionData == null || fileExtensionData.isEmpty()) {
+                    fileName = fileName + extension;
+                }
+            }*/
+
+
+        }
+        if (cursor != null) {
+            cursor.close();
+        }
+        return fileName;
+    }
+
+    // Get Extension
+    public String GetFileExtension(Uri uri)
+    {
+        ContentResolver contentResolver=getContentResolver();
+        MimeTypeMap mimeTypeMap=MimeTypeMap.getSingleton();
+
+        // Return file Extension
+        return mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri));
+    }
+
+    private void createFileFromInputStream(InputStream inputStream, String fileNamedata) {
+
+        File fildData = new File(new File(Environment.getExternalStorageDirectory(), "DriveTestData"), fileNamedata);
+        try {
+            try (OutputStream output = new FileOutputStream(fildData)) {
+                byte[] buffer = new byte[4 * 1024]; // or other buffer size
+                int read;
+                while ((read = inputStream.read(buffer)) != -1) {
+                    output.write(buffer, 0, read);
+                }
+                output.flush();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                inputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
 
 }

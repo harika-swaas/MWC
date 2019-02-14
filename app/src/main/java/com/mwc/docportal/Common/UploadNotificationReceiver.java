@@ -20,8 +20,10 @@ public class UploadNotificationReceiver extends BroadcastReceiver
         int notificationId = 1234;
         if(action.equals(Constants.ACTION_CANCEL)){
          //   Toast.makeText(context, "Cancel clicked", Toast.LENGTH_SHORT).show();
-            List<UploadModel> uploadlist = new ArrayList<>();
-            PreferenceUtils.setImageUploadList(context, uploadlist, "key");
+           /* List<UploadModel> uploadlist = new ArrayList<>();
+            PreferenceUtils.setImageUploadList(context, uploadlist, "key");*/
+            List<UploadModel> uploadList = new ArrayList<>();
+            PreferenceUtils.setCurrentUploadlist(context, uploadList, "key");
             PreferenceUtils.setNotificationDelete(context, "DeleteNotification");
 
             NotificationManager notificationManager = (NotificationManager) context

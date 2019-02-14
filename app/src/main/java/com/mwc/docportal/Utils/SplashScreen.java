@@ -101,6 +101,7 @@ public class SplashScreen extends RootActivity {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
 
+
         isFromForeground = getIntent().getBooleanExtra("IsFromForeground", false);
         if(getIntent().getStringExtra("ActivityName") != null)
         {
@@ -566,6 +567,7 @@ public class SplashScreen extends RootActivity {
         mAlertDialog = builder.create();
         mAlertDialog.show();
     }
+
 
 
 

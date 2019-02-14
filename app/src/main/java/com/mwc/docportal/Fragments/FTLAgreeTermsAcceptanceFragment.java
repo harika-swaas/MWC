@@ -325,6 +325,7 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
             categoryDocumentsResponse.setDownloadUrl(imageUrl);
             categoryDocumentsResponse.setDocument_version_id("12345");
             categoryDocumentsResponse.setName("Logo");
+            categoryDocumentsResponse.setIs_Downloaded(0);
 
             fileDownloadManager.setFileTitle("Logo");
             fileDownloadManager.setDownloadUrl(imageUrl);
@@ -375,6 +376,7 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
             categoryDocumentsResponse.setDownloadUrl(imageUrl);
             categoryDocumentsResponse.setDocument_version_id("67890");
             categoryDocumentsResponse.setName("Logo");
+            categoryDocumentsResponse.setIs_Downloaded(0);
 
             fileDownloadManager.setFileTitle("Logo");
             fileDownloadManager.setDownloadUrl(imageUrl);

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <!--UAT-->
+        <domain includeSubdomains="true">uatapi.mywealthcloud.com</domain>
+        <domain includeSubdomains="true">uatweb.docportal.co.uk</domain>
+
+        <!-- QC-->
+        <domain includeSubdomains="true">172.16.40.50</domain>
+        <domain includeSubdomains="true">172.16.40.51</domain>
+
+        <!-- DEV-->
+        <domain includeSubdomains="true">172.16.40.40</domain>
+        <domain includeSubdomains="true">172.16.40.41</domain>
+
+        <!-- PRODUCTION-->
+        <domain includeSubdomains="true">app1.mywealthcloud.com</domain>
+        <domain includeSubdomains="true">app.docportal.co.uk</domain>
+
+    </domain-config>
+</network-security-config>

@@ -9,6 +9,15 @@ public class UploadModel implements Serializable
     boolean failure;
     boolean yetToStart;
     boolean inProgress;
+    String objectId;
+
+    public String getObjectId() {
+        return objectId;
+    }
+
+    public void setObjectId(String objectId) {
+        this.objectId = objectId;
+    }
 
     public String getFilePath() {
         return filePath;

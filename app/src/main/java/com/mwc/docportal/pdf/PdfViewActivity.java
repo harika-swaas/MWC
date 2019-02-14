@@ -4,8 +4,11 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -15,6 +18,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Parcelable;
 import android.os.StrictMode;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -95,6 +99,8 @@ import com.mwc.docportal.pdf.pdfasync.OnPdfDownload;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -159,8 +165,6 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_pdf_viewer);
-
-
 
         mPdfview = (PDFView) findViewById(R.id.asset_pdf_player);
         mSinglePageChanger = (TextView) findViewById(R.id.singlepageChanger);
@@ -305,7 +309,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                 String documentName = null;
                 if(categoryDocumentsResponse.getName() != null)
                 {
-                    documentName = categoryDocumentsResponse.getName();
+                    documentName = categoryDocumentsResponse.getFilename();
                 }
                 else
                 {
@@ -422,7 +426,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                 OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(context);
                 String filepath = offLine_files_repository.getFilePathFromLocalTable(categoryDocumentsResponse.getDocument_version_id());
 
-                getExternalSharingContentAPI(categoryDocumentsResponse.getName(), categoryDocumentsResponse.getDocument_version_id(), filepath);
+                getExternalSharingContentAPI(categoryDocumentsResponse.getFilename(), categoryDocumentsResponse.getDocument_version_id(), filepath);
 
 
             }
@@ -520,30 +524,65 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                     transparentProgressDialog.dismiss();
                     if (response.body() != null) {
                         String message = "";
-                        if(response.body().getStatus().getMessage() != null)
-                        {
+                        if (response.body().getStatus().getMessage() != null) {
                             message = response.body().getStatus().getMessage().toString();
                         }
 
-                        if(CommonFunctions.isApiSuccess(PdfViewActivity.this, message, response.body().getStatus().getCode()))
-                        {
-                            String[] mimetypes = {"image/*", "application/*|text/*"};
+                        if (CommonFunctions.isApiSuccess(PdfViewActivity.this, message, response.body().getStatus().getCode())) {
+//                            String[] mimetypes = {"image/*", "application/*|text/*"};
+//
+//                            String imagePath = filepath;
+//
+//                            File imageFileToShare = new File(imagePath);
+//
+//                            Uri uri = Uri.fromFile(imageFileToShare);
+//
+//                            Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+//                            sharingIntent.setType("*/*");
+//                            String shareBody = "Attach file";
+//                            sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, name);
+//                            sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+//                            sharingIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
+//                            sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
+//                            Intent.createChooser(sharingIntent, "Share via");
+//                            startActivity(sharingIntent);
 
-                            String imagePath = filepath;
 
-                            File imageFileToShare = new File(imagePath);
+                            List<Intent> shareIntentsLists = new ArrayList<Intent>();
+                            Intent shareIntent = new Intent();
+                            shareIntent.setAction(Intent.ACTION_SEND);
+                            shareIntent.setType("*/*");
+                            List<ResolveInfo> resInfos = getPackageManager().queryIntentActivities(shareIntent, 0);
+                            if (!resInfos.isEmpty()) {
+                                for (ResolveInfo resInfo : resInfos) {
+                                    String packageName = resInfo.activityInfo.packageName;
+                                    if (!packageName.toLowerCase().contains("docportal")) {
+                                        String[] mimetypes = {"image/*", "application/*|text/*"};
+                                        String imagePath = filepath;
+                                        File imageFileToShare = new File(imagePath);
+                                        Uri uri = Uri.fromFile(imageFileToShare);
+                                        Intent intent = new Intent();
+                                        intent.setComponent(new ComponentName(packageName, resInfo.activityInfo.name));
+                                        intent.setAction(Intent.ACTION_SEND);
+                                        intent.setType("*/*");
+                                        String shareBody = "";
+                                        intent.putExtra(android.content.Intent.EXTRA_SUBJECT, name);
+                                        intent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+                                        intent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
+                                        intent.putExtra(Intent.EXTRA_STREAM, uri);
+                                        intent.setPackage(packageName);
+                                        shareIntentsLists.add(intent);
+                                    }
+                                }
+                                if (!shareIntentsLists.isEmpty()) {
+                                    Intent chooserIntent = Intent.createChooser(shareIntentsLists.remove(0), "Share via");
+                                    chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, shareIntentsLists.toArray(new Parcelable[]{}));
+                                    startActivity(chooserIntent);
+                                } else
+                                    Log.e("Error", "No Apps can perform your task");
 
-                            Uri uri = Uri.fromFile(imageFileToShare);
+                            }
 
-                            Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
-                            sharingIntent.setType("*/*");
-                            String shareBody = "Attach file";
-                            sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, name);
-                            sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
-                            sharingIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
-                            sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
-                            Intent.createChooser(sharingIntent,"Share via");
-                            startActivity(sharingIntent);
                         }
 
                     }
@@ -1739,7 +1778,8 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                         }
                         else if(isFromshare)
                         {
-                            getExternalSharingContentAPI(digitalAsset.getName(), digitalAsset.getDocument_version_id(), path);
+                            getExternalSharingContentAPI(digitalAsset.getFilename(), digitalAsset.getDocument_version_id(), path);
+
                         }
 
                         OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(PdfViewActivity.this);

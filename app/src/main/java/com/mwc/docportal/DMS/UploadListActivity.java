@@ -51,6 +51,7 @@ import com.google.gson.Gson;
 import com.mwc.docportal.API.Model.UploadModel;
 import com.mwc.docportal.Common.BackgroundUploadService;
 import com.mwc.docportal.Common.CommonFunctions;
+import com.mwc.docportal.Common.GlobalVariables;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.Login.LoginActivity;
@@ -171,7 +172,8 @@ public class UploadListActivity extends RootActivity {
                 {
                     UploadModel uploadModel = new UploadModel();
                     uploadModel.setFilePath(fileName.getFilePath());
-                    filteredDataList.add(uploadModel);
+                    uploadModel.setObjectId(fileName.getObjectId());
+                    filteredDataList.add(fileName);
 
                 }
 
@@ -193,7 +195,8 @@ public class UploadListActivity extends RootActivity {
                         {
                             UploadModel uploadModel = new UploadModel();
                             uploadModel.setFilePath(fileItem.getFilePath());
-                            OriginalUploadList.add(uploadModel);
+                            uploadModel.setObjectId(fileItem.getObjectId());
+                            OriginalUploadList.add(fileItem);
                         }
                     }
                 }
@@ -830,6 +833,7 @@ public class UploadListActivity extends RootActivity {
                             UploadList =  PreferenceUtils.getImageUploadList(UploadListActivity.this, "key");
                             UploadModel uploadModel = new UploadModel();
                             uploadModel.setFilePath(filePath);
+                            uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
                             UploadList.add(uploadModel);
                             PreferenceUtils.setImageUploadList(UploadListActivity.this,UploadList,"key");
                         }
@@ -844,6 +848,7 @@ public class UploadListActivity extends RootActivity {
                         UploadList =  PreferenceUtils.getImageUploadList(UploadListActivity.this, "key");
                         UploadModel uploadModel = new UploadModel();
                         uploadModel.setFilePath(filePath);
+                        uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
                         UploadList.add(uploadModel);
                         PreferenceUtils.setImageUploadList(UploadListActivity.this,UploadList,"key");
 
@@ -858,6 +863,7 @@ public class UploadListActivity extends RootActivity {
                     UploadList = PreferenceUtils.getImageUploadList(UploadListActivity.this,"key");
                     UploadModel uploadModel = new UploadModel();
                     uploadModel.setFilePath(filepath);
+                    uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
                     UploadList.add(uploadModel);
                     PreferenceUtils.setImageUploadList(UploadListActivity.this,UploadList,"key");
                 }
@@ -876,6 +882,7 @@ public class UploadListActivity extends RootActivity {
                 UploadList =  PreferenceUtils.getImageUploadList(UploadListActivity.this, "key");
                 UploadModel uploadModel = new UploadModel();
                 uploadModel.setFilePath(String.valueOf(filePath));
+                uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
                 UploadList.add(uploadModel);
                 PreferenceUtils.setImageUploadList(UploadListActivity.this,UploadList,"key");
                 upload_list.setAdapter(customAdapter);
@@ -895,6 +902,7 @@ public class UploadListActivity extends RootActivity {
             UploadList = PreferenceUtils.getImageUploadList(UploadListActivity.this,"key");
             UploadModel uploadModel = new UploadModel();
             uploadModel.setFilePath(String.valueOf(filePath));
+            uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
             UploadList.add(uploadModel);
             PreferenceUtils.setImageUploadList(UploadListActivity.this,UploadList,"key");
             upload_list.setAdapter(customAdapter);
@@ -908,6 +916,7 @@ public class UploadListActivity extends RootActivity {
                 UploadList = PreferenceUtils.getImageUploadList(UploadListActivity.this,"key");
                 UploadModel uploadModel = new UploadModel();
                 uploadModel.setFilePath(path);
+                uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
                 UploadList.add(uploadModel);
                 PreferenceUtils.setImageUploadList(UploadListActivity.this,UploadList,"key");
                 upload_list.setAdapter(customAdapter);
@@ -921,6 +930,7 @@ public class UploadListActivity extends RootActivity {
                 UploadList = PreferenceUtils.getImageUploadList(UploadListActivity.this,"key");
                 UploadModel uploadModel = new UploadModel();
                 uploadModel.setFilePath(path);
+                uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
                 UploadList.add(uploadModel);
                 PreferenceUtils.setImageUploadList(UploadListActivity.this,UploadList,"key");
                 upload_list.setAdapter(customAdapter);
@@ -975,9 +985,10 @@ public class UploadListActivity extends RootActivity {
     @Override
     public void onBackPressed() {
 
-         /* if(PreferenceUtils.getImageUploadList(context, "key") != null && PreferenceUtils.getImageUploadList(context, "key").size() > 0)
+          if(PreferenceUtils.getImageUploadList(context, "key") != null && PreferenceUtils.getImageUploadList(context, "key").size() > 0)
            {
-               showUploadWarningMessage();
+             //  showUploadWarningMessage();
+               showCancelAlert();
            }
            else
            {
@@ -988,14 +999,8 @@ public class UploadListActivity extends RootActivity {
               intent.putExtra("IsFromUpload", "Upload");
               startActivity(intent);
               finish();
-           }*/
-        gotoPreviousPage();
-
-      /*  Intent intent=new Intent(UploadListActivity.this,NavigationMyFolderActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        intent.putExtra("IsFromUpload", "Upload");
-        startActivity(intent);
-        finish();*/
+           }
+      //  gotoPreviousPage();
     }
 
     private void showUploadWarningMessage()
@@ -1206,6 +1211,7 @@ public class UploadListActivity extends RootActivity {
                 {
                     UploadModel uploadModel = new UploadModel();
                     uploadModel.setFilePath(fileItem.getFilePath());
+                    uploadModel.setObjectId(fileItem.getObjectId());
                     belowSizeFileList.add(uploadModel);
                 }
             }
@@ -1226,19 +1232,30 @@ public class UploadListActivity extends RootActivity {
                 String joinedString = TextUtils.join(", ", fileNameList);
                 Toast.makeText(context, joinedString+ " file(s) exceed more than "+PreferenceUtils.getMaxSizeUpload(context) + " MB", Toast.LENGTH_SHORT).show();
             }
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                Intent intent1 = new Intent(UploadListActivity.this, BackgroundUploadService.class);
-                intent1.putExtra("UploadedList", (ArrayList<UploadModel>)belowSizeFileList);
-                UploadListActivity.this.startForegroundService(intent1);
+            if(GlobalVariables.isBackgroundProcessRunning)
+            {
+                List<UploadModel> currentUpLoadList = PreferenceUtils.getCurrentUploadList(context, "key");
+                if(currentUpLoadList == null)
+                {
+                    currentUpLoadList = new ArrayList<>();
+                }
+                currentUpLoadList.addAll(belowSizeFileList);
+                PreferenceUtils.setCurrentUploadlist(context, currentUpLoadList, "key");
                 gotoPreviousPage();
             }
-            else
-            {
-                Intent intent1 = new Intent(UploadListActivity.this, BackgroundUploadService.class);
-                intent1.putExtra("UploadedList", (ArrayList<UploadModel>)belowSizeFileList);
-                startService(intent1);
-                gotoPreviousPage();
+            else {
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    Intent intent1 = new Intent(UploadListActivity.this, BackgroundUploadService.class);
+                    intent1.putExtra("UploadedList", (ArrayList<UploadModel>) belowSizeFileList);
+                    UploadListActivity.this.startForegroundService(intent1);
+                    gotoPreviousPage();
+                } else {
+                    Intent intent1 = new Intent(UploadListActivity.this, BackgroundUploadService.class);
+                    intent1.putExtra("UploadedList", (ArrayList<UploadModel>) belowSizeFileList);
+                    startService(intent1);
+                    gotoPreviousPage();
+                }
             }
 
            /* Intent intent1 = new Intent(UploadListActivity.this, BackgroundUploadService.class);
@@ -1422,6 +1439,7 @@ public class UploadListActivity extends RootActivity {
 
                                 UploadModel uploadModel = new UploadModel();
                                 uploadModel.setFilePath(UploadList.get(index).getFilePath());
+                                uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
                                 uploadFailedList.add(uploadModel);
                                 PreferenceUtils.setImageUploadList(context, uploadFailedList, "key");
 

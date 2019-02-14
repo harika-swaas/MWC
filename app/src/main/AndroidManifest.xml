@@ -42,6 +42,7 @@
         android:roundIcon="@mipmap/doc_ic_launcher"
         android:supportsRtl="true"
         tools:replace="allowBackup,supportsRtl"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:theme="@style/AppTheme">
         <activity
             android:name=".Login.LoginActivity"
@@ -201,12 +202,10 @@
         <!-- Production fabric key -->
 
 
-        <!--
-            <meta-data
+         <!--   <meta-data
             android:name="io.fabric.ApiKey"
             android:value="f65d8896b478db0bc4f72b5d76f323801dc0509e"
-            />
-        -->
+            />-->
 
 
         <!-- Testing fabric key -->

@@ -577,6 +577,7 @@ public class FTLPinVerificationFragment extends Fragment {
             categoryDocumentsResponse.setDownloadUrl(imageUrl);
             categoryDocumentsResponse.setDocument_version_id("123456");
             categoryDocumentsResponse.setName("Logo");
+            categoryDocumentsResponse.setIs_Downloaded(0);
 
             fileDownloadManager.setFileTitle("Logo");
             fileDownloadManager.setDownloadUrl(imageUrl);
@@ -616,6 +617,7 @@ public class FTLPinVerificationFragment extends Fragment {
             categoryDocumentsResponse.setDownloadUrl(imageUrl);
             categoryDocumentsResponse.setDocument_version_id("67890");
             categoryDocumentsResponse.setName("Logo");
+            categoryDocumentsResponse.setIs_Downloaded(0);
 
             fileDownloadManager.setFileTitle("Logo");
             fileDownloadManager.setDownloadUrl(imageUrl);

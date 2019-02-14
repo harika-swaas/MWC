@@ -59,7 +59,8 @@ public class PreferenceUtils {
 
     private static final String ISFROM_PUSHNOTIFICATION = "isFrom_PushNotification";
     private static final String NOTIFICATION_DELETE = "Notification_Delete";
-
+    private static final String FAILURE_UPLOADLIST = "Failure_UploadList";
+    private static final String CURRENT_UPLOADLIST = "Current_UploadList";
 
     public static void setAccessToken(Context context, String accesstoken) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
@@ -546,5 +547,38 @@ public class PreferenceUtils {
     }
 
 
+    public static void setFailureUploadlist(Context context, List<UploadModel> list, String key){
+        SharedPreferences sharedPreferences = context.getSharedPreferences(FAILURE_UPLOADLIST, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(list);
+        editor.putString(key, json);
+        editor.apply();     // This line is IMPORTANT !!!
+    }
+
+    public static List<UploadModel> getFailureUploadList(Context context,String key){
+        SharedPreferences sharedPreferences = context.getSharedPreferences(FAILURE_UPLOADLIST, Context.MODE_PRIVATE);
+        Gson gson = new Gson();
+        String json = sharedPreferences.getString(key, null);
+        Type type = new TypeToken<List<UploadModel>>() {}.getType();
+        return gson.fromJson(json, type);
+    }
+
+    public static void setCurrentUploadlist(Context context, List<UploadModel> list, String key){
+        SharedPreferences sharedPreferences = context.getSharedPreferences(CURRENT_UPLOADLIST, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(list);
+        editor.putString(key, json);
+        editor.apply();     // This line is IMPORTANT !!!
+    }
+
+    public static List<UploadModel> getCurrentUploadList(Context context,String key){
+        SharedPreferences sharedPreferences = context.getSharedPreferences(CURRENT_UPLOADLIST, Context.MODE_PRIVATE);
+        Gson gson = new Gson();
+        String json = sharedPreferences.getString(key, null);
+        Type type = new TypeToken<List<UploadModel>>() {}.getType();
+        return gson.fromJson(json, type);
+    }
 
 }

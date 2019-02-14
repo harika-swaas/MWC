@@ -3,9 +3,12 @@ package com.mwc.docportal.Adapters;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
+import android.os.Parcelable;
 import android.os.StrictMode;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
@@ -378,23 +381,59 @@ public class OffLineFilesListAdapter extends RecyclerView.Adapter<OffLineFilesLi
 
     private void openExternalShareActivity(OfflineFiles offlineFiles)
     {
-        String[] mimetypes = {"image/*", "application/*|text/*"};
+//        String[] mimetypes = {"image/*", "application/*|text/*"};
+//
+//        String imagePath = offlineFiles.getFilePath();
+//
+//        File imageFileToShare = new File(imagePath);
+//
+//        Uri uri = Uri.fromFile(imageFileToShare);
+//
+//        Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+//        sharingIntent.setType("*/*");
+//        String shareBody = "";
+//        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, offlineFiles.getFilename());
+//        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+//        sharingIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
+//        sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
+//        Intent.createChooser(sharingIntent,"Share via");
+//        context.startActivity(sharingIntent);
 
-        String imagePath = offlineFiles.getFilePath();
 
-        File imageFileToShare = new File(imagePath);
+        List<Intent> shareIntentsLists = new ArrayList<Intent>();
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.setType("*/*");
+        List<ResolveInfo> resInfos = context.getPackageManager().queryIntentActivities(shareIntent, 0);
+        if (!resInfos.isEmpty()) {
+            for (ResolveInfo resInfo : resInfos) {
+                String packageName = resInfo.activityInfo.packageName;
+                if (!packageName.toLowerCase().contains("docportal")) {
+                    String[] mimetypes = {"image/*", "application/*|text/*"};
+                    String imagePath = offlineFiles.getFilePath();
+                    File imageFileToShare = new File(imagePath);
+                    Uri uri = Uri.fromFile(imageFileToShare);
+                    Intent intent = new Intent();
+                    intent.setComponent(new ComponentName(packageName, resInfo.activityInfo.name));
+                    intent.setAction(Intent.ACTION_SEND);
+                    intent.setType("*/*");
+                    String shareBody = "";
+                    intent.putExtra(android.content.Intent.EXTRA_SUBJECT, offlineFiles.getFilename());
+                    intent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+                    intent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
+                    intent.putExtra(Intent.EXTRA_STREAM, uri);
+                    intent.setPackage(packageName);
+                    shareIntentsLists.add(intent);
+                }
+            }
+            if (!shareIntentsLists.isEmpty()) {
+                Intent chooserIntent = Intent.createChooser(shareIntentsLists.remove(0), "Share via");
+                chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, shareIntentsLists.toArray(new Parcelable[]{}));
+                context.startActivity(chooserIntent);
+            } else
+                Log.e("Error", "No Apps can perform your task");
 
-        Uri uri = Uri.fromFile(imageFileToShare);
-
-        Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
-        sharingIntent.setType("*/*");
-        String shareBody = "";
-        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, offlineFiles.getFilename());
-        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
-        sharingIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
-        sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
-        Intent.createChooser(sharingIntent,"Share via");
-        context.startActivity(sharingIntent);
+        }
     }
 
 
@@ -441,23 +480,59 @@ public class OffLineFilesListAdapter extends RecyclerView.Adapter<OffLineFilesLi
                 }
                 else
                 {
-                    String[] mimetypes = {"image/*", "application/*|text/*"};
+//                    String[] mimetypes = {"image/*", "application/*|text/*"};
+//
+//                    String imagePath = offlineFiles.getFilePath();
+//
+//                    File imageFileToShare = new File(imagePath);
+//
+//                    Uri uri = Uri.fromFile(imageFileToShare);
+//
+//                    Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+//                    sharingIntent.setType("*/*");
+//                    String shareBody = "";
+//                    sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, filename);
+//                    sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+//                    sharingIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
+//                    sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
+//                    Intent.createChooser(sharingIntent,"Share via");
+//                    context.startActivity(sharingIntent);
 
-                    String imagePath = offlineFiles.getFilePath();
 
-                    File imageFileToShare = new File(imagePath);
+                    List<Intent> shareIntentsLists = new ArrayList<Intent>();
+                    Intent shareIntent = new Intent();
+                    shareIntent.setAction(Intent.ACTION_SEND);
+                    shareIntent.setType("*/*");
+                    List<ResolveInfo> resInfos = context.getPackageManager().queryIntentActivities(shareIntent, 0);
+                    if (!resInfos.isEmpty()) {
+                        for (ResolveInfo resInfo : resInfos) {
+                            String packageName = resInfo.activityInfo.packageName;
+                            if (!packageName.toLowerCase().contains("docportal")) {
+                                String[] mimetypes = {"image/*", "application/*|text/*"};
+                                String imagePath = offlineFiles.getFilePath();
+                                File imageFileToShare = new File(imagePath);
+                                Uri uri = Uri.fromFile(imageFileToShare);
+                                Intent intent = new Intent();
+                                intent.setComponent(new ComponentName(packageName, resInfo.activityInfo.name));
+                                intent.setAction(Intent.ACTION_SEND);
+                                intent.setType("*/*");
+                                String shareBody = "";
+                                intent.putExtra(android.content.Intent.EXTRA_SUBJECT, filename);
+                                intent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+                                intent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
+                                intent.putExtra(Intent.EXTRA_STREAM, uri);
+                                intent.setPackage(packageName);
+                                shareIntentsLists.add(intent);
+                            }
+                        }
+                        if (!shareIntentsLists.isEmpty()) {
+                            Intent chooserIntent = Intent.createChooser(shareIntentsLists.remove(0), "Share via");
+                            chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, shareIntentsLists.toArray(new Parcelable[]{}));
+                            context.startActivity(chooserIntent);
+                        } else
+                            Log.e("Error", "No Apps can perform your task");
+                    }
 
-                    Uri uri = Uri.fromFile(imageFileToShare);
-
-                    Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
-                    sharingIntent.setType("*/*");
-                    String shareBody = "";
-                    sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, filename);
-                    sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
-                    sharingIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
-                    sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
-                    Intent.createChooser(sharingIntent,"Share via");
-                    context.startActivity(sharingIntent);
                 }
 
             }
@@ -504,23 +579,59 @@ public class OffLineFilesListAdapter extends RecyclerView.Adapter<OffLineFilesLi
 
                         if(CommonFunctions.isApiSuccess(context, message, response.body().getStatus().getCode()))
                         {
-                            String[] mimetypes = {"image/*", "application/*|text/*"};
+//                            String[] mimetypes = {"image/*", "application/*|text/*"};
+//
+//                            String imagePath = offlineFiles.getFilePath();
+//
+//                            File imageFileToShare = new File(imagePath);
+//
+//                            Uri uri = Uri.fromFile(imageFileToShare);
+//
+//                            Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+//                            sharingIntent.setType("*/*");
+//                            String shareBody = "";
+//                            sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, filename);
+//                            sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+//                            sharingIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
+//                            sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
+//                            Intent.createChooser(sharingIntent,"Share via");
+//                            context.startActivity(sharingIntent);
 
-                            String imagePath = offlineFiles.getFilePath();
+                            List<Intent> shareIntentsLists = new ArrayList<Intent>();
+                            Intent shareIntent = new Intent();
+                            shareIntent.setAction(Intent.ACTION_SEND);
+                            shareIntent.setType("*/*");
+                            List<ResolveInfo> resInfos = context.getPackageManager().queryIntentActivities(shareIntent, 0);
+                            if (!resInfos.isEmpty()) {
+                                for (ResolveInfo resInfo : resInfos) {
+                                    String packageName = resInfo.activityInfo.packageName;
+                                    if (!packageName.toLowerCase().contains("docportal")) {
+                                        String[] mimetypes = {"image/*", "application/*|text/*"};
+                                        String imagePath = offlineFiles.getFilePath();
+                                        File imageFileToShare = new File(imagePath);
+                                        Uri uri = Uri.fromFile(imageFileToShare);
+                                        Intent intent = new Intent();
+                                        intent.setComponent(new ComponentName(packageName, resInfo.activityInfo.name));
+                                        intent.setAction(Intent.ACTION_SEND);
+                                        intent.setType("*/*");
+                                        String shareBody = "";
+                                        intent.putExtra(android.content.Intent.EXTRA_SUBJECT, filename);
+                                        intent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+                                        intent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
+                                        intent.putExtra(Intent.EXTRA_STREAM, uri);
+                                        intent.setPackage(packageName);
+                                        shareIntentsLists.add(intent);
+                                    }
+                                }
+                                if (!shareIntentsLists.isEmpty()) {
+                                    Intent chooserIntent = Intent.createChooser(shareIntentsLists.remove(0), "Share via");
+                                    chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, shareIntentsLists.toArray(new Parcelable[]{}));
+                                    context.startActivity(chooserIntent);
+                                } else
+                                    Log.e("Error", "No Apps can perform your task");
 
-                            File imageFileToShare = new File(imagePath);
+                            }
 
-                            Uri uri = Uri.fromFile(imageFileToShare);
-
-                            Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
-                            sharingIntent.setType("*/*");
-                            String shareBody = "";
-                            sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, filename);
-                            sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
-                            sharingIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
-                            sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
-                            Intent.createChooser(sharingIntent,"Share via");
-                            context.startActivity(sharingIntent);
                         }
                     }
                     else {

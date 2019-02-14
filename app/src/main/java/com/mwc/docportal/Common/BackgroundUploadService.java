@@ -59,7 +59,7 @@ import retrofit.Retrofit;
 public class BackgroundUploadService extends IntentService
 {
     int index = 0;
-    List<UploadModel> uploadDataList;
+ //   List<UploadModel> uploadDataList;
     int notificationId = 1234;
     private NotificationManager mNotifyManager;
     private NotificationCompat.Builder mBuilder;
@@ -67,7 +67,7 @@ public class BackgroundUploadService extends IntentService
     private Context mContext;
     public static final String TAG = "FCMNotification";
     NotificationCompat.BigTextStyle bigText;
-  //  UploadNotificationReceiver uploadNotificationReceiver;
+    //  UploadNotificationReceiver uploadNotificationReceiver;
     public BackgroundUploadService(String name) {
         super(name);
     }
@@ -78,24 +78,24 @@ public class BackgroundUploadService extends IntentService
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        uploadDataList = (ArrayList<UploadModel>)intent.getSerializableExtra("UploadedList");
+        List<UploadModel> uploadDataList = (ArrayList<UploadModel>)intent.getSerializableExtra("UploadedList");
         if(uploadDataList != null && uploadDataList.size() > 0)
         {
             GlobalVariables.isBackgroundProcessRunning = true;
-            List<UploadModel> removeingList;
-            removeingList = PreferenceUtils.getImageUploadList(mContext, "key");
+            List<UploadModel> removeingList = null;
+        //    removeingList = PreferenceUtils.getFailureUploadList(mContext, "key");
             if(removeingList ==  null)
             {
                 removeingList = new ArrayList<>();
             }
             removeingList.addAll(uploadDataList);
-            PreferenceUtils.setImageUploadList(mContext, removeingList,"key");
+            PreferenceUtils.setCurrentUploadlist(mContext, removeingList,"key");
 
             uploadFailedList = new ArrayList<>();
             uploadFailedList.clear();
             startNotification();
-            if(uploadDataList.size()> index) {
-                uploadData(uploadDataList.get(index).getFilePath());
+            if(PreferenceUtils.getCurrentUploadList(mContext, "key").size()> index) {
+                uploadData(PreferenceUtils.getCurrentUploadList(mContext, "key").get(index));
             }
         }
     }
@@ -105,7 +105,7 @@ public class BackgroundUploadService extends IntentService
         mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         String channelId = "channel-01";
-        String channelName = getResources().getString(R.string.app_name)+"Channel";
+        String channelName = getResources().getString(R.string.app_name);
         int importance = NotificationManager.IMPORTANCE_HIGH;
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -128,7 +128,7 @@ public class BackgroundUploadService extends IntentService
         // Long notification text
 
         bigText = new NotificationCompat.BigTextStyle();
-        bigText.bigText("("+uploadDataList.size()+") file(s) have been uploaded and are being processed. They will be available in a few minutes.");
+
 
 
         // This is for Notification Click
@@ -138,11 +138,12 @@ public class BackgroundUploadService extends IntentService
         PendingIntent pendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
         mBuilder.setContentIntent(pendingIntent);
 
-
+        bigText.bigText(PreferenceUtils.getCurrentUploadList(mContext, "key")+" file(s)");
 
         mBuilder.setContentTitle("Uploading to "+getResources().getString(R.string.app_name))
-                .setContentText(uploadDataList.size()+" file(s)")
+                //  .setContentText(uploadDataList.size()+" file(s)")
                 .setSmallIcon(R.mipmap.ic_notification_icon)
+                .setStyle(bigText)
                 .setOnlyAlertOnce(true)
                 .addAction(R.mipmap.ic_cancel_btn, "CANCEL", snoozePendingIntent);
 
@@ -154,14 +155,18 @@ public class BackgroundUploadService extends IntentService
         }
         // must set color for notification icon
         mBuilder.setColor(getResources().getColor(R.color.notification_icon_color));
-        mBuilder.setProgress(uploadDataList.size(), index, false);
-        if(uploadDataList.size() == 1)
+        mBuilder.setProgress(PreferenceUtils.getCurrentUploadList(mContext, "key").size(), index, false);
+        if(PreferenceUtils.getCurrentUploadList(mContext, "key").size() == 1)
         {
-            mBuilder.setContentText(uploadDataList.size()+" file remaining");
+            bigText.bigText(PreferenceUtils.getCurrentUploadList(mContext, "key").size()+" file remaining");
+            mBuilder.setStyle(bigText);
+            //  mBuilder.setContentText(uploadDataList.size()+" file remaining");
         }
         else
         {
-            mBuilder.setContentText(uploadDataList.size()+" files remaining");
+            bigText.bigText(PreferenceUtils.getCurrentUploadList(mContext, "key").size()+" files remaining");
+            mBuilder.setStyle(bigText);
+            //  mBuilder.setContentText(uploadDataList.size()+" files remaining");
         }
 
         // Displays the progress bar for the first time.
@@ -170,15 +175,15 @@ public class BackgroundUploadService extends IntentService
     }
 
 
-    private void uploadData(String filePath)
+    private void uploadData(UploadModel uploadData)
     {
         if(checkIfNetworkAvailable(BackgroundUploadService.this))
         {
-            File file = new File(filePath);
+            File file = new File(uploadData.getFilePath());
 
             Retrofit retrofitAPI = RetrofitAPIBuilder.getUploadInstance();
 
-            final UploadEndUserDocumentsRequest mUploadEndUserDocumentsRequest = new UploadEndUserDocumentsRequest(PreferenceUtils.getObjectId(BackgroundUploadService.this),
+            final UploadEndUserDocumentsRequest mUploadEndUserDocumentsRequest = new UploadEndUserDocumentsRequest(uploadData.getObjectId(),
                     file.getName(), "", "", "");
 
             String request = new Gson().toJson(mUploadEndUserDocumentsRequest);
@@ -217,11 +222,11 @@ public class BackgroundUploadService extends IntentService
                             double status_value = new Double(response.body().getStatus().getCode().toString());
                             if (status_value == 401.3)
                             {
-                                uploadFailedMessage("Access denied");
+                                uploadFailedMessage("Access denied", true, uploadData);
                             }
                             else if(status_value ==  401 || status_value ==  401.0)
                             {
-                                uploadFailedMessage("Session expired");
+                                uploadFailedMessage("Session expired", false, uploadData);
                             }
                         }
                         else if(response.body().getStatus().getCode() instanceof Integer)
@@ -229,7 +234,7 @@ public class BackgroundUploadService extends IntentService
                             int integerValue = new Integer(response.body().getStatus().getCode().toString());
                             if(integerValue ==  401)
                             {
-                                uploadFailedMessage("Session expired");
+                                uploadFailedMessage("Session expired", false, uploadData);
                             }
                         }
                         else if(response.body().getStatus().getCode() instanceof Boolean)
@@ -238,27 +243,32 @@ public class BackgroundUploadService extends IntentService
                             {
                                 if(PreferenceUtils.getNotificationDelete(mContext) == null || PreferenceUtils.getNotificationDelete(mContext).isEmpty()) {
                                     UploadModel uploadModel = new UploadModel();
-                                    uploadModel.setFilePath(uploadDataList.get(index).getFilePath());
+                                    uploadModel.setFilePath(uploadData.getFilePath());
+                                    uploadModel.setObjectId(uploadData.getObjectId());
                                     uploadFailedList.add(uploadModel);
-                                    PreferenceUtils.setImageUploadList(BackgroundUploadService.this, uploadFailedList, "key");
+                                    PreferenceUtils.setFailureUploadlist(BackgroundUploadService.this, uploadFailedList, "key");
 
+                                    PreferenceUtils.getCurrentUploadList(mContext, "key").get(index).setFailure(true);
+                                    PreferenceUtils.getCurrentUploadList(mContext, "key").get(index).setSuccess(true);
+                                   /* uploadData.setFailure(true);
+                                    uploadData.setSuccess(true); // getting failure documents purpose*/
 
                                     index++;
-                                    mBuilder.setProgress(uploadDataList.size(), index, false);
+                                    mBuilder.setProgress(PreferenceUtils.getCurrentUploadList(mContext, "key").size(), index, false);
                                     // Displays the progress bar for the first time.
 
                                     assert mNotifyManager != null;
                                     mNotifyManager.notify(TAG, notificationId, mBuilder.build());
 
-                                    if (uploadDataList.size() > index) {
-                                        uploadData(uploadDataList.get(index).getFilePath());
+                                    if (PreferenceUtils.getCurrentUploadList(mContext, "key").size() > index) {
+                                        uploadData(PreferenceUtils.getCurrentUploadList(mContext, "key").get(index));
                                     } else {
                                         uploadCompleteMessage();
                                     }
                                 }
                                 else
                                 {
-                                   clearNotification();
+                                    clearNotification();
                                 }
 
                             }
@@ -266,32 +276,40 @@ public class BackgroundUploadService extends IntentService
 
                                 if(PreferenceUtils.getNotificationDelete(mContext) == null || PreferenceUtils.getNotificationDelete(mContext).isEmpty())
                                 {
-                                    List<UploadModel> removeingList = new ArrayList<>();
+                                   /* List<UploadModel> removeingList = new ArrayList<>();
                                     removeingList = PreferenceUtils.getImageUploadList(mContext, "key");
                                     if (removeingList.size() > 0) {
                                         removeingList.remove(0);
                                         PreferenceUtils.setImageUploadList(mContext, removeingList, "key");
-                                    }
+                                    }*/
 
+                                  //  uploadData.setSuccess(true);
+                                    PreferenceUtils.getCurrentUploadList(mContext, "key").get(index).setSuccess(true);
 
                                     index++;
-                                    mBuilder.setProgress(uploadDataList.size(), index, false);
+                                    mBuilder.setProgress(PreferenceUtils.getCurrentUploadList(mContext, "key").size(), index, false);
 
-                                    if (uploadDataList.size() > 1) {
+                                    if (PreferenceUtils.getCurrentUploadList(mContext, "key").size() > 1) {
                                         if (index == 1) {
-                                            mBuilder.setContentText(uploadDataList.size() - index + " file(s) remaining; " + index + " file added");
+                                            bigText.bigText(PreferenceUtils.getCurrentUploadList(mContext, "key").size() - index + " file(s) remaining; " + index + " file added");
+                                            mBuilder.setStyle(bigText);
+                                            // mBuilder.setContentText(uploadDataList.size() - index + " file(s) remaining; " + index + " file added");
                                         } else {
-                                            mBuilder.setContentText(uploadDataList.size() - index + " file(s) remaining; " + index + " files added");
+                                            bigText.bigText(PreferenceUtils.getCurrentUploadList(mContext, "key").size() - index + " file(s) remaining; " + index + " files added");
+                                            mBuilder.setStyle(bigText);
+                                            //  mBuilder.setContentText(uploadDataList.size() - index + " file(s) remaining; " + index + " files added");
                                         }
                                     } else {
-                                        mBuilder.setContentText("1 file remaining");
+                                        bigText.bigText("1 file remaining");
+                                        mBuilder.setStyle(bigText);
+                                        //   mBuilder.setContentText("1 file remaining");
                                     }
 
                                     assert mNotifyManager != null;
                                     mNotifyManager.notify(TAG, notificationId, mBuilder.build());
 
-                                    if (uploadDataList.size() > index) {
-                                        uploadData(uploadDataList.get(index).getFilePath());
+                                    if (PreferenceUtils.getCurrentUploadList(mContext, "key").size() > index) {
+                                        uploadData(PreferenceUtils.getCurrentUploadList(mContext, "key").get(index));
                                     } else {
                                         uploadCompleteMessage();
                                     }
@@ -306,14 +324,14 @@ public class BackgroundUploadService extends IntentService
 
                     }
                     else {
-                        uploadFailedMessage("Uploading Error");
+                        uploadFailedMessage("Uploading Error", true, uploadData);
                     }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     Log.d("Message", t.getMessage());
-                    uploadFailedMessage("Try again after sometime");
+                    uploadFailedMessage("Try again after sometime", true, uploadData);
                 }
             });
         }
@@ -322,12 +340,28 @@ public class BackgroundUploadService extends IntentService
 
     private void uploadCompleteMessage()
     {
-        GlobalVariables.isBackgroundProcessRunning = false;
-        index = 0;
-        mBuilder.setContentTitle("Upload completed")
-                .setProgress(0, 0, false)
-                .setStyle(bigText)
-                .mActions.clear();
+        if(PreferenceUtils.getFailureUploadList(mContext, "key") != null && PreferenceUtils.getFailureUploadList(mContext, "key").size() > 0)
+        {
+            bigText.bigText(PreferenceUtils.getFailureUploadList(mContext, "key").size()+" file(s) not uploaded.");
+            GlobalVariables.isBackgroundProcessRunning = false;
+            index = 0;
+            mBuilder.setContentTitle("Upload failed")
+                    .setProgress(0, 0, false)
+                    .setStyle(bigText)
+                    .mActions.clear();
+        }
+        else
+        {
+            bigText.bigText(PreferenceUtils.getCurrentUploadList(mContext, "key").size()+" file(s) have been uploaded and are being processed. They will be available in a few minutes.");
+            GlobalVariables.isBackgroundProcessRunning = false;
+            index = 0;
+            mBuilder.setContentTitle("Upload completed")
+                    .setProgress(0, 0, false)
+                    .setStyle(bigText)
+                    .mActions.clear();
+        }
+
+
 
        /* if(uploadDataList.size() == 1)
         {
@@ -345,6 +379,8 @@ public class BackgroundUploadService extends IntentService
         }*/
         assert mNotifyManager != null;
         mNotifyManager.notify(TAG, notificationId, mBuilder.build());
+        List<UploadModel> uploadList = new ArrayList<>();
+        PreferenceUtils.setCurrentUploadlist(mContext, uploadList, "key");
         stopSelf();
     }
 
@@ -370,14 +406,74 @@ public class BackgroundUploadService extends IntentService
         return false;
     }
 
-    public void uploadFailedMessage(String uploadMessage)
+    public void uploadFailedMessage(String uploadMessage, boolean isFailure, UploadModel uploadDAta)
     {
-        mBuilder.setContentTitle("Upload failed")
-                .setContentText(uploadMessage)
-                .setProgress(0,0,false)
-                .mActions.clear();
-        assert mNotifyManager != null;
-        mNotifyManager.notify(TAG, notificationId, mBuilder.build());
+        if(isFailure)
+        {
+            if(PreferenceUtils.getNotificationDelete(mContext) == null || PreferenceUtils.getNotificationDelete(mContext).isEmpty()) {
+                UploadModel uploadModel = new UploadModel();
+                uploadModel.setFilePath(uploadDAta.getFilePath());
+                uploadModel.setObjectId(uploadDAta.getObjectId());
+                uploadFailedList.add(uploadModel);
+                PreferenceUtils.setFailureUploadlist(BackgroundUploadService.this, uploadFailedList, "key");
+
+                PreferenceUtils.getCurrentUploadList(mContext, "key").get(index).setFailure(true);
+             //   PreferenceUtils.getCurrentUploadList(mContext, "key").get(index).setSuccess(true); // getting failure documents purpose
+                                   /* uploadData.setFailure(true);
+                                    uploadData.setSuccess(true); */
+
+                index++;
+                mBuilder.setProgress(PreferenceUtils.getCurrentUploadList(mContext, "key").size(), index, false);
+                // Displays the progress bar for the first time.
+
+                assert mNotifyManager != null;
+                mNotifyManager.notify(TAG, notificationId, mBuilder.build());
+
+                if (PreferenceUtils.getCurrentUploadList(mContext, "key").size() > index) {
+                    uploadData(PreferenceUtils.getCurrentUploadList(mContext, "key").get(index));
+                } else {
+                    uploadCompleteMessage();
+                }
+            }
+            else
+            {
+                clearNotification();
+            }
+
+        /*    List<UploadModel> remainingList = PreferenceUtils.getFailureUploadList(mContext,"key");
+            if(remainingList == null)
+            {
+                remainingList = new ArrayList<>();
+            }
+            for(UploadModel uploadModel : PreferenceUtils.getCurrentUploadList(mContext,"key"))
+            {
+                if(uploadModel.isSuccess() == false)
+                {
+                    remainingList.add(uploadModel);
+                }
+            }
+
+            if(remainingList != null && remainingList.size() > 0)
+            {
+                PreferenceUtils.setFailureUploadlist(mContext, remainingList, "key");
+            }
+
+            List<UploadModel> uploadList = new ArrayList<>();
+            PreferenceUtils.setCurrentUploadlist(mContext, uploadList, "key");*/
+
+        }
+        else
+        {
+            bigText.bigText(uploadMessage);
+            mBuilder.setContentTitle("Upload failed")
+                    //  .setContentText(uploadMessage)
+                    .setProgress(0,0,false)
+                    .setStyle(bigText)
+                    .mActions.clear();
+            assert mNotifyManager != null;
+            mNotifyManager.notify(TAG, notificationId, mBuilder.build());
+        }
+
         stopSelf();
         GlobalVariables.isBackgroundProcessRunning = false;
     }
@@ -396,7 +492,7 @@ public class BackgroundUploadService extends IntentService
         super.onCreate();
         if (Build.VERSION.SDK_INT >= 26) {
             String channelId = "channel-01";
-            String channelName = getResources().getString(R.string.app_name)+" Channel";
+            String channelName = getResources().getString(R.string.app_name);
             NotificationChannel channel = new NotificationChannel(channelId,
                     channelName,
                     NotificationManager.IMPORTANCE_DEFAULT);

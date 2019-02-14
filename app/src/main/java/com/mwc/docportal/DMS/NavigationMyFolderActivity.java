@@ -143,6 +143,7 @@ import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
 import com.mwc.docportal.Utils.Constants;
 import com.mwc.docportal.Utils.DateHelper;
+import com.mwc.docportal.Utils.SplashScreen;
 import com.mwc.docportal.pdf.PdfViewActivity;
 import com.vincent.filepicker.Constant;
 import com.vincent.filepicker.activity.ImagePickActivity;
@@ -306,7 +307,8 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             showBottomView();
         }
 
-        if(PreferenceUtils.getImageUploadList(context, "key") != null && PreferenceUtils.getImageUploadList(context, "key").size() > 0)
+        if((PreferenceUtils.getImageUploadList(context, "key") != null && PreferenceUtils.getImageUploadList(context, "key").size() > 0) ||
+                (PreferenceUtils.getFailureUploadList(context, "key") != null) && (PreferenceUtils.getFailureUploadList(context, "key").size() > 0))
         {
             if(!GlobalVariables.isBackgroundProcessRunning)
             {
@@ -972,8 +974,16 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 if( GlobalVariables.otherAppDocumentList.size() > 0)
                 {
                     GlobalVariables.otherAppDocumentList.clear();
+                    GlobalVariables.activityFinishCount = 0;
                     finishAffinity();
-                    System.exit(0);
+                    /*Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    intent.putExtra("EXIT", true);
+                    startActivity(intent);
+                    finish();*/
+
+                  //  finishAndRemoveTask();
+                  //  System.exit(0);
                 }
 
             }
@@ -1688,6 +1698,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         sort_image = (ImageView) findViewById(R.id.sort_image);
         move_layout = (RelativeLayout) findViewById(R.id.move_layout);
         move_textview = (TextView) findViewById(R.id.move_textview);
+        move_textview.setEnabled(true);
         cancel_textview = (TextView) findViewById(R.id.cancel_textview);
         sorting_layout = (LinearLayout) findViewById(R.id.sorting_layout);
         bottomNavigationLayout = (BottomNavigationView) findViewById(R.id.navigation);
@@ -2085,6 +2096,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
                             UploadModel uploadModel = new UploadModel();
                             uploadModel.setFilePath(String.valueOf(filePath));
+                            uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
                             list_upload.add(uploadModel);
                             PreferenceUtils.setImageUploadList(context,list_upload,"key");
                             //   PreferenceUtils.setupload(getContext(),list_upload,"key");
@@ -2103,6 +2115,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                         list_upload = PreferenceUtils.getImageUploadList(context,"key");
                         UploadModel uploadModel = new UploadModel();
                         uploadModel.setFilePath(String.valueOf(filePath));
+                        uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
                         list_upload.add(uploadModel);
                         PreferenceUtils.setImageUploadList(context,list_upload,"key");
 
@@ -2114,6 +2127,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                     String filepath = getRealPathFromURIPath(fileUri, context);
                     UploadModel uploadModel = new UploadModel();
                     uploadModel.setFilePath(filepath);
+                    uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
                     list_upload.add(uploadModel);
                     PreferenceUtils.setImageUploadList(context,list_upload,"key");
                 }
@@ -2131,6 +2145,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
                 UploadModel uploadModel = new UploadModel();
                 uploadModel.setFilePath(String.valueOf(filePath));
+                uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
                 list_upload.add(uploadModel);
                 PreferenceUtils.setImageUploadList(context,list_upload,"key");
 
@@ -2160,6 +2175,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
             UploadModel uploadModel = new UploadModel();
             uploadModel.setFilePath(String.valueOf(filePath));
+            uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
             list_upload.add(uploadModel);
             PreferenceUtils.setImageUploadList(context,list_upload,"key");
             list_upload.clear();
@@ -2183,6 +2199,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
                 UploadModel uploadModel = new UploadModel();
                 uploadModel.setFilePath(path);
+                uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
                 list_upload.add(uploadModel);
 
                 PreferenceUtils.setImageUploadList(NavigationMyFolderActivity.this,list_upload,"key");
@@ -2207,6 +2224,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 {
                     UploadModel uploadModel = new UploadModel();
                     uploadModel.setFilePath(path);
+                    uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
                     list_upload.add(uploadModel);
                 }
 
@@ -2231,6 +2249,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 {
                     UploadModel uploadModel = new UploadModel();
                     uploadModel.setFilePath(path);
+                    uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
                     list_upload.add(uploadModel);
                 }
                 PreferenceUtils.setImageUploadList(NavigationMyFolderActivity.this,list_upload,"key");
@@ -4071,6 +4090,20 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
     private void gotoUploadListActivity()
     {
+        if(PreferenceUtils.getFailureUploadList(context, "key") != null && PreferenceUtils.getFailureUploadList(context, "key").size() > 0)
+        {
+            List<UploadModel> failureList = PreferenceUtils.getImageUploadList(context, "key");
+            if(failureList == null)
+            {
+                failureList = new ArrayList<>();
+            }
+            failureList.addAll(PreferenceUtils.getFailureUploadList(context, "key"));
+            PreferenceUtils.setImageUploadList(context, failureList, "key");
+
+            List<UploadModel> uploadData = new ArrayList<>();
+            PreferenceUtils.setFailureUploadlist(context, uploadData, "key");
+        }
+
         Intent intent = new Intent(NavigationMyFolderActivity.this, UploadListActivity.class);
         startActivity(intent);
     }
@@ -4844,14 +4877,16 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
     public void downloadLogoImage(String imageUrl, String companyName)
     {
         if (!TextUtils.isEmpty(imageUrl)) {
-            FileDownloadManager fileDownloadManager = new FileDownloadManager(NavigationMyFolderActivity.this);
             GetCategoryDocumentsResponse categoryDocumentsResponse = new GetCategoryDocumentsResponse();
             categoryDocumentsResponse.setDownloadUrl(imageUrl);
             categoryDocumentsResponse.setDocument_version_id("123456");
             categoryDocumentsResponse.setName("Logo");
+            categoryDocumentsResponse.setFilename("Logo");
+            categoryDocumentsResponse.setIs_Downloaded(0);
 
+            FileDownloadManager fileDownloadManager = new FileDownloadManager(NavigationMyFolderActivity.this);
             fileDownloadManager.setFileTitle("Logo");
-            fileDownloadManager.setDownloadUrl(imageUrl);
+            fileDownloadManager.setDownloadUrl(categoryDocumentsResponse.getDownloadUrl());
             fileDownloadManager.setDigitalAssets(categoryDocumentsResponse);
             fileDownloadManager.setmFileDownloadListener(new FileDownloadManager.FileDownloadListener() {
                 @Override
@@ -4944,6 +4979,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
     private void uploadValidation()
     {
+
         List<UploadModel> userSharedDocList =  GlobalVariables.otherAppDocumentList;
         List<String> fileSizeExceedList = new ArrayList<>();
         List<UploadModel> belowSizeFileList = new ArrayList<>();
@@ -4962,6 +4998,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 {
                     UploadModel uploadModel = new UploadModel();
                     uploadModel.setFilePath(fileItem.getFilePath());
+                    uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
                     belowSizeFileList.add(uploadModel);
                 }
             }
@@ -4994,6 +5031,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 {
                     UploadModel uploadModel = new UploadModel();
                     uploadModel.setFilePath(fileName.getFilePath());
+                    uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
                     filteredDataList.add(uploadModel);
 
                 }
@@ -5017,6 +5055,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                         {
                             UploadModel uploadModel = new UploadModel();
                             uploadModel.setFilePath(fileItem.getFilePath());
+                            uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
                             OriginalUploadList.add(uploadModel);
                         }
                     }
@@ -5040,18 +5079,42 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                     Toast.makeText(context, joinedString +" file format(s) not supported", Toast.LENGTH_SHORT).show();
                 }*/
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    List<UploadModel> uploadedDAta = OriginalUploadList;
-                    Intent intent1 = new Intent(NavigationMyFolderActivity.this, BackgroundUploadService.class);
-                    intent1.putExtra("UploadedList", (ArrayList<UploadModel>)uploadedDAta);
-                    NavigationMyFolderActivity.this.startForegroundService(intent1);
+                if(GlobalVariables.isBackgroundProcessRunning)
+                {
+                    List<UploadModel> currentLoadList = PreferenceUtils.getCurrentUploadList(context, "key");
+                    if(currentLoadList == null)
+                    {
+                        currentLoadList = new ArrayList<>();
+                    }
+                    currentLoadList.addAll(OriginalUploadList);
+                    PreferenceUtils.setCurrentUploadlist(context, currentLoadList, "key");
                     callExitApp();
-                } else {
-                    List<UploadModel> uploadedDAta = OriginalUploadList;
-                    Intent intent1 = new Intent(NavigationMyFolderActivity.this, BackgroundUploadService.class);
-                    intent1.putExtra("UploadedList", (ArrayList<UploadModel>)uploadedDAta);
-                    startService(intent1);
-                    callExitApp();
+                }
+                else {
+                    LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
+                    transparentProgressDialog.show();
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        List<UploadModel> uploadedDAta = OriginalUploadList;
+                        Intent intent1 = new Intent(NavigationMyFolderActivity.this, BackgroundUploadService.class);
+                        intent1.putExtra("UploadedList", (ArrayList<UploadModel>) uploadedDAta);
+                        NavigationMyFolderActivity.this.startForegroundService(intent1);
+                        Handler handler = new Handler();
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                //Do something after 3000ms
+                                callExitApp();
+                            }
+                        }, 3000);
+                        //  callExitApp();
+                    } else {
+                        List<UploadModel> uploadedDAta = OriginalUploadList;
+                        Intent intent1 = new Intent(NavigationMyFolderActivity.this, BackgroundUploadService.class);
+                        intent1.putExtra("UploadedList", (ArrayList<UploadModel>) uploadedDAta);
+                        startService(intent1);
+                        callExitApp();
+                    }
                 }
 
             }
@@ -5118,8 +5181,9 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
     private void callExitApp() {
         cancel_textview.performClick();
-        finishAffinity();
-        System.exit(0);
+     //   finishAffinity();
+      //  System.exit(0);
+       // finishAndRemoveTask();
     }
 
 }

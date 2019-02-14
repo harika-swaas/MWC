@@ -14,7 +14,6 @@ public class Constants {
     public static final String COMPANY_BASE_URL = "https://uatapi.mywealthcloud.com";
     public static final String LOGO_IMAGE_BASE_URL = "http://uatweb.docportal.co.uk";
 
-
     // ***************************** Production ********************************************
   /*  public static final String COMPANY_BASE_URL = "https://app1.mywealthcloud.com";
     public static final String LOGO_IMAGE_BASE_URL = "https://app.docportal.co.uk";*/
