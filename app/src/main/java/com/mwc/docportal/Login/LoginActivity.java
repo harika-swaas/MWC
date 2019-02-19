@@ -13,9 +13,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.ParcelFileDescriptor;
-import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
@@ -43,7 +40,6 @@ import com.mwc.docportal.Utils.Constants;
 import com.mwc.docportal.Utils.SplashScreen;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -51,7 +47,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -91,6 +86,10 @@ public class LoginActivity extends RootActivity {
         if (Intent.ACTION_SEND.equals(action) && type != null) {
             Uri imageUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
 
+          /*  LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
+            transparentProgressDialog.show();*/
+
+
             if (imageUri != null) {
 
                 if(imageUri.getScheme().contains("file"))
@@ -120,6 +119,7 @@ public class LoginActivity extends RootActivity {
 
                     Log.d("FilePath", filePath);
                 }
+
 
 /*
                 if(imageUri.toString().contains("com.google.android.apps.docs.storage"))
@@ -165,10 +165,23 @@ public class LoginActivity extends RootActivity {
                     }
                 }*/
             }
+            else
+            {
+                GlobalVariables.isFromDocumentLink = true;
+            }
+
+           /* if(transparentProgressDialog != null && transparentProgressDialog.isShowing())
+            {
+                transparentProgressDialog.dismiss();
+            }*/
         }
         else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
             List<UploadModel> fileUploadList = null;
             ArrayList<Uri> imageUrisList = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+
+           /* LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
+            transparentProgressDialog.show();*/
+
             if (imageUrisList != null) {
                 for (Uri fileUri : imageUrisList) {
 
@@ -238,6 +251,13 @@ public class LoginActivity extends RootActivity {
                     GlobalVariables.otherAppDocumentList.addAll(fileUploadList);
                 }
             }
+
+        //    getWindow().setBackgroundDrawableResource(R.drawable.empty_drawable_file);
+          /*  if(transparentProgressDialog != null && transparentProgressDialog.isShowing())
+            {
+                transparentProgressDialog.dismiss();
+            }*/
+
         }
 
         if(GlobalVariables.otherAppDocumentList != null && GlobalVariables.otherAppDocumentList.size() > 0)
@@ -246,6 +266,8 @@ public class LoginActivity extends RootActivity {
             GlobalVariables.selectedActionName = "upload";
             GlobalVariables.activityFinishCount = 0;
         }
+
+
 
 
         if(getIntent().getStringExtra("document_version_id") != null)
@@ -263,7 +285,6 @@ public class LoginActivity extends RootActivity {
 
 
 
-
     private void loadFTLFragment() {
 
         getSupportFragmentManager().beginTransaction().replace(R.id.login_fragment, mLoginFragment).
@@ -274,8 +295,7 @@ public class LoginActivity extends RootActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        storageAccessPermission();
-
+           storageAccessPermission();
     }
 
 
@@ -306,6 +326,11 @@ public class LoginActivity extends RootActivity {
 
 
         if (TextUtils.isEmpty(loginStatus)) {
+
+            if(GlobalVariables.isFromDocumentLink == true)
+            {
+                showAlertForLinkDocument();
+            }
 
         }
         else
@@ -397,81 +422,6 @@ public class LoginActivity extends RootActivity {
 
 
 
-   /* @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private void checkAppStatusAfterPushNotification(final List<AccountSettingsResponse> mAccountSettingsResponses) {
-
-        if(mAccountSettingsResponses.get(0).getIs_Terms_Accepted().equals("0")){
-            if(mAccountSettingsResponses.get(0).getIs_Local_Auth_Enabled().equalsIgnoreCase("1")) {
-            //    checkCredentials();
-            }
-            Intent intent = new Intent(LoginActivity.this, SplashScreen.class);
-            startActivity(intent);
-            finish();
-
-            int timeout = 2000; // make the activity visible for 2 seconds
-
-            Timer timer = new Timer();
-            timer.schedule(new TimerTask() {
-
-                @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-                @Override
-                public void run() {
-                    finish();
-
-                    startActivity(new Intent(LoginActivity.this, LoginAgreeTermsAcceptanceActivity.class));
-                    LoginActivity.this.finish();
-                }
-            }, timeout);
-        }
-        else if(mAccountSettingsResponses.get(0).getIs_Help_Accepted().equals("1")){
-            if(mAccountSettingsResponses.get(0).getIs_Local_Auth_Enabled().equalsIgnoreCase("1")) {
-                checkCredentials();
-            }
-            Intent intent = new Intent(LoginActivity.this, SplashScreen.class);
-            startActivity(intent);
-            finish();
-
-            int timeout = 2000; // make the activity visible for 2 seconds
-
-            Timer timer = new Timer();
-            timer.schedule(new TimerTask() {
-
-                @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-                @Override
-                public void run() {
-                    finish();
-                    startActivity(new Intent(LoginActivity.this, LoginHelpUserGuideActivity.class));
-                    LoginActivity.this.finish();
-                }
-            }, timeout);
-        }
-        else {
-
-            Intent intent = new Intent(LoginActivity.this, SplashScreen.class);
-            startActivity(intent);
-            finish();
-
-            int timeout = 2000; // make the activity visible for 2 seconds
-
-            Timer timer = new Timer();
-            timer.schedule(new TimerTask() {
-
-                @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-                @Override
-                public void run() {
-                    finish();
-
-                    if(mAccountSettingsResponses.get(0).getIs_Local_Auth_Enabled().equalsIgnoreCase("1")) {
-                        checkCredentials();
-                    }
-
-                    startActivity(new Intent(LoginActivity.this, NavigationMyFolderActivity.class));
-                    LoginActivity.this.finish();
-
-                }
-            }, timeout);
-        }
-    }*/
 
     private void getLoggedInStatus() {
 
@@ -858,54 +808,6 @@ public class LoginActivity extends RootActivity {
         }
 
         return path;
-
-       /* String sourceFilename= uri.getPath();
-        File file = new File(new File(Environment.getExternalStorageDirectory(), "DriveTestData"), fileName);
-
-        BufferedInputStream bis = null;
-        BufferedOutputStream bos = null;
-
-        try {
-            bis = new BufferedInputStream(new FileInputStream(sourceFilename));
-            bos = new BufferedOutputStream(new FileOutputStream(file, false));
-            byte[] buf = new byte[1024];
-            bis.read(buf);
-            do {
-                bos.write(buf);
-            } while(bis.read(buf) != -1);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (bis != null) bis.close();
-                if (bos != null) bos.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }*/
-
-        /*FileOutputStream fos = null;
-        File fildData = new File(new File(Environment.getExternalStorageDirectory(), "DriveTestData"), fileName);
-        try {
-            fos = new FileOutputStream(fildData);
-            try (BufferedOutputStream out = new BufferedOutputStream(fos);
-                 InputStream in = context.getContentResolver().openInputStream(uri))
-            {
-                byte[] buffer = new byte[8192];
-                int len = 0;
-
-                while ((len = in.read(buffer)) >= 0) {
-                    out.write(buffer, 0, len);
-                }
-
-                out.flush();
-            } finally {
-                fos.getFD().sync();
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }*/
     }
 
     public static byte[] getFileFromPath(File file) {
@@ -942,22 +844,31 @@ public class LoginActivity extends RootActivity {
             int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
             fileName = cursor.getString(nameIndex).trim();
 
+
+
             String fileExtensionData = fileName.substring( fileName.lastIndexOf(".") + 1);
             String extension = "." + GetFileExtension(contentUri);
+            if(extension.equalsIgnoreCase(".null"))
+            {
+                if(!fileName.equalsIgnoreCase(fileExtensionData))
+                {
+                    extension ="."+ fileExtensionData;
+                }
+                else
+                {
+                     String mimeType = getMimeType(context, contentUri);
+                     if(mimeType != null)
+                     {
+                        extension ="."+ PathUtil.guessExtensionFromMimeType(mimeType);
+                     }
+                }
+
+            }
+
             if(!fileName.contains(extension))
             {
               fileName = fileName + extension;
             }
-
-            /*String extension = "." + GetFileExtension(contentUri);
-            if(!fileName.contains("."))
-            {
-                String fileExtensionData = fileName.substring(fileName.lastIndexOf(".")).trim();
-                if (fileExtensionData == null || fileExtensionData.isEmpty()) {
-                    fileName = fileName + extension;
-                }
-            }*/
-
 
         }
         if (cursor != null) {
@@ -973,33 +884,62 @@ public class LoginActivity extends RootActivity {
         MimeTypeMap mimeTypeMap=MimeTypeMap.getSingleton();
 
         // Return file Extension
-        return mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri));
+        return mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri).toLowerCase());
     }
 
-    private void createFileFromInputStream(InputStream inputStream, String fileNamedata) {
 
-        File fildData = new File(new File(Environment.getExternalStorageDirectory(), "DriveTestData"), fileNamedata);
-        try {
-            try (OutputStream output = new FileOutputStream(fildData)) {
-                byte[] buffer = new byte[4 * 1024]; // or other buffer size
-                int read;
-                while ((read = inputStream.read(buffer)) != -1) {
-                    output.write(buffer, 0, read);
-                }
-                output.flush();
+
+    private void showAlertForLinkDocument()
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Alert");
+
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+        txtMessage.setText("Links from other apps cannot be saved in Doc Portal. You may download file(s) and share them separately into Doc Portal.");
+
+        Button okButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+        cancelButton.setText("Cancel");
+        cancelButton.setVisibility(View.GONE);
+
+        okButton.setText("Ok");
+
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+                GlobalVariables.isFromDocumentLink = false;
+                finishAffinity();
+
             }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                inputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        });
+
+
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
+    }
+
+    public String getMimeType(Context context, Uri uri) {
+        String mimeType = null;
+        if (ContentResolver.SCHEME_CONTENT.equals(uri.getScheme())) {
+            ContentResolver cr = context.getContentResolver();
+            mimeType = cr.getType(uri);
+        } else {
+            String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri
+                    .toString());
+            mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
+                    fileExtension.toLowerCase());
         }
-
+        return mimeType;
     }
 
 }
