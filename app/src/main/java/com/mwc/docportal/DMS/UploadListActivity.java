@@ -274,9 +274,9 @@ public class UploadListActivity extends RootActivity {
         Button okButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
-        cancelButton.setText("Cancel");
+        cancelButton.setText("No");
 
-        okButton.setText("Ok");
+        okButton.setText("Yes");
 
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1568,7 +1568,12 @@ public class UploadListActivity extends RootActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        unregisterReceiver(networkReceiver);
+        try {
+            unregisterReceiver(networkReceiver);
+        } catch (Exception e){
+            // already unregistered
+        }
+
         if (mCustomAlertDialog != null) {
             mCustomAlertDialog.dismiss();
             mCustomAlertDialog = null;

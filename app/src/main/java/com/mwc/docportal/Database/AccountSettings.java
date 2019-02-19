@@ -541,6 +541,7 @@ public class AccountSettings {
         GlobalVariables.sharedRootDocumentList.clear();
         GlobalVariables.otherAppDocumentList.clear();
         GlobalVariables.isBackgroundProcessRunning = false;
+        GlobalVariables.isFromDocumentLink = false;
 
         Intent intent = new Intent(mContext, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);

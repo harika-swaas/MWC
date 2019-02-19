@@ -1,5 +1,5 @@
 <resources>
-    <string name="versionCode">11</string>
+    <string name="versionCode">12</string>
     <string name="versionName">1.9</string>
     <string name="app_name">Doc Portal</string>
     <string name="ok">Ok</string>
@@ -175,5 +175,6 @@
     <string name="default_notification_channel_id">default_channel_id</string>
     <string name="default_notification_channel_title">Default Channel</string>
     <string name="upload_beginning_message">Please remain on this screen until your files have uploaded</string>
+    <string name="loading_wait_txt">Loading Please wait...</string>
 
 </resources>

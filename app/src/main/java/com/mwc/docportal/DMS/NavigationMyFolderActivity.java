@@ -965,7 +965,11 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 GlobalVariables.isMoveInitiated = false;
                 GlobalVariables.selectedDocumentsList.clear();
                 GlobalVariables.selectedActionName = "";
-                mAdapterList.clearAll();
+                if(mAdapterList != null)
+                {
+                    mAdapterList.clearAll();
+                }
+
                 hideBottomView();
                 reloadAdapterData(false);
                 GlobalVariables.activityFinishCount = (GlobalVariables.activityCount - GlobalVariables.moveOriginIndex) - 1;
@@ -4979,6 +4983,54 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
     private void uploadValidation()
     {
+       /* LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(context);
+        transparentProgressDialog.show();*/
+
+        /*if(GlobalVariables.otherAppDocumentList != null && GlobalVariables.otherAppDocumentList.size() > 0)
+        {
+            List<UploadModel> fileUploadList = null;
+            for(Uri uriModel : GlobalVariables.otherAppDocumentList)
+            {
+                if(uriModel.getScheme().contains("file"))
+                {
+                    String filePath = fileUri.getPath();
+                    if(fileUploadList == null)
+                    {
+                        fileUploadList = new ArrayList<>();
+                    }
+
+                    if (filePath != null && !filePath.isEmpty()) {
+                        UploadModel uploadModel = new UploadModel();
+                        uploadModel.setFilePath(filePath);
+                        fileUploadList.add(uploadModel);
+                    }
+                }
+                else
+                {
+                    String fileName = getFileNameFromUri(fileUri);
+                    if(fileName == null)
+                    {
+                        fileName = " ";
+                    }
+
+                    String filePath = storeAllDataInLocalFromUri(fileUri, fileName);
+                    if(fileUploadList == null)
+                    {
+                        fileUploadList = new ArrayList<>();
+                    }
+
+                    if (filePath != null && !filePath.isEmpty()) {
+                        UploadModel uploadModel = new UploadModel();
+                        uploadModel.setFilePath(filePath);
+                        fileUploadList.add(uploadModel);
+                    }
+
+                    Log.d("FilePath", filePath);
+
+                }
+            }
+        }*/
+
 
         List<UploadModel> userSharedDocList =  GlobalVariables.otherAppDocumentList;
         List<String> fileSizeExceedList = new ArrayList<>();
@@ -5104,11 +5156,13 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                             @Override
                             public void run() {
                                 //Do something after 3000ms
+                                transparentProgressDialog.dismiss();
                                 callExitApp();
                             }
                         }, 3000);
                         //  callExitApp();
                     } else {
+                        transparentProgressDialog.dismiss();
                         List<UploadModel> uploadedDAta = OriginalUploadList;
                         Intent intent1 = new Intent(NavigationMyFolderActivity.this, BackgroundUploadService.class);
                         intent1.putExtra("UploadedList", (ArrayList<UploadModel>) uploadedDAta);

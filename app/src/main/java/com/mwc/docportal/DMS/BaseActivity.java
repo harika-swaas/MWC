@@ -51,6 +51,8 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
         super.onCreate(savedInstanceState);
         setContentView(getContentViewId());
 
+        GlobalVariables.isFromDocumentLink = false;   // Link from External Share app list
+
         navigationView = (BottomNavigationView) findViewById(R.id.navigation);
         navigationView.setOnNavigationItemSelectedListener(this);
 

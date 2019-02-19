@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -34,6 +35,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -358,7 +360,15 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
 
 
-                    showWarningMessgeForExternalShare(categoryDocumentsResponse);
+                 //   showWarningMessgeForExternalShare(categoryDocumentsResponse);
+
+                    OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(context);
+                    String filepath = offLine_files_repository.getFilePathFromLocalTable(categoryDocumentsResponse.getDocument_version_id());
+
+                    ShowAvailableVideoAppList(categoryDocumentsResponse, filepath);
+
+                  //  getExternalSharingContentAPI(categoryDocumentsResponse.getFilename(), categoryDocumentsResponse.getDocument_version_id(), filepath);
+
 
                 }
 
@@ -368,6 +378,49 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
 
 
+    }
+
+    private void ShowAvailableVideoAppList(GetCategoryDocumentsResponse categoryDocumentsResponse, String filepath)
+    {
+        String fileformat = "."+categoryDocumentsResponse.getFiletype();
+        String extension = MimeTypeMap.getFileExtensionFromUrl(fileformat);
+        String type = null;
+        if (extension != null) {
+            type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.toLowerCase());
+
+            if (type != null) {
+
+                try {
+                    File imageFileToShare = new File(filepath);
+                    Uri uri = Uri.fromFile(imageFileToShare);
+
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    if (type.contains("audio")) {
+                        // WAV audio file
+                        intent.setDataAndType(uri, "audio/x-wav");
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        context.startActivity(intent);
+                    } else if (categoryDocumentsResponse.getFiletype().equalsIgnoreCase("gif")) {
+                        // GIF file
+                        intent.setDataAndType(uri, "image/gif");
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        context.startActivity(intent);
+                    } else if (type.contains("video")) {
+                        // Video files
+                        intent.setDataAndType(uri, "video/*");
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        context.startActivity(intent);
+                    } else {
+                        getExternalSharingContentAPI(categoryDocumentsResponse.getFilename(), categoryDocumentsResponse.getDocument_version_id(), filepath);
+                    }
+
+                } catch (ActivityNotFoundException e) {
+                    getExternalSharingContentAPI(categoryDocumentsResponse.getFilename(), categoryDocumentsResponse.getDocument_version_id(), filepath);
+                }
+            } else {
+                getExternalSharingContentAPI(categoryDocumentsResponse.getFilename(), categoryDocumentsResponse.getDocument_version_id(), filepath);
+            }
+        }
     }
 
     private void updateRootLevelUnreadCount()
@@ -482,10 +535,6 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                 {
                     getExternalSharingContentAPI(name, document_version_id, filepath);
                 }
-
-
-
-
 
             }
         });

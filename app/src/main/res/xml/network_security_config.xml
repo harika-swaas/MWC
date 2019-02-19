@@ -18,4 +18,12 @@
         <domain includeSubdomains="true">app.docportal.co.uk</domain>
 
     </domain-config>
+
+   <!-- <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+-->
+
 </network-security-config>

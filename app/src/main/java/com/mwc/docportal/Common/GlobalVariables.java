@@ -1,5 +1,7 @@
 package com.mwc.docportal.Common;
 
+import android.net.Uri;
+
 import com.mwc.docportal.API.Model.GetCategoryDocumentsResponse;
 import com.mwc.docportal.API.Model.UploadModel;
 import com.mwc.docportal.Utils.Constants;
@@ -35,4 +37,5 @@ public class GlobalVariables
     public static List<GetCategoryDocumentsResponse> sharedRootDocumentList = new ArrayList<>();
     public static List<UploadModel> otherAppDocumentList = new ArrayList<>();
     public static boolean isBackgroundProcessRunning = false;
+    public static boolean isFromDocumentLink = false;
 }

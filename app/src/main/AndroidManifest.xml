@@ -202,17 +202,17 @@
         <!-- Production fabric key -->
 
 
-         <!--   <meta-data
+            <meta-data
             android:name="io.fabric.ApiKey"
             android:value="f65d8896b478db0bc4f72b5d76f323801dc0509e"
-            />-->
+            />
 
 
         <!-- Testing fabric key -->
 
-        <meta-data
+       <!-- <meta-data
             android:name="io.fabric.ApiKey"
-            android:value="39f3eab4f9f7f060c8d19339c0c8cdd4d7b8bbb0" />
+            android:value="39f3eab4f9f7f060c8d19339c0c8cdd4d7b8bbb0" />-->
 
 
 

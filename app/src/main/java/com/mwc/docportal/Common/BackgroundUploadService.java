@@ -145,7 +145,7 @@ public class BackgroundUploadService extends IntentService
                 .setSmallIcon(R.mipmap.ic_notification_icon)
                 .setStyle(bigText)
                 .setOnlyAlertOnce(true)
-                .addAction(R.mipmap.ic_cancel_btn, "CANCEL", snoozePendingIntent);
+                .addAction(R.mipmap.ic_cancel_btn, "CANCEL UPLOADS", snoozePendingIntent);
 
 
 
@@ -209,7 +209,7 @@ public class BackgroundUploadService extends IntentService
                     UploadDocumentResponse apiResponse = response.body();
                     if (apiResponse != null)
                     {
-                        Log.d("Upload status", apiResponse.toString());
+                     //   Log.d("Upload status", apiResponse.toString());
 
                         String message = "";
                         if(apiResponse.getStatus().getMessage() != null)
@@ -252,6 +252,7 @@ public class BackgroundUploadService extends IntentService
                                     PreferenceUtils.getCurrentUploadList(mContext, "key").get(index).setSuccess(true);
                                    /* uploadData.setFailure(true);
                                     uploadData.setSuccess(true); // getting failure documents purpose*/
+                                   Log.d("Upload failed: ", String.valueOf(index));
 
                                     index++;
                                     mBuilder.setProgress(PreferenceUtils.getCurrentUploadList(mContext, "key").size(), index, false);
@@ -285,6 +286,8 @@ public class BackgroundUploadService extends IntentService
 
                                   //  uploadData.setSuccess(true);
                                     PreferenceUtils.getCurrentUploadList(mContext, "key").get(index).setSuccess(true);
+
+                                    Log.d("Upload completed: ", String.valueOf(index));
 
                                     index++;
                                     mBuilder.setProgress(PreferenceUtils.getCurrentUploadList(mContext, "key").size(), index, false);
@@ -334,6 +337,40 @@ public class BackgroundUploadService extends IntentService
                     uploadFailedMessage("Try again after sometime", true, uploadData);
                 }
             });
+        }
+        else
+        {
+            if(PreferenceUtils.getNotificationDelete(mContext) == null || PreferenceUtils.getNotificationDelete(mContext).isEmpty()) {
+                UploadModel uploadModel = new UploadModel();
+                uploadModel.setFilePath(uploadData.getFilePath());
+                uploadModel.setObjectId(uploadData.getObjectId());
+                uploadFailedList.add(uploadModel);
+                PreferenceUtils.setFailureUploadlist(BackgroundUploadService.this, uploadFailedList, "key");
+
+                PreferenceUtils.getCurrentUploadList(mContext, "key").get(index).setFailure(true);
+              //  PreferenceUtils.getCurrentUploadList(mContext, "key").get(index).setSuccess(true);
+                                   /* uploadData.setFailure(true);
+                                    uploadData.setSuccess(true); // getting failure documents purpose*/
+                Log.d("Upload failed: ", String.valueOf(index));
+
+                index++;
+                mBuilder.setProgress(PreferenceUtils.getCurrentUploadList(mContext, "key").size(), index, false);
+                // Displays the progress bar for the first time.
+
+                assert mNotifyManager != null;
+                mNotifyManager.notify(TAG, notificationId, mBuilder.build());
+
+                if (PreferenceUtils.getCurrentUploadList(mContext, "key").size() > index) {
+                    uploadData(PreferenceUtils.getCurrentUploadList(mContext, "key").get(index));
+                } else {
+                    uploadCompleteMessage();
+                }
+            }
+            else
+            {
+                clearNotification();
+            }
+
         }
 
     }
@@ -421,6 +458,7 @@ public class BackgroundUploadService extends IntentService
              //   PreferenceUtils.getCurrentUploadList(mContext, "key").get(index).setSuccess(true); // getting failure documents purpose
                                    /* uploadData.setFailure(true);
                                     uploadData.setSuccess(true); */
+                Log.d("Upload failed: ", String.valueOf(index));
 
                 index++;
                 mBuilder.setProgress(PreferenceUtils.getCurrentUploadList(mContext, "key").size(), index, false);

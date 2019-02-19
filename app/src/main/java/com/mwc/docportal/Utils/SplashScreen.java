@@ -164,16 +164,21 @@ public class SplashScreen extends RootActivity {
             }
         }
 
+        if(GlobalVariables.isFromDocumentLink == true)
+        {
+            showAlertForLinkDocument();
+        }
+        else {
 
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            public void run() {
-                handler.removeCallbacksAndMessages(null);
-                checkTouchIdEnabledOrNot();
-            }
-        }, 2000);   // 2 seconds
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                public void run() {
+                    handler.removeCallbacksAndMessages(null);
+                    checkTouchIdEnabledOrNot();
+                }
+            }, 2000);   // 2 seconds
 
-
+        }
 
     }
 
@@ -568,6 +573,44 @@ public class SplashScreen extends RootActivity {
         mAlertDialog.show();
     }
 
+    private void showAlertForLinkDocument()
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Alert");
+
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+        txtMessage.setText("Links from other apps cannot be saved in Doc Portal. You may download file(s) and share them separately into Doc Portal.");
+
+        Button okButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+        cancelButton.setText("Cancel");
+        cancelButton.setVisibility(View.GONE);
+
+        okButton.setText("Ok");
+
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+                GlobalVariables.isFromDocumentLink = false;
+                finishAffinity();
+
+            }
+        });
+
+
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
+    }
 
 
 
