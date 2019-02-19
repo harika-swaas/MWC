@@ -386,6 +386,7 @@ public class BackgroundUploadService extends IntentService
                     .setProgress(0, 0, false)
                     .setStyle(bigText)
                     .mActions.clear();
+            mBuilder.setAutoCancel(true);
         }
         else
         {
@@ -396,6 +397,8 @@ public class BackgroundUploadService extends IntentService
                     .setProgress(0, 0, false)
                     .setStyle(bigText)
                     .mActions.clear();
+            mBuilder.setAutoCancel(true);
+
         }
 
 
@@ -508,6 +511,7 @@ public class BackgroundUploadService extends IntentService
                     .setProgress(0,0,false)
                     .setStyle(bigText)
                     .mActions.clear();
+            mBuilder.setAutoCancel(true);
             assert mNotifyManager != null;
             mNotifyManager.notify(TAG, notificationId, mBuilder.build());
         }

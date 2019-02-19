@@ -34,6 +34,7 @@
     <uses-feature android:name="android.hardware.telephony" android:required="false" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
+
     <application
         android:name=".MWCApplication"
         android:allowBackup="false"
@@ -158,6 +159,7 @@
             </intent-filter>
         </receiver>
 
+
         <!--
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -202,10 +204,10 @@
         <!-- Production fabric key -->
 
 
-            <meta-data
+         <!--   <meta-data
             android:name="io.fabric.ApiKey"
             android:value="f65d8896b478db0bc4f72b5d76f323801dc0509e"
-            />
+            />-->
 
 
         <!-- Testing fabric key -->
