@@ -4,10 +4,6 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
-import android.view.MenuItem;
-
-import com.mwc.docportal.Fragments.FTLFragment;
 import com.mwc.docportal.Fragments.FTLRegistrationFragment;
 import com.mwc.docportal.Login.LoginActivity;
 import com.mwc.docportal.R;
@@ -53,7 +49,7 @@ public class FTLRegistrationActivity extends RootActivity {
     public void onBackPressed() {
         if(getVisibleFragment() != null) {
             if (getVisibleFragment() instanceof FTLRegistrationFragment) {
-                startActivity(new Intent(FTLRegistrationActivity.this, FTLActivity.class));
+                startActivity(new Intent(FTLRegistrationActivity.this, LoginActivity.class));
                 finish();
             }else{
 

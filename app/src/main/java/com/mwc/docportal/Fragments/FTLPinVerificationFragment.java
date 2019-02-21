@@ -19,6 +19,7 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -34,6 +35,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.phone.SmsRetriever;
+import com.google.android.gms.auth.api.phone.SmsRetrieverClient;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.gson.Gson;
 import com.mwc.docportal.API.Model.AccountSettingsResponse;
 import com.mwc.docportal.API.Model.BaseApiResponse;
@@ -59,8 +68,10 @@ import com.mwc.docportal.API.Service.SendFTLPINService;
 import com.mwc.docportal.API.Service.SendPinService;
 import com.mwc.docportal.API.Service.VerifyFTLPINService;
 import com.mwc.docportal.API.Service.VerifyPinService;
+import com.mwc.docportal.Common.AppSignatureHelper;
 import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Common.FileDownloadManager;
+import com.mwc.docportal.Common.MySMSBroadcastReceiver;
 import com.mwc.docportal.Components.LinkTextView;
 import com.mwc.docportal.DMS.NavigationMyFolderActivity;
 import com.mwc.docportal.DMS.UploadListActivity;
@@ -76,14 +87,11 @@ import com.mwc.docportal.Login.Touchid;
 import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
-import com.mwc.docportal.ReadSms;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
 import com.mwc.docportal.Utils.Constants;
-import com.mwc.docportal.pdf.PdfViewActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import retrofit.Call;
@@ -95,7 +103,7 @@ import retrofit.Retrofit;
  * Created by harika on 21-06-2018.
  */
 
-public class FTLPinVerificationFragment extends Fragment {
+public class FTLPinVerificationFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, MySMSBroadcastReceiver.OTPReceiveListener{
 
     FTLPinVerificationActivity mActivity;
     View mView;
@@ -110,12 +118,18 @@ public class FTLPinVerificationFragment extends Fragment {
     AlertDialog mBackDialog;
     private LoginResponse mLoggedInObj;
     String message;
-    static String Otp;
+   // static String Otp;
     public static final int REQUEST_STORAGE_PERMISSION = 111;
     public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 1;
     AccountSettingsResponse accountSettingsList = new AccountSettingsResponse();
-    TextView pin_verification_txt;
-    BroadcastReceiver receiver;
+    TextView pin_verification_txt, pin_verification_title;
+  //  BroadcastReceiver receiver;
+
+    // SMS Retriever api purpos
+    GoogleApiClient googleApiClient;
+    MySMSBroadcastReceiver smsBroadcast;
+
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -135,21 +149,41 @@ public class FTLPinVerificationFragment extends Fragment {
         getIntentData();
         addListenersToViews();
 
-        IntentFilter intentFilter =  new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
+        /*IntentFilter intentFilter =  new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
         receiver = new ReadSms();
-        mActivity.registerReceiver(receiver, intentFilter);
+        mActivity.registerReceiver(receiver, intentFilter);*/
+
+        // Hide the code before given to production or beta
+
+        AppSignatureHelper signatureHelper = new AppSignatureHelper(mActivity);
+        ArrayList<String> appSignatures = signatureHelper.getAppSignatures();
+
+        smsBroadcast = new MySMSBroadcastReceiver();
+        smsBroadcast.initOTPListener((MySMSBroadcastReceiver.OTPReceiveListener)this);
+        googleApiClient = new GoogleApiClient.Builder(mActivity)
+                .addConnectionCallbacks(this)
+                .enableAutoManage(mActivity, this)
+                .addApi(Auth.CREDENTIALS_API)
+                .build();
+
+        String message = "com.google.android.gms.auth.api.phone.SMS_RETRIEVED";
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(message);
+        mActivity.registerReceiver(smsBroadcast, intentFilter);
+
+        callToSMSRetriveAPI();
 
         return mView;
     }
 
-    public static void receivedSms(final String message) {
+   /* public static void receivedSms(final String message) {
 
         Otp = message.substring(17, 25);
 
         if(Otp != null) {
             inputPIN.setText(Otp);
         }
-    }
+    }*/
 
     /*public void receivedSms(String message) {
         try
@@ -172,6 +206,7 @@ public class FTLPinVerificationFragment extends Fragment {
         mNext = (Button) mView.findViewById(R.id.next_button);
         mBackIv = (ImageView) mView.findViewById(R.id.back_image_view);
         pin_verification_txt = (TextView) mView.findViewById(R.id.pin_verification_txt);
+        pin_verification_title = (TextView) mView.findViewById(R.id.pin_verification_title);
     }
 
     private void getIntentData() {
@@ -184,10 +219,12 @@ public class FTLPinVerificationFragment extends Fragment {
             if(isFromLogin)
             {
                 pin_verification_txt.setText(getResources().getString(R.string.login_pin_verification_text));
+                pin_verification_title.setVisibility(View.VISIBLE);
             }
             else
             {
                 pin_verification_txt.setText(getResources().getString(R.string.ftl_pin_verification_text));
+                pin_verification_title.setVisibility(View.INVISIBLE);
             }
         }
     }
@@ -207,6 +244,14 @@ public class FTLPinVerificationFragment extends Fragment {
         linkResendView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                String message = "com.google.android.gms.auth.api.phone.SMS_RETRIEVED";
+                IntentFilter intentFilter = new IntentFilter();
+                intentFilter.addAction(message);
+                mActivity.registerReceiver(smsBroadcast, intentFilter);
+                callToSMSRetriveAPI();
+
+
                 if (isFromLogin) {
                     sendPin();
                 } else {
@@ -295,6 +340,7 @@ public class FTLPinVerificationFragment extends Fragment {
             mActivity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         }
     }
+
 
     private class MyTextWatcher implements TextWatcher {
 
@@ -1199,10 +1245,73 @@ public class FTLPinVerificationFragment extends Fragment {
     public void onPause() {
         super.onPause();
         try {
-            mActivity.unregisterReceiver(receiver);
+            if(smsBroadcast != null)
+            {
+                LocalBroadcastManager.getInstance(mActivity).unregisterReceiver(smsBroadcast);
+            }
         } catch (Exception e){
             // already unregistered
         }
     }
+
+
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    public void onOTPReceived(String otp) {
+        try {
+            if(smsBroadcast != null)
+            {
+                LocalBroadcastManager.getInstance(mActivity).unregisterReceiver(smsBroadcast);
+            }
+        } catch (Exception e){
+            // already unregistered
+        }
+
+        inputPIN.setText(otp);
+
+    }
+
+    @Override
+    public void onOTPTimeOut() {
+
+    }
+
+    private void callToSMSRetriveAPI()
+    {
+        SmsRetrieverClient client = SmsRetriever.getClient(mActivity);
+        Task<Void> task = client.startSmsRetriever();
+        task.addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+
+            //    Toast.makeText(mActivity, "SMS Retriever starts", Toast.LENGTH_LONG).show();
+
+            }
+        });
+        task.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                // Failed to start retriever, inspect Exception for more details
+           //     Toast.makeText(mActivity, "Error", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+
 
 }

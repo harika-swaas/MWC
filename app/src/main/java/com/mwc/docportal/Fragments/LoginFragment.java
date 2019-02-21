@@ -30,6 +30,7 @@ import com.google.gson.Gson;
 import com.mwc.docportal.API.Model.FTLPINResponse;
 import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.DMS.NavigationMyFolderActivity;
+import com.mwc.docportal.FTL.FTLRegistrationActivity;
 import com.squareup.okhttp.OkHttpClient;
 import com.mwc.docportal.API.Model.AccountSettingsResponse;
 import com.mwc.docportal.API.Model.ApiResponse;
@@ -136,7 +137,7 @@ public class LoginFragment extends Fragment {
         mNotLoggedInBefore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(mActivity, FTLActivity.class));
+                startActivity(new Intent(mActivity, FTLRegistrationActivity.class));
                 mActivity.finish();
             }
         });

@@ -96,5 +96,13 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.github.barteksc:pdfium-android:1.7.1'
     implementation project(':filepicker')
+
+    // Automatic SMS reader via API
+
+    compile 'com.google.android.gms:play-services-base:11.4.0'
+    compile 'com.google.android.gms:play-services-identity:11.4.0'
+    compile 'com.google.android.gms:play-services-auth:11.4.0'
+    compile 'com.google.android.gms:play-services-auth-api-phone:11.4.0'
+
 }
 apply plugin: 'com.google.gms.google-services'

@@ -11,6 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -22,6 +23,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.gson.Gson;
 import com.mwc.docportal.API.Model.ApiResponse;
 import com.mwc.docportal.API.Model.BaseApiResponse;
@@ -33,6 +37,7 @@ import com.mwc.docportal.API.Service.ListPinDevicesService;
 import com.mwc.docportal.API.Service.SendPinService;
 import com.mwc.docportal.Adapters.PinDeviceAdapter;
 import com.mwc.docportal.Common.CommonFunctions;
+import com.mwc.docportal.Common.MySMSBroadcastReceiver;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.FTL.FTLPinVerificationActivity;
 import com.mwc.docportal.Login.LoginActivity;
@@ -57,7 +62,7 @@ import retrofit.Retrofit;
  * Created by harika on 02-07-2018.
  */
 
-public class  PinVerificationFragment extends Fragment {
+public class  PinVerificationFragment extends Fragment{
 
     PinVerificationActivity mActivity;
     View mView;
@@ -67,7 +72,7 @@ public class  PinVerificationFragment extends Fragment {
     ImageView mBackIv;
     List<ListPinDevices> mListPinDevices;
     public static final int REQUEST_STORAGE_PERMISSION = 111;
-    public static final int REQUEST_READ_SMS_PERMISSION = 133;
+  //  public static final int REQUEST_READ_SMS_PERMISSION = 133;
     public static String deviceType = "";
     AlertDialog mAlertDialog;
     String selectedDeviceType = "";
@@ -106,14 +111,15 @@ public class  PinVerificationFragment extends Fragment {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     int storagePermission = ContextCompat.checkSelfPermission(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
                     if (storagePermission == PackageManager.PERMISSION_GRANTED) {
-                        if(!deviceType.isEmpty() && deviceType.equalsIgnoreCase("mobile"))
+                       /* if(!deviceType.isEmpty() && deviceType.equalsIgnoreCase("mobile"))
                         {
                             checkPermissionForReadSMS();
                         }
                         else
                         {
                             sendPin();
-                        }
+                        }*/
+                        sendPin();
 
                     } else {
                         requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_STORAGE_PERMISSION);
@@ -133,7 +139,7 @@ public class  PinVerificationFragment extends Fragment {
         });
     }
 
-    private void checkPermissionForReadSMS()
+   /* private void checkPermissionForReadSMS()
     {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             int readSMSPersmission = ContextCompat.checkSelfPermission(mActivity, Manifest.permission.RECEIVE_SMS);
@@ -146,7 +152,7 @@ public class  PinVerificationFragment extends Fragment {
             sendPin();
         }
 
-    }
+    }*/
 
     private void getPinDevice() {
 
@@ -244,6 +250,7 @@ public class  PinVerificationFragment extends Fragment {
                         }
 
                         if(CommonFunctions.isApiSuccess(mActivity, message, apiResponse.status.getCode())) {
+
                             PinVerificationFragment.deviceType = "";
                             Intent intent = new Intent(mActivity, FTLPinVerificationActivity.class);
                             intent.putExtra(Constants.IS_FROM_LOGIN, true);
@@ -310,16 +317,15 @@ public class  PinVerificationFragment extends Fragment {
                 }
                 break;
 
-            case REQUEST_READ_SMS_PERMISSION:
+           /* case REQUEST_READ_SMS_PERMISSION:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     sendPin();
                 } else {
                     sendPin();
                     Toast.makeText(mActivity, "SMS read permission denied", Toast.LENGTH_LONG).show();
                 }
-                break;
+                break;*/
         }
     }
-
 
 }

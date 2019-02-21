@@ -162,7 +162,7 @@
                 android:layout_below="@+id/login_signin_ll"
                 android:orientation="vertical"
                 android:layout_alignParentBottom="true"
-                android:visibility="invisible"
+                android:visibility="visible"
                 android:gravity="center_vertical">
 
                 <TextView

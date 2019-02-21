@@ -53,7 +53,7 @@ public class ReadSms extends BroadcastReceiver {
 
                                 try {
                                     if (senderNum.equals("YourPIN")) {
-                                        FTLPinVerificationFragment.receivedSms(message);
+                                    //    FTLPinVerificationFragment.receivedSms(message);
                                     }
                                 } catch (Exception e) {
                                 }
@@ -88,7 +88,7 @@ public class ReadSms extends BroadcastReceiver {
 
                             try {
                                 if (senderNum.equals("YourPIN")) {
-                                    FTLPinVerificationFragment.receivedSms(message);
+                                //    FTLPinVerificationFragment.receivedSms(message);
                                 }
                             } catch (Exception e) {
                             }

@@ -35,6 +35,7 @@
                 android:layout_marginLeft="32dp"
                 android:text="@string/registration"
                 android:textSize="20sp"
+                android:visibility="invisible"
                 android:textColor="@color/black"
                 android:layout_centerVertical="true"
                 android:alpha="0.87"/>

@@ -1,13 +1,18 @@
 package com.mwc.docportal.Fragments;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -20,6 +25,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.mwc.docportal.API.Model.BaseApiResponse;
@@ -63,6 +69,7 @@ public class FTLRegistrationFragment extends Fragment {
     TextInputLayout inputLayoutEmail, inputLayoutMobile;
     AlertDialog mAlertDialog;
     AlertDialog mCustomAlertDialog;
+  //  public static final int REQUEST_READ_SMS_PERMISSION = 133;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -95,16 +102,18 @@ public class FTLRegistrationFragment extends Fragment {
         mNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+               /* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    int readSMSPersmission = ContextCompat.checkSelfPermission(mActivity, Manifest.permission.RECEIVE_SMS);
+                    if (readSMSPersmission == PackageManager.PERMISSION_GRANTED) {
+                        sendFtlPinToMobile();
+                    } else {
+                        requestPermissions(new String[]{Manifest.permission.RECEIVE_SMS}, REQUEST_READ_SMS_PERMISSION);
+                    }
+                } else {
+                    sendFtlPinToMobile();
+                }*/
 
-                inputEmail.addTextChangedListener(new MyTextWatcher(inputEmail));
-                inputMobile.addTextChangedListener(new MyTextWatcher(inputMobile));
-
-                verifyFTLDetails();
-                if(inputLayoutEmail.getVisibility() == View.VISIBLE && inputLayoutMobile.getVisibility() == View.GONE) {
-                    verifyFTLDetailsWithEmail();
-                } else if(inputLayoutEmail.getVisibility() == View.VISIBLE && inputLayoutMobile.getVisibility() == View.VISIBLE){
-                    verifyFTLDetailsWithMobile();
-                }
+                sendFtlPinToMobile();
             }
         });
 
@@ -587,4 +596,34 @@ public class FTLRegistrationFragment extends Fragment {
     private static boolean isValidEmail(String email) {
         return !TextUtils.isEmpty(email) && android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
+
+
+    private void sendFtlPinToMobile()
+    {
+        inputEmail.addTextChangedListener(new MyTextWatcher(inputEmail));
+        inputMobile.addTextChangedListener(new MyTextWatcher(inputMobile));
+
+        verifyFTLDetails();
+        if(inputLayoutEmail.getVisibility() == View.VISIBLE && inputLayoutMobile.getVisibility() == View.GONE) {
+            verifyFTLDetailsWithEmail();
+        } else if(inputLayoutEmail.getVisibility() == View.VISIBLE && inputLayoutMobile.getVisibility() == View.VISIBLE){
+            verifyFTLDetailsWithMobile();
+        }
+    }
+
+   /* @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_READ_SMS_PERMISSION:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    sendFtlPinToMobile();
+                } else {
+                    sendFtlPinToMobile();
+                    Toast.makeText(mActivity, "SMS read permission denied", Toast.LENGTH_LONG).show();
+                }
+                break;
+        }
+    }*/
+
+
 }
