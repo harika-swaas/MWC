@@ -36,6 +36,7 @@ import com.mwc.docportal.API.Model.SendPinRequest;
 import com.mwc.docportal.API.Service.ListPinDevicesService;
 import com.mwc.docportal.API.Service.SendPinService;
 import com.mwc.docportal.Adapters.PinDeviceAdapter;
+import com.mwc.docportal.BuildConfig;
 import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Common.MySMSBroadcastReceiver;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
@@ -226,7 +227,7 @@ public class  PinVerificationFragment extends Fragment{
             final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
             transparentProgressDialog.show();
 
-            SendPinRequest sendPinRequest = new SendPinRequest(PreferenceUtils.getUserPinDeviceId(mActivity), true);
+            SendPinRequest sendPinRequest = new SendPinRequest(PreferenceUtils.getUserPinDeviceId(mActivity), true, String.valueOf(BuildConfig.VERSION_CODE));
 
             String request = new Gson().toJson(sendPinRequest);
 

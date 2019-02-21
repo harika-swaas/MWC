@@ -19,6 +19,16 @@ public class VerifyFTLRequest {
     @Expose
     private String mobile;
 
+    @SerializedName("build_number")
+    @Expose
+    private String build_number;
+
+    public VerifyFTLRequest(String email, String mobile, String build_Number){
+        this.email = email;
+        this.mobile = mobile;
+        this.build_number = build_Number;
+    }
+
     public VerifyFTLRequest(String email, String mobile){
         this.email = email;
         this.mobile = mobile;

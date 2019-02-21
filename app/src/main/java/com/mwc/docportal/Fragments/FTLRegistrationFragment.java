@@ -34,6 +34,7 @@ import com.mwc.docportal.API.Model.VerifyFTLRequestWithEMail;
 import com.mwc.docportal.API.Model.VerifyFTLResponse;
 import com.mwc.docportal.API.Service.SendFTLPINService;
 import com.mwc.docportal.API.Service.VerifyFTLDetailsService;
+import com.mwc.docportal.BuildConfig;
 import com.mwc.docportal.Common.CommonFunctions;
 
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
@@ -494,7 +495,7 @@ public class FTLRegistrationFragment extends Fragment {
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
             final SendFTLPINService sendFTLPINService = retrofitAPI.create(SendFTLPINService.class);
 
-            VerifyFTLRequest mVerifyFTLRequest = new VerifyFTLRequest(email, null);
+            VerifyFTLRequest mVerifyFTLRequest = new VerifyFTLRequest(email, null, null);
 
             String request = new Gson().toJson(mVerifyFTLRequest);
             //Here the json data is add to a hash map with key data
@@ -548,7 +549,7 @@ public class FTLRegistrationFragment extends Fragment {
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
             final SendFTLPINService sendFTLPINService = retrofitAPI.create(SendFTLPINService.class);
 
-            VerifyFTLRequest mVerifyFTLRequest = new VerifyFTLRequest(email, mobile);
+            VerifyFTLRequest mVerifyFTLRequest = new VerifyFTLRequest(email, mobile, String.valueOf(BuildConfig.VERSION_CODE));
 
             String request = new Gson().toJson(mVerifyFTLRequest);
             //Here the json data is add to a hash map with key data

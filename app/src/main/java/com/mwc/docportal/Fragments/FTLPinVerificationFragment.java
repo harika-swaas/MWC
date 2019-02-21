@@ -68,6 +68,7 @@ import com.mwc.docportal.API.Service.SendFTLPINService;
 import com.mwc.docportal.API.Service.SendPinService;
 import com.mwc.docportal.API.Service.VerifyFTLPINService;
 import com.mwc.docportal.API.Service.VerifyPinService;
+import com.mwc.docportal.BuildConfig;
 import com.mwc.docportal.Common.AppSignatureHelper;
 import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Common.FileDownloadManager;
@@ -1007,9 +1008,9 @@ public class FTLPinVerificationFragment extends Fragment implements GoogleApiCli
 
             VerifyFTLRequest mVerifyFTLRequest = null;
             if (!TextUtils.isEmpty(mMobile)) {
-                mVerifyFTLRequest = new VerifyFTLRequest(mEmail, mMobile);
+                mVerifyFTLRequest = new VerifyFTLRequest(mEmail, mMobile, String.valueOf(BuildConfig.VERSION_CODE));
             } else {
-                mVerifyFTLRequest = new VerifyFTLRequest(mEmail, null);
+                mVerifyFTLRequest = new VerifyFTLRequest(mEmail, null, null);
             }
 
             String request = new Gson().toJson(mVerifyFTLRequest);
@@ -1063,7 +1064,7 @@ public class FTLPinVerificationFragment extends Fragment implements GoogleApiCli
             final LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
             transparentProgressDialog.show();
 
-            SendPinRequest sendPinRequest = new SendPinRequest(PreferenceUtils.getUserPinDeviceId(mActivity), true);
+            SendPinRequest sendPinRequest = new SendPinRequest(PreferenceUtils.getUserPinDeviceId(mActivity), true, String.valueOf(BuildConfig.VERSION_CODE));
 
             String request = new Gson().toJson(sendPinRequest);
 
