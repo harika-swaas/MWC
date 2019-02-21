@@ -323,7 +323,8 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
                 if(download_button.getText().toString().equalsIgnoreCase("Download"))
                 {
-                    getDownloadurlFromService(categoryDocumentsResponse.getObject_id(), categoryDocumentsResponse.getIs_shared(),false);
+                 //   getDownloadurlFromService(categoryDocumentsResponse.getObject_id(), categoryDocumentsResponse.getIs_shared(),false);
+                    getDownloadurlFromService(categoryDocumentsResponse,false);
                     getSupportActionBar().setDisplayHomeAsUpEnabled(false);
                 }
                 else if(download_button.getText().toString().equalsIgnoreCase("View"))
@@ -470,7 +471,8 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
                 if(filepath == null || filepath.isEmpty())
                 {
-                    getDownloadurlFromService(categoryDocumentsResponse.getObject_id(), categoryDocumentsResponse.getIs_shared(),true);
+                //    getDownloadurlFromService(categoryDocumentsResponse.getObject_id(), categoryDocumentsResponse.getIs_shared(),true);
+                    getDownloadurlFromService(categoryDocumentsResponse,true);
                 }
                 else
                 {
@@ -1470,7 +1472,8 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
                     if (isChecked) {
                         switchButton_download.setChecked(true);
-                        getDownloadurlFromService(categoryDocumentsResponse.getObject_id(), categoryDocumentsResponse.getIs_shared(),false);
+                //        getDownloadurlFromService(categoryDocumentsResponse.getObject_id(), categoryDocumentsResponse.getIs_shared(),false);
+                        getDownloadurlFromService(categoryDocumentsResponse,false);
                         mBottomSheetDialog.dismiss();
                     }
                     else
@@ -1623,7 +1626,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
     }
 
-    private void getDownloadurlFromService(String object_id, String is_Shared, boolean isFromshare)
+    private void getDownloadurlFromService(GetCategoryDocumentsResponse categoryDocumentsResponseData, boolean isFromshare)
     {
         if (NetworkUtils.isNetworkAvailable(context)) {
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
@@ -1634,9 +1637,27 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
 
             //DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(PreferenceUtils.getDocumentVersionId(this));
             List<String> strlist = new ArrayList<>();
-            strlist.add(object_id);
-            DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist, is_Shared);
-            final String request = new Gson().toJson(downloadDocumentRequest);
+            strlist.add(categoryDocumentsResponseData.getObject_id());
+
+            String request;
+            if(categoryDocumentsResponseData.getSharetype() != null && categoryDocumentsResponseData.getSharetype().equals("1"))
+            {
+                DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist);
+                request = new Gson().toJson(downloadDocumentRequest);
+            }
+            else if(categoryDocumentsResponseData.getSharetype() == null)
+            {
+                DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist);
+                request = new Gson().toJson(downloadDocumentRequest);
+            }
+            else
+            {
+                DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist, "1");
+                request = new Gson().toJson(downloadDocumentRequest);
+            }
+
+          /*  DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist, is_Shared);
+            final String request = new Gson().toJson(downloadDocumentRequest);*/
 
             //Here the json data is add to a hash map with key data
             Map<String, String> params = new HashMap<String, String>();

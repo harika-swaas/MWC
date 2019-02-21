@@ -114,7 +114,7 @@ public class FTLPinVerificationFragment extends Fragment {
     public static final int REQUEST_STORAGE_PERMISSION = 111;
     public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 1;
     AccountSettingsResponse accountSettingsList = new AccountSettingsResponse();
-    TextView pin_verification_txt;
+    TextView pin_verification_txt, pin_verification_title;
     BroadcastReceiver receiver;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -172,6 +172,7 @@ public class FTLPinVerificationFragment extends Fragment {
         mNext = (Button) mView.findViewById(R.id.next_button);
         mBackIv = (ImageView) mView.findViewById(R.id.back_image_view);
         pin_verification_txt = (TextView) mView.findViewById(R.id.pin_verification_txt);
+        pin_verification_title = (TextView) mView.findViewById(R.id.pin_verification_title);
     }
 
     private void getIntentData() {
@@ -184,11 +185,15 @@ public class FTLPinVerificationFragment extends Fragment {
             if(isFromLogin)
             {
                 pin_verification_txt.setText(getResources().getString(R.string.login_pin_verification_text));
+                pin_verification_title.setVisibility(View.VISIBLE);
             }
             else
             {
                 pin_verification_txt.setText(getResources().getString(R.string.ftl_pin_verification_text));
+                pin_verification_title.setVisibility(View.INVISIBLE);
             }
+
+
         }
     }
 

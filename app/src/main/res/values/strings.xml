@@ -6,17 +6,19 @@
     <string name="snackbar_download">DOWNLOAD</string>
     <string name="login">Login</string>
     <string name="signIn">Sign In</string>
-    <string name="join_doc_portal">Registration</string>
+    <string name="join_doc_portal">Activation</string>
     <string name="login_help_txt">We\'ll help you login in a few easy steps</string>
     <string name="next">Next</string>
-    <string name="registration">Registration</string>
-    <string name="ftl_registration">To login for the first time we will need you to enter some details to register and activate the account.
-        Follow the simple steps over the next few screens to get going. Start by entering the email address registered for this account</string>
+    <string name="registration">Activation</string>
+   <!-- <string name="ftl_registration">To login for the first time we will need you to enter some details to register and activate the account.
+        Follow the simple steps over the next few screens to get going. Start by entering the email address registered for this account</string>-->
+    <string name="ftl_registration">Follow the simple steps over the next few screens to get going.</string>
     <string name="whats_your_email_id">Please enter your email address</string>
     <string name="email">Email</string>
     <string name="enter_email_id">Enter Email ID</string>
     <string name="pin_verification">PIN Verification</string>
-    <string name="ftl_pin_verification_text">We have sent a PIN to your registered mobile phone, please enter this below.</string>
+    <!--<string name="ftl_pin_verification_text">We have sent a PIN to your registered mobile phone, please enter this below.</string>-->
+    <string name="ftl_pin_verification_text">We have sent a PIN to your mobile phone.</string>
     <string name="login_pin_verification_text">We have sent a PIN to the requested device. Please enter this below.</string>
     <string name="enter_pin_number">Enter PIN Number</string>
     <string name="pin_number">PIN Number</string>
@@ -40,7 +42,8 @@
     <string name="mobile">Mobile number</string>
     <string name="err_msg_email">Please enter your email address</string>
     <string name="err_msg_mobile">Please enter valid mobile number</string>
-    <string name="pin_verification_dialog_msg">As an additional security step you will shortly receive a PIN to your registered mobile phone.</string>
+   <!-- <string name="pin_verification_dialog_msg">As an additional security step you will shortly receive a PIN to your registered mobile phone.</string>-->
+    <string name="pin_verification_dialog_msg">As an additional security step you will shortly receive a PIN to your mobile phone.</string>
     <string name="send_pin">Send PIN</string>
     <string name="cancel">Cancel</string>
     <string name="send_again_pin">SEND PIN AGAIN</string>
@@ -86,7 +89,7 @@
     <string name="err_msg_confirm_password_match">Your passwords don\'t match.</string>
     <string name="ftl_username_text1">Please complete the following simple steps to login to your account for the first time. Once inside you will quickly discover the many exciting features My Wealth Cloud has to offer.</string>
     <!-- <string name="back_alert_text">Are you sure you want to cancel account creation? This discard any information you\'ve entered so far.</string>-->
-    <string name="back_alert_text">Are you sure you want to cancel registration? Any unsaved changes will be lost.</string>
+    <string name="back_alert_text">Are you sure you want to cancel activation? Any unsaved changes will be lost.</string>
     <string name="no">NO</string>
     <string name="yes">YES</string>
     <string name="i_agree">I Agree</string>

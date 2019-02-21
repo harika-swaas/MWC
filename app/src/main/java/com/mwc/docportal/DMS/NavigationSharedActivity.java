@@ -1549,13 +1549,14 @@ public class NavigationSharedActivity extends BaseActivity {
         downloadingUrlDataList = downloadedList;
         if(downloadingUrlDataList.size()> index) {
 
-            getDownloadurlFromService(downloadingUrlDataList.get(index).getObject_id(),downloadingUrlDataList.get(index).getIs_shared());
+        //    getDownloadurlFromService(downloadingUrlDataList.get(index).getObject_id(),downloadingUrlDataList.get(index).getIs_shared());
+            getDownloadurlFromService(downloadingUrlDataList.get(index));
 
         }
     }
 
 
-    public void getDownloadurlFromService(String document_version_id, String is_Shared)
+    public void getDownloadurlFromService(GetCategoryDocumentsResponse categoryDocumentsResponseData)
     {
         if (NetworkUtils.isNetworkAvailable(context)) {
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
@@ -1565,9 +1566,19 @@ public class NavigationSharedActivity extends BaseActivity {
             transparentProgressDialog.show();
 
             List<String> strlist = new ArrayList<>();
-            strlist.add(document_version_id);
-            DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist, is_Shared);
-            final String request = new Gson().toJson(downloadDocumentRequest);
+            strlist.add(categoryDocumentsResponseData.getObject_id());
+            String request;
+            if(categoryDocumentsResponseData.getSharetype() != null && categoryDocumentsResponseData.getSharetype().equals("1"))
+            {
+                DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist);
+                request = new Gson().toJson(downloadDocumentRequest);
+            }
+            else
+            {
+                DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist, "1");
+                request = new Gson().toJson(downloadDocumentRequest);
+            }
+
 
             //Here the json data is add to a hash map with key data
             Map<String, String> params = new HashMap<String, String>();
@@ -1608,7 +1619,7 @@ public class NavigationSharedActivity extends BaseActivity {
 
                             index++;
                             if(downloadingUrlDataList.size()> index) {
-                                getDownloadurlFromService(downloadingUrlDataList.get(index).getObject_id(), downloadingUrlDataList.get(index).getIs_shared());
+                                getDownloadurlFromService(downloadingUrlDataList.get(index));
 
                             }
                             else
@@ -1750,8 +1761,22 @@ public class NavigationSharedActivity extends BaseActivity {
 
             List<String> strlist = new ArrayList<>();
             strlist.add(documentsResponse.getObject_id());
-            DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist, documentsResponse.getIs_shared());
-            final String request = new Gson().toJson(downloadDocumentRequest);
+
+            String request;
+            if(documentsResponse.getSharetype() != null && documentsResponse.getSharetype().equals("1"))
+            {
+                DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist);
+                request = new Gson().toJson(downloadDocumentRequest);
+            }
+            else
+            {
+                DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist, "1");
+                request = new Gson().toJson(downloadDocumentRequest);
+            }
+
+
+           /* DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist, documentsResponse.getIs_shared());
+            final String request = new Gson().toJson(downloadDocumentRequest);*/
 
             //Here the json data is add to a hash map with key data
             Map<String, String> params = new HashMap<String, String>();

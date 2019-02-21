@@ -25,6 +25,12 @@ public class DownloadDocumentRequest {
         this.document_ids=id;
         this.is_shared = is_shared;
     }
+
+    public DownloadDocumentRequest(List<String>id)
+    {
+        this.document_ids=id;
+    }
+
     public List<String> getDocument_ids() {
         return document_ids;
     }

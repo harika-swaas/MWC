@@ -3432,7 +3432,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
             List<String> strlist = new ArrayList<>();
             strlist.add(document_version_id);
-            DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist, is_Shared);
+            DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist);
             final String request = new Gson().toJson(downloadDocumentRequest);
 
             //Here the json data is add to a hash map with key data
@@ -3722,7 +3722,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             //DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(PreferenceUtils.getDocumentVersionId(this));
             List<String> strlist = new ArrayList<>();
             strlist.add(documentsResponse.getObject_id());
-            DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist, documentsResponse.getIs_shared());
+            DownloadDocumentRequest downloadDocumentRequest = new DownloadDocumentRequest(strlist);
             final String request = new Gson().toJson(downloadDocumentRequest);
 
             //Here the json data is add to a hash map with key data
@@ -5039,11 +5039,19 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                     Toast.makeText(context, joinedString +" file format(s) not supported", Toast.LENGTH_SHORT).show();
                 }*/
 
-                List<UploadModel> uploadedDAta = OriginalUploadList;
-                Intent intent1 = new Intent(NavigationMyFolderActivity.this, BackgroundUploadService.class);
-                intent1.putExtra("UploadedList", (ArrayList<UploadModel>)uploadedDAta);
-                startService(intent1);
-                callExitApp();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    List<UploadModel> uploadedDAta = OriginalUploadList;
+                    Intent intent1 = new Intent(NavigationMyFolderActivity.this, BackgroundUploadService.class);
+                    intent1.putExtra("UploadedList", (ArrayList<UploadModel>)uploadedDAta);
+                    NavigationMyFolderActivity.this.startForegroundService(intent1);
+                    callExitApp();
+                } else {
+                    List<UploadModel> uploadedDAta = OriginalUploadList;
+                    Intent intent1 = new Intent(NavigationMyFolderActivity.this, BackgroundUploadService.class);
+                    intent1.putExtra("UploadedList", (ArrayList<UploadModel>)uploadedDAta);
+                    startService(intent1);
+                    callExitApp();
+                }
 
             }
             else

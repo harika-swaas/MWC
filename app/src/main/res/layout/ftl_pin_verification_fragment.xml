@@ -29,6 +29,7 @@
                 android:src="@mipmap/ic_back" />
 
             <TextView
+                android:id="@+id/pin_verification_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"

@@ -36,6 +36,7 @@
                     android:layout_marginLeft="32dp"
                     android:layout_toRightOf="@+id/back_image_view"
                     android:alpha="0.87"
+                    android:visibility="invisible"
                     android:text="@string/user_name"
                     android:textColor="@color/black"
                     android:textSize="20sp" />
@@ -113,6 +114,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:layout_marginTop="32dp"
+                    android:visibility="invisible"
                     android:alpha="0.64"
                     android:gravity="center_horizontal"
                     android:text="@string/ftl_username_text"

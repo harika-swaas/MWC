@@ -1227,10 +1227,24 @@ public class UploadListActivity extends RootActivity {
                 Toast.makeText(context, joinedString+ " file(s) exceed more than "+PreferenceUtils.getMaxSizeUpload(context) + " MB", Toast.LENGTH_SHORT).show();
             }
 
-            Intent intent1 = new Intent(UploadListActivity.this, BackgroundUploadService.class);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                Intent intent1 = new Intent(UploadListActivity.this, BackgroundUploadService.class);
+                intent1.putExtra("UploadedList", (ArrayList<UploadModel>)belowSizeFileList);
+                UploadListActivity.this.startForegroundService(intent1);
+                gotoPreviousPage();
+            }
+            else
+            {
+                Intent intent1 = new Intent(UploadListActivity.this, BackgroundUploadService.class);
+                intent1.putExtra("UploadedList", (ArrayList<UploadModel>)belowSizeFileList);
+                startService(intent1);
+                gotoPreviousPage();
+            }
+
+             /* Intent intent1 = new Intent(UploadListActivity.this, BackgroundUploadService.class);
             intent1.putExtra("UploadedList", (ArrayList<UploadModel>)belowSizeFileList);
             startService(intent1);
-            gotoPreviousPage();
+            gotoPreviousPage();*/
 
         }
         else if(fileSizeExceedList != null && fileSizeExceedList.size() > 0)
