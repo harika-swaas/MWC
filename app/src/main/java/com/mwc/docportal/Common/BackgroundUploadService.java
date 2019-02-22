@@ -1,6 +1,8 @@
 package com.mwc.docportal.Common;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.IntentService;
 import android.app.Notification;
@@ -17,6 +19,7 @@ import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -375,6 +378,7 @@ public class BackgroundUploadService extends IntentService
 
     }
 
+    @SuppressLint("RestrictedApi")
     private void uploadCompleteMessage()
     {
         if(PreferenceUtils.getFailureUploadList(mContext, "key") != null && PreferenceUtils.getFailureUploadList(mContext, "key").size() > 0)
@@ -446,6 +450,7 @@ public class BackgroundUploadService extends IntentService
         return false;
     }
 
+    @SuppressLint("RestrictedApi")
     public void uploadFailedMessage(String uploadMessage, boolean isFailure, UploadModel uploadDAta)
     {
         if(isFailure)

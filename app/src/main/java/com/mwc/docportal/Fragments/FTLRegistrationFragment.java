@@ -495,7 +495,7 @@ public class FTLRegistrationFragment extends Fragment {
             Retrofit retrofitAPI = RetrofitAPIBuilder.getInstance();
             final SendFTLPINService sendFTLPINService = retrofitAPI.create(SendFTLPINService.class);
 
-            VerifyFTLRequest mVerifyFTLRequest = new VerifyFTLRequest(email, null, null);
+            VerifyFTLRequest mVerifyFTLRequest = new VerifyFTLRequest(email, null, String.valueOf(BuildConfig.VERSION_CODE));
 
             String request = new Gson().toJson(mVerifyFTLRequest);
             //Here the json data is add to a hash map with key data

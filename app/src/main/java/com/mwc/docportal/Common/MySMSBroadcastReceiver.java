@@ -10,6 +10,9 @@ import com.google.android.gms.auth.api.phone.SmsRetriever;
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.common.api.Status;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class MySMSBroadcastReceiver extends BroadcastReceiver
 {
     OTPReceiveListener otpReceiver;
@@ -31,9 +34,16 @@ public class MySMSBroadcastReceiver extends BroadcastReceiver
                         String message =(String) extras.get(SmsRetriever.EXTRA_SMS_MESSAGE);
 
                         if (otpReceiver != null) {
-                            int indexAbout = message.indexOf(":")+1;
-                            message = message.substring(indexAbout, indexAbout+10);
-                            otpReceiver.onOTPReceived(message);
+
+                            Pattern pattern = Pattern.compile("(\\d{8})");
+                            //   \d is for a digit
+                            //   {} is the number of digits here 8.
+                            Matcher matcher = pattern.matcher(message);
+                            String pinNumber = "";
+                            if (matcher.find()) {
+                                pinNumber = matcher.group(0);  // 4 digit number
+                            }
+                            otpReceiver.onOTPReceived(pinNumber);
                         }
 
                         break;

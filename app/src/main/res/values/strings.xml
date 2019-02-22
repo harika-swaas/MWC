@@ -1,4 +1,6 @@
-<resources>
+<resources
+    tools:ignore="MissingTranslation"
+    xmlns:tools="http://schemas.android.com/tools">
     <string name="versionCode">14</string>
     <string name="versionName">1.10</string>
     <string name="app_name">Doc Portal</string>

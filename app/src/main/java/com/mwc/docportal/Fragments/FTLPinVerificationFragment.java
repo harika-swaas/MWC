@@ -1010,7 +1010,7 @@ public class FTLPinVerificationFragment extends Fragment implements GoogleApiCli
             if (!TextUtils.isEmpty(mMobile)) {
                 mVerifyFTLRequest = new VerifyFTLRequest(mEmail, mMobile, String.valueOf(BuildConfig.VERSION_CODE));
             } else {
-                mVerifyFTLRequest = new VerifyFTLRequest(mEmail, null, null);
+                mVerifyFTLRequest = new VerifyFTLRequest(mEmail, null, String.valueOf(BuildConfig.VERSION_CODE));
             }
 
             String request = new Gson().toJson(mVerifyFTLRequest);
@@ -1242,19 +1242,20 @@ public class FTLPinVerificationFragment extends Fragment implements GoogleApiCli
         mAlertDialog.show();
     }
 
+
     @Override
-    public void onPause() {
-        super.onPause();
+    public void onDestroy() {
+        super.onDestroy();
         try {
             if(smsBroadcast != null)
             {
-                LocalBroadcastManager.getInstance(mActivity).unregisterReceiver(smsBroadcast);
+             //   LocalBroadcastManager.getInstance(mActivity).unregisterReceiver(smsBroadcast);
+                mActivity.unregisterReceiver(smsBroadcast);
             }
         } catch (Exception e){
             // already unregistered
         }
     }
-
 
 
     @Override

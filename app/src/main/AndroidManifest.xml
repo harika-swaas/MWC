@@ -49,6 +49,7 @@
             android:name=".Login.LoginActivity"
             android:configChanges="orientation|screenSize|keyboardHidden">
             <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
@@ -242,7 +243,8 @@
         <service
             android:name=".Common.BackgroundUploadService"
             android:enabled="true"
-            android:exported="false" />
+            android:exported="false"
+            />
 
         <receiver
             android:name=".Firebase.FirebaseDataReceiver"

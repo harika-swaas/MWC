@@ -14,7 +14,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.load.HttpException;
+
 import com.google.gson.Gson;
 import com.mwc.docportal.API.Model.ColorCodeModel;
 import com.mwc.docportal.API.Model.ConfirmPasswordResponseModel;
