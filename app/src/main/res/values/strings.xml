@@ -1,8 +1,8 @@
 <resources
     tools:ignore="MissingTranslation"
     xmlns:tools="http://schemas.android.com/tools">
-    <string name="versionCode">14</string>
-    <string name="versionName">1.10</string>
+    <string name="versionCode">19</string>
+    <string name="versionName">1.11</string>
     <string name="app_name">Doc Portal</string>
     <string name="ok">Ok</string>
     <string name="snackbar_download">DOWNLOAD</string>

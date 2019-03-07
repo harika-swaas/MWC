@@ -2379,6 +2379,8 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
           menuItemMore = menu.findItem(R.id.action_more);
           menuItemMove = menu.findItem(R.id.action_move);
 
+
+
           searchIconDisplay();
 
 

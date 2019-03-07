@@ -29,6 +29,18 @@ public class ListPinDevices {
     @Expose
     private String device_type;
 
+    @SerializedName("ftl_required")
+    @Expose
+    private String ftl_required;
+
+    public String getFtl_required() {
+        return ftl_required;
+    }
+
+    public void setFtl_required(String ftl_required) {
+        this.ftl_required = ftl_required;
+    }
+
     public String getUser_pin_device_id() {
         return user_pin_device_id;
     }

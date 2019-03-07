@@ -73,7 +73,6 @@ public class  PinVerificationFragment extends Fragment{
     ImageView mBackIv;
     List<ListPinDevices> mListPinDevices;
     public static final int REQUEST_STORAGE_PERMISSION = 111;
-  //  public static final int REQUEST_READ_SMS_PERMISSION = 133;
     public static String deviceType = "";
     AlertDialog mAlertDialog;
     String selectedDeviceType = "";
@@ -112,14 +111,6 @@ public class  PinVerificationFragment extends Fragment{
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     int storagePermission = ContextCompat.checkSelfPermission(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
                     if (storagePermission == PackageManager.PERMISSION_GRANTED) {
-                       /* if(!deviceType.isEmpty() && deviceType.equalsIgnoreCase("mobile"))
-                        {
-                            checkPermissionForReadSMS();
-                        }
-                        else
-                        {
-                            sendPin();
-                        }*/
                         sendPin();
 
                     } else {
@@ -140,20 +131,7 @@ public class  PinVerificationFragment extends Fragment{
         });
     }
 
-   /* private void checkPermissionForReadSMS()
-    {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            int readSMSPersmission = ContextCompat.checkSelfPermission(mActivity, Manifest.permission.RECEIVE_SMS);
-            if (readSMSPersmission == PackageManager.PERMISSION_GRANTED) {
-                    sendPin();
-            } else {
-                requestPermissions(new String[]{Manifest.permission.RECEIVE_SMS}, REQUEST_READ_SMS_PERMISSION);
-            }
-        } else {
-            sendPin();
-        }
 
-    }*/
 
     private void getPinDevice() {
 
@@ -318,14 +296,6 @@ public class  PinVerificationFragment extends Fragment{
                 }
                 break;
 
-           /* case REQUEST_READ_SMS_PERMISSION:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    sendPin();
-                } else {
-                    sendPin();
-                    Toast.makeText(mActivity, "SMS read permission denied", Toast.LENGTH_LONG).show();
-                }
-                break;*/
         }
     }
 

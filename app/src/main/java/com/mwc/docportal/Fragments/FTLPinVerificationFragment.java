@@ -69,7 +69,6 @@ import com.mwc.docportal.API.Service.SendPinService;
 import com.mwc.docportal.API.Service.VerifyFTLPINService;
 import com.mwc.docportal.API.Service.VerifyPinService;
 import com.mwc.docportal.BuildConfig;
-import com.mwc.docportal.Common.AppSignatureHelper;
 import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Common.FileDownloadManager;
 import com.mwc.docportal.Common.MySMSBroadcastReceiver;
@@ -137,8 +136,6 @@ public class FTLPinVerificationFragment extends Fragment implements GoogleApiCli
         mActivity = (FTLPinVerificationActivity) getActivity();
 
 
-
-
     }
 
     @Nullable
@@ -150,14 +147,6 @@ public class FTLPinVerificationFragment extends Fragment implements GoogleApiCli
         getIntentData();
         addListenersToViews();
 
-        /*IntentFilter intentFilter =  new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
-        receiver = new ReadSms();
-        mActivity.registerReceiver(receiver, intentFilter);*/
-
-        // Hide the code before given to production or beta
-
-        AppSignatureHelper signatureHelper = new AppSignatureHelper(mActivity);
-        ArrayList<String> appSignatures = signatureHelper.getAppSignatures();
 
         smsBroadcast = new MySMSBroadcastReceiver();
         smsBroadcast.initOTPListener((MySMSBroadcastReceiver.OTPReceiveListener)this);
@@ -177,27 +166,6 @@ public class FTLPinVerificationFragment extends Fragment implements GoogleApiCli
         return mView;
     }
 
-   /* public static void receivedSms(final String message) {
-
-        Otp = message.substring(17, 25);
-
-        if(Otp != null) {
-            inputPIN.setText(Otp);
-        }
-    }*/
-
-    /*public void receivedSms(String message) {
-        try
-        {
-            Otp= message.substring(17,26);
-            if(Otp != null) {
-                inputPIN.setText(Otp);
-            }
-        }
-
-        catch (Exception e) {
-        }
-    }*/
 
     private void intializeViews() {
 

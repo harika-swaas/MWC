@@ -61,6 +61,7 @@ public class PreferenceUtils {
     private static final String NOTIFICATION_DELETE = "Notification_Delete";
     private static final String FAILURE_UPLOADLIST = "Failure_UploadList";
     private static final String CURRENT_UPLOADLIST = "Current_UploadList";
+    private static final String HASH_KEY_CODE = "Hash_Key";
 
     public static void setAccessToken(Context context, String accesstoken) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
@@ -579,6 +580,19 @@ public class PreferenceUtils {
         String json = sharedPreferences.getString(key, null);
         Type type = new TypeToken<List<UploadModel>>() {}.getType();
         return gson.fromJson(json, type);
+    }
+
+    public static void setHashKeyCode(Context context, String hashKey) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(HASH_KEY_CODE, hashKey);
+        editor.commit();
+    }
+
+    public static String getHashKeyCode(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        String haskeyCode = sharedPreferences.getString(HASH_KEY_CODE, null);
+        return haskeyCode;
     }
 
 }

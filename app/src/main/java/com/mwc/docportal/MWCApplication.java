@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+
 import android.support.multidex.MultiDexApplication;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
@@ -64,6 +65,14 @@ public class MWCApplication extends MultiDexApplication implements Application.A
         Fabric.with(this, new Crashlytics());
         Stetho.initializeWithDefaults(this);
         registerActivityLifecycleCallbacks(this);
+
+        // Hide the code before given to production or beta
+       /* AppSignatureHelper signatureHelper = new AppSignatureHelper(context);
+        ArrayList<String> appSignatures = signatureHelper.getAppSignatures();
+        if(appSignatures != null && appSignatures.size() > 0)
+        {
+            PreferenceUtils.setHashKeyCode(context, appSignatures.get(0));
+        }*/
     }
 
     public static MWCApplication getThis() {
@@ -84,8 +93,6 @@ public class MWCApplication extends MultiDexApplication implements Application.A
     public void onActivityStarted(Activity activity) {
         if (++activityReferences == 1 && !isActivityChangingConfigurations) {
             // App enters foreground
-
-
 
             boolean device_status = isNotificationChannelEnabled(activity);
             pushNotificationSettings = new PushNotificatoinSettings_Respository(activity);

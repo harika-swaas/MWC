@@ -70,7 +70,6 @@ public class FTLRegistrationFragment extends Fragment {
     TextInputLayout inputLayoutEmail, inputLayoutMobile;
     AlertDialog mAlertDialog;
     AlertDialog mCustomAlertDialog;
-  //  public static final int REQUEST_READ_SMS_PERMISSION = 133;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -103,16 +102,6 @@ public class FTLRegistrationFragment extends Fragment {
         mNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               /* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    int readSMSPersmission = ContextCompat.checkSelfPermission(mActivity, Manifest.permission.RECEIVE_SMS);
-                    if (readSMSPersmission == PackageManager.PERMISSION_GRANTED) {
-                        sendFtlPinToMobile();
-                    } else {
-                        requestPermissions(new String[]{Manifest.permission.RECEIVE_SMS}, REQUEST_READ_SMS_PERMISSION);
-                    }
-                } else {
-                    sendFtlPinToMobile();
-                }*/
 
                 sendFtlPinToMobile();
             }
@@ -611,20 +600,6 @@ public class FTLRegistrationFragment extends Fragment {
             verifyFTLDetailsWithMobile();
         }
     }
-
-   /* @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_READ_SMS_PERMISSION:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    sendFtlPinToMobile();
-                } else {
-                    sendFtlPinToMobile();
-                    Toast.makeText(mActivity, "SMS read permission denied", Toast.LENGTH_LONG).show();
-                }
-                break;
-        }
-    }*/
 
 
 }

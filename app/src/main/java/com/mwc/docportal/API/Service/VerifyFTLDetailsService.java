@@ -20,13 +20,6 @@ import retrofit.http.POST;
 
 public interface VerifyFTLDetailsService {
 
-    /*@Headers({"content-type: application/x-www-form-urlencoded"})
-    @POST("/verify-ftl-details")
-    Call<BaseApiResponse<VerifyFTLResponse>> getVerifyFTLDetailsWithEmail(@Body VerifyFTLRequestWithEMail verifyFTLRequest);
-
-    @Headers({"content-type: application/x-www-form-urlencoded"})
-    @POST("/verify-ftl-details")
-    Call<BaseApiResponse<VerifyFTLResponse>> getVerifyFTLDetails(@Body VerifyFTLRequest verifyFTLRequest);*/
 
     @POST("/verify-ftl-details")
     @FormUrlEncoded
