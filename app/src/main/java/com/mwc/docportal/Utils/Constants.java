@@ -19,7 +19,7 @@ public class Constants {
     public static final String LOGO_IMAGE_BASE_URL = "https://app.docportal.co.uk";*/
 
     // ***************************** Development ********************************************
-  /*  public static final String COMPANY_BASE_URL = "http://172.16.40.40";
+   /* public static final String COMPANY_BASE_URL = "http://172.16.40.40";
     public static final String LOGO_IMAGE_BASE_URL = "http://172.16.40.41";*/
 
 

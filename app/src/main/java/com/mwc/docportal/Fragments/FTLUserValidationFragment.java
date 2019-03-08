@@ -493,7 +493,14 @@ public class FTLUserValidationFragment extends Fragment {
                                 mUserName = mFTLProcessResponse.user_details.getUsername();
                                 mEmail = mFTLProcessResponse.user_details.getEmail();
                                 mWelcomeMsg = mFTLProcessResponse.user_details.getEu_ftl_welcome_msg();
-                                mTerms = mFTLProcessResponse.user_details.getDefault_terms_url();
+                                if(mFTLProcessResponse.user_details.getTerms() != null && !mFTLProcessResponse.user_details.getDefault_terms_url().isEmpty())
+                                {
+                                    mTerms = mFTLProcessResponse.user_details.getTerms();
+                                }
+                                else
+                                {
+                                    mTerms = mFTLProcessResponse.user_details.getDefault_terms_url();
+                                }
                                 PreferenceUtils.setTermsURL(mActivity, mTerms);
                                 setUserName();
                             }

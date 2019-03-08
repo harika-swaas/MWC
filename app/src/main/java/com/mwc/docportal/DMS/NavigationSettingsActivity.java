@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -520,11 +521,26 @@ public class NavigationSettingsActivity extends BaseActivity {
 
                     if(extension.equalsIgnoreCase("pdf"))
                     {
-                        Intent intent = new Intent(context, Online_PdfView_Activity.class);
-                        intent.putExtra("mode",1);
-                        intent.putExtra("url", mAccountSettingsResponses.get(0).getHelp_Guide_URL());
-                        intent.putExtra("Terms_Title", "Help");
-                        context.startActivity(intent);
+                        if(PreferenceUtils.getTermsURL(context) != null)
+                        {
+                            String access_Token = PreferenceUtils.getAccessToken(context);
+                            byte[] encodeValue = Base64.encode(access_Token.getBytes(), Base64.DEFAULT);
+                            String base64AccessToken = new String(encodeValue);
+                            String urlData = mAccountSettingsResponses.get(0).getHelp_Guide_URL()+"&token="+base64AccessToken;
+                            Intent intent = new Intent(context, Online_PdfView_Activity.class);
+                            intent.putExtra("mode",1);
+                            intent.putExtra("url", urlData);
+                            intent.putExtra("Terms_Title", "Help");
+                            context.startActivity(intent);
+                        }
+                        else {
+                            Intent intent = new Intent(context, Online_PdfView_Activity.class);
+                            intent.putExtra("mode",1);
+                            intent.putExtra("url", mAccountSettingsResponses.get(0).getHelp_Guide_URL());
+                            intent.putExtra("Terms_Title", "Help");
+                            context.startActivity(intent);
+                        }
+
                     }
                     else {
                         Intent mIntent = new Intent(context, WebviewLoaderTermsActivity.class);
@@ -553,6 +569,11 @@ public class NavigationSettingsActivity extends BaseActivity {
 
                     if(extension.equalsIgnoreCase("pdf"))
                     {
+                       /* String access_Token = PreferenceUtils.getAccessToken(context);
+                        byte[] encodeValue = Base64.encode(access_Token.getBytes(), Base64.DEFAULT);
+                        String base64AccessToken = new String(encodeValue);
+                        String urlData = mAccountSettingsResponses.get(0).getTerms_URL()+"&token="+base64AccessToken;*/
+
                         Intent intent = new Intent(context, Online_PdfView_Activity.class);
                         intent.putExtra("mode",1);
                         intent.putExtra("url", mAccountSettingsResponses.get(0).getTerms_URL());
@@ -906,6 +927,7 @@ public class NavigationSettingsActivity extends BaseActivity {
                         {
                             AccountSettings accountSettings = new AccountSettings(context);
                             accountSettings.LogouData();
+                            PreferenceUtils.setTermsURL(context, null);
                         }
 
                     }
