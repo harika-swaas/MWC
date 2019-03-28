@@ -43,6 +43,8 @@ public class DownloadPdfAysnc extends AsyncTask<String,Void,String> {
             InputStream is = ucon.getInputStream();
             BufferedInputStream inStream = new BufferedInputStream(is, 1024 * 5);
 
+
+
             File file = new File(mContext.getDir("filesdir", Context.MODE_PRIVATE) + "/"+params[1]+".pdf");
 
             if (file.exists())

@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 
+import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
@@ -65,6 +66,7 @@ public class MWCApplication extends MultiDexApplication implements Application.A
         Fabric.with(this, new Crashlytics());
         Stetho.initializeWithDefaults(this);
         registerActivityLifecycleCallbacks(this);
+
 
         // Hide the code before given to production or beta
        /* AppSignatureHelper signatureHelper = new AppSignatureHelper(context);

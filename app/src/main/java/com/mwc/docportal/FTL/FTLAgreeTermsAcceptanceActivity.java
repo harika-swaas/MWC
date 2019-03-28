@@ -1,11 +1,16 @@
 package com.mwc.docportal.FTL;
 
+import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 
 import com.mwc.docportal.Fragments.FTLAgreeTermsAcceptanceFragment;
 import com.mwc.docportal.Fragments.FTLPasswordValidationFragment;
@@ -23,7 +28,7 @@ import java.util.List;
 public class FTLAgreeTermsAcceptanceActivity extends RootActivity {
 
     FTLAgreeTermsAcceptanceFragment mFTLAgreeTermsAcceptanceFragment;
-
+    AlertDialog mBackDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,15 +59,38 @@ public class FTLAgreeTermsAcceptanceActivity extends RootActivity {
     public void onBackPressed() {
         if(getVisibleFragment() != null) {
             if (getVisibleFragment() instanceof FTLAgreeTermsAcceptanceFragment) {
-                Intent intent = new Intent(FTLAgreeTermsAcceptanceActivity.this, FTLPasswordValidationActivity.class);
-                intent.putExtra(Constants.USERNAME,getIntent().getStringExtra(Constants.USERNAME));
-                intent.putExtra(Constants.WELCOME_MSG, getIntent().getStringExtra(Constants.WELCOME_MSG));
-                intent.putExtra(Constants.ACCESSTOKEN, getIntent().getStringExtra(Constants.ACCESSTOKEN));
-                intent.putExtra(Constants.SETTERMS, getIntent().getStringExtra(Constants.SETTERMS));
-                startActivity(intent);
-             //   startActivity(new Intent(FTLAgreeTermsAcceptanceActivity.this, FTLPasswordValidationActivity.class));
-                finish();
-            }else{
+                final AlertDialog.Builder builder = new AlertDialog.Builder(FTLAgreeTermsAcceptanceActivity.this);
+                LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View view = inflater.inflate(R.layout.back_custom_alert_layout, null);
+                builder.setView(view);
+                builder.setCancelable(false);
+
+                Button yesButton = (Button) view.findViewById(R.id.yes_button);
+                Button noButton = (Button) view.findViewById(R.id.no_button);
+
+                yesButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mBackDialog.dismiss();
+                        Intent intent = new Intent(FTLAgreeTermsAcceptanceActivity.this, FTLPasswordValidationActivity.class);
+                        intent.putExtra(Constants.USERNAME,getIntent().getStringExtra(Constants.USERNAME));
+                        intent.putExtra(Constants.WELCOME_MSG, getIntent().getStringExtra(Constants.WELCOME_MSG));
+                        intent.putExtra(Constants.ACCESSTOKEN, getIntent().getStringExtra(Constants.ACCESSTOKEN));
+                        intent.putExtra(Constants.SETTERMS, getIntent().getStringExtra(Constants.SETTERMS));
+                        startActivity(intent);
+                        finish();
+                    }
+                });
+
+                noButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mBackDialog.dismiss();
+                    }
+                });
+
+                mBackDialog = builder.create();
+                mBackDialog.show();
 
             }
         }else{

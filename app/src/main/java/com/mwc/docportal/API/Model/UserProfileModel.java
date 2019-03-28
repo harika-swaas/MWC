@@ -3,6 +3,7 @@ package com.mwc.docportal.API.Model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 
 
 public class UserProfileModel
@@ -58,7 +59,7 @@ public class UserProfileModel
     }
 
 
-    public static class Data {
+    public static class Data implements Serializable {
 
         @SerializedName("user_id")
         @Expose

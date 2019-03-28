@@ -152,6 +152,8 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
                     String base64AccessToken = new String(encodeValue);
                     String urlData = mUri+"&token="+base64AccessToken;
 
+
+
                     Intent intent = new Intent(mActivity, Online_PdfView_Activity.class);
                     intent.putExtra("mode",1);
                     intent.putExtra("url", urlData);
@@ -183,6 +185,9 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
                 TextView.BufferType.SPANNABLE);
         setAcceptanceTerms.setMovementMethod(LinkMovementMethod.getInstance());
     }
+
+
+
 
     public void setClickableString(String clickableValue, String wholeValue, TextView yourTextView) {
         String value = wholeValue;

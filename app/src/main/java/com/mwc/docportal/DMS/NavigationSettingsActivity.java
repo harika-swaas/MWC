@@ -521,25 +521,11 @@ public class NavigationSettingsActivity extends BaseActivity {
 
                     if(extension.equalsIgnoreCase("pdf"))
                     {
-                        if(PreferenceUtils.getTermsURL(context) != null)
-                        {
-                            String access_Token = PreferenceUtils.getAccessToken(context);
-                            byte[] encodeValue = Base64.encode(access_Token.getBytes(), Base64.DEFAULT);
-                            String base64AccessToken = new String(encodeValue);
-                            String urlData = mAccountSettingsResponses.get(0).getHelp_Guide_URL()+"&token="+base64AccessToken;
-                            Intent intent = new Intent(context, Online_PdfView_Activity.class);
-                            intent.putExtra("mode",1);
-                            intent.putExtra("url", urlData);
-                            intent.putExtra("Terms_Title", "Help");
-                            context.startActivity(intent);
-                        }
-                        else {
-                            Intent intent = new Intent(context, Online_PdfView_Activity.class);
-                            intent.putExtra("mode",1);
-                            intent.putExtra("url", mAccountSettingsResponses.get(0).getHelp_Guide_URL());
-                            intent.putExtra("Terms_Title", "Help");
-                            context.startActivity(intent);
-                        }
+                        Intent intent = new Intent(context, Online_PdfView_Activity.class);
+                        intent.putExtra("mode",1);
+                        intent.putExtra("url", mAccountSettingsResponses.get(0).getHelp_Guide_URL());
+                        intent.putExtra("Terms_Title", "Help");
+                        context.startActivity(intent);
 
                     }
                     else {
@@ -569,16 +555,25 @@ public class NavigationSettingsActivity extends BaseActivity {
 
                     if(extension.equalsIgnoreCase("pdf"))
                     {
-                       /* String access_Token = PreferenceUtils.getAccessToken(context);
-                        byte[] encodeValue = Base64.encode(access_Token.getBytes(), Base64.DEFAULT);
-                        String base64AccessToken = new String(encodeValue);
-                        String urlData = mAccountSettingsResponses.get(0).getTerms_URL()+"&token="+base64AccessToken;*/
-
-                        Intent intent = new Intent(context, Online_PdfView_Activity.class);
-                        intent.putExtra("mode",1);
-                        intent.putExtra("url", mAccountSettingsResponses.get(0).getTerms_URL());
-                        intent.putExtra("Terms_Title", "Terms & Privacy Policy");
-                        context.startActivity(intent);
+                        if(PreferenceUtils.getTermsURL(context) != null)
+                        {
+                            String access_Token = PreferenceUtils.getAccessToken(context);
+                            byte[] encodeValue = Base64.encode(access_Token.getBytes(), Base64.DEFAULT);
+                            String base64AccessToken = new String(encodeValue);
+                            String urlData = mAccountSettingsResponses.get(0).getTerms_URL()+"&token="+base64AccessToken;
+                            Intent intent = new Intent(context, Online_PdfView_Activity.class);
+                            intent.putExtra("mode",1);
+                            intent.putExtra("url", urlData);
+                            intent.putExtra("Terms_Title", "Terms & Privacy Policy");
+                            context.startActivity(intent);
+                        }
+                        else {
+                            Intent intent = new Intent(context, Online_PdfView_Activity.class);
+                            intent.putExtra("mode",1);
+                            intent.putExtra("url", mAccountSettingsResponses.get(0).getTerms_URL());
+                            intent.putExtra("Terms_Title", "Terms & Privacy Policy");
+                            context.startActivity(intent);
+                        }
                     }
                     else {
                         Intent mIntent = new Intent(context, WebviewLoaderTermsActivity.class);

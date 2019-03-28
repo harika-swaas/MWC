@@ -70,7 +70,7 @@ public class FTLRegistrationFragment extends Fragment {
     TextInputLayout inputLayoutEmail, inputLayoutMobile;
     AlertDialog mAlertDialog;
     AlertDialog mCustomAlertDialog;
-
+    String EmailAddress;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,6 +83,7 @@ public class FTLRegistrationFragment extends Fragment {
         mView = inflater.inflate(R.layout.ftl_registration_fragment, container, false);
 
         intializeViews();
+        getIntentData();
         addListenersToViews();
         return mView;
     }
@@ -95,6 +96,17 @@ public class FTLRegistrationFragment extends Fragment {
         inputLayoutEmail = (TextInputLayout) mView.findViewById(R.id.input_layout_email);
         inputLayoutMobile = (TextInputLayout) mView.findViewById(R.id.input_layout_mobile);
         mBackIv = (ImageView) mView.findViewById(R.id.back_image_view);
+    }
+
+    private void getIntentData() {
+
+        if (mActivity.getIntent() != null) {
+            EmailAddress = mActivity.getIntent().getStringExtra(Constants.EMAIL);
+            if(!TextUtils.isEmpty(EmailAddress))
+            {
+                inputEmail.setText(EmailAddress);
+            }
+        }
     }
 
     private void addListenersToViews() {

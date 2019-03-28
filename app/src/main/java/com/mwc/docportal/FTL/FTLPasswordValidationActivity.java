@@ -1,12 +1,17 @@
 package com.mwc.docportal.FTL;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 
 import com.mwc.docportal.Fragments.FTLPasswordValidationFragment;
 import com.mwc.docportal.Fragments.FTLRegistrationFragment;
@@ -25,7 +30,7 @@ import java.util.List;
 public class FTLPasswordValidationActivity extends RootActivity {
 
     FTLPasswordValidationFragment mFTLPasswordValidationFragment;
-
+    AlertDialog mBackDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,11 +61,35 @@ public class FTLPasswordValidationActivity extends RootActivity {
     public void onBackPressed() {
         if(getVisibleFragment() != null) {
             if (getVisibleFragment() instanceof FTLPasswordValidationFragment) {
-                Intent intent = new Intent(FTLPasswordValidationActivity.this, FTLUserValidationActivity.class);
-                intent.putExtra(Constants.ACCESSTOKEN, getIntent().getStringExtra(Constants.ACCESSTOKEN));
-                startActivity(intent);
-                finish();
-            }else{
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(FTLPasswordValidationActivity.this);
+                    LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    View view = inflater.inflate(R.layout.back_custom_alert_layout, null);
+                    builder.setView(view);
+                    builder.setCancelable(false);
+
+                    Button yesButton = (Button) view.findViewById(R.id.yes_button);
+                    Button noButton = (Button) view.findViewById(R.id.no_button);
+
+                    yesButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            mBackDialog.dismiss();
+                            Intent intent = new Intent(FTLPasswordValidationActivity.this, FTLUserValidationActivity.class);
+                            intent.putExtra(Constants.ACCESSTOKEN, getIntent().getStringExtra(Constants.ACCESSTOKEN));
+                            startActivity(intent);
+                            finish();
+                        }
+                    });
+
+                    noButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            mBackDialog.dismiss();
+                        }
+                    });
+
+                    mBackDialog = builder.create();
+                    mBackDialog.show();
 
             }
         }else{

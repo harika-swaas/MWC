@@ -133,6 +133,7 @@ import com.mwc.docportal.Common.SimpleDividerItemDecoration;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Database.OffLine_Files_Repository;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
+import com.mwc.docportal.DocumentScanActivity;
 import com.mwc.docportal.GlobalSearch.GlobalSearchActivity;
 import com.mwc.docportal.GridAutofitLayoutManager;
 import com.mwc.docportal.Login.LoginActivity;
@@ -240,8 +241,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
     LinearLayout bottom_linearlayout;
     Button refreshButton;
 
-    /*public static final String mBroadcastStringAction = "com.mwc.docportal.DMS.Receiver";
-    private IntentFilter mIntentFilter;*/
+    boolean isScanDocument = false;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -4217,6 +4217,10 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         {
             videoAccess();
         }
+        else if(isScanDocument)
+        {
+            gotoScanDocumentActivity();
+        }
         else
         {
             cameraAccess();
@@ -4402,7 +4406,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
     private void openFolderUploadBottomSheet()
     {
-        TextView camera, video, pick_image,pick_documents, pick_video, cancel, folder_creation;
+        TextView camera, video, pick_image,pick_documents, pick_video, cancel, folder_creation, scan_document_image;
         View view = getLayoutInflater().inflate(R.layout.bottom_sheet_upload, null);
         camera = (TextView) view.findViewById(R.id.camera);
         video = (TextView) view.findViewById(R.id.video);
@@ -4411,6 +4415,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         pick_video = (TextView) view.findViewById(R.id.pick_video);
         cancel =(TextView) view.findViewById(R.id.cancel);
         folder_creation =(TextView) view.findViewById(R.id.folder_creation);
+        scan_document_image = (TextView) view.findViewById(R.id.scan_document_image);
 
         final Dialog mBottomSheetDialog = new Dialog(NavigationMyFolderActivity.this, R.style.MaterialDialogSheet);
         mBottomSheetDialog.setContentView(view);
@@ -4436,6 +4441,16 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             pick_documents.setVisibility(View.VISIBLE);
 
         }
+
+        scan_document_image.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mBottomSheetDialog.dismiss();
+                isScanDocument = true;
+                cameraAndStoragePermissionForScanningDocument();
+
+            }
+        });
 
 
         folder_creation.setOnClickListener(new View.OnClickListener() {
@@ -4633,6 +4648,33 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
             }
         });
+    }
+
+    private void cameraAndStoragePermissionForScanningDocument()
+    {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            int permission = ContextCompat.checkSelfPermission(context, android.Manifest.permission.CAMERA);
+            int storagePermission = ContextCompat.checkSelfPermission(context, android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            if (permission == PackageManager.PERMISSION_GRANTED && storagePermission == PackageManager.PERMISSION_GRANTED) {
+
+                gotoScanDocumentActivity();
+
+            } else if (permission == PackageManager.PERMISSION_GRANTED && storagePermission != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CAMERA_PERMISSION);
+            } else if (permission != PackageManager.PERMISSION_GRANTED && storagePermission == PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{android.Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+            } else {
+                requestPermissions(new String[]{android.Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CAMERA_PERMISSION);
+            }
+        } else {
+            gotoScanDocumentActivity();
+        }
+    }
+
+    private void gotoScanDocumentActivity()
+    {
+        Intent intent = new Intent(NavigationMyFolderActivity.this, DocumentScanActivity.class);
+        startActivity(intent);
     }
 
 

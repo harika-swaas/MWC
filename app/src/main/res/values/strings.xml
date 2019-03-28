@@ -1,6 +1,4 @@
-<resources
-    tools:ignore="MissingTranslation"
-    xmlns:tools="http://schemas.android.com/tools">
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="versionCode">20</string>
     <string name="versionName">1.11</string>
     <string name="app_name">Doc Portal</string>
@@ -146,6 +144,7 @@
     <string name="pick_image">Select Image</string>
     <string name="pick_video">Select Video</string>
     <string name="pick_documents">Select File</string>
+    <string name="scan_document">Scan document</string>
     <string name="video">Video</string>
     <string name="user_name_txt">User Name</string>
     <string name="user_offline_files_txt">Offline Files</string>
@@ -182,4 +181,24 @@
     <string name="upload_beginning_message">Please remain on this screen until your files have uploaded</string>
     <string name="loading_wait_txt">Loading Please wait...</string>
 
+    <string name="userName_txt">Username *</string>
+    <string name="userName_hint">Username</string>
+    <string name="usertitle_txt">Title</string>
+    <string name="usertitle_hint">Title</string>
+    <string name="firstName_txt">First Name *</string>
+    <string name="firstName_hint">First Name</string>
+    <string name="surName_txt">Surname *</string>
+    <string name="surName_hint">Surname</string>
+    <string name="useremail_txt">Email Address *</string>
+    <string name="email_hint">Email Address</string>
+    <string name="usermobilePhone_txt">Mobile Phone *</string>
+    <string name="cancel_btn">Cancel</string>
+    <string name="update_btn">Update</string>
+
+    <string name="err_userName">Please enter username</string>
+    <string name="err_firstName">Please enter first name</string>
+    <string name="err_surName">Please enter surname</string>
+    <string name="err_workPhone">Please enter a valid number(Min 10, Max 14)</string>
+    <string name="err_extension">Please enter a valid number (Min 3, Max 5)</string>
+    <string name="err_mobilePhone">Please enter mobile phone</string>
 </resources>

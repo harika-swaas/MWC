@@ -32,7 +32,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.load.HttpException;
 import com.google.gson.Gson;
 import com.mwc.docportal.API.Model.AccountSettingsResponse;
 import com.mwc.docportal.API.Model.ConfirmPasswordRequestModel;
@@ -42,32 +41,22 @@ import com.mwc.docportal.API.Service.UploadNewFolderService;
 import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Common.GlobalVariables;
 import com.mwc.docportal.DMS.NavigationMyFolderActivity;
-import com.mwc.docportal.DMS.NavigationSettingsActivity;
-import com.mwc.docportal.DMS.NavigationSharedActivity;
-import com.mwc.docportal.DMS.UploadListActivity;
+
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
-import com.mwc.docportal.Login.LoginActivity;
-import com.mwc.docportal.Login.Notifiy;
-import com.mwc.docportal.MainActivity;
+
 import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
 import com.mwc.docportal.RootActivity;
-import com.squareup.okhttp.ResponseBody;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.SocketTimeoutException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+
 
 import retrofit.Call;
 import retrofit.Callback;

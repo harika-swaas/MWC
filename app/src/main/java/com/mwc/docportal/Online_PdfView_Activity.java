@@ -34,6 +34,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Common.GlobalVariables;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.FTL.WebviewLoaderTermsActivity;
@@ -49,6 +50,7 @@ import java.io.File;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Random;
 
 
 public class Online_PdfView_Activity extends AppCompatActivity implements OnPdfDownload, OnPageChangeListener, OnLoadCompleteListener, OnSingleTapTouchListener, PdfSwipeUpDownListener {
@@ -86,6 +88,7 @@ public class Online_PdfView_Activity extends AppCompatActivity implements OnPdfD
     Context context = this;
     String urlName, title;
     LoadingProgressDialog loadingProgressDialog;
+    int MAX_LENGTH = 10;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -121,9 +124,9 @@ public class Online_PdfView_Activity extends AppCompatActivity implements OnPdfD
         title = getIntent().getStringExtra("Terms_Title");
        getSupportActionBar().setTitle(title);
 
-        if (!TextUtils.isEmpty(urlName)){
+       /* if (!TextUtils.isEmpty(urlName)){
             urlName = urlName.replaceAll(" ", "%20");
-        }
+        }*/
 
 
         mProgressText.setVisibility(View.GONE);
@@ -135,12 +138,12 @@ public class Online_PdfView_Activity extends AppCompatActivity implements OnPdfD
             mOfflineUrl = urlName;
         }else {
 
+            String randomString = CommonFunctions.getAlphaNumericString(10);
             mOnlineUrl = urlName;
-
             ConnectivityManager conMgr =  (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo netInfo = conMgr.getActiveNetworkInfo();
             if (netInfo != null){
-                downloadPdfAysnc.execute(mOnlineUrl,title);
+                downloadPdfAysnc.execute(mOnlineUrl,randomString);
             }
 
         }
@@ -196,12 +199,12 @@ public class Online_PdfView_Activity extends AppCompatActivity implements OnPdfD
             if (isWentFromBackground){
 
                 if (playmode == 1){
-
+                    String randomString = CommonFunctions.getAlphaNumericString(10);
                     ConnectivityManager conMgr =  (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
                     NetworkInfo netInfo = conMgr.getActiveNetworkInfo();
                     DownloadPdfAysnc downloadPdfAysnc =  new DownloadPdfAysnc(mContext,this);
                     if (netInfo != null){
-                        downloadPdfAysnc.execute(mOnlineUrl,title);
+                        downloadPdfAysnc.execute(mOnlineUrl,randomString);
                     }
                 }
 
@@ -502,6 +505,18 @@ public class Online_PdfView_Activity extends AppCompatActivity implements OnPdfD
 
     }
 
+    public String random() {
+
+        Random generator = new Random();
+        StringBuilder randomStringBuilder = new StringBuilder();
+        int randomLength = generator.nextInt(MAX_LENGTH);
+        char tempChar;
+        for (int i = 0; i < randomLength; i++){
+            tempChar = (char) (generator.nextInt(96) + 32);
+            randomStringBuilder.append(tempChar);
+        }
+        return randomStringBuilder.toString();
+    }
 
 
 }

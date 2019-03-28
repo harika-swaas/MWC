@@ -496,6 +496,8 @@ public class AccountSettings {
         File dir = new File(Environment.getExternalStorageDirectory() + "/"+Constants.Folder_Name);
         deleteRecursive(dir);
 
+        trimCache(mContext);
+
     }
 
     public void deleteRecursive(File dir) {
@@ -548,6 +550,32 @@ public class AccountSettings {
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         mContext.startActivity(intent);
 
+    }
+
+    public void trimCache(Context context) {
+        try {
+            File dir = context.getCacheDir();
+            if (dir != null && dir.isDirectory()) {
+                deleteDir(dir);
+            }
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+    }
+
+    public boolean deleteDir(File dir) {
+        if (dir != null && dir.isDirectory()) {
+            String[] children = dir.list();
+            for (int i = 0; i < children.length; i++) {
+                boolean success = deleteDir(new File(dir, children[i]));
+                if (!success) {
+                    return false;
+                }
+            }
+        }
+
+        // The directory is now empty so delete it
+        return dir.delete();
     }
 
 }

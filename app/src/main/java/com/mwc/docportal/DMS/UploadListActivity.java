@@ -54,6 +54,7 @@ import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Common.GlobalVariables;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
+import com.mwc.docportal.DocumentScanActivity;
 import com.mwc.docportal.Login.LoginActivity;
 import com.mwc.docportal.RootActivity;
 import com.squareup.okhttp.MediaType;
@@ -99,7 +100,7 @@ public class UploadListActivity extends RootActivity {
 
     RecyclerView upload_list;
     Uri fileUri;
-    TextView camera,video,cancel, pick_image, pick_video, pick_documents, folder_creation;
+    TextView camera,video,cancel, pick_image, pick_video, pick_documents, folder_creation, scan_document_image;
     List<UploadModel> UploadList;
     List<UploadModel> uploadFailedList;
     private  String imageStoragePath;
@@ -131,6 +132,7 @@ public class UploadListActivity extends RootActivity {
     int index = 0;
     List<UploadModel> uploadDataList;
     LoadingProgressDialog transparentProgressDialog;
+    boolean isScanDocument = false;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -545,6 +547,7 @@ public class UploadListActivity extends RootActivity {
         cancel =(TextView) view.findViewById(R.id.cancel);
         folder_creation =(TextView) view.findViewById(R.id.folder_creation);
         folder_creation.setVisibility(View.GONE);
+        scan_document_image = (TextView) view.findViewById(R.id.scan_document_image);
 
         final Dialog mBottomSheetDialog = new Dialog(UploadListActivity.this, R.style.MaterialDialogSheet);
         mBottomSheetDialog.setContentView(view);
@@ -552,6 +555,18 @@ public class UploadListActivity extends RootActivity {
         mBottomSheetDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         mBottomSheetDialog.getWindow().setGravity(Gravity.BOTTOM);
         mBottomSheetDialog.show();
+
+        scan_document_image.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mBottomSheetDialog.dismiss();
+                isScanDocument = true;
+                cameraAndStoragePermissionForScanningDocument();
+
+            }
+        });
+
+
 
         camera.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1142,6 +1157,10 @@ public class UploadListActivity extends RootActivity {
         if(isVideo)
         {
             videoAccess();
+        }
+        else if(isScanDocument)
+        {
+            gotoScanDocumentActivity();
         }
         else
         {
@@ -1768,4 +1787,30 @@ public class UploadListActivity extends RootActivity {
         finish();
     }
 
+    private void cameraAndStoragePermissionForScanningDocument()
+    {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            int permission = ContextCompat.checkSelfPermission(context, android.Manifest.permission.CAMERA);
+            int storagePermission = ContextCompat.checkSelfPermission(context, android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            if (permission == PackageManager.PERMISSION_GRANTED && storagePermission == PackageManager.PERMISSION_GRANTED) {
+
+                gotoScanDocumentActivity();
+
+            } else if (permission == PackageManager.PERMISSION_GRANTED && storagePermission != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CAMERA_PERMISSION);
+            } else if (permission != PackageManager.PERMISSION_GRANTED && storagePermission == PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{android.Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+            } else {
+                requestPermissions(new String[]{android.Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CAMERA_PERMISSION);
+            }
+        } else {
+            gotoScanDocumentActivity();
+        }
+    }
+
+    private void gotoScanDocumentActivity()
+    {
+        Intent intent = new Intent(UploadListActivity.this, DocumentScanActivity.class);
+        startActivity(intent);
+    }
 }

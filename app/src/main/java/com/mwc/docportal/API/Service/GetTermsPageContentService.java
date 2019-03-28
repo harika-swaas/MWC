@@ -1,8 +1,11 @@
 package com.mwc.docportal.API.Service;
 
+import com.mwc.docportal.API.Model.APIResponseModel;
 import com.mwc.docportal.API.Model.BaseApiResponse;
 import com.mwc.docportal.API.Model.GetTermsPageContentResponse;
+import com.mwc.docportal.API.Model.ListPinDevicesResponse;
 import com.mwc.docportal.API.Model.UserProfileModel;
+import com.mwc.docportal.API.Model.UserProfileUpdateModel.UserProfileCountryModel;
 
 import retrofit.Call;
 import retrofit.http.GET;

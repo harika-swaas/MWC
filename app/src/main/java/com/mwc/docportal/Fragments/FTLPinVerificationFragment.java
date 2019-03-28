@@ -248,7 +248,10 @@ public class FTLPinVerificationFragment extends Fragment implements GoogleApiCli
                         @Override
                         public void onClick(View v) {
                             mBackDialog.dismiss();
-                            mActivity.startActivity(new Intent(mActivity, FTLRegistrationActivity.class));
+                            Intent intent = new Intent(mActivity, FTLRegistrationActivity.class);
+                            intent.putExtra(Constants.EMAIL, mActivity.getIntent().getStringExtra(Constants.EMAIL));
+                            mActivity.startActivity(intent);;
+
                         }
                     });
 

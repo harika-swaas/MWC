@@ -132,11 +132,13 @@ public class FTLUserValidationFragment extends Fragment {
             welcomeMsg.setText(getString(R.string.welcome));
         }
 
-        if (mEmail != null && !TextUtils.isEmpty(mEmail)) {
-            inputUserName.setText(mEmail);
-        } else if (mUserName != null && !TextUtils.isEmpty(mUserName)) {
+        if (mUserName != null && !TextUtils.isEmpty(mUserName)) {
             inputUserName.setText(mUserName);
-        } else {
+        }
+        else if (mEmail != null && !TextUtils.isEmpty(mEmail)) {
+            inputUserName.setText(mEmail);
+        }
+        else {
             inputUserName.setHint(getString(R.string.user_name));
         }
     }
@@ -493,7 +495,7 @@ public class FTLUserValidationFragment extends Fragment {
                                 mUserName = mFTLProcessResponse.user_details.getUsername();
                                 mEmail = mFTLProcessResponse.user_details.getEmail();
                                 mWelcomeMsg = mFTLProcessResponse.user_details.getEu_ftl_welcome_msg();
-                                if(mFTLProcessResponse.user_details.getTerms() != null && !mFTLProcessResponse.user_details.getDefault_terms_url().isEmpty())
+                                if(mFTLProcessResponse.user_details.getTerms() != null && !mFTLProcessResponse.user_details.getTerms().isEmpty() )
                                 {
                                     mTerms = mFTLProcessResponse.user_details.getTerms();
                                 }
