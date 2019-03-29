@@ -68,7 +68,7 @@ public class FTLUserValidationFragment extends Fragment {
     ImageView mBackIv;
     AlertDialog mBackDialog;
     List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList<>();
-
+    boolean isFromFtl;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -121,6 +121,7 @@ public class FTLUserValidationFragment extends Fragment {
 
         if (mActivity.getIntent() != null) {
             mAccessToken = mActivity.getIntent().getStringExtra(Constants.ACCESSTOKEN);
+            isFromFtl = mActivity.getIntent().getBooleanExtra("Is_From_Resend", false);
         }
     }
 
@@ -132,15 +133,26 @@ public class FTLUserValidationFragment extends Fragment {
             welcomeMsg.setText(getString(R.string.welcome));
         }
 
-        if (mUserName != null && !TextUtils.isEmpty(mUserName)) {
-            inputUserName.setText(mUserName);
+        if(isFromFtl)
+        {
+            if (mUserName != null && !TextUtils.isEmpty(mUserName)) {
+                inputUserName.setText(mUserName);
+            }
+            else {
+                inputUserName.setHint(getString(R.string.user_name));
+            }
         }
-        else if (mEmail != null && !TextUtils.isEmpty(mEmail)) {
-            inputUserName.setText(mEmail);
+        else
+        {
+            if (mEmail != null && !TextUtils.isEmpty(mEmail)) {
+                inputUserName.setText(mEmail);
+            }
+            else {
+                inputUserName.setHint(getString(R.string.user_name));
+            }
         }
-        else {
-            inputUserName.setHint(getString(R.string.user_name));
-        }
+
+
     }
 
     private void setButtonBackgroundColor() {
@@ -502,6 +514,7 @@ public class FTLUserValidationFragment extends Fragment {
                                 else
                                 {
                                     mTerms = mFTLProcessResponse.user_details.getDefault_terms_url();
+                                    PreferenceUtils.setDefaultUrl(mActivity, mTerms);
                                 }
                                 PreferenceUtils.setTermsURL(mActivity, mTerms);
                                 setUserName();

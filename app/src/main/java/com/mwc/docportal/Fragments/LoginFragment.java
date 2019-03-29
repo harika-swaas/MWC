@@ -503,6 +503,7 @@ public class LoginFragment extends Fragment {
 
                                     Intent intent = new Intent(mActivity, FTLUserValidationActivity.class);
                                     intent.putExtra(Constants.ACCESSTOKEN, loginResponse.getAccessToken());
+                                    intent.putExtra("Is_From_Resend", true);
                                     FTLPINResponse ftlpinResponse = new FTLPINResponse();
                                     ftlpinResponse.setAccessToken(loginResponse.getAccessToken());
                                     ftlpinResponse.setUserId(loginResponse.getUserId());

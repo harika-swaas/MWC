@@ -147,18 +147,28 @@ public class FTLAgreeTermsAcceptanceFragment extends Fragment {
 
                 if(extension.equalsIgnoreCase("pdf"))
                 {
-                    String access_Token = PreferenceUtils.getAccessToken(mActivity);
-                    byte[] encodeValue = Base64.encode(access_Token.getBytes(), Base64.DEFAULT);
-                    String base64AccessToken = new String(encodeValue);
-                    String urlData = mUri+"&token="+base64AccessToken;
+                    if(PreferenceUtils.getDefaultUrl(mActivity) != null)
+                    {
+                        Intent intent = new Intent(mActivity, Online_PdfView_Activity.class);
+                        intent.putExtra("mode",1);
+                        intent.putExtra("url", mUri);
+                        intent.putExtra("Terms_Title", "Terms & Privacy Policy");
+                        mActivity.startActivity(intent);
+                    }
+                    else
+                    {
+                        String access_Token = PreferenceUtils.getAccessToken(mActivity);
+                        byte[] encodeValue = Base64.encode(access_Token.getBytes(), Base64.DEFAULT);
+                        String base64AccessToken = new String(encodeValue);
+                        String urlData = mUri+"&token="+base64AccessToken;
 
+                        Intent intent = new Intent(mActivity, Online_PdfView_Activity.class);
+                        intent.putExtra("mode",1);
+                        intent.putExtra("url", urlData);
+                        intent.putExtra("Terms_Title", "Terms & Privacy Policy");
+                        mActivity.startActivity(intent);
+                    }
 
-
-                    Intent intent = new Intent(mActivity, Online_PdfView_Activity.class);
-                    intent.putExtra("mode",1);
-                    intent.putExtra("url", urlData);
-                    intent.putExtra("Terms_Title", "Terms & Privacy Policy");
-                    mActivity.startActivity(intent);
                 }
                 else {
                     Intent mIntent = new Intent(mActivity, WebviewLoaderTermsActivity.class);

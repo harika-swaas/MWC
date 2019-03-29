@@ -62,6 +62,7 @@ public class PreferenceUtils {
     private static final String FAILURE_UPLOADLIST = "Failure_UploadList";
     private static final String CURRENT_UPLOADLIST = "Current_UploadList";
     private static final String HASH_KEY_CODE = "Hash_Key";
+    private static final String DEFAULT_URL = "default_Url";
 
     public static void setAccessToken(Context context, String accesstoken) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
@@ -593,6 +594,19 @@ public class PreferenceUtils {
         SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
         String haskeyCode = sharedPreferences.getString(HASH_KEY_CODE, null);
         return haskeyCode;
+    }
+
+    public static void setDefaultUrl(Context context, String defaultUrl) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(DEFAULT_URL, defaultUrl);
+        editor.commit();
+    }
+
+    public static String getDefaultUrl(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MWC, Context.MODE_PRIVATE);
+        String defaultUrl = sharedPreferences.getString(DEFAULT_URL, null);
+        return defaultUrl;
     }
 
 }

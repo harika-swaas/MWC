@@ -7,15 +7,11 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
 import com.mwc.docportal.Fragments.FTLPasswordValidationFragment;
-import com.mwc.docportal.Fragments.FTLRegistrationFragment;
-import com.mwc.docportal.Fragments.FTLUserValidationFragment;
 import com.mwc.docportal.Login.LoginActivity;
 import com.mwc.docportal.R;
 import com.mwc.docportal.RootActivity;
