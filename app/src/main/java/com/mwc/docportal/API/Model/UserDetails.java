@@ -49,6 +49,19 @@ public class UserDetails {
     @Expose
     private String default_terms_url;
 
+
+    @SerializedName("ftl_already_complete")
+    @Expose
+    private boolean ftl_already_complete;
+
+    public boolean isFtl_already_complete() {
+        return ftl_already_complete;
+    }
+
+    public void setFtl_already_complete(boolean ftl_already_complete) {
+        this.ftl_already_complete = ftl_already_complete;
+    }
+
     public String getMobilephone() {
         return mobilephone;
     }

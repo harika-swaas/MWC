@@ -194,9 +194,9 @@
             />
         -->
         <!-- Testing fabric key -->
-       <!-- <meta-data
+        <meta-data
             android:name="io.fabric.ApiKey"
-            android:value="39f3eab4f9f7f060c8d19339c0c8cdd4d7b8bbb0" />-->
+            android:value="39f3eab4f9f7f060c8d19339c0c8cdd4d7b8bbb0" />
 
         <meta-data android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
@@ -252,6 +252,31 @@
 
         <activity android:name=".DocumentScanActivity"
             android:screenOrientation="portrait"></activity>
+
+
+        <!--File picker activities-->
+
+        <activity
+            android:name="com.vincent.filepicker.activity.ImagePickActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/vw_FilePickerTheme" />
+
+        <activity android:name="com.vincent.filepicker.activity.ImageBrowserActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/vw_FilePickerTheme"
+            android:hardwareAccelerated="false" />
+
+        <activity android:name="com.vincent.filepicker.activity.VideoPickActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/vw_FilePickerTheme" />
+
+        <activity android:name="com.vincent.filepicker.activity.AudioPickActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/vw_FilePickerTheme" />
+
+        <activity android:name="com.vincent.filepicker.activity.NormalFilePickActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/vw_FilePickerTheme" />
 
 
 

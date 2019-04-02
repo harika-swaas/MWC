@@ -125,7 +125,7 @@ public class FTLUserValidationFragment extends Fragment {
         }
     }
 
-    private void setUserName() {
+    private void setUserName(boolean ftlCompleted) {
 
         if (mWelcomeMsg != null && !TextUtils.isEmpty(mWelcomeMsg)) {
             welcomeMsg.setText(mWelcomeMsg);
@@ -133,7 +133,7 @@ public class FTLUserValidationFragment extends Fragment {
             welcomeMsg.setText(getString(R.string.welcome));
         }
 
-        if(isFromFtl)
+        if(isFromFtl || ftlCompleted)
         {
             if (mUserName != null && !TextUtils.isEmpty(mUserName)) {
                 inputUserName.setText(mUserName);
@@ -507,6 +507,7 @@ public class FTLUserValidationFragment extends Fragment {
                                 mUserName = mFTLProcessResponse.user_details.getUsername();
                                 mEmail = mFTLProcessResponse.user_details.getEmail();
                                 mWelcomeMsg = mFTLProcessResponse.user_details.getEu_ftl_welcome_msg();
+                                boolean ftlCompleted = mFTLProcessResponse.user_details.isFtl_already_complete();
                                 if(mFTLProcessResponse.user_details.getTerms() != null && !mFTLProcessResponse.user_details.getTerms().isEmpty() )
                                 {
                                     mTerms = mFTLProcessResponse.user_details.getTerms();
@@ -517,7 +518,7 @@ public class FTLUserValidationFragment extends Fragment {
                                     PreferenceUtils.setDefaultUrl(mActivity, mTerms);
                                 }
                                 PreferenceUtils.setTermsURL(mActivity, mTerms);
-                                setUserName();
+                                setUserName(ftlCompleted);
                             }
 
                         }
