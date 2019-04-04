@@ -165,7 +165,7 @@
                 android:visibility="visible"
                 android:gravity="center_vertical">
 
-                <TextView
+               <!-- <TextView
                     android:id="@+id/not_logged_in_before"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -173,7 +173,24 @@
                     android:text="@string/not_logged_in_before"
                     android:textAppearance="?android:textAppearanceMedium"
                     android:textColor="@color/black_semi_transparent"
-                    android:textSize="14sp"/>
+                    android:textSize="14sp"/>-->
+
+
+                <android.support.v7.widget.AppCompatButton
+                    android:id="@+id/not_logged_in_before"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:layout_marginTop="30dp"
+                    android:background="@drawable/next"
+                    android:text="@string/not_logged_in_before"
+                    android:textAlignment="center"
+                    android:textColor="@color/white"
+                    android:layout_marginEnd="30dp"
+                    android:layout_marginStart="30dp"
+                    android:textSize="16sp"
+                    android:textAllCaps="false">
+
+                </android.support.v7.widget.AppCompatButton>
 
             </LinearLayout>
 

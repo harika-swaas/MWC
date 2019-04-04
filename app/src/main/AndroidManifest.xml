@@ -194,9 +194,9 @@
             />
         -->
         <!-- Testing fabric key -->
-        <meta-data
+       <!-- <meta-data
             android:name="io.fabric.ApiKey"
-            android:value="39f3eab4f9f7f060c8d19339c0c8cdd4d7b8bbb0" />
+            android:value="39f3eab4f9f7f060c8d19339c0c8cdd4d7b8bbb0" />-->
 
         <meta-data android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />

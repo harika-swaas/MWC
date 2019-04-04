@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
-    <string name="versionCode">22</string>
-    <string name="versionName">1.13</string>
+    <string name="versionCode">23</string>
+    <string name="versionName">1.14</string>
     <string name="app_name">Doc Portal</string>
     <string name="ok">Ok</string>
     <string name="snackbar_download">DOWNLOAD</string>
@@ -34,7 +34,7 @@
     <string name="enter_password">Password</string>
     <string name="confirm_password">Confirm password</string>
     <string name="shr_button_next">Sign In</string>
-    <string name="not_logged_in_before">Activate your account?</string>
+    <string name="not_logged_in_before">Not Activated Your Account?</string>
     <string name="almost_done">Almost Done!</string>
     <string name="set_terms_acceptance_txt">By clicking Let\'s Start, You are agreeing to our Terms and Privacy Policy</string>
     <!-- <string name="set_terms_acceptance_txt">By tapping Let\'s start, You agree to our Terms, Data Policy.There are many variations of passages of Lorel Ipsum available,but the majority have suffered alteration in some form believable.</string>-->
@@ -81,7 +81,7 @@
     <string name="resent_title" />
     <string name="resent_pin_msg">Pin Resent Succesfully !</string>
     <string name="ftl_username_text">This is the username you will login with.</string>
-    <string name="ftl_password_text">Please enter a password of your choosing. It must be at least 8 characters and contain one uppercase letter and one number</string>
+    <string name="ftl_password_text">Please enter a password. It must be at least 8 characters and contain one uppercase letter and one number</string>
     <string name="err_msg_user_name_min_length">The username should be a minimum of 5 characters</string>
     <string name="err_msg_user_name_max_length">The username should be a maximum of 45 characters</string>
     <string name="err_msg_password_min_length">Password should be minimum of 8 characters</string>

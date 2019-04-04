@@ -85,7 +85,7 @@ public class LoginFragment extends Fragment {
     View mView;
     Retrofit retrofit;
     Button mSignInButton;
-    TextView mNotLoggedInBefore;
+    Button mNotLoggedInBefore;
     EditText mUserName, mPassword;
     private LoginResponse mLoggedInObj;
     List<AccountSettingsResponse> mAccountSettingsResponses = new ArrayList<>();
@@ -109,7 +109,7 @@ public class LoginFragment extends Fragment {
     private void intializeViews() {
         mUserName = (EditText) mView.findViewById(R.id.edit_username);
         mPassword = (EditText) mView.findViewById(R.id.edit_password);
-        mNotLoggedInBefore = (TextView) mView.findViewById(R.id.not_logged_in_before);
+        mNotLoggedInBefore = (Button) mView.findViewById(R.id.not_logged_in_before);
         mSignInButton = (Button) mView.findViewById(R.id.sign_in);
     }
 
