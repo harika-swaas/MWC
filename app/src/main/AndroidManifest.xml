@@ -187,7 +187,7 @@
             android:resource="@color/notification_icon_color" />
 
         <!-- Production fabric key -->
-      <!--  <meta-data
+        <!--<meta-data
             android:name="io.fabric.ApiKey"
             android:value="f65d8896b478db0bc4f72b5d76f323801dc0509e"
             />-->
