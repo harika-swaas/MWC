@@ -5,7 +5,6 @@ import android.util.Log;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
 import com.mwc.docportal.Database.PushNotificatoinSettings_Respository;
-import com.mwc.docportal.Preference.PreferenceUtils;
 
 /**
  * Created by barath on 8/24/2018.
@@ -30,5 +29,8 @@ public class MyFirebaseInstanceIdService extends FirebaseInstanceIdService {
         //and usually new token is only generated when the app is reinstalled or the data is cleared
         Log.d("MyRefreshedToken", token);
     }
+
+
+
 
 }

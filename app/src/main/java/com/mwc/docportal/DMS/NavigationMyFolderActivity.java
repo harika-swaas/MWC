@@ -133,7 +133,6 @@ import com.mwc.docportal.Common.SimpleDividerItemDecoration;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Database.OffLine_Files_Repository;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
-import com.mwc.docportal.DocumentScanActivity;
 import com.mwc.docportal.GlobalSearch.GlobalSearchActivity;
 import com.mwc.docportal.GridAutofitLayoutManager;
 import com.mwc.docportal.Login.LoginActivity;
@@ -4673,8 +4672,8 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
     private void gotoScanDocumentActivity()
     {
-        Intent intent = new Intent(NavigationMyFolderActivity.this, DocumentScanActivity.class);
-        startActivity(intent);
+       /* Intent intent = new Intent(NavigationMyFolderActivity.this, DocumentScanActivity.class);
+        startActivity(intent);*/
     }
 
 

@@ -13,7 +13,7 @@
         android:id="@+id/login_logo_frame"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_heightPercent="50%">
+        app:layout_heightPercent="40%">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -24,7 +24,7 @@
                 android:id="@+id/logo_image_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
+                android:layout_centerInParent="true
                 android:layout_gravity="center_vertical"
                 android:layout_marginEnd="10dp"
                 android:layout_marginStart="10dp"
@@ -52,7 +52,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/login_logo_frame"
-        app:layout_heightPercent="50%">
+        app:layout_heightPercent="60%">
 
         <RelativeLayout
             android:id="@+id/login_signin_rl"
@@ -174,6 +174,23 @@
                     android:textColor="@color/black_semi_transparent"
                     android:textSize="14sp"/>-->
 
+                <android.support.v7.widget.AppCompatButton
+                    android:id="@+id/fogotMyPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:layout_marginTop="30dp"
+                    android:background="@drawable/next"
+                    android:text="@string/forgot_password"
+                    android:textAlignment="center"
+                    android:textColor="@color/white"
+                    android:layout_marginEnd="30dp"
+                    android:layout_marginStart="30dp"
+                    android:textSize="16sp"
+                    android:textAllCaps="false">
+
+                </android.support.v7.widget.AppCompatButton>
+
+
 
                 <android.support.v7.widget.AppCompatButton
                     android:id="@+id/not_logged_in_before"
@@ -190,6 +207,8 @@
                     android:textAllCaps="false">
 
                 </android.support.v7.widget.AppCompatButton>
+
+
 
             </LinearLayout>
 

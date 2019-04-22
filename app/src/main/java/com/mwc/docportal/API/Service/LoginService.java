@@ -4,6 +4,7 @@ import com.mwc.docportal.API.Model.ApiResponse;
 import com.mwc.docportal.API.Model.BaseApiResponse;
 import com.mwc.docportal.API.Model.LoginRequest;
 import com.mwc.docportal.API.Model.LoginResponse;
+import com.mwc.docportal.API.Model.PasswordResetModel.UserNameResponseModel;
 
 import java.util.Map;
 
@@ -22,4 +23,8 @@ public interface LoginService {
     @POST("/login")
     @FormUrlEncoded
     Call<ApiResponse<LoginResponse>> getLogin(@FieldMap Map<String,String> params);
+
+    @POST("/self-reset")
+    @FormUrlEncoded
+    Call<UserNameResponseModel> checkUserName(@FieldMap Map<String,String> params);
 }

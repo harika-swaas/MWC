@@ -156,6 +156,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
         params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
         params.addRule(RelativeLayout.CENTER_HORIZONTAL);
         text.setLayoutParams(params);
+
         navigationView.removeView(navigationView.getChildAt(2));
 
         if(badgeCountValue > 0)
@@ -222,8 +223,10 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
                 startActivity(intent);
             } else if (itemId == R.id.navigation_settings) {
                 startActivity(new Intent(this, NavigationSettingsActivity.class));
+            } /*else if (itemId == R.id.navigation_more) {
+                startActivity(new Intent(this, NavigationMoreActivity.class));
             }
-
+*/
             finish();
         return true;
     }

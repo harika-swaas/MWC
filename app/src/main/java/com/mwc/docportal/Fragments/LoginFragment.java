@@ -31,6 +31,7 @@ import com.mwc.docportal.API.Model.FTLPINResponse;
 import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.DMS.NavigationMyFolderActivity;
 import com.mwc.docportal.FTL.FTLRegistrationActivity;
+import com.mwc.docportal.ForgotPassword.UserNameActivity;
 import com.squareup.okhttp.OkHttpClient;
 import com.mwc.docportal.API.Model.AccountSettingsResponse;
 import com.mwc.docportal.API.Model.ApiResponse;
@@ -84,7 +85,7 @@ public class LoginFragment extends Fragment {
     LoginActivity mActivity;
     View mView;
     Retrofit retrofit;
-    Button mSignInButton;
+    Button mSignInButton, forgotPassword;
     Button mNotLoggedInBefore;
     EditText mUserName, mPassword;
     private LoginResponse mLoggedInObj;
@@ -111,6 +112,9 @@ public class LoginFragment extends Fragment {
         mPassword = (EditText) mView.findViewById(R.id.edit_password);
         mNotLoggedInBefore = (Button) mView.findViewById(R.id.not_logged_in_before);
         mSignInButton = (Button) mView.findViewById(R.id.sign_in);
+        forgotPassword =  (Button) mView.findViewById(R.id.fogotMyPassword);
+
+
     }
 
     private void addListenersToViews() {
@@ -158,6 +162,14 @@ public class LoginFragment extends Fragment {
                 }
 
 
+            }
+        });
+
+        forgotPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                startActivity(new Intent(mActivity, UserNameActivity.class));
             }
         });
     }

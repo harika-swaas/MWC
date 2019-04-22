@@ -31,9 +31,6 @@
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
-
-
-
     <application
         android:name=".MWCApplication"
         android:allowBackup="false"
@@ -43,8 +40,9 @@
         android:roundIcon="@mipmap/doc_ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        tools:node="replace"
+        tools:node="merge"
         tools:replace="allowBackup,supportsRtl">
+
         <activity
             android:name=".Login.LoginActivity"
             android:configChanges="orientation|screenSize|keyboardHidden">
@@ -147,6 +145,14 @@
                 <action android:name="com.google.android.gms.auth.api.phone.SMS_RETRIEVED" />
             </intent-filter>
         </receiver>
+
+        <receiver
+            android:name=".ForgotPassword.MyForgotPasswordBroadCastReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.android.gms.auth.api.phone.SMS_RETRIEVED" />
+            </intent-filter>
+        </receiver>
         <!--
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -184,19 +190,21 @@
             android:value="@string/default_notification_channel_id" />
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
-            android:resource="@color/notification_icon_color" />
-
-        <!-- Production fabric key -->
-        <!--<meta-data
+            android:resource="@color/notification_icon_color" /> <!-- Production fabric key -->
+        <!--
+        <meta-data
             android:name="io.fabric.ApiKey"
             android:value="f65d8896b478db0bc4f72b5d76f323801dc0509e"
-            />-->
+            />
+        -->
         <!-- Testing fabric key -->
-       <!-- <meta-data
-            android:name="io.fabric.ApiKey"
-            android:value="39f3eab4f9f7f060c8d19339c0c8cdd4d7b8bbb0" />-->
 
-        <meta-data android:name="com.google.android.gms.version"
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="39f3eab4f9f7f060c8d19339c0c8cdd4d7b8bbb0" />
+
+        <meta-data
+            android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
         <service android:name=".Firebase.MyFirebaseMessagingService">
@@ -247,37 +255,46 @@
         <activity
             android:name=".User_Profile_Update_Activity"
             android:configChanges="orientation|screenSize|keyboardHidden" />
+        <activity
+            android:name=".DMS.NavigationMoreActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        <activity
+            android:name=".ForgotPassword.UserNameActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        <activity
+            android:name=".ForgotPassword.PinDeviceListActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
 
-        <activity android:name=".DocumentScanActivity"
-            android:screenOrientation="portrait"></activity>
+        <activity android:name=".ForgotPassword.NewPasswordActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"></activity>
+
+        <activity android:name=".ForgotPassword.ForgetPasswordPinVerificationActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"/>
 
 
-        <!--File picker activities-->
 
+        <!-- File picker activities -->
         <activity
             android:name="com.vincent.filepicker.activity.ImagePickActivity"
             android:screenOrientation="portrait"
             android:theme="@style/vw_FilePickerTheme" />
-
-        <activity android:name="com.vincent.filepicker.activity.ImageBrowserActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/vw_FilePickerTheme"
-            android:hardwareAccelerated="false" />
-
-        <activity android:name="com.vincent.filepicker.activity.VideoPickActivity"
+        <activity
+            android:name="com.vincent.filepicker.activity.ImageBrowserActivity"
+            android:hardwareAccelerated="false"
             android:screenOrientation="portrait"
             android:theme="@style/vw_FilePickerTheme" />
-
-        <activity android:name="com.vincent.filepicker.activity.AudioPickActivity"
+        <activity
+            android:name="com.vincent.filepicker.activity.VideoPickActivity"
             android:screenOrientation="portrait"
             android:theme="@style/vw_FilePickerTheme" />
-
-        <activity android:name="com.vincent.filepicker.activity.NormalFilePickActivity"
+        <activity
+            android:name="com.vincent.filepicker.activity.AudioPickActivity"
             android:screenOrientation="portrait"
             android:theme="@style/vw_FilePickerTheme" />
-
-
-
+        <activity
+            android:name="com.vincent.filepicker.activity.NormalFilePickActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/vw_FilePickerTheme" />
     </application>
 
 </manifest>

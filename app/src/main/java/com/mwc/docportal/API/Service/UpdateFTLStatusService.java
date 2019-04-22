@@ -22,4 +22,8 @@ public interface UpdateFTLStatusService {
     @POST("/update-ftl-status")
     @FormUrlEncoded
     Call<BaseApiResponse<VerifyFTLResponse>> getUpdateFTLStatus(@FieldMap Map<String,String> params, @Header("access-token") String accessToken);
+
+    @POST("/reset-details")
+    @FormUrlEncoded
+    Call<BaseApiResponse<VerifyFTLResponse>> getUpdateNewPassword(@FieldMap Map<String,String> params, @Header("access-token") String accessToken);
 }

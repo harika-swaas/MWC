@@ -13,9 +13,27 @@ public class VerifyPinRequest {
     @Expose
     private long pin;
 
+    @SerializedName("reset_source")
+    @Expose
+    private long reset_source;
+
+    public long getReset_source() {
+        return reset_source;
+    }
+
+    public void setReset_source(long reset_source) {
+        this.reset_source = reset_source;
+    }
+
     public VerifyPinRequest(long pin){
         this.pin = pin;
     }
+
+    public VerifyPinRequest(long pin, int resetResource){
+        this.pin = pin;
+        this.reset_source = resetResource;
+    }
+
 
     public long getPin() {
         return pin;

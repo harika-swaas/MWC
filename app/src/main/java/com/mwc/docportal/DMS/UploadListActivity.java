@@ -54,7 +54,7 @@ import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Common.GlobalVariables;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
-import com.mwc.docportal.DocumentScanActivity;
+
 import com.mwc.docportal.Login.LoginActivity;
 import com.mwc.docportal.RootActivity;
 import com.squareup.okhttp.MediaType;
@@ -1810,7 +1810,7 @@ public class UploadListActivity extends RootActivity {
 
     private void gotoScanDocumentActivity()
     {
-        Intent intent = new Intent(UploadListActivity.this, DocumentScanActivity.class);
-        startActivity(intent);
+       /* Intent intent = new Intent(UploadListActivity.this, DocumentScanActivity.class);
+        startActivity(intent);*/
     }
 }

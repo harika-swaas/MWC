@@ -23,4 +23,9 @@ public interface VerifyPinService {
     @POST("/verify-pin")
     @FormUrlEncoded
     Call<BaseApiResponse<LoginResponse>> getVerifyPin(@FieldMap Map<String,String> params, @Header("access-token") String accessToken);
+
+    @Headers("content-type: application/x-www-form-urlencoded")
+    @POST("/verify-pin")
+    @FormUrlEncoded
+    Call<BaseApiResponse<LoginResponse>> getForgetPasswordVerifyPin(@FieldMap Map<String,String> params, @Header("access-token") String accessToken);
 }
