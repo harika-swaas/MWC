@@ -3,6 +3,7 @@ package com.mwc.docportal.ForgotPassword;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -38,6 +39,7 @@ import retrofit.Call;
 import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
+
 
 public class NewPasswordActivity extends AppCompatActivity {
 
@@ -163,9 +165,14 @@ public class NewPasswordActivity extends AppCompatActivity {
         mBackIv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 onBackPressed();
             }
         });
+
+
+
+
 
         inputPassword.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -427,6 +434,14 @@ public class NewPasswordActivity extends AppCompatActivity {
         if (view.requestFocus()) {
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(context, ForgetPasswordPinVerificationActivity.class);
+        intent.putExtra("AccessToken",mAccessToken);
+        startActivity(intent);
+        finish();
     }
 
 }

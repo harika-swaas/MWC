@@ -9,8 +9,8 @@
 
     <item
         android:id="@+id/navigation_shared"
-        android:icon="@mipmap/ic_new_share"
-        android:title="@string/shared" />
+        android:icon="@mipmap/ic_shared_files"
+        android:title="@string/shared_files" />
 
     <!--android:actionLayout="@layout/badge_count_item"-->
 

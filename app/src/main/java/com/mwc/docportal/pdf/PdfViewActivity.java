@@ -2167,8 +2167,6 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
                             }
                         }
 
-
-
                       /*  if(CommonFunctions.isApiSuccess(PdfViewActivity.this, message, response.body().status.getCode())) {
                             documentPropertiesResponse = response.body().getData();
                             getDocumentViewUrl(documentPropertiesResponse, pushNotificationDocumentVersionId, documentShareType);

@@ -34,7 +34,7 @@ public class PassWordResetPinListAdapter extends RecyclerView.Adapter<PassWordRe
     @Override
     public PinDeviceViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // infalte the item Layout
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.items, parent, false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.forgot_password_pin_items, parent, false);
         // set the view's size, margins, paddings and layout parameters
         PinDeviceViewHolder vh = new PinDeviceViewHolder(v); // pass the view to View Holder
         return vh;

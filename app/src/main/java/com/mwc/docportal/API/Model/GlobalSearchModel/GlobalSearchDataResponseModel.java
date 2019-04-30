@@ -48,7 +48,7 @@ public class GlobalSearchDataResponseModel
         private String uploadedDate;
         @SerializedName("shared_date")
         @Expose
-        private Object sharedDate;
+        private String sharedDate;
         @SerializedName("doc_category_id")
         @Expose
         private String docCategoryId;
@@ -120,11 +120,11 @@ public class GlobalSearchDataResponseModel
             this.uploadedDate = uploadedDate;
         }
 
-        public Object getSharedDate() {
+        public String getSharedDate() {
             return sharedDate;
         }
 
-        public void setSharedDate(Object sharedDate) {
+        public void setSharedDate(String sharedDate) {
             this.sharedDate = sharedDate;
         }
 

@@ -67,14 +67,13 @@ public class MWCApplication extends MultiDexApplication implements Application.A
         Stetho.initializeWithDefaults(this);
         registerActivityLifecycleCallbacks(this);
 
-
         // Hide the code before given to production or beta
-        AppSignatureHelper signatureHelper = new AppSignatureHelper(context);
+       /* AppSignatureHelper signatureHelper = new AppSignatureHelper(context);
         ArrayList<String> appSignatures = signatureHelper.getAppSignatures();
         if(appSignatures != null && appSignatures.size() > 0)
         {
             PreferenceUtils.setHashKeyCode(context, appSignatures.get(0));
-        }
+        }*/
     }
 
     public static MWCApplication getThis() {

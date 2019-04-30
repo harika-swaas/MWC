@@ -1,6 +1,7 @@
 package com.mwc.docportal.DMS;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -16,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -46,6 +48,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
     protected BottomNavigationView navigationView;
     List<WhiteLabelResponse> mWhiteLabelResponses = new ArrayList();
     Context context = this;
+    AlertDialog mAlertDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,7 +104,49 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
                             message = response.body().getStatus().getMessage().toString();
                         }
 
-                        if(CommonFunctions.isApiSuccess(BaseActivity.this, message, response.body().getStatus().getCode()))
+
+                        if(response.body().getStatus().getCode() instanceof Double)
+                        {
+                            double status_value = new Double(response.body().getStatus().getCode().toString());
+                            if (status_value == 401.3)
+                            {
+                            //    showAlertDialogForAccessDenied(context, message);
+
+                            }
+                            else if(status_value ==  401 || status_value ==  401.0)
+                            {
+                                showAlertDialogForSessionExpiry(context, message);
+                            }
+                        }
+                        else if(response.body().getStatus().getCode() instanceof Integer)
+                        {
+                            int integerValue = new Integer(response.body().getStatus().getCode().toString());
+                            if(integerValue ==  401)
+                            {
+                                showAlertDialogForSessionExpiry(context, message);
+                            }
+                        }
+                        else if(response.body().getStatus().getCode() instanceof Boolean) {
+                            if (response.body().getStatus().getCode() == Boolean.TRUE) {
+                                showAlertDialogForAccessDenied(context, message);
+                            }
+                            else
+                            {
+                                int totalUnreadCount = 0;
+                                List<APIResponseModel.Category> categoryList = response.body().getData().getCategories();
+                                if (categoryList != null && categoryList.size() > 0) {
+                                    for (APIResponseModel.Category category : categoryList) {
+                                        totalUnreadCount = totalUnreadCount + category.getUnread_doc_count();
+                                    }
+                                }
+
+                                GlobalVariables.totalUnreadableCount = totalUnreadCount;
+
+                                showBadgeCount(navigationView, R.id.navigation_shared, totalUnreadCount, activity);
+                            }
+                        }
+
+                        /*if(CommonFunctions.isApiSuccess(BaseActivity.this, message, response.body().getStatus().getCode()))
                         {
                             int totalUnreadCount = 0;
                             List<APIResponseModel.Category> categoryList = response.body().getData().getCategories();
@@ -112,19 +157,9 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
                             }
 
                             GlobalVariables.totalUnreadableCount = totalUnreadCount;
-
-                           /* if(totalUnreadCount > 0)
-                            {
-                                showBadgeCount(navigationView, R.id.navigation_shared, totalUnreadCount);
-                            }
-                            else
-                            {
-                                removeTextLabel(navigationView, R.id.navigation_shared);
-                            }*/
-
                             showBadgeCount(navigationView, R.id.navigation_shared, totalUnreadCount, activity);
 
-                        }
+                        }*/
 
                     }
                     else {
@@ -330,5 +365,87 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
 
     abstract int getNavigationMenuItemId();
 
+    private void showAlertDialogForAccessDenied(Context context, String message)
+    {
+
+        if(mAlertDialog != null && mAlertDialog.isShowing())
+        {
+
+        }
+        else {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+            builder.setView(view);
+            builder.setCancelable(false);
+
+            TextView title = (TextView) view.findViewById(R.id.title);
+            title.setText("Alert");
+
+            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+            txtMessage.setText(message);
+
+            Button okButton = (Button) view.findViewById(R.id.send_pin_button);
+            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+            cancelButton.setVisibility(View.GONE);
+
+            okButton.setText("Ok");
+
+            okButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mAlertDialog.dismiss();
+
+                }
+            });
+
+            mAlertDialog = builder.create();
+            mAlertDialog.show();
+        }
+    }
+
+
+    private void showAlertDialogForSessionExpiry(Context context, String message)
+    {
+        if(mAlertDialog != null && mAlertDialog.isShowing())
+        {
+
+        }
+        else {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+            builder.setView(view);
+            builder.setCancelable(false);
+
+            TextView title = (TextView) view.findViewById(R.id.title);
+            title.setText("Session Expired");
+
+            TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+            txtMessage.setText(message);
+
+            Button okButton = (Button) view.findViewById(R.id.send_pin_button);
+            Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+            cancelButton.setVisibility(View.GONE);
+
+            okButton.setText("Ok");
+
+            okButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mAlertDialog.dismiss();
+                    AccountSettings accountSettings = new AccountSettings(context);
+                    accountSettings.LogouData();
+                }
+            });
+
+            mAlertDialog = builder.create();
+            mAlertDialog.show();
+        }
+    }
 
 }

@@ -23,6 +23,7 @@ import com.mwc.docportal.API.Model.PasswordResetModel.UserNameResponseModel;
 import com.mwc.docportal.API.Service.LoginService;
 import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Dialogs.LoadingProgressDialog;
+import com.mwc.docportal.Login.LoginActivity;
 import com.mwc.docportal.Network.NetworkUtils;
 import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
@@ -217,5 +218,11 @@ public class UserNameActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(context, LoginActivity.class);
+        startActivity(intent);
+        finish();
+    }
 
 }

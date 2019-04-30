@@ -28,6 +28,7 @@ import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.content.ContextCompat;
@@ -62,7 +63,6 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -143,7 +143,6 @@ import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
 import com.mwc.docportal.Utils.Constants;
 import com.mwc.docportal.Utils.DateHelper;
-import com.mwc.docportal.Utils.SplashScreen;
 import com.mwc.docportal.pdf.PdfViewActivity;
 import com.vincent.filepicker.Constant;
 import com.vincent.filepicker.activity.ImagePickActivity;
@@ -242,7 +241,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
     boolean isScanDocument = false;
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
+   @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -1190,7 +1189,24 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             }
         });
 
+        /*appbar.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+            boolean isShow = true;
+            int scrollRange = -1;
 
+            @Override
+            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+                if (scrollRange == -1) {
+                    scrollRange = appBarLayout.getTotalScrollRange();
+                }
+                if (scrollRange + verticalOffset == 0) {
+                    collapsingToolbarLayout.setTitle("Title");
+                    isShow = true;
+                } else if(isShow) {
+                    collapsingToolbarLayout.setTitle(" ");//careful there should a space between double quote otherwise it wont work
+                    isShow = false;
+                }
+            }
+        });*/
 
     }
 
@@ -1718,6 +1734,8 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         mRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
         bottom_linearlayout = (LinearLayout) findViewById(R.id.bottom_linearlayout);
         refreshButton = (Button) findViewById(R.id.refresh_button);
+
+
 
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
@@ -2377,7 +2395,6 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
           menuItemShare = menu.findItem(R.id.action_share);
           menuItemMore = menu.findItem(R.id.action_more);
           menuItemMove = menu.findItem(R.id.action_move);
-
 
 
           searchIconDisplay();

@@ -261,4 +261,12 @@ public class PinDeviceListActivity extends AppCompatActivity
         mAlertDialog.show();
     }
 
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(context, UserNameActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+
 }

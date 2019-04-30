@@ -448,7 +448,7 @@ public class NavigationSharedActivity extends BaseActivity {
         }
         else
         {
-            categoryName = "Shared";
+            categoryName = "Shared Files";
         }
 
         if(getIntent().getStringExtra("WorkSpaceId") != null)
@@ -536,7 +536,7 @@ public class NavigationSharedActivity extends BaseActivity {
 
 
         collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
-        collapsingToolbarLayout.setTitle("Shared");
+        collapsingToolbarLayout.setTitle("Shared Files");
         toolbarTextAppernce();
 
     }
@@ -857,7 +857,7 @@ public class NavigationSharedActivity extends BaseActivity {
         super.onResume();
 
         if (ObjectId.equals("0")){
-            collapsingToolbarLayout.setTitle("Shared");
+            collapsingToolbarLayout.setTitle("Shared Files");
             if(!GlobalVariables.isMoveInitiated && !GlobalVariables.selectedActionName.equalsIgnoreCase("share")) {
                 documentsCategoryList.clear();
                 documentsCategoryList.addAll(GlobalVariables.sharedRootDocumentList);

@@ -139,7 +139,8 @@ public class ForgetPasswordPinVerificationActivity extends AppCompatActivity imp
         mBackIv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                 finish();
+                onBackPressed();
+
             }
         });
 
@@ -250,7 +251,6 @@ public class ForgetPasswordPinVerificationActivity extends AppCompatActivity imp
                             Intent intent = new Intent(context, NewPasswordActivity.class);
                             intent.putExtra("AccessToken", accessToken);
                             startActivity(intent);
-                            inputPIN.setText("");
                         }
 
                     }
@@ -277,6 +277,8 @@ public class ForgetPasswordPinVerificationActivity extends AppCompatActivity imp
         mBackIv = (ImageView) findViewById(R.id.back_image_view);
         pin_verification_txt = (TextView) findViewById(R.id.pin_verification_txt);
         pin_verification_title = (TextView) findViewById(R.id.pin_verification_title);
+
+        pin_verification_txt.setText(getResources().getString(R.string.login_pin_verification_text));
     }
 
     @Override
@@ -439,5 +441,13 @@ public class ForgetPasswordPinVerificationActivity extends AppCompatActivity imp
 
         mAlertDialog = builder.create();
         mAlertDialog.show();
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(context, PinDeviceListActivity.class);
+        intent.putExtra("AccessToken",accessToken);
+        startActivity(intent);
+        finish();
     }
 }

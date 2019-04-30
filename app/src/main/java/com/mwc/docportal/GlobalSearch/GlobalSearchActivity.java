@@ -10,6 +10,7 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.os.Handler;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -42,6 +43,7 @@ import com.mwc.docportal.API.Model.GlobalSearchModel.GlobalSearchDataRequestMode
 import com.mwc.docportal.API.Model.GlobalSearchModel.GlobalSearchDataResponseModel;
 import com.mwc.docportal.API.Model.GlobalSearchModel.GlobalSearchRequestModel;
 import com.mwc.docportal.API.Model.GlobalSearchModel.GlobalSearchResponseModel;
+import com.mwc.docportal.API.Model.WhiteLabelResponse;
 import com.mwc.docportal.API.Service.EndUserGlobalSearchService;
 import com.mwc.docportal.Common.CommonFunctions;
 import com.mwc.docportal.Common.GlobalVariables;
@@ -90,7 +92,7 @@ public class GlobalSearchActivity extends RootActivity implements SearchView.OnQ
    LinearLayout empty_view;
    TextView no_search_results_txt;
    public static String searchingData;
-
+    List<WhiteLabelResponse> mWhiteLabelResponses;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -147,6 +149,7 @@ public class GlobalSearchActivity extends RootActivity implements SearchView.OnQ
 
     private void initializeViews()
     {
+        mWhiteLabelResponses = new ArrayList();
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -167,8 +170,8 @@ public class GlobalSearchActivity extends RootActivity implements SearchView.OnQ
         iconSearch.setColorFilter(getResources().getColor(R.color.black));*/
 
         ImageView icon = searchView.findViewById(android.support.v7.appcompat.R.id.search_mag_icon);
-        icon.setColorFilter(Color.BLACK);
-
+     //   icon.setColorFilter(Color.BLACK);
+        icon.setColorFilter(getResources().getColor(R.color.black));
 
 
         mRecyclerView = (RecyclerView) findViewById(R.id.globalSearch_recyclerView);
@@ -186,13 +189,18 @@ public class GlobalSearchActivity extends RootActivity implements SearchView.OnQ
 
         getMenuInflater().inflate(R.menu.global_search_item, menu);
         MenuItem cancelItem = menu.findItem(R.id.cancel_item);
+        getWhiteLabelProperities();
 
-       /* int positionOfMenuItem = 0;
-        MenuItem item = menu.getItem(positionOfMenuItem);
-        SpannableString s = new SpannableString("CANCEL");
-        s.setSpan(new ForegroundColorSpan(Color.RED), 0, s.length(), 0);
-        item.setTitle(s);*/
+        if (mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
+            String itemSelectedColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
+            int selectedColor = Color.parseColor(itemSelectedColor);
 
+            int positionOfMenuItem = 0;
+            MenuItem item = menu.getItem(positionOfMenuItem);
+            SpannableString s = new SpannableString("CANCEL");
+            s.setSpan(new ForegroundColorSpan(selectedColor), 0, s.length(), 0);
+            item.setTitle(s);
+        }
 
         return true;
     }
@@ -352,7 +360,15 @@ public class GlobalSearchActivity extends RootActivity implements SearchView.OnQ
                                     categoryDocumentsResponse.setObject_id(resultModel.getDocumentId());
                                     categoryDocumentsResponse.setDocument_version_id(resultModel.getDocumentVersionId());
                                     categoryDocumentsResponse.setName(resultModel.getSubject());
-                                    categoryDocumentsResponse.setCreated_date(resultModel.getUploadedDate());
+                                    if(resultModel.getUploadedDate() != null && !resultModel.getUploadedDate().isEmpty())
+                                    {
+                                        categoryDocumentsResponse.setCreated_date(resultModel.getUploadedDate());
+                                    }
+                                    else if(resultModel.getSharedDate() != null && !resultModel.getSharedDate().isEmpty())
+                                    {
+                                        categoryDocumentsResponse.setCreated_date(resultModel.getSharedDate());
+                                    }
+
                                     categoryDocumentsResponse.setFiletype(resultModel.getFiletype());
                                     categoryDocumentsResponse.setFilesize(resultModel.getDocSize());
                                     categoryDocumentsResponse.setType("document");
@@ -558,5 +574,26 @@ public class GlobalSearchActivity extends RootActivity implements SearchView.OnQ
             view.requestLayout();
         }
     }
+
+    private void getWhiteLabelProperities() {
+
+        AccountSettings accountSettings = new AccountSettings(context);
+        accountSettings.SetWhiteLabelCB(new AccountSettings.GetWhiteLabelCB() {
+            @Override
+            public void getWhiteLabelSuccessCB(List<WhiteLabelResponse> whiteLabelResponses) {
+                if (whiteLabelResponses != null && whiteLabelResponses.size() > 0) {
+                    mWhiteLabelResponses = whiteLabelResponses;
+                }
+            }
+
+            @Override
+            public void getWhiteLabelFailureCB(String message) {
+
+            }
+        });
+
+        accountSettings.getWhiteLabelProperties();
+    }
+
 
 }

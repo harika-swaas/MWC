@@ -26,8 +26,8 @@ android {
         minSdkVersion 21
         targetSdkVersion 28
         buildToolsVersion "28.0.2"
-        versionCode 27
-        versionName "1.18"
+        versionCode 29
+        versionName "1.20"
         multiDexEnabled true
     }
     buildTypes {
@@ -64,8 +64,8 @@ repositories {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.google.firebase:firebase-messaging:11.4.0'
-    implementation 'com.google.firebase:firebase-core:11.4.0'
+    implementation 'com.google.firebase:firebase-messaging:11.8.0'
+    implementation 'com.google.firebase:firebase-core:11.8.0'
 
     /*compile('com.crashlytics.sdk.android:crashlytics:2.5.6@aar') {
             transitive = true;
@@ -107,10 +107,10 @@ dependencies {
 
     // Automatic SMS reader via API
 
-    implementation 'com.google.android.gms:play-services-base:11.4.0'
-    implementation 'com.google.android.gms:play-services-identity:11.4.0'
-    implementation 'com.google.android.gms:play-services-auth:11.4.0'
-    implementation 'com.google.android.gms:play-services-auth-api-phone:11.4.0'
+    implementation 'com.google.android.gms:play-services-base:11.8.0'
+    implementation 'com.google.android.gms:play-services-identity:11.8.0'
+    implementation 'com.google.android.gms:play-services-auth:11.8.0'
+    implementation 'com.google.android.gms:play-services-auth-api-phone:11.8.0'
 
     /*implementation 'com.dynamsoft:dynamsoftcamerasdk:2.0'
     implementation 'com.android.support:exifinterface:28.0.0'*/

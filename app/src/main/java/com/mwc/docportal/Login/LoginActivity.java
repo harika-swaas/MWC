@@ -27,6 +27,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.mwc.docportal.API.Model.AccountSettingsResponse;
 import com.mwc.docportal.API.Model.UploadModel;
 import com.mwc.docportal.Common.GlobalVariables;
@@ -941,5 +942,27 @@ public class LoginActivity extends RootActivity {
         }
         return mimeType;
     }
+
+   /* public void getFCMTokenRefresh()
+    {
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+//To do//
+                            return;
+                        }
+
+// Get the Instance ID token//
+                        String token = task.getResult().getToken();
+                        String msg = getString(R.string.fcm_token, token);
+                        Log.d(TAG, msg);
+
+                    }
+                });
+
+    }*/
+
 
 }
