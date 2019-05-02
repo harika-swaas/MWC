@@ -2,15 +2,12 @@ package com.mwc.docportal.DMS;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -28,10 +25,9 @@ import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
-import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.BottomNavigationView;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
@@ -177,7 +173,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
     RecyclerView mRecyclerView;
     AlertDialog mCustomAlertDialog;
     AlertDialog mAlertDialog;
-    MenuItem menuItemSearch, menuItemDelete, menuItemShare, menuItemMove, menuItemMore;
+    MenuItem menuItemDelete, menuItemShare, menuItemMove, menuItemMore;
 
     boolean isFromList;
     LinearLayoutManager linearLayoutManager;
@@ -191,7 +187,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
     public static final int REQUEST_CAPTURE_IMAGE_CODE = 300;
     public static final int CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE = 400;
     List<UploadModel> list_upload;
-    CollapsingToolbarLayout collapsingToolbarLayout;
+    //  CollapsingToolbarLayout collapsingToolbarLayout;
     Toolbar toolbar;
     RelativeLayout toggleView;
     ImageView toggle, sort_image;
@@ -241,7 +237,11 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
     boolean isScanDocument = false;
 
-   @RequiresApi(api = Build.VERSION_CODES.M)
+    // Implementing new search
+    LinearLayout searchViewLayout;
+    EditText searchEditText;
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -264,8 +264,8 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
         if(PreferenceUtils.getPushNotificationDocumentVersionId(context) != null && !PreferenceUtils.getPushNotificationDocumentVersionId(context).isEmpty())
         {
-           Intent intent = new Intent(NavigationMyFolderActivity.this, PdfViewActivity.class);
-           startActivity(intent);
+            Intent intent = new Intent(NavigationMyFolderActivity.this, PdfViewActivity.class);
+            startActivity(intent);
         }
 
         intiaizeViews();
@@ -273,6 +273,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         getWhiteLabelProperities();
         no_documents_txt.setText("");
         itemSelectedColorApplied();
+        changeSearchIconColor();
 
         transparentProgressDialog = new LoadingProgressDialog(context);
 
@@ -324,6 +325,18 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
     }
 
+    private void changeSearchIconColor()
+    {
+        if(mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
+            String itemSelectedColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
+            int selectedColor = Color.parseColor(itemSelectedColor);
+            Drawable drawable =getDrawable(R.mipmap.ic_search); //Your drawable image
+            drawable = DrawableCompat.wrap(drawable);
+            drawable.setColorFilter(selectedColor, PorterDuff.Mode.SRC_ATOP);
+        }
+
+    }
+
     private void itemSelectedColorApplied()
     {
         if(mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0)
@@ -359,7 +372,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         actionUpload.setVisibility(View.GONE);
         actionVideo.setVisibility(View.GONE);
 
-     //   GlobalVariables.sortType = "type";
+        //   GlobalVariables.sortType = "type";
 
         if(!GlobalVariables.sortType.equalsIgnoreCase(Constants.NO_SORTING_TEXT))
         {
@@ -482,7 +495,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             Map<String, String> params = new HashMap<String, String>();
             params.put("data", request);
 
-             GetEndUserCategoriesService getCategoryDocumentsService = retrofitAPI.create(GetEndUserCategoriesService.class);
+            GetEndUserCategoriesService getCategoryDocumentsService = retrofitAPI.create(GetEndUserCategoriesService.class);
 
             Call call = getCategoryDocumentsService.getEndUsercategory(params, PreferenceUtils.getAccessToken(context));
 
@@ -492,11 +505,11 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                     ListPinDevicesResponse apiResponse = response.body();
                     if (apiResponse != null) {
 
-                      //  transparentProgressDialog.dismiss();
+                        //  transparentProgressDialog.dismiss();
 
                         if (apiResponse.status.getCode() instanceof Boolean) {
                             if (apiResponse.status.getCode() == Boolean.FALSE) {
-                             //   transparentProgressDialog.dismiss();
+                                //   transparentProgressDialog.dismiss();
 
 
 
@@ -505,12 +518,12 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                                 convertToCategoryDocumentResponse(listGetMoveCategoryDocuments);
                                 reloadAdapterData(false);
 
-                           //     setAdapterToView(listGetMoveCategoryDocuments);
+                                //     setAdapterToView(listGetMoveCategoryDocuments);
 
                             }
 
                         } else if (apiResponse.status.getCode() instanceof Double) {
-                          //  transparentProgressDialog.dismiss();
+                            //  transparentProgressDialog.dismiss();
                             String mMessage = apiResponse.status.getMessage().toString();
 
                             Object obj = 401.0;
@@ -554,7 +567,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
                 @Override
                 public void onFailure(Throwable t) {
-                //    transparentProgressDialog.dismiss();
+                    //    transparentProgressDialog.dismiss();
                     Log.d("PinDevice error", t.getMessage());
                 }
             });
@@ -862,16 +875,16 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
     private void toggleAddAndBackButton()
     {
         if (objectId.equals("0")){
-            ActionBar actionBar = getSupportActionBar();
-            actionBar.setDisplayHomeAsUpEnabled(false);
+            //  ActionBar actionBar = getSupportActionBar();
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
             actionCamera.setVisibility(View.GONE);
             actionUpload.setVisibility(View.GONE);
             actionVideo.setVisibility(View.GONE);
         }
         else
         {
-            ActionBar actionBar = getSupportActionBar();
-            actionBar.setDisplayHomeAsUpEnabled(true);
+            //   ActionBar actionBar = getSupportActionBar();
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             actionCamera.setVisibility(View.GONE);
             actionUpload.setVisibility(View.GONE);
             actionVideo.setVisibility(View.GONE);
@@ -882,6 +895,14 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void OnClickListeners()
     {
+
+        searchEditText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(NavigationMyFolderActivity.this, GlobalSearchActivity.class);
+                startActivity(intent);
+            }
+        });
 
         move_textview.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -984,8 +1005,8 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                     startActivity(intent);
                     finish();*/
 
-                  //  finishAndRemoveTask();
-                  //  System.exit(0);
+                    //  finishAndRemoveTask();
+                    //  System.exit(0);
                 }
 
             }
@@ -1248,16 +1269,16 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
     private void storageAccessPermission()
     {
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                int storagePermission = ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE);
-                if (storagePermission == PackageManager.PERMISSION_GRANTED) {
-                    documentUpload();
-                } else {
-                    requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_STORAGE_PERMISSION);
-                }
-            } else {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            int storagePermission = ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE);
+            if (storagePermission == PackageManager.PERMISSION_GRANTED) {
                 documentUpload();
+            } else {
+                requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_STORAGE_PERMISSION);
             }
+        } else {
+            documentUpload();
+        }
 
     }
 
@@ -1273,7 +1294,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             }
         }
 
-   //     pickFile();
+        //     pickFile();
     }
 
     private void cameraAndStoragePermissionForVideo()
@@ -1300,7 +1321,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
     private void videoAccess()
     {
         floatingActionMenu.close(true);
-     //   GlobalVariables.isFromCamerOrVideo = true;
+        //   GlobalVariables.isFromCamerOrVideo = true;
         if(Build.VERSION.SDK_INT>=24){
             try{
                 Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
@@ -1462,12 +1483,12 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                         }
 
                         if(CommonFunctions.isApiSuccess(NavigationMyFolderActivity.this, message, apiResponse.status.getCode())) {
-                        //    hideBottomView();
-                         //   resetPageNumber();
-                         //   getCategoryDocuments();
+                            //    hideBottomView();
+                            //   resetPageNumber();
+                            //   getCategoryDocuments();
                             GlobalVariables.isMoveInitiated = false;
                             GlobalVariables.refreshPage = true;
-                          //  Toast.makeText(context, "Selected item(s) moved successfully", Toast.LENGTH_LONG).show();
+                            //  Toast.makeText(context, "Selected item(s) moved successfully", Toast.LENGTH_LONG).show();
                             cancel_textview.performClick();
                         }
 
@@ -1530,8 +1551,8 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
 
                         if(CommonFunctions.isApiSuccess(NavigationMyFolderActivity.this, message, response.body().status.getCode())) {
-                         //   hideBottomView();
-                          //  resetPageNumber();
+                            //   hideBottomView();
+                            //  resetPageNumber();
                             GlobalVariables.isMoveInitiated = false;
                             if(GlobalVariables.selectedActionName.equalsIgnoreCase("copy"))
                             {
@@ -1539,7 +1560,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                             }
                             isFromSearchData = true;
                             cancel_textview.performClick();
-                          //  getCategoryDocuments();
+                            //  getCategoryDocuments();
                         }
 
                     }
@@ -1610,14 +1631,14 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                         }
 
                         if(CommonFunctions.isApiSuccess(NavigationMyFolderActivity.this, message, response.body().status.getCode())) {
-                         //   hideBottomView();
-                        //   resetPageNumber();
+                            //   hideBottomView();
+                            //   resetPageNumber();
                             GlobalVariables.isMoveInitiated = false;
                             GlobalVariables.refreshPage = true;
-                       //     Toast.makeText(context, "Selected item(s) moved successfully", Toast.LENGTH_LONG).show();
+                            //     Toast.makeText(context, "Selected item(s) moved successfully", Toast.LENGTH_LONG).show();
                             isFromSearchData = true;
                             cancel_textview.performClick();
-                          //  getCategoryDocuments();
+                            //  getCategoryDocuments();
                         }
 
                     }
@@ -1673,7 +1694,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
         if(pageNumber == 1)
         {
-          //  scrollView.fullScroll(ScrollView.FOCUS_UP);
+            //  scrollView.fullScroll(ScrollView.FOCUS_UP);
         }
     }
 
@@ -1735,28 +1756,30 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         bottom_linearlayout = (LinearLayout) findViewById(R.id.bottom_linearlayout);
         refreshButton = (Button) findViewById(R.id.refresh_button);
 
-
+        searchViewLayout = (LinearLayout) findViewById(R.id.searchViewLayout);
+        searchEditText = (EditText) findViewById(R.id.searchEditText);
 
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(false);
 
 
-        collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
-        collapsingToolbarLayout.setTitle(getResources().getString(R.string.my_folder));
-        toolbarTextAppernce();
+        //     collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
+        toolbar.setTitle(getResources().getString(R.string.my_folder));
+        //     toolbarTextAppernce();
+
     }
 
 
-    private void toolbarTextAppernce() {
+    /*private void toolbarTextAppernce() {
         collapsingToolbarLayout.setCollapsedTitleTextAppearance(R.style.collapsedappbar);
         collapsingToolbarLayout.setExpandedTitleTextAppearance(R.style.expandedappbar);
-    }
+    }*/
 
    /* public void pickFile() {
         DialogProperties properties = new DialogProperties();
         *//*properties.extensions = new String[]{".pdf", ".doc", ".docx", ".xlsx", ".txt", ".jpg", ".png", ".bmp", ".gif", ".tiff", ".jpeg", ".xls" ,".mp4",".mp3",".wav",".mov",".avi",".m4a",".jpeg",".mkv",".ppt",".pptx"};
-         *//*
+     *//*
         properties.selection_mode = DialogConfigs.MULTI_MODE;
         FilePickerDialog dialog = new FilePickerDialog(context, properties);
         dialog.setTitle("Select a File");
@@ -1812,7 +1835,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         mBottomSheetDialog.getWindow().setGravity(Gravity.BOTTOM);
         mBottomSheetDialog.show();
 
-         if (GlobalVariables.sortType.equalsIgnoreCase("type")) {
+        if (GlobalVariables.sortType.equalsIgnoreCase("type")) {
             sortNameImage.setVisibility(View.INVISIBLE);
             sortNewestImage.setVisibility(View.VISIBLE);
             sortSizeImage.setVisibility(View.INVISIBLE);
@@ -1843,14 +1866,14 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             sortSizeDoneImage.setVisibility(View.INVISIBLE);
             sortDateDoneImage.setVisibility(View.INVISIBLE);
 
-             if (GlobalVariables.isAscending)
-             {
-                 sortNameImage.setImageResource(R.mipmap.ic_sort_up);
-             }
-             else
-             {
-                 sortNameImage.setImageResource(R.mipmap.ic_sort_down);
-             }
+            if (GlobalVariables.isAscending)
+            {
+                sortNameImage.setImageResource(R.mipmap.ic_sort_up);
+            }
+            else
+            {
+                sortNameImage.setImageResource(R.mipmap.ic_sort_down);
+            }
         } else if (GlobalVariables.sortType.equalsIgnoreCase("filesize")) {
             sortNameImage.setVisibility(View.INVISIBLE);
             sortNewestImage.setVisibility(View.INVISIBLE);
@@ -1862,14 +1885,14 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             sortSizeDoneImage.setVisibility(View.VISIBLE);
             sortDateDoneImage.setVisibility(View.INVISIBLE);
 
-             if (GlobalVariables.isAscending)
-             {
-                 sortSizeImage.setImageResource(R.mipmap.ic_sort_up);
-             }
-             else
-             {
-                 sortSizeImage.setImageResource(R.mipmap.ic_sort_down);
-             }
+            if (GlobalVariables.isAscending)
+            {
+                sortSizeImage.setImageResource(R.mipmap.ic_sort_up);
+            }
+            else
+            {
+                sortSizeImage.setImageResource(R.mipmap.ic_sort_down);
+            }
         } else if (GlobalVariables.sortType.equalsIgnoreCase("unix_date")) {
             sortNameImage.setVisibility(View.INVISIBLE);
             sortNewestImage.setVisibility(View.INVISIBLE);
@@ -1881,34 +1904,34 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             sortSizeDoneImage.setVisibility(View.INVISIBLE);
             sortDateDoneImage.setVisibility(View.VISIBLE);
 
-             if (GlobalVariables.isAscending)
-             {
-                 sortDateImage.setImageResource(R.mipmap.ic_sort_up);
-             }
-             else
-             {
-                 sortDateImage.setImageResource(R.mipmap.ic_sort_down);
-             }
+            if (GlobalVariables.isAscending)
+            {
+                sortDateImage.setImageResource(R.mipmap.ic_sort_up);
+            }
+            else
+            {
+                sortDateImage.setImageResource(R.mipmap.ic_sort_down);
+            }
         } else if (GlobalVariables.sortType.equalsIgnoreCase(Constants.NO_SORTING_TEXT)) {
-             sortNameImage.setVisibility(View.INVISIBLE);
-             sortNewestImage.setVisibility(View.INVISIBLE);
-             sortSizeImage.setVisibility(View.INVISIBLE);
-             sortDateImage.setVisibility(View.INVISIBLE);
+            sortNameImage.setVisibility(View.INVISIBLE);
+            sortNewestImage.setVisibility(View.INVISIBLE);
+            sortSizeImage.setVisibility(View.INVISIBLE);
+            sortDateImage.setVisibility(View.INVISIBLE);
 
-             sortNameDoneImage.setVisibility(View.INVISIBLE);
-             sortNewestDoneImage.setVisibility(View.INVISIBLE);
-             sortSizeDoneImage.setVisibility(View.INVISIBLE);
-             sortDateDoneImage.setVisibility(View.INVISIBLE);
+            sortNameDoneImage.setVisibility(View.INVISIBLE);
+            sortNewestDoneImage.setVisibility(View.INVISIBLE);
+            sortSizeDoneImage.setVisibility(View.INVISIBLE);
+            sortDateDoneImage.setVisibility(View.INVISIBLE);
 
-             if (GlobalVariables.isAscending)
-             {
-                 sortDateImage.setImageResource(R.mipmap.ic_sort_up);
-             }
-             else
-             {
-                 sortDateImage.setImageResource(R.mipmap.ic_sort_down);
-             }
-         }
+            if (GlobalVariables.isAscending)
+            {
+                sortDateImage.setImageResource(R.mipmap.ic_sort_up);
+            }
+            else
+            {
+                sortDateImage.setImageResource(R.mipmap.ic_sort_down);
+            }
+        }
 
 /*
 
@@ -1957,10 +1980,10 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 mGetCategoryDocumentsResponses.clear();
                 listGetCategoryDocuments.clear();
 
-              //  getCategoryDocumentsSortByName(objectId,"1");
+                //  getCategoryDocumentsSortByName(objectId,"1");
                 getCategoryDocuments();
 
-             //   scrollView.fullScroll(ScrollView.FOCUS_UP);
+                //   scrollView.fullScroll(ScrollView.FOCUS_UP);
             }
         });
 
@@ -1988,9 +2011,9 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 totalPages=1;
                 mGetCategoryDocumentsResponses.clear();
                 listGetCategoryDocuments.clear();
-               // getCategoryDocumentsSortByNewest("1");
+                // getCategoryDocumentsSortByNewest("1");
                 getCategoryDocuments();
-            //    scrollView.fullScroll(ScrollView.FOCUS_UP);
+                //    scrollView.fullScroll(ScrollView.FOCUS_UP);
 
             }
         });
@@ -2020,9 +2043,9 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 totalPages=1;
                 mGetCategoryDocumentsResponses.clear();
                 listGetCategoryDocuments.clear();
-              //  getCategoryDocumentsSortBySize("1");
+                //  getCategoryDocumentsSortBySize("1");
                 getCategoryDocuments();
-           //     scrollView.fullScroll(ScrollView.FOCUS_UP);
+                //     scrollView.fullScroll(ScrollView.FOCUS_UP);
 
             }
         });
@@ -2052,9 +2075,9 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 totalPages=1;
                 mGetCategoryDocumentsResponses.clear();
                 listGetCategoryDocuments.clear();
-              //  getCategoryDocumentsSortByDate("1");
+                //  getCategoryDocumentsSortByDate("1");
                 getCategoryDocuments();
-            //    scrollView.fullScroll(ScrollView.FOCUS_UP);
+                //    scrollView.fullScroll(ScrollView.FOCUS_UP);
 
 
             }
@@ -2066,7 +2089,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         if(GlobalVariables.sortType.equalsIgnoreCase(sorttype))
         {
             GlobalVariables.isAscending = !GlobalVariables.isAscending;
-       }
+        }
         else
         {
             GlobalVariables.isAscending = true;
@@ -2387,20 +2410,19 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
     }
 
     @Override
-      public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(Menu menu) {
 
-          getMenuInflater().inflate(R.menu.menu_multi_select, menu);
-          menuItemSearch = menu.findItem(R.id.action_search);
-          menuItemDelete = menu.findItem(R.id.action_delete);
-          menuItemShare = menu.findItem(R.id.action_share);
-          menuItemMore = menu.findItem(R.id.action_more);
-          menuItemMove = menu.findItem(R.id.action_move);
-
-
-          searchIconDisplay();
+        getMenuInflater().inflate(R.menu.menu_multi_select, menu);
+        menuItemDelete = menu.findItem(R.id.action_delete);
+        menuItemShare = menu.findItem(R.id.action_share);
+        menuItemMore = menu.findItem(R.id.action_more);
+        menuItemMove = menu.findItem(R.id.action_move);
 
 
-          if(mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0)
+        searchIconDisplay();
+
+
+         /* if(mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0)
           {
               String itemSelectedColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
               int selectedColor = Color.parseColor(itemSelectedColor);
@@ -2420,87 +2442,87 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                   return false;
               }
           });
+*/
 
 
-
-          return true;
-      }
+        return true;
+    }
 
     private void searchIconDisplay()
     {
         if (!GlobalVariables.isMoveInitiated)
         {
-            menuItemSearch.setVisible(true);
+            searchViewLayout.setVisibility(View.VISIBLE);
         }
         else
         {
-            menuItemSearch.setVisible(false);
+            searchViewLayout.setVisibility(View.GONE);
         }
 
     }
 
     @Override
-      public boolean onOptionsItemSelected(MenuItem item)
-      {
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
 
-          switch (item.getItemId()) {
-              case android.R.id.home:
-                  onBackPressed();
-
-
-                  break;
-              case R.id.action_more:
-                  openBottomSheetForMultiSelect();
-                  return true;
-
-              case R.id.action_delete:
-                  CommonFunctions.setSelectedItems(mSelectedDocumentList);
-                  GlobalVariables.isMultiSelect = false;
-                  List<GetCategoryDocumentsResponse> categoryDocumentsResponseFolderList = new ArrayList<>();
-                  List<GetCategoryDocumentsResponse> categoryDocumentsResponseDocumentList = new ArrayList<>();
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
 
 
-                  for (GetCategoryDocumentsResponse viewListObj : mSelectedDocumentList) {
+                break;
+            case R.id.action_more:
+                openBottomSheetForMultiSelect();
+                return true;
 
-                      if (viewListObj.getType().equalsIgnoreCase("category")) {
-                          categoryDocumentsResponseFolderList.add(viewListObj);
-                      } else {
-                          categoryDocumentsResponseDocumentList.add(viewListObj);
-                      }
-                  }
+            case R.id.action_delete:
+                CommonFunctions.setSelectedItems(mSelectedDocumentList);
+                GlobalVariables.isMultiSelect = false;
+                List<GetCategoryDocumentsResponse> categoryDocumentsResponseFolderList = new ArrayList<>();
+                List<GetCategoryDocumentsResponse> categoryDocumentsResponseDocumentList = new ArrayList<>();
 
-                  clearSelectedListAfterOperation();
 
-                  if(categoryDocumentsResponseFolderList != null && categoryDocumentsResponseFolderList.size() > 0)
-                  {
-                      showDeleteAlertDialogForCategory();
-                  }
-                  else
-                  {
-                      showDeleteAlertDialogForDocuments();
-                  }
-                  break;
-              case R.id.action_move:
-                  CommonFunctions.setSelectedItems(mSelectedDocumentList);
-                  GlobalVariables.isMultiSelect = false;
-                  assigningMoveOriginIndex();
-                  clearSelectedListAfterOperation();
-                  initiateMoveAction("move");
+                for (GetCategoryDocumentsResponse viewListObj : mSelectedDocumentList) {
 
-                   break;
+                    if (viewListObj.getType().equalsIgnoreCase("category")) {
+                        categoryDocumentsResponseFolderList.add(viewListObj);
+                    } else {
+                        categoryDocumentsResponseDocumentList.add(viewListObj);
+                    }
+                }
 
-              case R.id.action_share:
-                  CommonFunctions.setSelectedItems(mSelectedDocumentList);
-                  GlobalVariables.isMultiSelect = false;
-                  assigningMoveOriginIndex();
-                  clearSelectedListAfterOperation();
-                  initiateMoveAction("copy");
+                clearSelectedListAfterOperation();
 
-                  break;
+                if(categoryDocumentsResponseFolderList != null && categoryDocumentsResponseFolderList.size() > 0)
+                {
+                    showDeleteAlertDialogForCategory();
+                }
+                else
+                {
+                    showDeleteAlertDialogForDocuments();
+                }
+                break;
+            case R.id.action_move:
+                CommonFunctions.setSelectedItems(mSelectedDocumentList);
+                GlobalVariables.isMultiSelect = false;
+                assigningMoveOriginIndex();
+                clearSelectedListAfterOperation();
+                initiateMoveAction("move");
 
-          }
-          return super.onOptionsItemSelected(item);
-      }
+                break;
+
+            case R.id.action_share:
+                CommonFunctions.setSelectedItems(mSelectedDocumentList);
+                GlobalVariables.isMultiSelect = false;
+                assigningMoveOriginIndex();
+                clearSelectedListAfterOperation();
+                initiateMoveAction("copy");
+
+                break;
+
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     public void onBackPressed() {
@@ -2509,17 +2531,17 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
         if(objectId.equals("0"))
         {
-                if (backButtonCount >= 1) {
-                    if(GlobalVariables.otherAppDocumentList.size() > 0)
-                    {
-                       cancel_textview.performClick();
-                    }
-                    backButtonCount = 0;
-                    moveTaskToBack(true);
-                } else {
-                    Toast.makeText(this, "Press the back button once again to close the application.", Toast.LENGTH_SHORT).show();
-                    backButtonCount++;
+            if (backButtonCount >= 1) {
+                if(GlobalVariables.otherAppDocumentList.size() > 0)
+                {
+                    cancel_textview.performClick();
                 }
+                backButtonCount = 0;
+                moveTaskToBack(true);
+            } else {
+                Toast.makeText(this, "Press the back button once again to close the application.", Toast.LENGTH_SHORT).show();
+                backButtonCount++;
+            }
         }
         else
         {
@@ -2772,7 +2794,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 intent.putExtra("IsFromMyFolder", true);
                 intent.putExtra(Constants.DOCUMENT_NAME, mSelectedDocumentList.get(0).getName());
                 startActivity(intent);
-              //  clearSelectedListAfterOperation();
+                //  clearSelectedListAfterOperation();
             }
         });
 
@@ -3100,7 +3122,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             public void onClick(View v) {
                 mBackDialog.dismiss();
 
-                    deleteDocumentsService( "1");
+                deleteDocumentsService( "1");
 
             }
         });
@@ -3110,7 +3132,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             public void onClick(View v) {
                 mBackDialog.dismiss();
 
-                   deleteDocumentsService( "2");
+                deleteDocumentsService( "2");
 
             }
         });
@@ -3189,7 +3211,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         GlobalVariables.isMoveInitiated = true;
         GlobalVariables.selectedActionName =  actionName;
         Intent intent = new Intent(context, NavigationMyFolderActivity.class);
-    //    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        //    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra("ObjectId", "0");
         startActivity(intent);
 
@@ -3244,7 +3266,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 menuItemMove.setVisible(true);
                 menuItemMore.setVisible(true);
                 menuItemShare.setVisible(false);
-                menuItemSearch.setVisible(false);
+                searchViewLayout.setVisibility(View.GONE);
 
             } else if (categoryDocumentsResponseFolderList.size() >= 1) {
                 if (mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
@@ -3257,7 +3279,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 menuItemMove.setVisible(true);
                 menuItemMore.setVisible(false);
                 menuItemShare.setVisible(false);
-                menuItemSearch.setVisible(false);
+                searchViewLayout.setVisibility(View.GONE);
             }
 
             if (categoryDocumentsResponseDocumentList.size() == 1) {
@@ -3272,7 +3294,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 menuItemShare.setVisible(true);
                 menuItemMore.setVisible(true);
                 menuItemMove.setVisible(false);
-                menuItemSearch.setVisible(false);
+                searchViewLayout.setVisibility(View.GONE);
 
             } else if (categoryDocumentsResponseDocumentList.size() >= 1) {
                 if (mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
@@ -3286,7 +3308,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 menuItemShare.setVisible(true);
                 menuItemMore.setVisible(true);
                 menuItemMove.setVisible(false);
-                menuItemSearch.setVisible(false);
+                searchViewLayout.setVisibility(View.GONE);
             }
 
             if (isFolder && isDocument) {
@@ -3300,7 +3322,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 menuItemMove.setVisible(true);
                 menuItemMore.setVisible(false);
                 menuItemShare.setVisible(false);
-                menuItemSearch.setVisible(false);
+                searchViewLayout.setVisibility(View.GONE);
             }
 
         } else {
@@ -3308,13 +3330,13 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 String itemSelectedColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
                 int selectedColor = Color.parseColor(itemSelectedColor);
 
-                menuIconColor(menuItemSearch,selectedColor);
+                //  menuIconColor(menuItemSearch,selectedColor);
             }
             menuItemDelete.setVisible(false);
             menuItemShare.setVisible(false);
             menuItemMore.setVisible(false);
             menuItemMove.setVisible(false);
-            menuItemSearch.setVisible(true);
+            searchViewLayout.setVisibility(View.VISIBLE);
         }
     }
 
@@ -3730,11 +3752,11 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                             message = response.body().getStatus().getMessage().toString();
                         }
 
-                       if(CommonFunctions.isApiSuccess(NavigationMyFolderActivity.this, message, response.body().getStatus().getCode()))
-                       {
-                           resetPageNumber();
-                           getCategoryDocuments();
-                       }
+                        if(CommonFunctions.isApiSuccess(NavigationMyFolderActivity.this, message, response.body().getStatus().getCode()))
+                        {
+                            resetPageNumber();
+                            getCategoryDocuments();
+                        }
 
                     }
                     else {
@@ -3846,11 +3868,11 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         }
 
         if (objectId.equals("0")){
-            collapsingToolbarLayout.setTitle(getResources().getString(R.string.my_folder));
+            getSupportActionBar().setTitle(getResources().getString(R.string.my_folder));
         }
         else
         {
-            collapsingToolbarLayout.setTitle(categoryName);
+            getSupportActionBar().setTitle(categoryName);
         }
 
         if(!NetworkUtils.checkIfNetworkAvailable(this))
@@ -3870,7 +3892,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             PreferenceUtils.setIsfromPushnotification(context, null);
         }
 
-    //    registerReceiver(mReceiver,mIntentFilter);
+        //    registerReceiver(mReceiver,mIntentFilter);
 
     }
 
@@ -4088,7 +4110,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         TextView textView =(TextView) view.findViewById(R.id.txt_message);
         textView.setVisibility(View.GONE);
         TextView text = (TextView) view.findViewById(R.id.message);
-       // text.setText("One or more files not uploaded");
+        // text.setText("One or more files not uploaded");
         text.setText(getString(R.string.upload_failed_txt));
 
         BtnAllow.setOnClickListener(new View.OnClickListener() {
@@ -4288,7 +4310,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             updateToolbarMenuItems(dummyList);
             mRefreshLayout.setRefreshing(false);
             searchIconDisplay();
-                refreshMyFolderDMS();
+            refreshMyFolderDMS();
 
         } else {
             mRefreshLayout.setRefreshing(false);
@@ -4410,7 +4432,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 ds.setUnderlineText(false); // set to false to remove underline
             }
         };
-       spannableString.setSpan(clickableSpan, 53,
+        spannableString.setSpan(clickableSpan, 53,
                 63, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
         no_documents_txt.setText(spannableString,
@@ -4795,7 +4817,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                             if(sharedParentAllowedList != null && sharedParentAllowedList.size() == 1)
                             {
                                 shareEndUserDocuments(sharedParentAllowedList.get(0).getCategory_id(), sharedParentAllowedList.get(0).getWorkspace_id() );
-                              //  showSharedDocumentAlert(sharedParentAllowedList.get(0).getWorkspace_id(), sharedParentAllowedList.get(0).getCategory_id());
+                                //  showSharedDocumentAlert(sharedParentAllowedList.get(0).getWorkspace_id(), sharedParentAllowedList.get(0).getCategory_id());
                             }
                             else if(sharedParentAllowedList != null && sharedParentAllowedList.size() > 1)
                             {
@@ -5117,7 +5139,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
         }
 
 
-      //  List<UploadModel> filteredUploadList = GlobalVariables.otherAppDocumentList;
+        //  List<UploadModel> filteredUploadList = GlobalVariables.otherAppDocumentList;
 
         if(belowSizeFileList != null && belowSizeFileList.size() > 0)
         {
@@ -5153,7 +5175,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             ArrayList<String> fileFormatList = PreferenceUtils.getFileFormats(NavigationMyFolderActivity.this, "key");
 
             List<UploadModel> OriginalUploadList = new ArrayList<>();
-          //  List<String> unSupportedFormatList = new ArrayList<>();
+            //  List<String> unSupportedFormatList = new ArrayList<>();
             if(filteredDataList != null && filteredDataList.size() > 0)
             {
                 for(UploadModel fileItem : filteredDataList)
@@ -5295,9 +5317,9 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
     private void callExitApp() {
         cancel_textview.performClick();
-     //   finishAffinity();
-      //  System.exit(0);
-       // finishAndRemoveTask();
+        //   finishAffinity();
+        //  System.exit(0);
+        // finishAndRemoveTask();
     }
 
 }
