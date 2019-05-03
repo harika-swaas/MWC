@@ -15,7 +15,6 @@ import android.os.StrictMode;
 import android.support.design.internal.BottomNavigationItemView;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -40,7 +39,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -113,7 +111,7 @@ public class NavigationSharedActivity extends BaseActivity {
     public String ObjectId = "0";
     List<GetCategoryDocumentsResponse> documentsCategoryList = new ArrayList<>();
     RecyclerView mRecyclerView;
-    // CollapsingToolbarLayout collapsingToolbarLayout;
+    CollapsingToolbarLayout collapsingToolbarLayout;
     Toolbar toolbar;
     RelativeLayout toggleView;
     ImageView toggle, sort_image;
@@ -135,7 +133,7 @@ public class NavigationSharedActivity extends BaseActivity {
     LinearLayoutManager linearLayoutManager;
     String categoryName, workSpaceId;
     int backButtonCount = 0;
-    MenuItem  menuItemDelete, menuItemShare, menuItemMove, menuItemMore;
+    MenuItem menuItemSearch, menuItemDelete, menuItemShare, menuItemMove, menuItemMore;
     List<GetCategoryDocumentsResponse> mSelectedDocumentList = new ArrayList<>();
     static Boolean isTouched = false;
     List<GetCategoryDocumentsResponse> downloadingUrlDataList = new ArrayList<>();
@@ -152,9 +150,6 @@ public class NavigationSharedActivity extends BaseActivity {
     int stopSharingIndex = 0;
     List<GetCategoryDocumentsResponse> stopSharingList = new ArrayList<>();
 
-    // Implementing new search
-    LinearLayout searchViewLayout;
-    EditText searchEditText;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -167,7 +162,6 @@ public class NavigationSharedActivity extends BaseActivity {
         no_documents_txt.setText("");
         mRecyclerView.setNestedScrollingEnabled(false);
         itemSelectedColorApplied();
-        changeSearchIconColor();
 
         transparentProgressDialog = new LoadingProgressDialog(context);
 
@@ -185,18 +179,6 @@ public class NavigationSharedActivity extends BaseActivity {
 
     }
 
-
-    private void changeSearchIconColor()
-    {
-        if(mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
-            String itemSelectedColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
-            int selectedColor = Color.parseColor(itemSelectedColor);
-            Drawable drawable =getDrawable(R.mipmap.ic_search); //Your drawable image
-            drawable = DrawableCompat.wrap(drawable);
-            drawable.setColorFilter(selectedColor, PorterDuff.Mode.SRC_ATOP);
-        }
-
-    }
     private void hideBottomView()
     {
         bottomNavigationLayout.setVisibility(View.VISIBLE);
@@ -484,14 +466,6 @@ public class NavigationSharedActivity extends BaseActivity {
 
     private void OnClickListeners()
     {
-        searchEditText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(NavigationSharedActivity.this, GlobalSearchActivity.class);
-                startActivity(intent);
-            }
-        });
-
         toggleView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -560,14 +534,18 @@ public class NavigationSharedActivity extends BaseActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(false);
 
-        searchViewLayout = (LinearLayout) findViewById(R.id.searchViewLayout);
-        searchEditText = (EditText) findViewById(R.id.searchEditText);
 
-        toolbar.setTitle("Shared Files");
+        collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
+        collapsingToolbarLayout.setTitle("Shared Files");
+        toolbarTextAppernce();
 
     }
 
 
+    private void toolbarTextAppernce() {
+        collapsingToolbarLayout.setCollapsedTitleTextAppearance(R.style.collapsedappbar);
+        collapsingToolbarLayout.setExpandedTitleTextAppearance(R.style.expandedappbar);
+    }
 
     @Override
     int getContentViewId() {
@@ -684,7 +662,7 @@ public class NavigationSharedActivity extends BaseActivity {
                             categoryDocumentsResponse.setFilesize(objString.getString("filesize"));
                         }
 
-                        // categoryDocumentsResponse.setFilesize(objString.getString("filesize"));
+                       // categoryDocumentsResponse.setFilesize(objString.getString("filesize"));
                         categoryDocumentsResponse.setShared_date(objString.getString("shared_date"));
                         categoryDocumentsResponse.setCreated_date(objString.getString("shared_date"));
                         categoryDocumentsResponse.setSharetype(objString.getString("sharetype"));
@@ -879,7 +857,7 @@ public class NavigationSharedActivity extends BaseActivity {
         super.onResume();
 
         if (ObjectId.equals("0")){
-            toolbar.setTitle("Shared Files");
+            collapsingToolbarLayout.setTitle("Shared Files");
             if(!GlobalVariables.isMoveInitiated && !GlobalVariables.selectedActionName.equalsIgnoreCase("share")) {
                 documentsCategoryList.clear();
                 documentsCategoryList.addAll(GlobalVariables.sharedRootDocumentList);
@@ -890,7 +868,7 @@ public class NavigationSharedActivity extends BaseActivity {
         }
         else
         {
-            toolbar.setTitle(categoryName);
+            collapsingToolbarLayout.setTitle(categoryName);
         }
         doLocalSorting(GlobalVariables.sharedDocsSortType);
 
@@ -959,15 +937,15 @@ public class NavigationSharedActivity extends BaseActivity {
         }*/
         showBadgeCount(navigationView, R.id.navigation_shared, GlobalVariables.totalUnreadableCount, NavigationSharedActivity.this);
 
-        //  getSharedDocumentsTotalUnreadCount();
+      //  getSharedDocumentsTotalUnreadCount();
 
-        if (isFromList == true) {
-            mAdapterList.notifyDataSetChanged();
-        }
-        else
-        {
-            mAdapter.notifyDataSetChanged();
-        }
+            if (isFromList == true) {
+                mAdapterList.notifyDataSetChanged();
+            }
+            else
+            {
+                mAdapter.notifyDataSetChanged();
+            }
 
     }
 
@@ -1018,6 +996,7 @@ public class NavigationSharedActivity extends BaseActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
 
         getMenuInflater().inflate(R.menu.menu_multi_select, menu);
+        menuItemSearch = menu.findItem(R.id.action_search);
         menuItemDelete = menu.findItem(R.id.action_delete);
         menuItemShare = menu.findItem(R.id.action_share);
         menuItemMore = menu.findItem(R.id.action_more);
@@ -1031,21 +1010,21 @@ public class NavigationSharedActivity extends BaseActivity {
 
         if (!GlobalVariables.isMoveInitiated)
         {
-            searchViewLayout.setVisibility(View.VISIBLE);
+            menuItemSearch.setVisible(true);
         }
         else
         {
-            searchViewLayout.setVisibility(View.GONE);
+            menuItemSearch.setVisible(false);
         }
 
         if(mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
             String itemSelectedColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
             int selectedColor = Color.parseColor(itemSelectedColor);
-            //  menuIconColor(menuItemSearch, selectedColor);
+            menuIconColor(menuItemSearch, selectedColor);
             menuIconColor(menuItemMore, selectedColor);
         }
 
-       /* menuItemSearch.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+        menuItemSearch.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
 
@@ -1054,7 +1033,7 @@ public class NavigationSharedActivity extends BaseActivity {
 
                 return false;
             }
-        });*/
+        });
 
         return true;
     }
@@ -1075,30 +1054,30 @@ public class NavigationSharedActivity extends BaseActivity {
         getWhiteLabelProperities();
 
         if (mSelectedDocumentList != null && mSelectedDocumentList.size() > 0) {
-            if (mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
-                String itemSelectedColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
-                int selectedColor = Color.parseColor(itemSelectedColor);
+                if (mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
+                    String itemSelectedColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
+                    int selectedColor = Color.parseColor(itemSelectedColor);
 
-                menuIconColor(menuItemMore,selectedColor);
-            }
-            menuItemDelete.setVisible(false);
-            menuItemMove.setVisible(false);
-            menuItemMore.setVisible(true);
-            menuItemShare.setVisible(false);
-            searchViewLayout.setVisibility(View.GONE);
+                    menuIconColor(menuItemMore,selectedColor);
+                }
+                menuItemDelete.setVisible(false);
+                menuItemMove.setVisible(false);
+                menuItemMore.setVisible(true);
+                menuItemShare.setVisible(false);
+                menuItemSearch.setVisible(false);
 
         } else {
             if (mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0) {
                 String itemSelectedColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
                 int selectedColor = Color.parseColor(itemSelectedColor);
 
-                //  menuIconColor(menuItemSearch,selectedColor);
+                menuIconColor(menuItemSearch,selectedColor);
             }
             menuItemDelete.setVisible(false);
             menuItemShare.setVisible(false);
             menuItemMore.setVisible(false);
             menuItemMove.setVisible(false);
-            searchViewLayout.setVisibility(View.VISIBLE);
+            menuItemSearch.setVisible(true);
         }
     }
 
@@ -1175,31 +1154,31 @@ public class NavigationSharedActivity extends BaseActivity {
 
 
 
-        List<String> temporarydownloadList = new ArrayList<>();
-        List<String> temporarySharedList = new ArrayList<>();
-        if (mSelectedDocumentList != null && mSelectedDocumentList.size() > 0) {
-            for (GetCategoryDocumentsResponse getcategoryResponseModel : mSelectedDocumentList) {
-                if (getcategoryResponseModel.getType() != null && getcategoryResponseModel.getType().equalsIgnoreCase("document")) {
-                    OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(context);
-                    if (!offLine_files_repository.checkAlreadyDocumentAvailableOrNot(getcategoryResponseModel.getDocument_version_id())) {
-                        temporarydownloadList.add("Is_Download_Available");
+            List<String> temporarydownloadList = new ArrayList<>();
+            List<String> temporarySharedList = new ArrayList<>();
+            if (mSelectedDocumentList != null && mSelectedDocumentList.size() > 0) {
+                for (GetCategoryDocumentsResponse getcategoryResponseModel : mSelectedDocumentList) {
+                    if (getcategoryResponseModel.getType() != null && getcategoryResponseModel.getType().equalsIgnoreCase("document")) {
+                        OffLine_Files_Repository offLine_files_repository = new OffLine_Files_Repository(context);
+                        if (!offLine_files_repository.checkAlreadyDocumentAvailableOrNot(getcategoryResponseModel.getDocument_version_id())) {
+                            temporarydownloadList.add("Is_Download_Available");
+                        }
+
+                        if(getcategoryResponseModel.getSharetype().equalsIgnoreCase("1"))
+                        {
+                            temporarySharedList.add("Is_Shared_Available");
+                        }
                     }
 
-                    if(getcategoryResponseModel.getSharetype().equalsIgnoreCase("1"))
-                    {
-                        temporarySharedList.add("Is_Shared_Available");
-                    }
                 }
-
             }
-        }
 
 
-        if (temporarydownloadList != null && temporarydownloadList.size() == mSelectedDocumentList.size()) {
-            download.setChecked(true);
-        } else {
-            download.setChecked(false);
-        }
+            if (temporarydownloadList != null && temporarydownloadList.size() == mSelectedDocumentList.size()) {
+                download.setChecked(true);
+            } else {
+                download.setChecked(false);
+            }
 
         if(temporarySharedList != null && temporarySharedList.size() == mSelectedDocumentList.size())
         {
@@ -1211,54 +1190,54 @@ public class NavigationSharedActivity extends BaseActivity {
             shareLayout.setVisibility(View.GONE);
         }
 
-        copyLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                GlobalVariables.isMultiSelect = false;
-                mBottomSheetDialog.dismiss();
-                GlobalVariables.isMoveInitiated = true;
-                GlobalVariables.selectedActionName = "share_copy";
-                clearSelectedListAfterOperation();
-                assigningMoveOriginIndex();
-                Intent intent = new Intent(context, NavigationMyFolderActivity.class);
-                intent.putExtra("ObjectId", "0");
-                context.startActivity(intent);
-            }
-        });
-
-        doc_info_layout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                GlobalVariables.isMultiSelect = false;
-                mBottomSheetDialog.dismiss();
-                GlobalVariables.refreshSharedDocumentPage = true;
-                if (mSelectedDocumentList != null && mSelectedDocumentList.size() == 1) {
-                    PreferenceUtils.setDocumentVersionId(context, mSelectedDocumentList.get(0).getDocument_version_id());
-                    PreferenceUtils.setDocument_Id(context, mSelectedDocumentList.get(0).getObject_id());
+            copyLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    GlobalVariables.isMultiSelect = false;
+                    mBottomSheetDialog.dismiss();
+                    GlobalVariables.isMoveInitiated = true;
+                    GlobalVariables.selectedActionName = "share_copy";
+                    clearSelectedListAfterOperation();
+                    assigningMoveOriginIndex();
+                    Intent intent = new Intent(context, NavigationMyFolderActivity.class);
+                    intent.putExtra("ObjectId", "0");
+                    context.startActivity(intent);
                 }
+            });
 
-                Intent intent = new Intent(context, Tab_Activity.class);
-                intent.putExtra(Constants.DOCUMENT_NAME, mSelectedDocumentList.get(0).getName());
-                intent.putExtra("IsFromShared", true);
-                startActivity(intent);
-                //  clearSelectedListAfterOperation();
-            }
-        });
+            doc_info_layout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    GlobalVariables.isMultiSelect = false;
+                    mBottomSheetDialog.dismiss();
+                    GlobalVariables.refreshSharedDocumentPage = true;
+                    if (mSelectedDocumentList != null && mSelectedDocumentList.size() == 1) {
+                        PreferenceUtils.setDocumentVersionId(context, mSelectedDocumentList.get(0).getDocument_version_id());
+                        PreferenceUtils.setDocument_Id(context, mSelectedDocumentList.get(0).getObject_id());
+                    }
 
-        clearSelectionLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (isFromList == true) {
-                    mAdapterList.clearAll();
-                } else {
-                    mAdapter.clearAll();
+                    Intent intent = new Intent(context, Tab_Activity.class);
+                    intent.putExtra(Constants.DOCUMENT_NAME, mSelectedDocumentList.get(0).getName());
+                    intent.putExtra("IsFromShared", true);
+                    startActivity(intent);
+                  //  clearSelectedListAfterOperation();
                 }
-                GlobalVariables.selectedDocumentsList.clear();
-                mBottomSheetDialog.dismiss();
-                List<GetCategoryDocumentsResponse> dummyList = new ArrayList<>();
-                updateToolbarMenuItems(dummyList);
-            }
-        });
+            });
+
+            clearSelectionLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (isFromList == true) {
+                        mAdapterList.clearAll();
+                    } else {
+                        mAdapter.clearAll();
+                    }
+                    GlobalVariables.selectedDocumentsList.clear();
+                    mBottomSheetDialog.dismiss();
+                    List<GetCategoryDocumentsResponse> dummyList = new ArrayList<>();
+                    updateToolbarMenuItems(dummyList);
+                }
+            });
 
 
         switchButton_share.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()

@@ -1074,11 +1074,13 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
       public boolean onCreateOptionsMenu(Menu menu) {
 
          getMenuInflater().inflate(R.menu.menu_multi_select, menu);
+         MenuItem menuItemSearch = menu.findItem(R.id.action_search);
          MenuItem menuItemDelete = menu.findItem(R.id.action_delete);
          MenuItem  menuItemShare = menu.findItem(R.id.action_share);
          menuItemMore = menu.findItem(R.id.action_more);
          MenuItem menuItemMove = menu.findItem(R.id.action_move);
 
+         menuItemSearch.setVisible(false);
          menuItemDelete.setVisible(false);
          menuItemShare.setVisible(false);
          menuItemMove.setVisible(false);
@@ -1109,7 +1111,7 @@ public class PdfViewActivity extends AppCompatActivity implements OnPdfDownload,
           String itemSelectedColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
           int selectedColor = Color.parseColor(itemSelectedColor);
 
-       //   menuIconColor(menuItemSearch,selectedColor);
+          menuIconColor(menuItemSearch,selectedColor);
 
           return true;
       }

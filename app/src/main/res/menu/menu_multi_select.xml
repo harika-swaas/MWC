@@ -31,11 +31,11 @@
         android:visible="false"
         app:showAsAction="always" />
 
-    <!--<item
+    <item
         android:id="@+id/action_search"
         android:icon="@mipmap/ic_search"
         android:title="@string/menu_item_search"
-        app:showAsAction="always" />-->
+        app:showAsAction="always" />
 
 
 </menu>

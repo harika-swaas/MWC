@@ -86,7 +86,7 @@ public class NavigationSettingsActivity extends BaseActivity {
     String finger_print_settings;
     int backButtonCount = 0;
     Toolbar toolbar;
- //   CollapsingToolbarLayout collapsingToolbarLayout;
+    CollapsingToolbarLayout collapsingToolbarLayout;
     View finger_print_view;
     LinearLayout push_notification_switch_layout,finger_print_switch_layout;
     TextView build_version_txt;
@@ -259,8 +259,17 @@ public class NavigationSettingsActivity extends BaseActivity {
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(false);
-        actionBar.setTitle("Settings");
 
+
+        collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
+        collapsingToolbarLayout.setTitle("Settings");
+        toolbarTextAppernce();
+
+    }
+
+    private void toolbarTextAppernce() {
+        collapsingToolbarLayout.setCollapsedTitleTextAppearance(R.style.collapsedappbar);
+        collapsingToolbarLayout.setExpandedTitleTextAppearance(R.style.expandedappbar);
     }
 
 
