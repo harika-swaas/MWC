@@ -236,6 +236,7 @@
             android:configChanges="orientation|screenSize|keyboardHidden" />
         <activity
             android:name=".UserProfileActivity"
+            android:windowSoftInputMode="stateHidden"
             android:configChanges="orientation|screenSize|keyboardHidden" />
         <activity
             android:name=".DMS.NavigationMyFolderActivity"

@@ -34,28 +34,29 @@
             android:layout_height="match_parent"
             android:layout_marginLeft="15dp"
             android:layout_marginTop="15dp"
+            android:layout_marginBottom="40dp"
             android:layout_marginRight="15dp"
             android:orientation="vertical">
 
-                <android.support.design.widget.TextInputLayout
-                    android:id="@+id/input_layout_userName"
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/input_layout_userName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                >
+
+                <EditText
+                    android:theme="@style/TextLabel"
+                    android:id="@+id/userName_edttext"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    >
+                    android:focusable="false"
+                    android:inputType="text"
+                    android:hint="@string/userName_hint"
+                    android:alpha="0.77"
+                    android:textSize="16sp"
+                    android:textColor="@color/black"/>
 
-                    <EditText
-                        android:theme="@style/TextLabel"
-                        android:id="@+id/userName_edttext"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="text"
-                        android:imeOptions="actionNext"
-                        android:hint="@string/userName_hint"
-                        android:alpha="0.77"
-                        android:textSize="16sp"
-                        android:textColor="@color/black"/>
-
-                </android.support.design.widget.TextInputLayout>
+            </android.support.design.widget.TextInputLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -69,7 +70,7 @@
                     android:id="@+id/input_layout_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                   >
+                    >
 
                     <EditText
                         android:theme="@style/TextLabel"
@@ -77,6 +78,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="text"
+                        android:focusable="false"
                         android:maxLength="25"
                         android:imeOptions="actionNext"
                         android:hint="@string/usertitle_hint"
@@ -108,10 +110,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="text"
-                        android:singleLine="true"
+                        android:focusable="false"
                         android:alpha="0.77"
-                        android:imeOptions="actionNext"
                         android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+                        android:imeOptions="actionNext"
                         android:hint="@string/firstName_hint"
                         android:textSize="16sp"
                         android:textColor="@color/black"/>
@@ -140,9 +142,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="text"
-                        android:imeOptions="actionNext"
-                        android:singleLine="true"
+                        android:focusable="false"
                         android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+                        android:imeOptions="actionNext"
                         android:hint="@string/surName_hint"
                         android:alpha="0.77"
                         android:textSize="16sp"
@@ -174,6 +176,7 @@
                         android:inputType="textEmailAddress"
                         android:hint="@string/email_hint"
                         android:alpha="0.77"
+                        android:focusable="false"
                         android:imeOptions="actionNext"
                         android:textSize="16sp"
                         android:textColor="@color/black"/>
@@ -201,6 +204,7 @@
                             android:layout_height="wrap_content"
                             android:inputType="number"
                             android:maxLength="14"
+                            android:focusable="false"
                             android:alpha="0.77"
                             android:imeOptions="actionNext"
                             android:hint="@string/mobilePhone_txt"
@@ -235,6 +239,7 @@
                         android:layout_height="wrap_content"
                         android:inputType="number"
                         android:maxLength="14"
+                        android:focusable="false"
                         android:alpha="0.77"
                         android:imeOptions="actionNext"
                         android:hint="@string/workPhone_txt"
@@ -266,6 +271,7 @@
                         android:layout_height="wrap_content"
                         android:inputType="number"
                         android:maxLength="5"
+                        android:focusable="false"
                         android:alpha="0.77"
                         android:imeOptions="actionNext"
                         android:hint="@string/extension_txt"
@@ -299,9 +305,9 @@
                         android:id="@+id/address1_edittext"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:maxLines="3"
                         android:inputType="textMultiLine|textPostalAddress"
                         android:hint="@string/address_txt1"
+                        android:focusable="false"
                         android:alpha="0.77"
                         android:imeOptions="actionNext"
                         android:textSize="16sp"
@@ -329,9 +335,9 @@
                         android:id="@+id/address2_edittext"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:maxLines="3"
                         android:inputType="textMultiLine|textPostalAddress"
                         android:imeOptions="actionNext"
+                        android:focusable="false"
                         android:alpha="0.77"
                         android:hint="@string/address_txt2"
                         android:textSize="16sp"
@@ -361,6 +367,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="text"
+                        android:focusable="false"
                         android:alpha="0.77"
                         android:hint="@string/town_txt"
                         android:imeOptions="actionNext"
@@ -389,10 +396,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="text"
-                        android:maxLines="1"
-                        android:imeOptions="actionDone"
+                        android:focusable="false"
                         android:maxLength="10"
-                        android:singleLine="true"
                         android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
                         android:alpha="0.77"
                         android:hint="@string/postCode_txt"
@@ -412,55 +417,30 @@
                 android:orientation="vertical"
                 >
 
-                <TextView
+
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/input_layout_country"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="16sp"
-                    android:text="@string/country_txt"/>
+                    >
 
+                    <EditText
+                        android:theme="@style/TextLabel"
+                        android:id="@+id/country_edittext"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:focusable="false"
+                        android:inputType="text"
+                        android:alpha="0.77"
+                        android:hint="@string/country_txt"
+                        android:imeOptions="actionNext"
+                        android:textSize="16sp"
+                        android:textColor="@color/black"/>
 
-                <Spinner
-                    android:id="@+id/country_spinner"
-                    android:layout_width="match_parent"
-                    android:layout_marginTop="15dp"
-                    android:layout_height="wrap_content" />
-
-
-            </LinearLayout>
-
-
-            <LinearLayout
-                android:layout_marginTop="50dp"
-                android:layout_marginBottom="25dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="2">
-
-                <Button
-                    android:id="@+id/cancel_button"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="40dp"
-                    android:background="@drawable/next"
-                    android:text="@string/cancel_btn"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white"
-                    android:textSize="16sp" />
-
-                <Button
-                    android:id="@+id/update_button"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_marginLeft="30dp"
-                    android:layout_height="40dp"
-                    android:background="@drawable/next"
-                    android:text="@string/update_btn"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white"
-                    android:textSize="16sp" />
+                </android.support.design.widget.TextInputLayout>
 
             </LinearLayout>
+
 
         </LinearLayout>
 

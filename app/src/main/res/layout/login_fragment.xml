@@ -149,13 +149,13 @@
                     <android.support.v7.widget.AppCompatButton
                         android:id="@+id/sign_in"
                         android:layout_width="match_parent"
-                        android:layout_height="45dp"
+                        android:layout_height="37dp"
                         android:layout_marginTop="30dp"
                         android:background="@drawable/next"
                         android:text="@string/shr_button_next"
                         android:textAlignment="center"
                         android:textColor="@color/white"
-                        android:textSize="16sp"
+                        android:textSize="14sp"
                         android:textAllCaps="false">
 
                     </android.support.v7.widget.AppCompatButton>
@@ -183,7 +183,7 @@
                     <android.support.v7.widget.AppCompatButton
                         android:id="@+id/fogotMyPassword"
                         android:layout_width="match_parent"
-                        android:layout_height="45dp"
+                        android:layout_height="37dp"
                         android:layout_marginTop="30dp"
                         android:background="@drawable/next"
                         android:text="@string/forgot_password"
@@ -191,7 +191,7 @@
                         android:textColor="@color/white"
                         android:layout_marginEnd="30dp"
                         android:layout_marginStart="30dp"
-                        android:textSize="16sp"
+                        android:textSize="14sp"
                         android:textAllCaps="false">
 
                     </android.support.v7.widget.AppCompatButton>
@@ -201,7 +201,7 @@
                     <android.support.v7.widget.AppCompatButton
                         android:id="@+id/not_logged_in_before"
                         android:layout_width="match_parent"
-                        android:layout_height="45dp"
+                        android:layout_height="37dp"
                         android:layout_marginTop="30dp"
                         android:background="@drawable/next"
                         android:text="@string/not_logged_in_before"
@@ -209,7 +209,7 @@
                         android:textColor="@color/white"
                         android:layout_marginEnd="30dp"
                         android:layout_marginStart="30dp"
-                        android:textSize="16sp"
+                        android:textSize="14sp"
                         android:textAllCaps="false">
 
                     </android.support.v7.widget.AppCompatButton>
