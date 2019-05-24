@@ -141,6 +141,7 @@ import com.mwc.docportal.OffLine_Files_List;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
 import com.mwc.docportal.Retrofit.RetrofitAPIBuilder;
+import com.mwc.docportal.Scanning.camera.Scanning_List_Activity;
 import com.mwc.docportal.Utils.Constants;
 import com.mwc.docportal.Utils.DateHelper;
 import com.mwc.docportal.pdf.PdfViewActivity;
@@ -4447,6 +4448,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             pick_image.setVisibility(View.GONE);
             pick_video.setVisibility(View.GONE);
             pick_documents.setVisibility(View.GONE);
+            scan_document_image.setVisibility(View.GONE);
         }
         else
         {
@@ -4455,6 +4457,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             pick_image.setVisibility(View.VISIBLE);
             pick_video.setVisibility(View.VISIBLE);
             pick_documents.setVisibility(View.VISIBLE);
+            scan_document_image.setVisibility(View.VISIBLE);
 
         }
 
@@ -4689,8 +4692,9 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
 
     private void gotoScanDocumentActivity()
     {
-       /* Intent intent = new Intent(NavigationMyFolderActivity.this, DocumentScanActivity.class);
-        startActivity(intent);*/
+        Intent intent = new Intent(NavigationMyFolderActivity.this, Scanning_List_Activity.class);
+        intent.putExtra("IsFromMainPage", true);
+        startActivity(intent);
     }
 
 

@@ -6,10 +6,13 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -60,8 +63,13 @@ public class UploadListAdapter extends RecyclerView.Adapter<UploadListAdapter.Vi
             /*uploadList = PreferenceUtils.getupload(context,"key");*/
             String filename = uploadList.get(position).getFilePath().substring(uploadList.get(position).getFilePath().lastIndexOf("/") + 1);
             String extension = uploadList.get(position).getFilePath().substring(uploadList.get(position).getFilePath().lastIndexOf(".")+1);
-            holder.name.setText(filename);
 
+            if (filename.indexOf(".") > 0)
+                filename = filename.substring(0, filename.lastIndexOf("."));
+
+            holder.edit_filename.setText(filename);
+
+            holder.extension_name.setText("."+extension);
             holder.thumbnailView.setVisibility(View.VISIBLE);
 
             ColorCodeModel colorCodeModel = CommonFunctions.getColorCodesforFileType(extension);
@@ -74,6 +82,31 @@ public class UploadListAdapter extends RecyclerView.Adapter<UploadListAdapter.Vi
 
             holder.done.setBackgroundTintList(ColorStateList.valueOf(context.getResources().getColor(R.color.upload_success_color)));
             holder.failureIcon.setBackgroundTintList(ColorStateList.valueOf(context.getResources().getColor(R.color.magenta)));
+
+            holder.edit_filename.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                    String existingFilename = uploadList.get(position).getFilePath().substring(uploadList.get(position).getFilePath().lastIndexOf("/") + 1);
+                    String newFileName = uploadList.get(position).getFilePath().replace(existingFilename, holder.edit_filename.getText().toString().trim()+
+                            holder.extension_name.getText().toString());
+
+                    uploadList.get(position).setFilePath(newFileName);
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+
+                }
+            });
+
+
+
 
            /* for(int i= 0;i<uploadList.size();i++) {
                     if(i==pos) {
@@ -177,16 +210,17 @@ public class UploadListAdapter extends RecyclerView.Adapter<UploadListAdapter.Vi
                                 mCustomAlertDialog.dismiss();
                             }
                         });
-
                 }
             });
+
+
 
         }
     }
 
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView name;// init the item view's
+        TextView extension_name;// init the item view's
         RelativeLayout thumbnailView;
         ProgressBar progress;
         ImageView done, failureIcon;;
@@ -194,12 +228,13 @@ public class UploadListAdapter extends RecyclerView.Adapter<UploadListAdapter.Vi
         ImageView thumbnailCornerIcon;
         TextView thumbnailText;
         ImageView delete;
+        EditText edit_filename;
 
         public ViewHolder(final View itemView) {
 
             super(itemView);
             // get the reference of item view's
-            name = (TextView) itemView.findViewById(R.id.folder_name1);
+            extension_name = (TextView) itemView.findViewById(R.id.extension_name);
             thumbnailView = (RelativeLayout)itemView.findViewById(R.id.thumbnail_layout);
              progress=(ProgressBar) itemView.findViewById(R.id.progressBar12);
             done=(ImageView)itemView.findViewById(R.id.done);
@@ -211,6 +246,7 @@ public class UploadListAdapter extends RecyclerView.Adapter<UploadListAdapter.Vi
             delete=(ImageView) itemView.findViewById(R.id.delete);
             failureIcon = (ImageView)itemView.findViewById(R.id.failure);
             failureIcon.setVisibility(View.INVISIBLE);
+            edit_filename = (EditText) itemView.findViewById(R.id.edit_filename);
         }
 
     }

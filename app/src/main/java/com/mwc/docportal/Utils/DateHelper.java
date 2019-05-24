@@ -61,7 +61,7 @@ public class DateHelper {
     }
 
     public static String getCurrentTime() {
-        String currentTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date());
+        String currentTime = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss").format(new Date());
         return currentTime;
     }
 

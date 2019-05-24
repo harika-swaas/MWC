@@ -145,7 +145,6 @@
                 <action android:name="com.google.android.gms.auth.api.phone.SMS_RETRIEVED" />
             </intent-filter>
         </receiver>
-
         <receiver
             android:name=".ForgotPassword.MyForgotPasswordBroadCastReceiver"
             android:exported="true">
@@ -190,7 +189,11 @@
             android:value="@string/default_notification_channel_id" />
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
-            android:resource="@color/notification_icon_color" /> <!-- Production fabric key -->
+            android:resource="@color/notification_icon_color" />
+
+
+        <!-- Production fabric key -->
+
         <!--
         <meta-data
             android:name="io.fabric.ApiKey"
@@ -198,10 +201,10 @@
             />
         -->
         <!-- Testing fabric key -->
-
-        <meta-data
+       <!-- <meta-data
             android:name="io.fabric.ApiKey"
-            android:value="39f3eab4f9f7f060c8d19339c0c8cdd4d7b8bbb0" />
+            android:value="39f3eab4f9f7f060c8d19339c0c8cdd4d7b8bbb0" />-->
+
 
         <meta-data
             android:name="com.google.android.gms.version"
@@ -236,8 +239,8 @@
             android:configChanges="orientation|screenSize|keyboardHidden" />
         <activity
             android:name=".UserProfileActivity"
-            android:windowSoftInputMode="stateHidden"
-            android:configChanges="orientation|screenSize|keyboardHidden" />
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".DMS.NavigationMyFolderActivity"
             android:configChanges="orientation|screenSize" />
@@ -265,13 +268,31 @@
         <activity
             android:name=".ForgotPassword.PinDeviceListActivity"
             android:configChanges="orientation|screenSize|keyboardHidden" />
+        <activity
+            android:name=".ForgotPassword.NewPasswordActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        <activity
+            android:name=".ForgotPassword.ForgetPasswordPinVerificationActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
 
-        <activity android:name=".ForgotPassword.NewPasswordActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden"></activity>
+        <activity android:name=".Scanning.camera.Scanning_List_Activity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"></activity>
 
-        <activity android:name=".ForgotPassword.ForgetPasswordPinVerificationActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden"/>
 
+        <activity
+            android:name=".Scanning.camera.ScanActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
+        <activity
+            android:name=".Scanning.processing.BorderDetectionActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Scanning.enhance.ImageProcessingActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait" />
 
 
         <!-- File picker activities -->

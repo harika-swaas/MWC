@@ -57,6 +57,7 @@ import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 
 import com.mwc.docportal.Login.LoginActivity;
 import com.mwc.docportal.RootActivity;
+import com.mwc.docportal.Scanning.camera.Scanning_List_Activity;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.RequestBody;
 import com.mwc.docportal.API.Model.UploadDocumentResponse;
@@ -104,7 +105,6 @@ public class UploadListActivity extends RootActivity {
     List<UploadModel> UploadList;
     List<UploadModel> uploadFailedList;
     private  String imageStoragePath;
-    String path;
     UploadListAdapter customAdapter;
     public static final int REQUEST_GALLERY_CODE = 200;
     public static final int REQUEST_CAPTURE_IMAGE_CODE = 300;
@@ -244,8 +244,16 @@ public class UploadListActivity extends RootActivity {
             public void onClick(View v) {
 
               //  showUploadBeginningMessage();
-                uploadDocuments();
-                upload_layout.setVisibility(View.GONE);
+
+                if(UploadList != null && UploadList.size() > 0)
+                {
+                    PreferenceUtils.setImageUploadList(context, UploadList, "key");
+                    uploadDocuments();
+                    upload_layout.setVisibility(View.GONE);
+                }
+
+
+
 
             }
         });
@@ -1810,7 +1818,8 @@ public class UploadListActivity extends RootActivity {
 
     private void gotoScanDocumentActivity()
     {
-       /* Intent intent = new Intent(UploadListActivity.this, DocumentScanActivity.class);
-        startActivity(intent);*/
+        Intent intent = new Intent(UploadListActivity.this, Scanning_List_Activity.class);
+        intent.putExtra("IsFromMainPage", true);
+        startActivity(intent);
     }
 }

@@ -202,6 +202,11 @@ public class User_Profile_Update_Activity extends RootActivity {
         cacel_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                View view = getCurrentFocus();
+                if (view != null) {
+                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                }
                 finish();
             }
         });

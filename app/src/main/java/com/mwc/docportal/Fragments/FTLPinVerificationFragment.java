@@ -588,7 +588,11 @@ public class FTLPinVerificationFragment extends Fragment implements GoogleApiCli
     {
 
         LoadingProgressDialog transparentProgressDialog = new LoadingProgressDialog(mActivity);
-        transparentProgressDialog.show();
+        if(transparentProgressDialog != null)
+        {
+            transparentProgressDialog.show();
+        }
+
         if (!TextUtils.isEmpty(imageUrl)) {
             FileDownloadManager fileDownloadManager = new FileDownloadManager(mActivity);
             GetCategoryDocumentsResponse categoryDocumentsResponse = new GetCategoryDocumentsResponse();

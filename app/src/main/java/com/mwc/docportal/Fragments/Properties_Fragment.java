@@ -196,7 +196,7 @@ public class Properties_Fragment extends Fragment{
 
                             if(documentPropertiesResponse.get(0).getCreation_date() == null || documentPropertiesResponse.get(0).getCreation_date().isEmpty())
                             {
-                                created_date.setText("Uploaded on (Unknown)");
+                                created_date.setText("");
                             }
                             else
                             {

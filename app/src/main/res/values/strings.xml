@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
-    <string name="versionCode">30</string>
-    <string name="versionName">1.21</string>
+    <string name="versionCode">33</string>
+    <string name="versionName">1.24</string>
     <string name="app_name">Doc Portal</string>
     <string name="ok">Ok</string>
     <string name="snackbar_download">DOWNLOAD</string>
@@ -146,7 +146,7 @@
     <string name="pick_image">Select Image</string>
     <string name="pick_video">Select Video</string>
     <string name="pick_documents">Select File</string>
-    <string name="scan_document">Scan document</string>
+    <string name="scan_document">Scan Document</string>
     <string name="video">Video</string>
     <string name="user_name_txt">User Name</string>
     <string name="user_offline_files_txt">Offline Files</string>
@@ -207,4 +207,13 @@
 
     <string name="forgot_password">Forgot My Password?</string>
     <string name="enter_userName_txt">Enter a Username</string>
+
+    <string name="enhancement_dialog_title">Please select the enhancement to apply</string>
+    <string name="image_type_none">None</string>
+    <string name="image_type_color">Color</string>
+    <string name="image_type_whiteboard">Whiteboard</string>
+    <string name="image_type_black_white">Black &amp; White</string>
+
+    <string name="filename_txt">Please enter a file name.</string>
+
 </resources>

@@ -87,18 +87,18 @@
                     android:layout_toEndOf="@+id/folder_layout">
 
                     <LinearLayout
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_alignParentLeft="true"
                         android:layout_alignParentStart="true"
-                        android:layout_marginLeft="10dp"
-                        android:orientation="vertical">
+                        android:orientation="horizontal"
+                       android:weightSum="5">
 
-                        <TextView
+                       <!-- <TextView
                             android:id="@+id/folder_name1"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="30dp"
+                            android:layout_marginRight="60dp"
                             android:layout_centerVertical="true"
                             android:alpha="0.87"
                             android:ellipsize="end"
@@ -106,17 +106,53 @@
                             android:singleLine="true"
                             android:text="File"
                             android:textColor="@color/black"
+                            android:textSize="16sp" />-->
+
+                        <EditText
+                            android:id="@+id/edit_filename"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_weight="4"
+                            android:alpha="0.87"
+                            android:hint="Name"
+                            android:imeOptions="actionDone"
+                            android:inputType="text"
+                            android:paddingBottom="10dp"
+                            android:singleLine="true"
+                            android:textColor="@color/black_semi_transparent"
+                            android:textSize="16sp"
+                            android:textStyle="normal"
+                            android:theme="@style/TextLabel" />
+
+                        <TextView
+                            android:id="@+id/extension_name"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="20dp"
+                            android:layout_centerVertical="true"
+                            android:alpha="0.87"
+                            android:maxLines="1"
+                            android:singleLine="true"
+                            android:text=""
+                            android:textColor="@color/black"
                             android:textSize="16sp" />
 
                     </LinearLayout>
 
                 </RelativeLayout>
 
+
+
                 <RelativeLayout
+                    android:id="@+id/image_layout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentTop="true">
+
+
 
                     <ImageView
                         android:id="@+id/done"
@@ -145,6 +181,7 @@
                         android:layout_marginStart="14dp"
                         android:indeterminateDrawable="@drawable/myprogress_style"
                         android:visibility="invisible" />
+
 
                     <ImageView
                         android:id="@+id/delete"
