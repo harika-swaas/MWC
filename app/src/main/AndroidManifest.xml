@@ -124,7 +124,8 @@
             android:configChanges="orientation|screenSize|keyboardHidden" />
         <activity
             android:name=".DMS.UploadListActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden" />
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:windowSoftInputMode="stateHidden|adjustPan"/>
         <activity
             android:name=".DMS.Tab_Activity"
             android:configChanges="orientation|screenSize|keyboardHidden"
@@ -201,9 +202,9 @@
             />
         -->
         <!-- Testing fabric key -->
-       <!-- <meta-data
+        <meta-data
             android:name="io.fabric.ApiKey"
-            android:value="39f3eab4f9f7f060c8d19339c0c8cdd4d7b8bbb0" />-->
+            android:value="39f3eab4f9f7f060c8d19339c0c8cdd4d7b8bbb0" />
 
 
         <meta-data

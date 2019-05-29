@@ -40,6 +40,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -158,7 +159,7 @@ public class UploadListActivity extends RootActivity {
 
         upload_list = (RecyclerView) findViewById(R.id.list_upload);
         upload_list.setLayoutManager(new LinearLayoutManager(this));
-
+     //   upload_list.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
         upload_list.setNestedScrollingEnabled(false);
 
         filteredUploadList = PreferenceUtils.getImageUploadList(UploadListActivity.this, "key");
@@ -172,9 +173,11 @@ public class UploadListActivity extends RootActivity {
                 String pathName = fileName.getFilePath().substring(fileName.getFilePath().lastIndexOf(".")+1);
                 if(pathName != null && !pathName.equalsIgnoreCase(fileName.getFilePath()))
                 {
+                    File file = new File(fileName.getFilePath());
                     UploadModel uploadModel = new UploadModel();
                     uploadModel.setFilePath(fileName.getFilePath());
                     uploadModel.setObjectId(fileName.getObjectId());
+                    uploadModel.setFileName(file.getName());
                     filteredDataList.add(fileName);
 
                 }
@@ -195,9 +198,11 @@ public class UploadListActivity extends RootActivity {
                     {
                         if(fileExtension.equalsIgnoreCase(fileFormat))
                         {
+                            File file = new File(fileItem.getFilePath());
                             UploadModel uploadModel = new UploadModel();
                             uploadModel.setFilePath(fileItem.getFilePath());
                             uploadModel.setObjectId(fileItem.getObjectId());
+                            uploadModel.setFileName(file.getName());
                             OriginalUploadList.add(fileItem);
                         }
                     }
@@ -247,13 +252,27 @@ public class UploadListActivity extends RootActivity {
 
                 if(UploadList != null && UploadList.size() > 0)
                 {
-                    PreferenceUtils.setImageUploadList(context, UploadList, "key");
-                    uploadDocuments();
-                    upload_layout.setVisibility(View.GONE);
+                    List<String> fileNameValidationList = new ArrayList<>();
+                    for(UploadModel uploadModelData : UploadList)
+                    {
+                        if(uploadModelData.getFileName() == null || uploadModelData.getFileName().isEmpty())
+                        {
+                            fileNameValidationList.add(uploadModelData.getFileName());
+                        }
+                    }
+
+                    if(fileNameValidationList != null && fileNameValidationList.size() > 0)
+                    {
+                    //   showFileValidationAlert();
+                        Toast.makeText(context, "Please enter filename(s)", Toast.LENGTH_LONG).show();
+                    }
+                    else
+                    {
+                        PreferenceUtils.setImageUploadList(context, UploadList, "key");
+                        uploadDocuments();
+                        upload_layout.setVisibility(View.GONE);
+                    }
                 }
-
-
-
 
             }
         });
@@ -264,6 +283,40 @@ public class UploadListActivity extends RootActivity {
                 showCancelAlert();
             }
         });
+    }
+
+    private void showFileValidationAlert()
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
+        builder.setView(view);
+        builder.setCancelable(false);
+
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Alert");
+
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
+
+        txtMessage.setText("Some file names are missing.");
+
+        Button okButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
+
+        cancelButton.setVisibility(View.GONE);
+
+        okButton.setText("Ok");
+
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog.dismiss();
+            }
+        });
+
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
     }
 
     private void showCancelAlert()
@@ -848,7 +901,7 @@ public class UploadListActivity extends RootActivity {
 
                             String filePath = getRealPathFromURIPath(uri, UploadListActivity.this);
 
-                            //File file = new File(filePath);
+                            File file = new File(filePath);
 
                             //ArrayList<String> filePathList = new ArrayList<String>();
                             //filePathList.add(String.valueOf(filePath));
@@ -857,6 +910,7 @@ public class UploadListActivity extends RootActivity {
                             UploadModel uploadModel = new UploadModel();
                             uploadModel.setFilePath(filePath);
                             uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
+                            uploadModel.setFileName(file.getName());
                             UploadList.add(uploadModel);
                             PreferenceUtils.setImageUploadList(UploadListActivity.this,UploadList,"key");
                         }
@@ -864,7 +918,7 @@ public class UploadListActivity extends RootActivity {
                     } else {
                         uri = data.getData();
                         String filePath = getRealPathFromURIPath(uri, UploadListActivity.this);
-                        //File file = new File(filePath);
+                        File file = new File(filePath);
 
                         //ArrayList<String> filePathList = new ArrayList<String>();
                         //filePathList.add(filePath);
@@ -872,6 +926,7 @@ public class UploadListActivity extends RootActivity {
                         UploadModel uploadModel = new UploadModel();
                         uploadModel.setFilePath(filePath);
                         uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
+                        uploadModel.setFileName(file.getName());
                         UploadList.add(uploadModel);
                         PreferenceUtils.setImageUploadList(UploadListActivity.this,UploadList,"key");
 
@@ -883,10 +938,12 @@ public class UploadListActivity extends RootActivity {
                 if((UploadList == null )||(UploadList.size()==0))
                 {
                     String filepath = getRealPathFromURIPath(fileUri, UploadListActivity.this);
+                    File file = new File(filepath);
                     UploadList = PreferenceUtils.getImageUploadList(UploadListActivity.this,"key");
                     UploadModel uploadModel = new UploadModel();
                     uploadModel.setFilePath(filepath);
                     uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
+                    uploadModel.setFileName(file.getName());
                     UploadList.add(uploadModel);
                     PreferenceUtils.setImageUploadList(UploadListActivity.this,UploadList,"key");
                 }
@@ -901,11 +958,12 @@ public class UploadListActivity extends RootActivity {
             if (resultCode == RESULT_OK) {
 
                 String filePath = fileUri.getPath();
-
+                File file = new File(filePath);
                 UploadList =  PreferenceUtils.getImageUploadList(UploadListActivity.this, "key");
                 UploadModel uploadModel = new UploadModel();
                 uploadModel.setFilePath(String.valueOf(filePath));
                 uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
+                uploadModel.setFileName(file.getName());
                 UploadList.add(uploadModel);
                 PreferenceUtils.setImageUploadList(UploadListActivity.this,UploadList,"key");
                 upload_list.setAdapter(customAdapter);
@@ -922,10 +980,12 @@ public class UploadListActivity extends RootActivity {
         else if (requestCode == CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
 
             String filePath = imageStoragePath;
+            File file = new File(filePath);
             UploadList = PreferenceUtils.getImageUploadList(UploadListActivity.this,"key");
             UploadModel uploadModel = new UploadModel();
             uploadModel.setFilePath(String.valueOf(filePath));
             uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
+            uploadModel.setFileName(file.getName());
             UploadList.add(uploadModel);
             PreferenceUtils.setImageUploadList(UploadListActivity.this,UploadList,"key");
             upload_list.setAdapter(customAdapter);
@@ -936,10 +996,12 @@ public class UploadListActivity extends RootActivity {
             ArrayList<ImageFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_IMAGE);
             for (ImageFile file : list) {
                 String path = file.getPath();
+                File fileName = new File(path);
                 UploadList = PreferenceUtils.getImageUploadList(UploadListActivity.this,"key");
                 UploadModel uploadModel = new UploadModel();
                 uploadModel.setFilePath(path);
                 uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
+                uploadModel.setFileName(fileName.getName());
                 UploadList.add(uploadModel);
                 PreferenceUtils.setImageUploadList(UploadListActivity.this,UploadList,"key");
                 upload_list.setAdapter(customAdapter);
@@ -950,10 +1012,12 @@ public class UploadListActivity extends RootActivity {
             ArrayList<VideoFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_VIDEO);
             for (VideoFile file : list) {
                 String path = file.getPath();
+                File fileName = new File(path);
                 UploadList = PreferenceUtils.getImageUploadList(UploadListActivity.this,"key");
                 UploadModel uploadModel = new UploadModel();
                 uploadModel.setFilePath(path);
                 uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
+                uploadModel.setFileName(fileName.getName());
                 UploadList.add(uploadModel);
                 PreferenceUtils.setImageUploadList(UploadListActivity.this,UploadList,"key");
                 upload_list.setAdapter(customAdapter);
@@ -965,9 +1029,12 @@ public class UploadListActivity extends RootActivity {
             ArrayList<NormalFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_FILE);
             for (NormalFile file : list) {
                 String path = file.getPath();
+                File fileName = new File(path);
                 UploadList = PreferenceUtils.getImageUploadList(UploadListActivity.this,"key");
                 UploadModel uploadModel = new UploadModel();
                 uploadModel.setFilePath(path);
+                uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
+                uploadModel.setFileName(fileName.getName());
                 UploadList.add(uploadModel);
                 PreferenceUtils.setImageUploadList(UploadListActivity.this,UploadList,"key");
                 upload_list.setAdapter(customAdapter);
@@ -1236,9 +1303,11 @@ public class UploadListActivity extends RootActivity {
                 }
                 else
                 {
+                   // File fileName = new File(fileItem.getFilePath());
                     UploadModel uploadModel = new UploadModel();
                     uploadModel.setFilePath(fileItem.getFilePath());
                     uploadModel.setObjectId(fileItem.getObjectId());
+                    uploadModel.setFileName(fileItem.getFileName());
                     belowSizeFileList.add(uploadModel);
                 }
             }
@@ -1254,7 +1323,6 @@ public class UploadListActivity extends RootActivity {
                 {
                     File fileData = new File(filePath);
                     fileNameList.add(fileData.getName());
-
                 }
                 String joinedString = TextUtils.join(", ", fileNameList);
                 Toast.makeText(context, joinedString+ " file(s) exceed more than "+PreferenceUtils.getMaxSizeUpload(context) + " MB", Toast.LENGTH_SHORT).show();
@@ -1464,9 +1532,11 @@ public class UploadListActivity extends RootActivity {
                                     showAlertMessage(apiResponse.getStatus().getMessage(), false, "");
                                 }
 
+                                File fileName = new File(UploadList.get(index).getFilePath());
                                 UploadModel uploadModel = new UploadModel();
                                 uploadModel.setFilePath(UploadList.get(index).getFilePath());
                                 uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
+                                uploadModel.setFileName(fileName.getName());
                                 uploadFailedList.add(uploadModel);
                                 PreferenceUtils.setImageUploadList(context, uploadFailedList, "key");
 

@@ -6,6 +6,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.hardware.Camera;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -17,6 +18,8 @@ import android.view.View;
 import android.view.WindowManager;
 
 import com.github.clans.fab.FloatingActionMenu;
+import com.mwc.docportal.API.Model.WhiteLabelResponse;
+import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.R;
 import com.mwc.docportal.Scanning.model.Page;
 import com.mwc.docportal.Scanning.processing.BorderDetectionActivity;
@@ -30,6 +33,9 @@ import com.thegrizzlylabs.geniusscan.sdk.core.QuadrangleAnalyzeResult;
 import com.thegrizzlylabs.geniusscan.sdk.core.RotationAngle;
 import com.thegrizzlylabs.geniusscan.sdk.core.ScanContainer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class ScanActivity extends FragmentActivity implements ScanFragment.CameraCallbackProvider {
    private static final String TAG = ScanActivity.class.getSimpleName();
@@ -40,15 +46,19 @@ public class ScanActivity extends FragmentActivity implements ScanFragment.Camer
 
    private boolean cameraPermissionGranted = false;
    Context context = this;
-
+   List<WhiteLabelResponse> mWhiteLabelResponses;
+   FloatingActionMenu captureButton;
    @Override
    public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       // Go full screen
       getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
       setContentView(R.layout.scanning_activity);
+      mWhiteLabelResponses = new ArrayList();
 
-      final FloatingActionMenu captureButton = findViewById(R.id.captureButton);
+      captureButton = findViewById(R.id.captureButton);
+      getWhiteLabelProperities();
+      itemSelectedColorApplied();
 
       captureButton.setOnMenuButtonClickListener(new View.OnClickListener() {
          @Override
@@ -182,6 +192,37 @@ public class ScanActivity extends FragmentActivity implements ScanFragment.Camer
             startActivity(intent);
          }
       }
+   }
+
+   private void itemSelectedColorApplied()
+   {
+      if(mWhiteLabelResponses != null && mWhiteLabelResponses.size() > 0)
+      {
+         String itemSelectedColor = mWhiteLabelResponses.get(0).getItem_Selected_Color();
+         int selectedColor = Color.parseColor(itemSelectedColor);
+         captureButton.setMenuButtonColorNormal(selectedColor);
+         captureButton.setMenuButtonColorPressed(selectedColor);
+      }
+   }
+
+   private void getWhiteLabelProperities() {
+
+      AccountSettings accountSettings = new AccountSettings(context);
+      accountSettings.SetWhiteLabelCB(new AccountSettings.GetWhiteLabelCB() {
+         @Override
+         public void getWhiteLabelSuccessCB(List<WhiteLabelResponse> whiteLabelResponses) {
+            if (whiteLabelResponses != null && whiteLabelResponses.size() > 0) {
+               mWhiteLabelResponses = whiteLabelResponses;
+            }
+         }
+
+         @Override
+         public void getWhiteLabelFailureCB(String message) {
+
+         }
+      });
+
+      accountSettings.getWhiteLabelProperties();
    }
 
 }

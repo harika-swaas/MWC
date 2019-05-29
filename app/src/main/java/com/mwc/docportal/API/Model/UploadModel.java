@@ -10,6 +10,15 @@ public class UploadModel implements Serializable
     boolean yetToStart;
     boolean inProgress;
     String objectId;
+    String fileName;
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
 
     public String getObjectId() {
         return objectId;

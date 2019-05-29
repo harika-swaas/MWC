@@ -187,7 +187,7 @@ public class BackgroundUploadService extends IntentService
             Retrofit retrofitAPI = RetrofitAPIBuilder.getUploadInstance();
 
             final UploadEndUserDocumentsRequest mUploadEndUserDocumentsRequest = new UploadEndUserDocumentsRequest(uploadData.getObjectId(),
-                    file.getName(), "", "", "");
+                    uploadData.getFileName(), "", "", "");
 
             String request = new Gson().toJson(mUploadEndUserDocumentsRequest);
 
@@ -200,7 +200,7 @@ public class BackgroundUploadService extends IntentService
             //RequestBody filename to API Call
             Map<String, RequestBody> requestBodyMap = new HashMap<>();
             RequestBody reqBody = RequestBody.create(MediaType.parse("*/*"), file);
-            requestBodyMap.put("file\"; filename=\"" + file.getName(), reqBody);
+            requestBodyMap.put("file\"; filename=\"" + uploadData.getFileName(), reqBody);
 
             UploadEndUsersDocumentService mUploadEndUsersDocumentService = retrofitAPI.create(UploadEndUsersDocumentService.class);
 
@@ -248,6 +248,7 @@ public class BackgroundUploadService extends IntentService
                                     UploadModel uploadModel = new UploadModel();
                                     uploadModel.setFilePath(uploadData.getFilePath());
                                     uploadModel.setObjectId(uploadData.getObjectId());
+                                    uploadModel.setFileName(uploadData.getFileName());
                                     uploadFailedList.add(uploadModel);
                                     PreferenceUtils.setFailureUploadlist(BackgroundUploadService.this, uploadFailedList, "key");
 
@@ -347,6 +348,7 @@ public class BackgroundUploadService extends IntentService
                 UploadModel uploadModel = new UploadModel();
                 uploadModel.setFilePath(uploadData.getFilePath());
                 uploadModel.setObjectId(uploadData.getObjectId());
+                uploadModel.setFileName(uploadData.getFileName());
                 uploadFailedList.add(uploadModel);
                 PreferenceUtils.setFailureUploadlist(BackgroundUploadService.this, uploadFailedList, "key");
 
@@ -459,6 +461,7 @@ public class BackgroundUploadService extends IntentService
                 UploadModel uploadModel = new UploadModel();
                 uploadModel.setFilePath(uploadDAta.getFilePath());
                 uploadModel.setObjectId(uploadDAta.getObjectId());
+                uploadModel.setFileName(uploadDAta.getFileName());
                 uploadFailedList.add(uploadModel);
                 PreferenceUtils.setFailureUploadlist(BackgroundUploadService.this, uploadFailedList, "key");
 

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -61,13 +62,14 @@ public class UploadListAdapter extends RecyclerView.Adapter<UploadListAdapter.Vi
 
         if(uploadList!=null && uploadList.size()>0) {
             /*uploadList = PreferenceUtils.getupload(context,"key");*/
-            String filename = uploadList.get(position).getFilePath().substring(uploadList.get(position).getFilePath().lastIndexOf("/") + 1);
+          //  String filename = uploadList.get(position).getFilePath().substring(uploadList.get(position).getFilePath().lastIndexOf("/") + 1);
+            String fileName =  uploadList.get(position).getFileName();
             String extension = uploadList.get(position).getFilePath().substring(uploadList.get(position).getFilePath().lastIndexOf(".")+1);
 
-            if (filename.indexOf(".") > 0)
-                filename = filename.substring(0, filename.lastIndexOf("."));
+            if (fileName.indexOf(".") > 0)
+                fileName = fileName.substring(0, fileName.lastIndexOf("."));
 
-            holder.edit_filename.setText(filename);
+            holder.edit_filename.setText(fileName);
 
             holder.extension_name.setText("."+extension);
             holder.thumbnailView.setVisibility(View.VISIBLE);
@@ -92,11 +94,24 @@ public class UploadListAdapter extends RecyclerView.Adapter<UploadListAdapter.Vi
                 @Override
                 public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-                    String existingFilename = uploadList.get(position).getFilePath().substring(uploadList.get(position).getFilePath().lastIndexOf("/") + 1);
+                   /* String existingFilename = uploadList.get(position).getFilePath().substring(uploadList.get(position).getFilePath().lastIndexOf("/") + 1);
                     String newFileName = uploadList.get(position).getFilePath().replace(existingFilename, holder.edit_filename.getText().toString().trim()+
                             holder.extension_name.getText().toString());
+                    uploadList.get(position).setFilePath(newFileName);*/
 
-                    uploadList.get(position).setFilePath(newFileName);
+                   if(holder.edit_filename.getText().toString().trim().equals(""))
+                   {
+                       uploadList.get(position).setFileName("");
+                       DrawableCompat.setTint(holder.edit_filename.getBackground(), ContextCompat.getColor(context, R.color.dark_red));
+                   }
+                   else
+                   {
+                       uploadList.get(position).setFileName(holder.edit_filename.getText().toString().trim()+
+                               holder.extension_name.getText().toString());
+                       DrawableCompat.setTint(holder.edit_filename.getBackground(), ContextCompat.getColor(context, R.color.sky_blue));
+                   }
+
+
                 }
 
                 @Override

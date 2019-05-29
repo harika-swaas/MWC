@@ -35,7 +35,8 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/toolbar_layout"
             android:layout_marginBottom="38dp"
-            android:clickable="true">
+           android:focusableInTouchMode="true"
+            >
 
             <android.support.v7.widget.RecyclerView
                 android:layout_width="match_parent"

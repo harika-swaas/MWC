@@ -2112,13 +2112,14 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                             uri = item.getUri();
                             uris.add(uri);
 
-                            String filePath = getRealPathFromURIPath(uri, context);
+                              String filePath = getRealPathFromURIPath(uri, context);
 
-                            //  File file = new File(filePath);
+                              File file = new File(filePath);
 
                             UploadModel uploadModel = new UploadModel();
                             uploadModel.setFilePath(String.valueOf(filePath));
                             uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
+                            uploadModel.setFileName(file.getName());
                             list_upload.add(uploadModel);
                             PreferenceUtils.setImageUploadList(context,list_upload,"key");
                             //   PreferenceUtils.setupload(getContext(),list_upload,"key");
@@ -2130,7 +2131,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                         uri = data.getData();
 
                         String filePath = getRealPathFromURIPath(uri, context);
-                        //File file = new File(filePath);
+                        File file = new File(filePath);
 
                       /*  ArrayList<String> filePathList = new ArrayList<String>();
                         filePathList.add(filePath);*/
@@ -2138,6 +2139,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                         UploadModel uploadModel = new UploadModel();
                         uploadModel.setFilePath(String.valueOf(filePath));
                         uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
+                        uploadModel.setFileName(file.getName());
                         list_upload.add(uploadModel);
                         PreferenceUtils.setImageUploadList(context,list_upload,"key");
 
@@ -2147,9 +2149,11 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 if((list_upload == null )||(list_upload.size()==0))
                 {
                     String filepath = getRealPathFromURIPath(fileUri, context);
+                    File file = new File(filepath);
                     UploadModel uploadModel = new UploadModel();
                     uploadModel.setFilePath(filepath);
                     uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
+                    uploadModel.setFileName(file.getName());
                     list_upload.add(uploadModel);
                     PreferenceUtils.setImageUploadList(context,list_upload,"key");
                 }
@@ -2164,10 +2168,11 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
             if (resultCode == RESULT_OK) {
 
                 String filePath = fileUri.getPath();
-
+                File file = new File(filePath);
                 UploadModel uploadModel = new UploadModel();
                 uploadModel.setFilePath(String.valueOf(filePath));
                 uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
+                uploadModel.setFileName(file.getName());
                 list_upload.add(uploadModel);
                 PreferenceUtils.setImageUploadList(context,list_upload,"key");
 
@@ -2195,9 +2200,12 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 list_upload = new ArrayList<>();
             }
 
+            File file = new File(filePath);
+
             UploadModel uploadModel = new UploadModel();
             uploadModel.setFilePath(String.valueOf(filePath));
             uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
+            uploadModel.setFileName(file.getName());
             list_upload.add(uploadModel);
             PreferenceUtils.setImageUploadList(context,list_upload,"key");
             list_upload.clear();
@@ -2219,9 +2227,12 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                     list_upload = new ArrayList<>();
                 }
 
+                File filename = new File(path);
+
                 UploadModel uploadModel = new UploadModel();
                 uploadModel.setFilePath(path);
                 uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
+                uploadModel.setFileName(filename.getName());
                 list_upload.add(uploadModel);
 
                 PreferenceUtils.setImageUploadList(NavigationMyFolderActivity.this,list_upload,"key");
@@ -2244,9 +2255,11 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 }
                 if(path != null)
                 {
+                    File filename = new File(path);
                     UploadModel uploadModel = new UploadModel();
                     uploadModel.setFilePath(path);
                     uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
+                    uploadModel.setFileName(filename.getName());
                     list_upload.add(uploadModel);
                 }
 
@@ -2269,9 +2282,11 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 }
                 if(path != null)
                 {
+                    File filename = new File(path);
                     UploadModel uploadModel = new UploadModel();
                     uploadModel.setFilePath(path);
                     uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
+                    uploadModel.setFileName(filename.getName());
                     list_upload.add(uploadModel);
                 }
                 PreferenceUtils.setImageUploadList(NavigationMyFolderActivity.this,list_upload,"key");
@@ -5086,6 +5101,7 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                     if (filePath != null && !filePath.isEmpty()) {
                         UploadModel uploadModel = new UploadModel();
                         uploadModel.setFilePath(filePath);
+                        fileItem
                         fileUploadList.add(uploadModel);
                     }
 
@@ -5112,9 +5128,11 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 }
                 else
                 {
+                    File filename = new File(fileItem.getFilePath());
                     UploadModel uploadModel = new UploadModel();
                     uploadModel.setFilePath(fileItem.getFilePath());
                     uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
+                    uploadModel.setFileName(filename.getName());
                     belowSizeFileList.add(uploadModel);
                 }
             }
@@ -5145,9 +5163,11 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                 String pathName = fileName.getFilePath().substring(fileName.getFilePath().lastIndexOf(".")+1);
                 if(pathName != null && !pathName.equalsIgnoreCase(fileName.getFilePath()))
                 {
+                    File file = new File(fileName.getFilePath());
                     UploadModel uploadModel = new UploadModel();
                     uploadModel.setFilePath(fileName.getFilePath());
                     uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
+                    uploadModel.setFileName(file.getName());
                     filteredDataList.add(uploadModel);
 
                 }
@@ -5169,9 +5189,11 @@ public class NavigationMyFolderActivity extends BaseActivity implements SwipeRef
                     {
                         if(fileExtension.equalsIgnoreCase(fileFormat))
                         {
+                            File file = new File(fileItem.getFilePath());
                             UploadModel uploadModel = new UploadModel();
                             uploadModel.setFilePath(fileItem.getFilePath());
                             uploadModel.setObjectId(PreferenceUtils.getObjectId(context));
+                            uploadModel.setFileName(file.getName());
                             OriginalUploadList.add(uploadModel);
                         }
                     }
