@@ -59,6 +59,7 @@ import com.mwc.docportal.Dialogs.LoadingProgressDialog;
 import com.mwc.docportal.Login.LoginActivity;
 import com.mwc.docportal.RootActivity;
 import com.mwc.docportal.Scanning.camera.Scanning_List_Activity;
+import com.mwc.docportal.Utils.Constants;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.RequestBody;
 import com.mwc.docportal.API.Model.UploadDocumentResponse;
@@ -285,39 +286,6 @@ public class UploadListActivity extends RootActivity {
         });
     }
 
-    private void showFileValidationAlert()
-    {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
-        builder.setView(view);
-        builder.setCancelable(false);
-
-        TextView title = (TextView) view.findViewById(R.id.title);
-        title.setText("Alert");
-
-        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
-
-        txtMessage.setText("Some file names are missing.");
-
-        Button okButton = (Button) view.findViewById(R.id.send_pin_button);
-        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-
-        cancelButton.setVisibility(View.GONE);
-
-        okButton.setText("Ok");
-
-        okButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mAlertDialog.dismiss();
-            }
-        });
-
-
-        mAlertDialog = builder.create();
-        mAlertDialog.show();
-    }
 
     private void showCancelAlert()
     {
@@ -332,7 +300,7 @@ public class UploadListActivity extends RootActivity {
 
         TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 
-        txtMessage.setText("Are you sure want to cancel all the uploads?");
+        txtMessage.setText(Constants.UploadCancelAlert);
 
         Button okButton = (Button) view.findViewById(R.id.send_pin_button);
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
@@ -1268,6 +1236,7 @@ public class UploadListActivity extends RootActivity {
                 break;
 
             case R.id.action_add:
+                PreferenceUtils.setImageUploadList(context, UploadList, "key");
                 openBottomSheet();
                 break;
 

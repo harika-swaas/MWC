@@ -8,6 +8,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -84,7 +85,7 @@ public class UploadListAdapter extends RecyclerView.Adapter<UploadListAdapter.Vi
 
             holder.done.setBackgroundTintList(ColorStateList.valueOf(context.getResources().getColor(R.color.upload_success_color)));
             holder.failureIcon.setBackgroundTintList(ColorStateList.valueOf(context.getResources().getColor(R.color.magenta)));
-
+            holder.edit_filename.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
             holder.edit_filename.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {

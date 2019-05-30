@@ -87,6 +87,11 @@ public class Constants {
     public static final String NO_SORTING_TEXT = "Sort";
 
     public static final String ACTION_CANCEL = "com.mwc.docportal.CANCEL";
+    public static final String ScanAlert  = "Are you sure you want to discard this scan?";
+    public static final String DeleteAlert  = "Are you sure you want to delete this page?";
+    public static final String UploadCancelAlert = "Are you sure you want to cancel all the uploads?";
+
+    public static final String Genius_Scan_License_Key = "533c5005525702030257005839525a0e4a0e45071a525d5a1259461256546f0157025550080c040452";
 
 }
 

@@ -6,11 +6,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.RectShape;
-import android.net.Uri;
-import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,41 +13,31 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.text.Editable;
-import android.text.InputFilter;
-import android.text.InputType;
-import android.text.Selection;
 import android.text.SpannableString;
-import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.clans.fab.FloatingActionMenu;
 import com.mwc.docportal.API.Model.UploadModel;
 import com.mwc.docportal.API.Model.WhiteLabelResponse;
-import com.mwc.docportal.BuildConfig;
-import com.mwc.docportal.DMS.NavigationMyFolderActivity;
 import com.mwc.docportal.DMS.UploadListActivity;
 import com.mwc.docportal.Database.AccountSettings;
 import com.mwc.docportal.GridAutofitLayoutManager;
-import com.mwc.docportal.MainActivity;
 import com.mwc.docportal.Preference.PreferenceUtils;
 import com.mwc.docportal.R;
 import com.mwc.docportal.Scanning.enhance.PdfGenerationTask;
 import com.mwc.docportal.Scanning.model.DocumentManager;
 import com.mwc.docportal.Scanning.model.Page;
+import com.mwc.docportal.Utils.Constants;
 import com.mwc.docportal.Utils.DateHelper;
 import com.thegrizzlylabs.geniusscan.sdk.core.GeniusScanLibrary;
 import com.thegrizzlylabs.geniusscan.sdk.core.LicenseException;
@@ -131,9 +116,7 @@ public class Scanning_List_Activity extends AppCompatActivity implements OnStart
                 DocumentManager.getInstance(Scanning_List_Activity.this).getPages().clear();
                 imageViewAdapter.notifyDataSetChanged();
                 invalidateOptionsMenu();
-                save_pdf_layout.setVisibility(View.GONE);
-                empty_list_data.setVisibility(View.VISIBLE);
-                image_recycler_view.setVisibility(View.GONE);
+                hideScanlayout();
 
             }
         });
@@ -141,62 +124,46 @@ public class Scanning_List_Activity extends AppCompatActivity implements OnStart
 
     }
 
-    private void showFileNameEditAlertDialog()
+    private void showWarningAlertDialog(String displayMessage, boolean isDelete)
     {
-        final android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(context);
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(context);
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.editname_alert, null);
+        View view = inflater.inflate(R.layout.pin_verification_alert_layout, null);
         builder.setView(view);
         builder.setCancelable(false);
 
-        Button cancel = (Button) view.findViewById(R.id.cancel_button);
-        Button allow = (Button) view.findViewById(R.id.ok_button);
-        final EditText filename = (EditText) view.findViewById(R.id.edit_filename);
-        String imagePath = DateHelper.getCurrentTime();
-        filename.setText("Scan "+imagePath);
-      //  Selection.setSelection(filename.getText(), filename.getText().length());
-        filename.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText("Alert");
 
-        /*filename.addTextChangedListener(new TextWatcher() {
+        TextView txtMessage = (TextView) view.findViewById(R.id.txt_message);
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // TODO Auto-generated method stub
-            }
+        txtMessage.setText(displayMessage);
 
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count,
-                                          int after) {
-                // TODO Auto-generated method stub
-            }
+        Button okButton = (Button) view.findViewById(R.id.send_pin_button);
+        Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
-            @Override
-            public void afterTextChanged(Editable s) {
-                if(!s.toString().contains(".pdf")){
-                    filename.setText(".pdf");
-                    Selection.setSelection(filename.getText(), filename.getText().length());
-                }
-            }
-        });
-*/
+        cancelButton.setText("No");
 
-        allow.setOnClickListener(new View.OnClickListener() {
+        okButton.setText("Yes");
+
+        okButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String editFileName = filename.getText().toString().trim();
-                if(editFileName != null && !editFileName.isEmpty())
+                mAlertDialog.dismiss();
+                if(isDelete)
                 {
-                    generatePDFAndUpload();
+                    deleteParticularItem();
                 }
                 else
                 {
-                    Toast.makeText(context, getString(R.string.filename_txt), Toast.LENGTH_SHORT).show();
+                    DocumentManager.getInstance(context).getPages().clear();
+                    finish();
                 }
 
             }
         });
 
-        cancel.setOnClickListener(new View.OnClickListener() {
+        cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mAlertDialog.dismiss();
@@ -205,7 +172,6 @@ public class Scanning_List_Activity extends AppCompatActivity implements OnStart
 
         mAlertDialog = builder.create();
         mAlertDialog.show();
-
 
     }
 
@@ -237,7 +203,7 @@ public class Scanning_List_Activity extends AppCompatActivity implements OnStart
 
         try {
             // Replace this key by your key
-            GeniusScanLibrary.init(this, "533c5005525702030257005839525a0e4a0e45071a525d5a1259461256546f0157025550080c040452");
+            GeniusScanLibrary.init(this, Constants.Genius_Scan_License_Key);
         } catch(LicenseException e) {
             new AlertDialog.Builder(this)
                     .setMessage("This version is not valid anymore. Please update to the latest version.")
@@ -308,9 +274,7 @@ public class Scanning_List_Activity extends AppCompatActivity implements OnStart
         }
         else
         {
-            save_pdf_layout.setVisibility(View.GONE);
-            empty_list_data.setVisibility(View.VISIBLE);
-            image_recycler_view.setVisibility(View.GONE);
+            hideScanlayout();
         }
 
     }
@@ -340,7 +304,6 @@ public class Scanning_List_Activity extends AppCompatActivity implements OnStart
             }
         };
         int mNoOfColumns = GridAutofitLayoutManager.calculateNoOfColumns(getApplicationContext());
-      //  int mNoOfColumns = 3;
         image_recycler_view.setLayoutManager(new GridLayoutManager(context, mNoOfColumns));
         imageViewAdapter = new ImageViewAdapter(pages, context, listenerr, this);
 
@@ -362,8 +325,15 @@ public class Scanning_List_Activity extends AppCompatActivity implements OnStart
         }
         else
         {
-            DocumentManager.getInstance(context).getPages().clear();
-            finish();
+            if(DocumentManager.getInstance(context).getPages().size() > 0)
+            {
+                showWarningAlertDialog(Constants.ScanAlert, false);
+            }
+            else
+            {
+                DocumentManager.getInstance(context).getPages().clear();
+                finish();
+            }
         }
         invalidateOptionsMenu();
 
@@ -400,7 +370,7 @@ public class Scanning_List_Activity extends AppCompatActivity implements OnStart
                 onBackPressed();
                 break;
             case R.id.action_delete:
-                deleteParticularItem();
+                showWarningAlertDialog(Constants.DeleteAlert, true);
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -429,9 +399,7 @@ public class Scanning_List_Activity extends AppCompatActivity implements OnStart
         List<Page> currentListItems = DocumentManager.getInstance(this).getPages();
         if(currentListItems.size() == 0)
         {
-            save_pdf_layout.setVisibility(View.GONE);
-            empty_list_data.setVisibility(View.VISIBLE);
-            image_recycler_view.setVisibility(View.GONE);
+            hideScanlayout();
         }
 
     }
@@ -472,5 +440,12 @@ public class Scanning_List_Activity extends AppCompatActivity implements OnStart
         });
 
         accountSettings.getWhiteLabelProperties();
+    }
+
+    private void hideScanlayout()
+    {
+        save_pdf_layout.setVisibility(View.GONE);
+        empty_list_data.setVisibility(View.VISIBLE);
+        image_recycler_view.setVisibility(View.GONE);
     }
 }

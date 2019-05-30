@@ -258,18 +258,7 @@ public class BackgroundUploadService extends IntentService
                                     uploadData.setSuccess(true); // getting failure documents purpose*/
                                    Log.d("Upload failed: ", String.valueOf(index));
 
-                                    index++;
-                                    mBuilder.setProgress(PreferenceUtils.getCurrentUploadList(mContext, "key").size(), index, false);
-                                    // Displays the progress bar for the first time.
-
-                                    assert mNotifyManager != null;
-                                    mNotifyManager.notify(TAG, notificationId, mBuilder.build());
-
-                                    if (PreferenceUtils.getCurrentUploadList(mContext, "key").size() > index) {
-                                        uploadData(PreferenceUtils.getCurrentUploadList(mContext, "key").get(index));
-                                    } else {
-                                        uploadCompleteMessage();
-                                    }
+                                    nextItemUpload();
                                 }
                                 else
                                 {
@@ -358,18 +347,7 @@ public class BackgroundUploadService extends IntentService
                                     uploadData.setSuccess(true); // getting failure documents purpose*/
                 Log.d("Upload failed: ", String.valueOf(index));
 
-                index++;
-                mBuilder.setProgress(PreferenceUtils.getCurrentUploadList(mContext, "key").size(), index, false);
-                // Displays the progress bar for the first time.
-
-                assert mNotifyManager != null;
-                mNotifyManager.notify(TAG, notificationId, mBuilder.build());
-
-                if (PreferenceUtils.getCurrentUploadList(mContext, "key").size() > index) {
-                    uploadData(PreferenceUtils.getCurrentUploadList(mContext, "key").get(index));
-                } else {
-                    uploadCompleteMessage();
-                }
+                nextItemUpload();
             }
             else
             {
@@ -471,18 +449,7 @@ public class BackgroundUploadService extends IntentService
                                     uploadData.setSuccess(true); */
                 Log.d("Upload failed: ", String.valueOf(index));
 
-                index++;
-                mBuilder.setProgress(PreferenceUtils.getCurrentUploadList(mContext, "key").size(), index, false);
-                // Displays the progress bar for the first time.
-
-                assert mNotifyManager != null;
-                mNotifyManager.notify(TAG, notificationId, mBuilder.build());
-
-                if (PreferenceUtils.getCurrentUploadList(mContext, "key").size() > index) {
-                    uploadData(PreferenceUtils.getCurrentUploadList(mContext, "key").get(index));
-                } else {
-                    uploadCompleteMessage();
-                }
+                nextItemUpload();
             }
             else
             {
@@ -557,4 +524,21 @@ public class BackgroundUploadService extends IntentService
         }
     }
 
+
+    private void nextItemUpload()
+    {
+        index++;
+        mBuilder.setProgress(PreferenceUtils.getCurrentUploadList(mContext, "key").size(), index, false);
+        // Displays the progress bar for the first time.
+
+        assert mNotifyManager != null;
+        mNotifyManager.notify(TAG, notificationId, mBuilder.build());
+
+        if (PreferenceUtils.getCurrentUploadList(mContext, "key").size() > index) {
+            uploadData(PreferenceUtils.getCurrentUploadList(mContext, "key").get(index));
+        } else {
+            uploadCompleteMessage();
+        }
+
+    }
 }
